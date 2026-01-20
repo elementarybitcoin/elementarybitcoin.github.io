@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 19: Compact Block Filters (BIP-157/158) | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .privacy-benefit {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .privacy-benefit h4 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        .golomb-bits {
+            font-family: 'Courier New', monospace;
+            background: #f5f5f5;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="18-bloom-filters.html">← Chapter 18: Bloom Filters</a>
+        <a href="../index.html">Index</a>
+        <a href="20-light-clients.html">Chapter 20: Light Client Architectures →</a>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 19</p>
+            <h1>Compact Block Filters</h1>
+            <p class="chapter-subtitle">BIP-157/158 and Privacy-Preserving Light Clients</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                Compact block filters represent a fundamental redesign of light client filtering.
+                Rather than clients revealing their interests to servers (as in BIP-37), servers
+                pre-compute and publish deterministic filters for each block. Clients download
+                these filters, test them locally, and request full blocks only when relevant.
+            </p>
+            <p>
+                This architectural inversion—server computes, client filters locally—eliminates
+                the privacy leaks inherent in BIP-37 while providing efficient synchronization.
+                The filters use Golomb-Rice coding for exceptional space efficiency, achieving
+                sizes of roughly 1/80th of the full block.
+            </p>
+        </section>
+
+        <div class="privacy-benefit">
+            <h4>Privacy Advantage</h4>
+            <p>
+                <strong>The server learns nothing about client interests.</strong> A client that
+                downloads filter for block N is indistinguishable from any other client downloading
+                that filter. When the client requests the full block, the server learns only that
+                "something in this block is interesting"—not which transactions, addresses, or
+                scripts.
+            </p>
+        </div>
+
+        <section>
+            <h2>19.1 The Architectural Inversion</h2>
+
+            <p>
+                BIP-157/158 inverts the BIP-37 model:
+            </p>
+
+            <figure>
+                <svg viewBox="0 0 700 320" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <!-- Title -->
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        BIP-37 vs BIP-157/158: Architectural Comparison
+                    </text>
+
+                    <!-- BIP-37 side -->
+                    <g transform="translate(30, 50)">
+                        <text x="130" y="0" text-anchor="middle" font-size="12" font-weight="bold">
+                            BIP-37 (Client Filter)
+                        </text>
+
+                        <!-- Client -->
+                        <rect x="0" y="20" width="100" height="50" fill="#ffcdd2" stroke="#c62828" rx="4"/>
+                        <text x="50" y="45" text-anchor="middle" font-size="10">SPV Client</text>
+                        <text x="50" y="58" text-anchor="middle" font-size="8" fill="#666">Creates filter</text>
+
+                        <!-- Arrow: client sends filter -->
+                        <line x1="100" y1="45" x2="160" y2="45" stroke="#c62828" stroke-width="2" marker-end="url(#arrow-red)"/>
+                        <text x="130" y="38" text-anchor="middle" font-size="8" fill="#c62828">filter</text>
+
+                        <!-- Server -->
+                        <rect x="160" y="20" width="100" height="50" fill="#e3f2fd" stroke="#1565c0" rx="4"/>
+                        <text x="210" y="45" text-anchor="middle" font-size="10">Full Node</text>
+                        <text x="210" y="58" text-anchor="middle" font-size="8" fill="#666">Tests blocks</text>
+
+                        <!-- Arrow: server sends matches -->
+                        <line x1="160" y1="65" x2="100" y2="100" stroke="#1565c0" stroke-width="2" marker-end="url(#arrow-blue)"/>
+                        <text x="115" y="78" text-anchor="middle" font-size="8" fill="#1565c0">matches</text>
+
+                        <!-- Problem callout -->
+                        <rect x="20" y="110" width="220" height="50" fill="#fff3e0" stroke="#e65100" rx="4"/>
+                        <text x="130" y="130" text-anchor="middle" font-size="10" fill="#e65100" font-weight="bold">Privacy Problem:</text>
+                        <text x="130" y="145" text-anchor="middle" font-size="9" fill="#e65100">Server learns client's addresses</text>
+                    </g>
+
+                    <!-- Divider -->
+                    <line x1="350" y1="50" x2="350" y2="280" stroke="#ccc" stroke-width="2" stroke-dasharray="5"/>
+
+                    <!-- BIP-157/158 side -->
+                    <g transform="translate(380, 50)">
+                        <text x="130" y="0" text-anchor="middle" font-size="12" font-weight="bold">
+                            BIP-157/158 (Server Filter)
+                        </text>
+
+                        <!-- Server -->
+                        <rect x="160" y="20" width="100" height="50" fill="#e3f2fd" stroke="#1565c0" rx="4"/>
+                        <text x="210" y="45" text-anchor="middle" font-size="10">Full Node</text>
+                        <text x="210" y="58" text-anchor="middle" font-size="8" fill="#666">Pre-computes filter</text>
+
+                        <!-- Arrow: server publishes filter -->
+                        <line x1="160" y1="45" x2="100" y2="45" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-green)"/>
+                        <text x="130" y="38" text-anchor="middle" font-size="8" fill="#4caf50">filter</text>
+
+                        <!-- Client -->
+                        <rect x="0" y="20" width="100" height="50" fill="#e8f5e9" stroke="#2e7d32" rx="4"/>
+                        <text x="50" y="45" text-anchor="middle" font-size="10">SPV Client</text>
+                        <text x="50" y="58" text-anchor="middle" font-size="8" fill="#666">Tests locally</text>
+
+                        <!-- Arrow: client requests block (conditional) -->
+                        <line x1="50" y1="70" x2="50" y2="100" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrow-green)"/>
+                        <text x="80" y="88" text-anchor="start" font-size="8" fill="#2e7d32">if match:</text>
+                        <text x="80" y="98" text-anchor="start" font-size="8" fill="#2e7d32">get full block</text>
+
+                        <!-- Benefit callout -->
+                        <rect x="20" y="110" width="220" height="50" fill="#e8f5e9" stroke="#2e7d32" rx="4"/>
+                        <text x="130" y="130" text-anchor="middle" font-size="10" fill="#2e7d32" font-weight="bold">Privacy Preserved:</text>
+                        <text x="130" y="145" text-anchor="middle" font-size="9" fill="#2e7d32">Server learns nothing about client</text>
+                    </g>
+
+                    <!-- Summary comparison -->
+                    <g transform="translate(30, 230)">
+                        <text x="130" y="15" text-anchor="middle" font-size="10" fill="#666">Client reveals wallet contents</text>
+                        <text x="130" y="30" text-anchor="middle" font-size="10" fill="#666">Server does per-request work</text>
+                        <text x="130" y="45" text-anchor="middle" font-size="10" fill="#666">Bandwidth: ~matches only</text>
+                    </g>
+
+                    <g transform="translate(380, 230)">
+                        <text x="130" y="15" text-anchor="middle" font-size="10" fill="#666">Client reveals nothing</text>
+                        <text x="130" y="30" text-anchor="middle" font-size="10" fill="#666">Server pre-computes once</text>
+                        <text x="130" y="45" text-anchor="middle" font-size="10" fill="#666">Bandwidth: ~all filters + matching blocks</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c62828"/>
+                        </marker>
+                        <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1565c0"/>
+                        </marker>
+                        <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 19.1</strong> — The fundamental difference: BIP-37 has clients
+                    send filters to servers (privacy leak); BIP-157/158 has servers publish
+                    filters that clients test locally (privacy preserved).
+                </figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p><strong>Theorem 19.1</strong> (Privacy Guarantee)</p>
+                <p>
+                    In the BIP-157/158 model, a server cannot distinguish between:
+                </p>
+                <ol>
+                    <li>A client interested in address A</li>
+                    <li>A client interested in address B</li>
+                    <li>A client with no specific interest, just syncing</li>
+                </ol>
+                <p>
+                    All clients downloading the same filter are indistinguishable.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    The filter is deterministically computed from the block contents alone.
+                    Every client receives the identical filter. The client's query (getcfilters)
+                    specifies only the block height range, which is identical regardless of
+                    what addresses the client cares about. The filtering operation happens
+                    entirely on the client side. The only information leaked is when a client
+                    requests a full block, which reveals "I care about something in this
+                    block" but not what. ∎
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>19.2 Golomb-Rice Coding</h2>
+
+            <p>
+                Compact block filters achieve their small size through Golomb-Rice coding,
+                a form of entropy coding that efficiently represents sorted sequences of
+                integers with roughly geometric distribution.
+            </p>
+
+            <h3>Golomb Coding Basics</h3>
+
+            <div class="definition">
+                <p><strong>Definition 19.1</strong> (Golomb Coding)</p>
+                <p>
+                    Given a positive integer <var>n</var> and parameter <var>M</var>, Golomb
+                    coding represents <var>n</var> as:
+                </p>
+                <ul>
+                    <li><strong>Quotient:</strong> q = ⌊n / M⌋, encoded in unary (q ones followed by a zero)</li>
+                    <li><strong>Remainder:</strong> r = n mod M, encoded in binary</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p><strong>Definition 19.2</strong> (Golomb-Rice Coding)</p>
+                <p>
+                    <em>Golomb-Rice coding</em> is Golomb coding where M = 2<sup>P</sup> for
+                    some parameter P. This simplifies the encoding since the remainder is
+                    exactly P bits.
+                </p>
+                <p>
+                    For value <var>n</var>:
+                </p>
+                <ul>
+                    <li><strong>Quotient:</strong> q = n >> P (right shift by P bits)</li>
+                    <li><strong>Remainder:</strong> r = n & ((1 << P) - 1) (low P bits)</li>
+                    <li><strong>Encoding:</strong> [q ones] [0] [P-bit remainder]</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 19.1</strong> (Golomb-Rice Encoding with P=4)</p>
+                <p>Encode n = 25 with P = 4 (M = 16):</p>
+                <ul>
+                    <li>q = 25 >> 4 = 1</li>
+                    <li>r = 25 & 15 = 9 = 1001<sub>2</sub></li>
+                    <li>Encoding: <span class="golomb-bits">1</span><span class="golomb-bits">0</span><span class="golomb-bits">1001</span> = "101001"</li>
+                </ul>
+                <p>Encode n = 7 with P = 4:</p>
+                <ul>
+                    <li>q = 7 >> 4 = 0</li>
+                    <li>r = 7 & 15 = 7 = 0111<sub>2</sub></li>
+                    <li>Encoding: <span class="golomb-bits">0</span><span class="golomb-bits">0111</span> = "00111"</li>
+                </ul>
+            </div>
+
+            <h3>Why Golomb-Rice is Optimal</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 19.2</strong> (Golomb-Rice Optimality)</p>
+                <p>
+                    For a geometric distribution with parameter p, Golomb coding with
+                    M = ⌈-log(2-p) / log(1-p)⌉ achieves expected code length within
+                    1 + log₂(e) ≈ 2.44 bits of the entropy bound.
+                </p>
+            </div>
+
+            <p>
+                The deltas between sorted set elements in a Golomb-coded set (GCS)
+                follow approximately geometric distribution, making Golomb-Rice coding
+                nearly optimal.
+            </p>
+
+            <h3>Golomb-Coded Sets (GCS)</h3>
+
+            <div class="definition">
+                <p><strong>Definition 19.3</strong> (Golomb-Coded Set)</p>
+                <p>
+                    A <em>Golomb-Coded Set</em> represents a set S of N elements with target
+                    false positive rate 1/M (where M = 2<sup>P</sup>):
+                </p>
+                <ol>
+                    <li>Hash each element to the range [0, N·M) using a keyed hash function</li>
+                    <li>Sort the resulting hash values</li>
+                    <li>Compute successive differences (deltas)</li>
+                    <li>Encode deltas using Golomb-Rice with parameter P</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 650 280" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Golomb-Coded Set Construction
+                    </text>
+
+                    <!-- Step 1: Elements -->
+                    <g transform="translate(30, 50)">
+                        <text x="0" y="0" font-size="11" font-weight="bold">1. Original elements:</text>
+                        <rect x="0" y="10" width="80" height="25" fill="#e3f2fd" stroke="#1565c0" rx="3"/>
+                        <text x="40" y="27" text-anchor="middle" font-size="9">script_A</text>
+                        <rect x="90" y="10" width="80" height="25" fill="#e3f2fd" stroke="#1565c0" rx="3"/>
+                        <text x="130" y="27" text-anchor="middle" font-size="9">script_B</text>
+                        <rect x="180" y="10" width="80" height="25" fill="#e3f2fd" stroke="#1565c0" rx="3"/>
+                        <text x="220" y="27" text-anchor="middle" font-size="9">script_C</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 325 90 L 325 105" stroke="#666" fill="none" marker-end="url(#arrow-gray)"/>
+
+                    <!-- Step 2: Hash -->
+                    <g transform="translate(30, 115)">
+                        <text x="0" y="0" font-size="11" font-weight="bold">2. Hash to [0, N·M):</text>
+                        <text x="0" y="20" font-size="10" fill="#666">With N=3, M=16, range = [0, 48)</text>
+                        <rect x="0" y="30" width="60" height="25" fill="#fff3e0" stroke="#ef6c00" rx="3"/>
+                        <text x="30" y="47" text-anchor="middle" font-size="10">7</text>
+                        <rect x="90" y="30" width="60" height="25" fill="#fff3e0" stroke="#ef6c00" rx="3"/>
+                        <text x="120" y="47" text-anchor="middle" font-size="10">23</text>
+                        <rect x="180" y="30" width="60" height="25" fill="#fff3e0" stroke="#ef6c00" rx="3"/>
+                        <text x="210" y="47" text-anchor="middle" font-size="10">41</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 325 175 L 325 190" stroke="#666" fill="none" marker-end="url(#arrow-gray)"/>
+
+                    <!-- Step 3: Sort and delta -->
+                    <g transform="translate(30, 200)">
+                        <text x="0" y="0" font-size="11" font-weight="bold">3. Sort and compute deltas:</text>
+                        <text x="0" y="20" font-size="10" fill="#666">Sorted: 7, 23, 41</text>
+                        <text x="0" y="35" font-size="10" fill="#666">Deltas: 7, 16, 18</text>
+                    </g>
+
+                    <!-- Step 4: Golomb encode -->
+                    <g transform="translate(320, 115)">
+                        <text x="0" y="0" font-size="11" font-weight="bold">4. Golomb-Rice encode (P=4):</text>
+                        <text x="0" y="25" font-size="10">δ=7: q=0, r=7</text>
+                        <text x="120" y="25" font-size="10" font-family="monospace" fill="#1565c0">0|0111</text>
+
+                        <text x="0" y="45" font-size="10">δ=16: q=1, r=0</text>
+                        <text x="120" y="45" font-size="10" font-family="monospace" fill="#1565c0">10|0000</text>
+
+                        <text x="0" y="65" font-size="10">δ=18: q=1, r=2</text>
+                        <text x="120" y="65" font-size="10" font-family="monospace" fill="#1565c0">10|0010</text>
+                    </g>
+
+                    <!-- Final encoding -->
+                    <g transform="translate(320, 200)">
+                        <text x="0" y="0" font-size="11" font-weight="bold">5. Complete encoding:</text>
+                        <rect x="0" y="10" width="200" height="30" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                        <text x="100" y="30" text-anchor="middle" font-size="11" font-family="monospace">
+                            0011110000010 0010
+                        </text>
+                        <text x="0" y="55" font-size="10" fill="#666">17 bits for 3 elements (5.7 bits/element)</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-gray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 19.2</strong> — GCS construction: hash elements to numeric range,
+                    sort, compute deltas, Golomb-Rice encode. The result is highly compact.
+                </figcaption>
+            </figure>
+
+            <h3>Space Efficiency</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 19.3</strong> (GCS Space Efficiency)</p>
+                <p>
+                    A Golomb-Coded Set with N elements and false positive rate 1/M requires
+                    approximately N · (1 + log₂(M)) bits, plus a small constant overhead.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof sketch.</strong></p>
+                <p>
+                    Each delta has expected value M (since N elements are spread over range N·M).
+                    Golomb-Rice with P = log₂(M) encodes values near M optimally. The expected
+                    code length per delta is approximately 1 + P = 1 + log₂(M) bits.
+                    With N deltas, total size ≈ N · (1 + log₂(M)) bits. ∎
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 19.2</strong> (BIP-158 Filter Size)</p>
+                <p>
+                    BIP-158 uses P = 19 (M = 2¹⁹ ≈ 524,288) and parameter F = M.
+                    For a block with N = 2000 scriptPubKeys:
+                </p>
+                <ul>
+                    <li>Filter size ≈ 2000 × (1 + 19) = 40,000 bits = 5,000 bytes</li>
+                    <li>Compared to full block: ~1-2 MB</li>
+                    <li>Ratio: ~1/200 to 1/400</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>19.3 BIP-158 Filter Construction</h2>
+
+            <p>
+                BIP-158 specifies exactly how to construct the "basic" filter type for
+                Bitcoin blocks.
+            </p>
+
+            <h3>Filter Contents</h3>
+
+            <div class="definition">
+                <p><strong>Definition 19.4</strong> (BIP-158 Basic Filter Elements)</p>
+                <p>
+                    The basic filter type (filter_type = 0x00) includes:
+                </p>
+                <ul>
+                    <li>All scriptPubKeys of outputs created in the block</li>
+                    <li>All scriptPubKeys of outputs spent by inputs in the block</li>
+                </ul>
+                <p>
+                    Specifically excluded:
+                </p>
+                <ul>
+                    <li>OP_RETURN outputs (unspendable)</li>
+                    <li>Witness scripts (only committed scriptPubKey)</li>
+                    <li>Coinbase input's scriptSig</li>
+                </ul>
+            </div>
+
+            <h3>Parameters</h3>
+
+            <div class="definition">
+                <p><strong>Definition 19.5</strong> (BIP-158 Parameters)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>P</td>
+                            <td>19</td>
+                            <td>Golomb-Rice parameter (M = 2¹⁹)</td>
+                        </tr>
+                        <tr>
+                            <td>M</td>
+                            <td>784931</td>
+                            <td>Modulus for false positive rate (≈ 1/784931)</td>
+                        </tr>
+                        <tr>
+                            <td>Hash function</td>
+                            <td>SipHash-2-4</td>
+                            <td>Fast, secure keyed hash</td>
+                        </tr>
+                        <tr>
+                            <td>Key</td>
+                            <td>First 16 bytes of block hash</td>
+                            <td>Unique key per block</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Construction Algorithm</h3>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 19.1</strong> (BIP-158 Filter Construction)</p>
+                <pre><code>function ConstructBasicFilter(block):
+    // Collect filter elements
+    elements = []
+    for each tx in block.transactions:
+        for each output in tx.outputs:
+            if output.scriptPubKey not OP_RETURN:
+                elements.append(output.scriptPubKey)
+        for each input in tx.inputs:
+            if not coinbase:
+                elements.append(input.prevout.scriptPubKey)
+
+    // Remove duplicates
+    elements = unique(elements)
+    N = len(elements)
+
+    // Compute hash key from block hash (first 16 bytes, little-endian)
+    key = block.hash[0:16]
+
+    // Hash elements to range [0, F*N)
+    F = 784931
+    hashed = []
+    for elem in elements:
+        h = SipHash(key, elem) mod (F * N)
+        hashed.append(h)
+
+    // Sort and compute deltas
+    sorted_hashes = sort(hashed)
+    deltas = []
+    prev = 0
+    for h in sorted_hashes:
+        deltas.append(h - prev)
+        prev = h
+
+    // Golomb-Rice encode
+    P = 19
+    bits = GolombRiceEncode(deltas, P)
+
+    // Prepend varint N
+    return varint(N) || bits</code></pre>
+            </div>
+
+            <h3>Query Algorithm</h3>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 19.2</strong> (Filter Matching)</p>
+                <pre><code>function MatchFilter(filter, block_hash, query_elements):
+    key = block_hash[0:16]
+    N = filter.N
+    F = 784931
+
+    // Hash query elements
+    query_hashes = set()
+    for elem in query_elements:
+        h = SipHash(key, elem) mod (F * N)
+        query_hashes.add(h)
+
+    // Decode filter and check for matches
+    decoded = GolombRiceDecode(filter.data, P=19, N)
+
+    // Binary search or linear scan for matches
+    for h in decoded:
+        if h in query_hashes:
+            return true  // Possible match
+
+    return false  // Definitely no match</code></pre>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 19.3</strong> (Wallet Sync with Compact Filters)</p>
+                <p>
+                    A wallet with 50 addresses syncs the blockchain:
+                </p>
+                <ol>
+                    <li>For each block, download the ~5KB filter</li>
+                    <li>Hash wallet's 50 scriptPubKeys with block's key</li>
+                    <li>Check if any hash appears in the decoded filter</li>
+                    <li>If match: download full block (~1.5MB), extract relevant transactions</li>
+                    <li>If no match: continue to next block (no download)</li>
+                </ol>
+                <p>
+                    Expected false positive rate: 1/784931 per scriptPubKey per block.
+                    With 50 addresses: ~1/15698 per block ≈ one false positive every ~2.3 days.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>19.4 BIP-157 Protocol</h2>
+
+            <p>
+                BIP-157 defines the network protocol for requesting and serving compact
+                block filters.
+            </p>
+
+            <h3>New Message Types</h3>
+
+            <div class="definition">
+                <p><strong>Definition 19.6</strong> (BIP-157 Messages)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Message</th>
+                            <th>Direction</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>getcfilters</code></td>
+                            <td>C → S</td>
+                            <td>Request filters for a range of blocks</td>
+                        </tr>
+                        <tr>
+                            <td><code>cfilter</code></td>
+                            <td>S → C</td>
+                            <td>A single block's filter</td>
+                        </tr>
+                        <tr>
+                            <td><code>getcfheaders</code></td>
+                            <td>C → S</td>
+                            <td>Request filter header chain</td>
+                        </tr>
+                        <tr>
+                            <td><code>cfheaders</code></td>
+                            <td>S → C</td>
+                            <td>Filter headers for verification</td>
+                        </tr>
+                        <tr>
+                            <td><code>getcfcheckpt</code></td>
+                            <td>C → S</td>
+                            <td>Request filter checkpoints</td>
+                        </tr>
+                        <tr>
+                            <td><code>cfcheckpt</code></td>
+                            <td>S → C</td>
+                            <td>Evenly-spaced filter header hashes</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Filter Header Chain</h3>
+
+            <p>
+                To allow verification without downloading all filters, BIP-157 defines
+                a chain of filter headers:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 19.7</strong> (Filter Header)</p>
+                <p>
+                    The filter header for block N is:
+                </p>
+                <div class="formula">
+                    filter_header<sub>N</sub> = SHA256(SHA256(filter<sub>N</sub>) || filter_header<sub>N-1</sub>)
+                </div>
+                <p>
+                    Where filter<sub>N</sub> is the raw filter bytes and filter_header<sub>-1</sub> = 0x00...00 (32 zero bytes).
+                </p>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 650 200" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Filter Header Chain Structure
+                    </text>
+
+                    <!-- Block 0 -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="100" height="40" fill="#e3f2fd" stroke="#1565c0" rx="3"/>
+                        <text x="50" y="25" text-anchor="middle" font-size="10">Filter₀</text>
+
+                        <rect x="0" y="50" width="100" height="40" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                        <text x="50" y="73" text-anchor="middle" font-size="9">Header₀ =</text>
+                        <text x="50" y="85" text-anchor="middle" font-size="8">H(F₀ || 0x00...)</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <line x1="135" y1="90" x2="165" y2="90" stroke="#666" stroke-width="2" marker-end="url(#arrow-gray2)"/>
+
+                    <!-- Block 1 -->
+                    <g transform="translate(170, 50)">
+                        <rect x="0" y="0" width="100" height="40" fill="#e3f2fd" stroke="#1565c0" rx="3"/>
+                        <text x="50" y="25" text-anchor="middle" font-size="10">Filter₁</text>
+
+                        <rect x="0" y="50" width="100" height="40" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                        <text x="50" y="73" text-anchor="middle" font-size="9">Header₁ =</text>
+                        <text x="50" y="85" text-anchor="middle" font-size="8">H(F₁ || H₀)</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <line x1="275" y1="90" x2="305" y2="90" stroke="#666" stroke-width="2" marker-end="url(#arrow-gray2)"/>
+
+                    <!-- Block 2 -->
+                    <g transform="translate(310, 50)">
+                        <rect x="0" y="0" width="100" height="40" fill="#e3f2fd" stroke="#1565c0" rx="3"/>
+                        <text x="50" y="25" text-anchor="middle" font-size="10">Filter₂</text>
+
+                        <rect x="0" y="50" width="100" height="40" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                        <text x="50" y="73" text-anchor="middle" font-size="9">Header₂ =</text>
+                        <text x="50" y="85" text-anchor="middle" font-size="8">H(F₂ || H₁)</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <line x1="415" y1="90" x2="445" y2="90" stroke="#666" stroke-width="2" marker-end="url(#arrow-gray2)"/>
+
+                    <!-- Block N -->
+                    <g transform="translate(450, 50)">
+                        <text x="50" y="25" text-anchor="middle" font-size="14" fill="#666">...</text>
+
+                        <rect x="70" y="0" width="100" height="40" fill="#e3f2fd" stroke="#1565c0" rx="3"/>
+                        <text x="120" y="25" text-anchor="middle" font-size="10">Filterₙ</text>
+
+                        <rect x="70" y="50" width="100" height="40" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                        <text x="120" y="73" text-anchor="middle" font-size="9">Headerₙ =</text>
+                        <text x="120" y="85" text-anchor="middle" font-size="8">H(Fₙ || Hₙ₋₁)</text>
+                    </g>
+
+                    <!-- Note -->
+                    <text x="325" y="160" text-anchor="middle" font-size="10" fill="#666">
+                        Each header commits to all previous filters, enabling efficient verification
+                    </text>
+
+                    <defs>
+                        <marker id="arrow-gray2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 19.3</strong> — Filter header chain: each header commits to
+                    the current filter and all previous headers, forming a verifiable chain.
+                </figcaption>
+            </figure>
+
+            <h3>Sync Protocol Flow</h3>
+
+            <figure>
+                <svg viewBox="0 0 650 450" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        BIP-157 Synchronization Flow
+                    </text>
+
+                    <!-- Entities -->
+                    <text x="130" y="55" text-anchor="middle" font-size="12" font-weight="bold">Light Client</text>
+                    <line x1="130" y1="65" x2="130" y2="430" stroke="#333" stroke-width="2"/>
+
+                    <text x="520" y="55" text-anchor="middle" font-size="12" font-weight="bold">Full Node</text>
+                    <line x1="520" y1="65" x2="520" y2="430" stroke="#333" stroke-width="2"/>
+
+                    <!-- Phase 1: Checkpoints -->
+                    <text x="20" y="85" font-size="10" font-weight="bold" fill="#666">Phase 1: Checkpoints</text>
+
+                    <line x1="135" y1="100" x2="515" y2="100" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-b)"/>
+                    <rect x="240" y="85" width="170" height="25" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
+                    <text x="325" y="102" text-anchor="middle" font-size="9">getcfcheckpt (filter_type, stop_hash)</text>
+
+                    <line x1="515" y1="135" x2="135" y2="135" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-g)"/>
+                    <rect x="220" y="120" width="210" height="25" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                    <text x="325" y="137" text-anchor="middle" font-size="9">cfcheckpt (headers at every 1000 blocks)</text>
+
+                    <!-- Phase 2: Headers -->
+                    <text x="20" y="175" font-size="10" font-weight="bold" fill="#666">Phase 2: Headers</text>
+
+                    <line x1="135" y1="190" x2="515" y2="190" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-b)"/>
+                    <rect x="220" y="175" width="210" height="25" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
+                    <text x="325" y="192" text-anchor="middle" font-size="9">getcfheaders (filter_type, start, stop_hash)</text>
+
+                    <line x1="515" y1="225" x2="135" y2="225" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-g)"/>
+                    <rect x="240" y="210" width="170" height="25" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                    <text x="325" y="227" text-anchor="middle" font-size="9">cfheaders (filter_hashes batch)</text>
+
+                    <!-- Client verifies -->
+                    <rect x="15" y="240" width="110" height="35" fill="#fff9c4" stroke="#f9a825" rx="3"/>
+                    <text x="70" y="258" text-anchor="middle" font-size="8">Verify headers</text>
+                    <text x="70" y="268" text-anchor="middle" font-size="8">match checkpoints</text>
+
+                    <!-- Phase 3: Filters -->
+                    <text x="20" y="300" font-size="10" font-weight="bold" fill="#666">Phase 3: Filters</text>
+
+                    <line x1="135" y1="315" x2="515" y2="315" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-b)"/>
+                    <rect x="230" y="300" width="190" height="25" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
+                    <text x="325" y="317" text-anchor="middle" font-size="9">getcfilters (filter_type, start, stop_hash)</text>
+
+                    <line x1="515" y1="350" x2="135" y2="350" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-g)"/>
+                    <rect x="260" y="335" width="130" height="25" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                    <text x="325" y="352" text-anchor="middle" font-size="9">cfilter × N (filters)</text>
+
+                    <!-- Client processes -->
+                    <rect x="15" y="365" width="110" height="55" fill="#fff9c4" stroke="#f9a825" rx="3"/>
+                    <text x="70" y="383" text-anchor="middle" font-size="8">For each filter:</text>
+                    <text x="70" y="395" text-anchor="middle" font-size="8">1. Verify H(filter)</text>
+                    <text x="70" y="407" text-anchor="middle" font-size="8">2. Match addresses</text>
+                    <text x="70" y="419" text-anchor="middle" font-size="8">3. If match: getdata</text>
+
+                    <defs>
+                        <marker id="arrow-b" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+                        </marker>
+                        <marker id="arrow-g" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 19.4</strong> — Three-phase sync: (1) download checkpoints for
+                    coarse verification, (2) download headers to verify filter chain, (3) download
+                    and process individual filters.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>19.5 Security Analysis</h2>
+
+            <h3>False Positive Rate</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 19.4</strong> (BIP-158 False Positive Rate)</p>
+                <p>
+                    For a filter with N elements and a query set of size Q, the probability
+                    of at least one false positive is:
+                </p>
+                <div class="formula">
+                    P(false positive) = 1 - (1 - 1/M)<sup>Q</sup> ≈ Q/M
+                </div>
+                <p>
+                    With M = 784931, a wallet with 100 addresses has approximately 1/7849
+                    chance of false positive per block.
+                </p>
+            </div>
+
+            <h3>Filter Authenticity</h3>
+
+            <div class="definition">
+                <p><strong>Problem 19.1</strong> (Malicious Filter Attack)</p>
+                <p>
+                    A malicious node could serve incorrect filters:
+                </p>
+                <ul>
+                    <li><strong>Omission attack:</strong> Remove elements to hide transactions</li>
+                    <li><strong>Addition attack:</strong> Add elements to increase false positives</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 19.5</strong> (Filter Verification)</p>
+                <p>
+                    A light client can detect filter manipulation by:
+                </p>
+                <ol>
+                    <li>Querying multiple independent peers for filter headers</li>
+                    <li>Verifying all peers return identical filter_header<sub>N</sub></li>
+                    <li>Verifying received filter hashes to filter_header<sub>N</sub></li>
+                </ol>
+                <p>
+                    If k honest peers exist among n queried, detection probability approaches
+                    1 as k increases.
+                </p>
+            </div>
+
+            <p>
+                Unlike BIP-37 where the server could silently omit matching transactions,
+                BIP-157/158 filters are deterministic. Any tampering changes the filter
+                hash, which is detectable by querying multiple peers.
+            </p>
+
+            <h3>Privacy Analysis</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 19.6</strong> (Privacy Bounds)</p>
+                <p>
+                    Information leaked per block request:
+                </p>
+                <ul>
+                    <li><strong>Filter download:</strong> Zero bits (all clients download same filter)</li>
+                    <li><strong>Full block request after match:</strong> log₂(N) bits where N is
+                        number of scriptPubKeys in block (server learns "client cares about one of N scripts")</li>
+                </ul>
+            </div>
+
+            <p>
+                The privacy loss from requesting matching blocks is minimal:
+            </p>
+
+            <ul>
+                <li>Average block has ~2000-3000 unique scriptPubKeys</li>
+                <li>Information leaked: ~11-12 bits per matched block</li>
+                <li>With multiple matches per block: even less specific</li>
+                <li>False positives provide additional cover</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>19.6 Implementation Considerations</h2>
+
+            <h3>Storage Requirements</h3>
+
+            <div class="example">
+                <p><strong>Example 19.4</strong> (Filter Chain Size)</p>
+                <p>
+                    For the entire Bitcoin blockchain (as of early 2024, ~830,000 blocks):
+                </p>
+                <ul>
+                    <li>Average filter size: ~15-20 KB (varies with block size)</li>
+                    <li>Total filter data: ~15 GB</li>
+                    <li>Filter headers only: 830,000 × 32 = ~27 MB</li>
+                    <li>Compare to full blockchain: ~550 GB</li>
+                </ul>
+                <p>
+                    A light client can store just headers (~27 MB) and download filters
+                    on demand, or cache recent filters.
+                </p>
+            </div>
+
+            <h3>Bandwidth Comparison</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Approach</th>
+                        <th>Initial Sync</th>
+                        <th>Per Block (ongoing)</th>
+                        <th>Privacy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Full node</td>
+                        <td>~550 GB</td>
+                        <td>~1.5 MB</td>
+                        <td>Perfect</td>
+                    </tr>
+                    <tr>
+                        <td>BIP-37 (Bloom)</td>
+                        <td>~matched only</td>
+                        <td>~matched only</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td>BIP-157/158</td>
+                        <td>~15 GB filters</td>
+                        <td>~20 KB + matched blocks</td>
+                        <td>Good</td>
+                    </tr>
+                    <tr>
+                        <td>Headers only</td>
+                        <td>~60 MB</td>
+                        <td>80 bytes</td>
+                        <td>Requires trust</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Client Implementation</h3>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 19.3</strong> (Light Client Wallet Sync)</p>
+                <pre><code>function SyncWallet(wallet):
+    // Get current block height
+    tip = GetBestBlockHeader()
+
+    // Get filter headers from multiple peers
+    filter_headers = {}
+    for peer in peers:
+        fh = peer.getcfheaders(wallet.last_synced, tip)
+        filter_headers[peer] = fh
+
+    // Verify consensus on filter headers
+    if not AllEqual(filter_headers.values()):
+        // Mismatch detected - query more peers, identify liar
+        HandleFilterMismatch(filter_headers)
+        return
+
+    // Download and process filters
+    for height in range(wallet.last_synced + 1, tip.height + 1):
+        filter = GetFilter(height)
+
+        // Verify filter matches header
+        assert SHA256d(filter) == filter_headers[height]
+
+        // Test wallet addresses against filter
+        if MatchFilter(filter, wallet.scriptPubKeys):
+            // Potential match - download full block
+            block = GetBlock(height)
+
+            // Extract relevant transactions
+            for tx in block.transactions:
+                if IsRelevant(tx, wallet):
+                    wallet.ProcessTransaction(tx)
+
+    wallet.last_synced = tip.height</code></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>19.7 Neutrino: A Reference Implementation</h2>
+
+            <p>
+                Neutrino is the reference light client implementation of BIP-157/158,
+                originally developed for lnd (Lightning Network Daemon).
+            </p>
+
+            <h3>Key Features</h3>
+
+            <ul>
+                <li><strong>Header-first sync:</strong> Downloads block headers before filters</li>
+                <li><strong>Multi-peer querying:</strong> Verifies filters across multiple peers</li>
+                <li><strong>Parallel downloads:</strong> Fetches filters and blocks concurrently</li>
+                <li><strong>Persistence:</strong> Caches filter headers and recent filters</li>
+            </ul>
+
+            <h3>Integration with Lightning</h3>
+
+            <p>
+                Neutrino enables Lightning Network nodes to operate without a full Bitcoin
+                node, trading some security for reduced resource requirements:
+            </p>
+
+            <ul>
+                <li>Monitors funding transaction confirmations</li>
+                <li>Detects channel breach attempts</li>
+                <li>Watches for HTLC timeouts</li>
+                <li>All without revealing which channels belong to the user</li>
+            </ul>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 19.1</strong></p>
+                <p>
+                    Implement Golomb-Rice encoding and decoding. Verify that decoding the
+                    encoding of a sequence returns the original sequence.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 19.2</strong></p>
+                <p>
+                    Calculate the expected filter size for a block with 3000 transactions,
+                    averaging 2 inputs and 2 outputs each (with 10% address reuse).
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 19.3</strong></p>
+                <p>
+                    Prove that if a client queries k independent peers for filter headers and
+                    at least one is honest, any filter manipulation will be detected with
+                    probability 1 - (1/k).
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 19.4</strong></p>
+                <p>
+                    A wallet tracks 200 addresses. Over 1000 blocks, how many false positive
+                    block downloads should be expected? What is the bandwidth overhead compared
+                    to perfect filtering?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 19.5</strong></p>
+                <p>
+                    Design an attack where a malicious node provides valid filters but
+                    selectively delays filter delivery to infer client interests. How might
+                    a client defend against this?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 19.6</strong></p>
+                <p>
+                    Compare the total bandwidth for initial blockchain sync using:
+                    (a) full node, (b) BIP-157/158 with 100 addresses, (c) BIP-37 with
+                    0.001 false positive rate. Assume 800,000 blocks with average 2000 txs each.
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    BIP-157/158 inverts the BIP-37 model: servers pre-compute and publish
+                    deterministic filters; clients download and test locally.
+                </li>
+                <li>
+                    This architectural change eliminates the privacy leaks inherent in
+                    revealing your filter to the server.
+                </li>
+                <li>
+                    Golomb-Rice coding provides near-optimal compression for set membership
+                    data, achieving filter sizes of ~1/80th of full block size.
+                </li>
+                <li>
+                    The false positive rate of 1/784931 per element provides good privacy
+                    cover while keeping bandwidth overhead minimal.
+                </li>
+                <li>
+                    Filter header chains allow verification without downloading all filters,
+                    and querying multiple peers detects filter manipulation.
+                </li>
+                <li>
+                    BIP-157/158 is now the recommended approach for light client
+                    implementation, used by Neutrino and other modern wallets.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="18-bloom-filters.html">← Chapter 18: Bloom Filters</a>
+            <a href="../index.html">Index</a>
+            <a href="20-light-clients.html">Chapter 20: Light Client Architectures →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

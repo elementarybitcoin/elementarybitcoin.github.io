@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 18: SPV Bloom Filters (BIP-37) | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .privacy-warning {
+            background: #fff5f5;
+            border: 2px solid #c53030;
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .privacy-warning h4 {
+            color: #c53030;
+            margin-top: 0;
+        }
+        .bit-array {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            background: #f5f5f5;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .bit-set {
+            color: #c53030;
+            font-weight: bold;
+        }
+        .deprecation-notice {
+            background: #fffbeb;
+            border: 2px solid #d69e2e;
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .deprecation-notice h4 {
+            color: #744210;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="17-spv-theory.html">← Chapter 17: SPV Theory</a>
+        <a href="../index.html">Index</a>
+        <a href="19-compact-filters.html">Chapter 19: Compact Block Filters →</a>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 18</p>
+            <h1>SPV Bloom Filters (BIP-37)</h1>
+            <p class="chapter-subtitle">The First Attempt at Lightweight Verification</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                In 2012, BIP-37 introduced a mechanism for SPV clients to request only relevant
+                transactions from full nodes, rather than downloading every transaction in every
+                block. The approach used <em>Bloom filters</em>—probabilistic data structures that
+                allow set membership queries with controllable false positive rates.
+            </p>
+            <p>
+                While elegant in theory, BIP-37 proved disastrous for privacy in practice. This
+                chapter examines both the mathematics of Bloom filters and the protocol-level
+                failures that led to its effective deprecation. Understanding these failures is
+                essential for appreciating why modern approaches like compact block filters
+                (Chapter 19) take a fundamentally different approach.
+            </p>
+        </section>
+
+        <div class="deprecation-notice">
+            <h4>Historical Context</h4>
+            <p>
+                BIP-37 Bloom filters are now widely considered harmful to user privacy and are
+                disabled by default in Bitcoin Core since version 0.19.0 (2019). This chapter
+                documents the approach for historical understanding and to illustrate how
+                privacy can fail catastrophically despite well-intentioned design.
+            </p>
+        </div>
+
+        <section>
+            <h2>18.1 Bloom Filter Fundamentals</h2>
+
+            <p>
+                A Bloom filter is a space-efficient probabilistic data structure that tests
+                whether an element is a member of a set. It can produce false positives
+                (claiming an element is in the set when it isn't) but never false negatives
+                (if it says an element isn't in the set, it definitely isn't).
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 18.1</strong> (Bloom Filter)</p>
+                <p>
+                    A <em>Bloom filter</em> for a set <var>S</var> consists of:
+                </p>
+                <ol>
+                    <li>A bit array <var>B</var> of <var>m</var> bits, initially all zeros</li>
+                    <li>A family of <var>k</var> independent hash functions <var>h₁, h₂, ..., hₖ</var>, each mapping elements to {0, 1, ..., m-1}</li>
+                </ol>
+                <p>
+                    To <em>add</em> element <var>x</var>: set <var>B[hᵢ(x)] = 1</var> for all <var>i ∈ {1, ..., k}</var>.
+                </p>
+                <p>
+                    To <em>query</em> element <var>x</var>: return "possibly in set" if <var>B[hᵢ(x)] = 1</var>
+                    for all <var>i</var>; return "definitely not in set" otherwise.
+                </p>
+            </div>
+
+            <h3>Visual Representation</h3>
+
+            <figure>
+                <svg viewBox="0 0 700 300" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <!-- Bit array -->
+                    <text x="350" y="30" text-anchor="middle" font-size="14" font-weight="bold">
+                        Bloom Filter Bit Array (m = 16 bits)
+                    </text>
+
+                    <!-- Draw bit array cells -->
+                    <g transform="translate(50, 50)">
+                        <!-- Cells -->
+                        <rect x="0" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="37.5" y="0" width="37.5" height="40" fill="#fecaca" stroke="#333"/>
+                        <rect x="75" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="112.5" y="0" width="37.5" height="40" fill="#fecaca" stroke="#333"/>
+                        <rect x="150" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="187.5" y="0" width="37.5" height="40" fill="#fecaca" stroke="#333"/>
+                        <rect x="225" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="262.5" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="300" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="337.5" y="0" width="37.5" height="40" fill="#fecaca" stroke="#333"/>
+                        <rect x="375" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="412.5" y="0" width="37.5" height="40" fill="#fecaca" stroke="#333"/>
+                        <rect x="450" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="487.5" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+                        <rect x="525" y="0" width="37.5" height="40" fill="#fecaca" stroke="#333"/>
+                        <rect x="562.5" y="0" width="37.5" height="40" fill="#f5f5f5" stroke="#333"/>
+
+                        <!-- Bit values -->
+                        <text x="18.75" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="56.25" y="26" text-anchor="middle" font-family="monospace" fill="#c53030" font-weight="bold">1</text>
+                        <text x="93.75" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="131.25" y="26" text-anchor="middle" font-family="monospace" fill="#c53030" font-weight="bold">1</text>
+                        <text x="168.75" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="206.25" y="26" text-anchor="middle" font-family="monospace" fill="#c53030" font-weight="bold">1</text>
+                        <text x="243.75" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="281.25" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="318.75" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="356.25" y="26" text-anchor="middle" font-family="monospace" fill="#c53030" font-weight="bold">1</text>
+                        <text x="393.75" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="431.25" y="26" text-anchor="middle" font-family="monospace" fill="#c53030" font-weight="bold">1</text>
+                        <text x="468.75" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="506.25" y="26" text-anchor="middle" font-family="monospace">0</text>
+                        <text x="543.75" y="26" text-anchor="middle" font-family="monospace" fill="#c53030" font-weight="bold">1</text>
+                        <text x="581.25" y="26" text-anchor="middle" font-family="monospace">0</text>
+
+                        <!-- Indices -->
+                        <text x="18.75" y="58" text-anchor="middle" font-size="10" fill="#666">0</text>
+                        <text x="56.25" y="58" text-anchor="middle" font-size="10" fill="#666">1</text>
+                        <text x="93.75" y="58" text-anchor="middle" font-size="10" fill="#666">2</text>
+                        <text x="131.25" y="58" text-anchor="middle" font-size="10" fill="#666">3</text>
+                        <text x="168.75" y="58" text-anchor="middle" font-size="10" fill="#666">4</text>
+                        <text x="206.25" y="58" text-anchor="middle" font-size="10" fill="#666">5</text>
+                        <text x="243.75" y="58" text-anchor="middle" font-size="10" fill="#666">6</text>
+                        <text x="281.25" y="58" text-anchor="middle" font-size="10" fill="#666">7</text>
+                        <text x="318.75" y="58" text-anchor="middle" font-size="10" fill="#666">8</text>
+                        <text x="356.25" y="58" text-anchor="middle" font-size="10" fill="#666">9</text>
+                        <text x="393.75" y="58" text-anchor="middle" font-size="10" fill="#666">10</text>
+                        <text x="431.25" y="58" text-anchor="middle" font-size="10" fill="#666">11</text>
+                        <text x="468.75" y="58" text-anchor="middle" font-size="10" fill="#666">12</text>
+                        <text x="506.25" y="58" text-anchor="middle" font-size="10" fill="#666">13</text>
+                        <text x="543.75" y="58" text-anchor="middle" font-size="10" fill="#666">14</text>
+                        <text x="581.25" y="58" text-anchor="middle" font-size="10" fill="#666">15</text>
+                    </g>
+
+                    <!-- Element insertion example -->
+                    <g transform="translate(50, 130)">
+                        <text x="0" y="20" font-size="12">Insert "address_A":</text>
+                        <text x="120" y="20" font-size="11" font-family="monospace">h₁("address_A") = 1</text>
+                        <text x="280" y="20" font-size="11" font-family="monospace">h₂("address_A") = 5</text>
+                        <text x="440" y="20" font-size="11" font-family="monospace">h₃("address_A") = 9</text>
+
+                        <text x="0" y="50" font-size="12">Insert "address_B":</text>
+                        <text x="120" y="50" font-size="11" font-family="monospace">h₁("address_B") = 3</text>
+                        <text x="280" y="50" font-size="11" font-family="monospace">h₂("address_B") = 11</text>
+                        <text x="440" y="50" font-size="11" font-family="monospace">h₃("address_B") = 14</text>
+                    </g>
+
+                    <!-- Query example -->
+                    <g transform="translate(50, 210)">
+                        <text x="0" y="20" font-size="12" font-weight="bold">Query Examples:</text>
+
+                        <text x="0" y="50" font-size="12">Query "address_A":</text>
+                        <text x="120" y="50" font-size="11" fill="#2d7d2d">B[1]=1 ✓  B[5]=1 ✓  B[9]=1 ✓  →  "Possibly in set"</text>
+
+                        <text x="0" y="80" font-size="12">Query "address_C":</text>
+                        <text x="120" y="80" font-size="11" fill="#c53030">h₁=7, B[7]=0  →  "Definitely not in set"</text>
+                    </g>
+                </svg>
+                <figcaption>
+                    <strong>Figure 18.1</strong> — Bloom filter operations with k=3 hash functions.
+                    Red cells indicate bits set to 1. A query returns "possibly in set" only if
+                    all k bits are set.
+                </figcaption>
+            </figure>
+
+            <h3>False Positive Probability</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 18.1</strong> (False Positive Rate)</p>
+                <p>
+                    For a Bloom filter with <var>m</var> bits and <var>k</var> hash functions,
+                    after inserting <var>n</var> elements, the probability of a false positive is
+                    approximately:
+                </p>
+                <div class="formula">
+                    p ≈ (1 - e<sup>-kn/m</sup>)<sup>k</sup>
+                </div>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    After inserting one element, each of the <var>k</var> hash functions sets
+                    one bit. The probability that a specific bit is <em>not</em> set by one
+                    hash function is (1 - 1/m). After <var>kn</var> hash operations (from <var>n</var>
+                    elements), the probability a specific bit is still 0 is:
+                </p>
+                <p style="text-align: center;">
+                    (1 - 1/m)<sup>kn</sup> ≈ e<sup>-kn/m</sup>
+                </p>
+                <p>
+                    Thus the probability a specific bit is 1 is approximately (1 - e<sup>-kn/m</sup>).
+                    A false positive occurs when all <var>k</var> bits checked for a non-member
+                    happen to be 1, giving probability (1 - e<sup>-kn/m</sup>)<sup>k</sup>. ∎
+                </p>
+            </div>
+
+            <div class="corollary">
+                <p><strong>Corollary 18.1</strong> (Optimal Number of Hash Functions)</p>
+                <p>
+                    For fixed <var>m</var> and <var>n</var>, the false positive rate is minimized when:
+                </p>
+                <div class="formula">
+                    k = (m/n) · ln(2) ≈ 0.693 · (m/n)
+                </div>
+                <p>
+                    With this optimal <var>k</var>, the false positive rate is approximately
+                    (0.6185)<sup>m/n</sup>.
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 18.1</strong> (Filter Sizing)</p>
+                <p>
+                    Suppose an SPV wallet has 100 addresses and wants a 0.1% (10<sup>-3</sup>) false
+                    positive rate. We need:
+                </p>
+                <p style="text-align: center;">
+                    (0.6185)<sup>m/100</sup> = 10<sup>-3</sup>
+                </p>
+                <p>
+                    Taking logarithms: m/100 · ln(0.6185) = ln(10<sup>-3</sup>)
+                </p>
+                <p style="text-align: center;">
+                    m = 100 · (-6.908) / (-0.481) ≈ 1,436 bits ≈ 180 bytes
+                </p>
+                <p>
+                    With k = 0.693 · (1436/100) ≈ 10 hash functions.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>18.2 BIP-37 Protocol Specification</h2>
+
+            <p>
+                BIP-37 defines how SPV clients communicate Bloom filters to full nodes
+                to receive only relevant transactions.
+            </p>
+
+            <h3>New Message Types</h3>
+
+            <div class="definition">
+                <p><strong>Definition 18.2</strong> (BIP-37 Messages)</p>
+                <p>BIP-37 introduces four new protocol messages:</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Message</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>filterload</code></td>
+                            <td>Send a complete Bloom filter to the peer</td>
+                        </tr>
+                        <tr>
+                            <td><code>filteradd</code></td>
+                            <td>Add data elements to an existing filter</td>
+                        </tr>
+                        <tr>
+                            <td><code>filterclear</code></td>
+                            <td>Remove the current filter</td>
+                        </tr>
+                        <tr>
+                            <td><code>merkleblock</code></td>
+                            <td>Block header with partial Merkle branch for matched transactions</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>The filterload Message</h3>
+
+            <div class="definition">
+                <p><strong>Definition 18.3</strong> (filterload Structure)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Size</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>filter</code></td>
+                            <td>var_bytes</td>
+                            <td>The filter bit field (max 36,000 bytes)</td>
+                        </tr>
+                        <tr>
+                            <td><code>nHashFuncs</code></td>
+                            <td>4 bytes</td>
+                            <td>Number of hash functions (max 50)</td>
+                        </tr>
+                        <tr>
+                            <td><code>nTweak</code></td>
+                            <td>4 bytes</td>
+                            <td>Random value to add to hash seed</td>
+                        </tr>
+                        <tr>
+                            <td><code>nFlags</code></td>
+                            <td>1 byte</td>
+                            <td>Controls filter update behavior</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Hash Function Construction</h3>
+
+            <p>
+                Rather than implementing multiple independent hash functions, BIP-37 uses
+                a single hash function with varying seeds:
+            </p>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 18.1</strong> (BIP-37 Hash Function)</p>
+                <pre><code>function hash_i(data, nTweak, nHashFuncs, filter_size):
+    // MurmurHash3 with rotating seed
+    seed = (i * 0xFBA4C795 + nTweak) mod 2³²
+    return MurmurHash3(seed, data) mod (filter_size * 8)</code></pre>
+                <p>
+                    where <var>i</var> ranges from 0 to nHashFuncs - 1, and the constant
+                    0xFBA4C795 is chosen to provide good distribution.
+                </p>
+            </div>
+
+            <h3>What Gets Matched</h3>
+
+            <p>
+                When checking if a transaction matches the filter, the following elements
+                are tested:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 18.4</strong> (Transaction Matching)</p>
+                <p>A transaction matches the Bloom filter if any of the following match:</p>
+                <ol>
+                    <li>The transaction hash (txid)</li>
+                    <li>For each output: the scriptPubKey, or each data element pushed by the script</li>
+                    <li>For each input: the previous output point (txid:vout)</li>
+                    <li>For each input: each data element pushed by the scriptSig</li>
+                </ol>
+            </div>
+
+            <h3>The merkleblock Response</h3>
+
+            <figure>
+                <svg viewBox="0 0 650 400" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <!-- Title -->
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Merkle Block Structure
+                    </text>
+
+                    <!-- Block header -->
+                    <rect x="150" y="45" width="350" height="60" fill="#e8f4f8" stroke="#333" rx="4"/>
+                    <text x="325" y="70" text-anchor="middle" font-size="12" font-weight="bold">80-byte Block Header</text>
+                    <text x="325" y="90" text-anchor="middle" font-size="10" fill="#666">
+                        version | prev_hash | merkle_root | timestamp | bits | nonce
+                    </text>
+
+                    <!-- Partial Merkle Tree -->
+                    <text x="325" y="130" text-anchor="middle" font-size="12" font-weight="bold">
+                        Partial Merkle Tree
+                    </text>
+
+                    <!-- Tree structure -->
+                    <g transform="translate(0, 140)">
+                        <!-- Root -->
+                        <rect x="275" y="0" width="100" height="30" fill="#d4edda" stroke="#28a745" rx="3"/>
+                        <text x="325" y="20" text-anchor="middle" font-size="10">Merkle Root</text>
+
+                        <!-- Level 1 -->
+                        <line x1="325" y1="30" x2="225" y2="55" stroke="#333"/>
+                        <line x1="325" y1="30" x2="425" y2="55" stroke="#333"/>
+
+                        <rect x="175" y="55" width="100" height="30" fill="#fff3cd" stroke="#ffc107" rx="3"/>
+                        <text x="225" y="75" text-anchor="middle" font-size="10">H(AB)</text>
+
+                        <rect x="375" y="55" width="100" height="30" fill="#f8d7da" stroke="#dc3545" rx="3" stroke-dasharray="4"/>
+                        <text x="425" y="75" text-anchor="middle" font-size="10">H(CD) - included</text>
+
+                        <!-- Level 2 -->
+                        <line x1="225" y1="85" x2="150" y2="110" stroke="#333"/>
+                        <line x1="225" y1="85" x2="300" y2="110" stroke="#333"/>
+
+                        <rect x="100" y="110" width="100" height="30" fill="#f8d7da" stroke="#dc3545" rx="3" stroke-dasharray="4"/>
+                        <text x="150" y="130" text-anchor="middle" font-size="10">H(A) - included</text>
+
+                        <rect x="250" y="110" width="100" height="30" fill="#d4edda" stroke="#28a745" rx="3"/>
+                        <text x="300" y="130" text-anchor="middle" font-size="10">H(B) - MATCHED</text>
+
+                        <!-- Transaction -->
+                        <line x1="300" y1="140" x2="300" y2="165" stroke="#333"/>
+                        <rect x="240" y="165" width="120" height="35" fill="#d4edda" stroke="#28a745" rx="3"/>
+                        <text x="300" y="180" text-anchor="middle" font-size="10" font-weight="bold">TX B</text>
+                        <text x="300" y="193" text-anchor="middle" font-size="8" fill="#666">Full transaction data</text>
+                    </g>
+
+                    <!-- Legend -->
+                    <g transform="translate(50, 350)">
+                        <rect x="0" y="0" width="15" height="15" fill="#d4edda" stroke="#28a745" rx="2"/>
+                        <text x="22" y="12" font-size="10">Computed from data</text>
+
+                        <rect x="160" y="0" width="15" height="15" fill="#f8d7da" stroke="#dc3545" rx="2" stroke-dasharray="3"/>
+                        <text x="182" y="12" font-size="10">Included in message</text>
+
+                        <rect x="350" y="0" width="15" height="15" fill="#fff3cd" stroke="#ffc107" rx="2"/>
+                        <text x="372" y="12" font-size="10">Intermediate computation</text>
+                    </g>
+                </svg>
+                <figcaption>
+                    <strong>Figure 18.2</strong> — A merkleblock message contains just enough
+                    Merkle tree nodes to prove that matched transactions are included in the block.
+                    The client receives TX B in full, plus hashes H(A) and H(CD) to verify inclusion.
+                </figcaption>
+            </figure>
+
+            <div class="definition">
+                <p><strong>Definition 18.5</strong> (merkleblock Structure)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Size</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>header</code></td>
+                            <td>80 bytes</td>
+                            <td>Standard block header</td>
+                        </tr>
+                        <tr>
+                            <td><code>total_txs</code></td>
+                            <td>4 bytes</td>
+                            <td>Total number of transactions in block</td>
+                        </tr>
+                        <tr>
+                            <td><code>hashes</code></td>
+                            <td>var_int + n×32</td>
+                            <td>Merkle tree hashes for proof</td>
+                        </tr>
+                        <tr>
+                            <td><code>flags</code></td>
+                            <td>var_bytes</td>
+                            <td>Bit flags indicating tree traversal</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>18.3 The Privacy Catastrophe</h2>
+
+            <p>
+                BIP-37's fundamental flaw is that the client sends its filter directly to
+                the server. Even with false positives providing supposed "cover", the
+                privacy loss is severe and often complete.
+            </p>
+
+            <div class="privacy-warning">
+                <h4>Critical Privacy Failure</h4>
+                <p>
+                    <strong>A full node receiving a Bloom filter learns essentially everything
+                    about the client's wallet.</strong> The filter's contents reveal which
+                    addresses the client cares about. Multiple queries from the same filter
+                    provide statistical confirmation that eliminates false positive ambiguity.
+                </p>
+            </div>
+
+            <h3>Attack 1: Direct Address Extraction</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 18.2</strong> (Filter Analysis Attack)</p>
+                <p>
+                    Given a Bloom filter with parameters (<var>m</var>, <var>k</var>, <var>nTweak</var>),
+                    an attacker can test arbitrary addresses against the filter locally. By testing
+                    all addresses that have ever appeared on the blockchain, the attacker recovers
+                    the wallet's address set with high probability.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof sketch.</strong></p>
+                <p>
+                    The attacker knows the hash function construction (Algorithm 18.1). For each
+                    candidate address <var>a</var>, they compute h₀(a), h₁(a), ..., h<sub>k-1</sub>(a)
+                    and check if all corresponding bits are set. True positives (actual wallet
+                    addresses) will always match. False positives occur at rate p, but with
+                    millions of blockchain addresses and typical filter sizes, the number of
+                    false positives is small and can often be distinguished through blockchain
+                    graph analysis. ∎
+                </p>
+            </div>
+
+            <h3>Attack 2: Intersection Analysis</h3>
+
+            <figure>
+                <svg viewBox="0 0 600 280" style="max-width: 600px; margin: 2rem auto; display: block;">
+                    <text x="300" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Intersection Attack Across Filter Updates
+                    </text>
+
+                    <!-- Filter 1 -->
+                    <g transform="translate(50, 50)">
+                        <text x="0" y="15" font-size="11" font-weight="bold">Filter at time t₁:</text>
+                        <ellipse cx="125" cy="70" rx="100" ry="50" fill="#e3f2fd" stroke="#1976d2"/>
+                        <text x="85" y="65" font-size="10">addr_1</text>
+                        <text x="135" y="75" font-size="10">addr_2</text>
+                        <text x="95" y="85" font-size="10" fill="#888">FP_1</text>
+                        <text x="155" y="60" font-size="10" fill="#888">FP_2</text>
+                    </g>
+
+                    <!-- Filter 2 -->
+                    <g transform="translate(300, 50)">
+                        <text x="0" y="15" font-size="11" font-weight="bold">Filter at time t₂:</text>
+                        <ellipse cx="125" cy="70" rx="100" ry="50" fill="#fce4ec" stroke="#c2185b"/>
+                        <text x="85" y="65" font-size="10">addr_1</text>
+                        <text x="135" y="75" font-size="10">addr_2</text>
+                        <text x="75" y="85" font-size="10">addr_3</text>
+                        <text x="165" y="60" font-size="10" fill="#888">FP_3</text>
+                        <text x="95" y="95" font-size="10" fill="#888">FP_4</text>
+                    </g>
+
+                    <!-- Intersection -->
+                    <g transform="translate(175, 170)">
+                        <text x="0" y="15" font-size="11" font-weight="bold">Intersection reveals true addresses:</text>
+                        <rect x="50" y="30" width="150" height="60" fill="#e8f5e9" stroke="#4caf50" rx="4"/>
+                        <text x="125" y="55" text-anchor="middle" font-size="11" font-weight="bold">addr_1, addr_2</text>
+                        <text x="125" y="75" text-anchor="middle" font-size="10" fill="#666">False positives eliminated</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 175 135 L 225 165" stroke="#333" fill="none" marker-end="url(#arrowhead)"/>
+                    <path d="M 425 135 L 375 165" stroke="#333" fill="none" marker-end="url(#arrowhead)"/>
+
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 18.3</strong> — When a client updates their filter (e.g., after
+                    generating new addresses), the intersection of matched addresses across filter
+                    versions eliminates false positives and reveals true wallet addresses.
+                </figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p><strong>Theorem 18.3</strong> (Intersection Attack)</p>
+                <p>
+                    If a client sends filter versions F₁ and F₂ with different tweaks or sizes,
+                    the intersection of matching addresses has vastly reduced false positive rate:
+                </p>
+                <div class="formula">
+                    p<sub>intersection</sub> ≈ p₁ · p₂
+                </div>
+                <p>
+                    After just 3 filter versions with p = 0.001, the false positive rate drops to 10<sup>-9</sup>.
+                </p>
+            </div>
+
+            <h3>Attack 3: Transaction Graph Analysis</h3>
+
+            <p>
+                Even without testing all addresses, a malicious node learns:
+            </p>
+
+            <ul>
+                <li>Which transactions the client requests (revealing interest)</li>
+                <li>The order of requests (revealing wallet creation time)</li>
+                <li>Which outputs are spent together (revealing common ownership)</li>
+                <li>Transaction timing (correlating with IP address)</li>
+            </ul>
+
+            <h3>Attack 4: Active Probing</h3>
+
+            <div class="definition">
+                <p><strong>Definition 18.6</strong> (Active Filter Probing)</p>
+                <p>
+                    A malicious node can craft transactions with specific output addresses
+                    and observe whether the client requests them. By generating transactions
+                    to addresses that test specific filter bits, the attacker can efficiently
+                    enumerate the filter contents.
+                </p>
+            </div>
+
+            <h3>Quantifying the Privacy Loss</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 18.4</strong> (Practical Privacy Bound)</p>
+                <p>
+                    Under realistic conditions (persistent connections, repeated queries, filter
+                    updates), the expected number of address queries before a malicious node
+                    identifies all wallet addresses is O(n), where n is the wallet size.
+                    In practice, studies have shown identification within minutes for typical
+                    wallets.
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 18.2</strong> (2014 Privacy Study)</p>
+                <p>
+                    Research by Gervais et al. demonstrated that for a wallet with 20 addresses
+                    using a filter with 0.0001 (0.01%) false positive rate:
+                </p>
+                <ul>
+                    <li>After observing 20 blocks: ~75% of addresses identified</li>
+                    <li>After observing 100 blocks: ~95% of addresses identified</li>
+                    <li>After 1 filter update: ~99% of addresses identified</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>18.4 Denial of Service Vulnerabilities</h2>
+
+            <p>
+                Beyond privacy, BIP-37 exposes full nodes to denial-of-service attacks.
+            </p>
+
+            <h3>Computational Asymmetry</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 18.5</strong> (DoS Amplification)</p>
+                <p>
+                    Processing a Bloom filter request against a block requires:
+                </p>
+                <ul>
+                    <li>Loading the full block from disk</li>
+                    <li>Deserializing all transactions</li>
+                    <li>Testing every scriptPubKey element against the filter</li>
+                    <li>Constructing Merkle proofs for matches</li>
+                </ul>
+                <p>
+                    This work is proportional to block size, while the client's request is
+                    constant size (~36KB max filter + fixed overhead). A single client can
+                    force gigabytes of disk I/O and CPU work.
+                </p>
+            </div>
+
+            <h3>The nFlags Attack</h3>
+
+            <div class="definition">
+                <p><strong>Definition 18.7</strong> (nFlags Values)</p>
+                <p>The nFlags field controls automatic filter updates:</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Value</th>
+                            <th>Name</th>
+                            <th>Behavior</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0</td>
+                            <td>BLOOM_UPDATE_NONE</td>
+                            <td>Don't update the filter</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>BLOOM_UPDATE_ALL</td>
+                            <td>Add outpoints of matching outputs</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>BLOOM_UPDATE_P2PUBKEY_ONLY</td>
+                            <td>Add outpoints only for P2PK/P2MS</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>
+                With BLOOM_UPDATE_ALL, the filter grows without bound as the node adds
+                outpoints. This causes:
+            </p>
+
+            <ul>
+                <li>Increasing memory usage on the server</li>
+                <li>More false positives as the filter fills</li>
+                <li>Eventually, nearly all transactions match</li>
+            </ul>
+
+            <h3>Mitigations in Bitcoin Core</h3>
+
+            <p>
+                Bitcoin Core implemented several mitigations before ultimately disabling
+                Bloom filters by default:
+            </p>
+
+            <ul>
+                <li><strong>Rate limiting:</strong> Maximum filter operations per second</li>
+                <li><strong>Filter size limits:</strong> Maximum 36,000 bytes, 50 hash functions</li>
+                <li><strong>Connection limits:</strong> Reduced maximum filter-enabled connections</li>
+                <li><strong>Default off:</strong> Since v0.19.0, <code>-peerbloomfilters=0</code> by default</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>18.5 Implementation Details</h2>
+
+            <h3>MurmurHash3 Specification</h3>
+
+            <p>
+                BIP-37 uses MurmurHash3 (32-bit version) for hashing:
+            </p>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 18.2</strong> (MurmurHash3-32)</p>
+                <pre><code>function MurmurHash3(seed, data):
+    const c1 = 0xcc9e2d51
+    const c2 = 0x1b873593
+    const r1 = 15
+    const r2 = 13
+    const m = 5
+    const n = 0xe6546b64
+
+    h = seed
+
+    // Process 4-byte chunks
+    for each 4-byte block k in data:
+        k = k * c1
+        k = rotl32(k, r1)
+        k = k * c2
+
+        h = h XOR k
+        h = rotl32(h, r2)
+        h = h * m + n
+
+    // Process remaining bytes
+    k = 0
+    for remaining bytes (little-endian):
+        k = k * c1
+        k = rotl32(k, r1)
+        k = k * c2
+        h = h XOR k
+
+    // Finalization
+    h = h XOR length
+    h = h XOR (h >> 16)
+    h = h * 0x85ebca6b
+    h = h XOR (h >> 13)
+    h = h * 0xc2b2ae35
+    h = h XOR (h >> 16)
+
+    return h</code></pre>
+            </div>
+
+            <h3>Filter Operation Protocol Flow</h3>
+
+            <figure>
+                <svg viewBox="0 0 650 500" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        BIP-37 Protocol Flow
+                    </text>
+
+                    <!-- Entities -->
+                    <text x="130" y="55" text-anchor="middle" font-size="12" font-weight="bold">SPV Client</text>
+                    <line x1="130" y1="65" x2="130" y2="480" stroke="#333" stroke-width="2"/>
+
+                    <text x="520" y="55" text-anchor="middle" font-size="12" font-weight="bold">Full Node</text>
+                    <line x1="520" y1="65" x2="520" y2="480" stroke="#333" stroke-width="2"/>
+
+                    <!-- Message 1: filterload -->
+                    <line x1="135" y1="90" x2="515" y2="90" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-blue)"/>
+                    <rect x="230" y="75" width="190" height="25" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
+                    <text x="325" y="92" text-anchor="middle" font-size="10">filterload (filter, k, tweak, flags)</text>
+
+                    <!-- Note: Filter stored -->
+                    <rect x="525" y="100" width="110" height="30" fill="#fff9c4" stroke="#f9a825" rx="3"/>
+                    <text x="580" y="120" text-anchor="middle" font-size="9">Store filter for</text>
+                    <text x="580" y="130" text-anchor="middle" font-size="9">this connection</text>
+
+                    <!-- Message 2: getdata -->
+                    <line x1="135" y1="155" x2="515" y2="155" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-blue)"/>
+                    <rect x="260" y="140" width="130" height="25" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
+                    <text x="325" y="157" text-anchor="middle" font-size="10">getdata (MSG_FILTERED_BLOCK)</text>
+
+                    <!-- Processing note -->
+                    <rect x="525" y="165" width="110" height="40" fill="#fff9c4" stroke="#f9a825" rx="3"/>
+                    <text x="580" y="182" text-anchor="middle" font-size="9">Load block,</text>
+                    <text x="580" y="192" text-anchor="middle" font-size="9">test each tx</text>
+                    <text x="580" y="202" text-anchor="middle" font-size="9">against filter</text>
+
+                    <!-- Message 3: merkleblock -->
+                    <line x1="515" y1="230" x2="135" y2="230" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-green)"/>
+                    <rect x="230" y="215" width="190" height="25" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                    <text x="325" y="232" text-anchor="middle" font-size="10">merkleblock (header, partial tree)</text>
+
+                    <!-- Message 4: tx -->
+                    <line x1="515" y1="265" x2="135" y2="265" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-green)"/>
+                    <rect x="260" y="250" width="130" height="25" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                    <text x="325" y="267" text-anchor="middle" font-size="10">tx (matched transaction)</text>
+
+                    <!-- Client verify -->
+                    <rect x="15" y="285" width="110" height="40" fill="#fff9c4" stroke="#f9a825" rx="3"/>
+                    <text x="70" y="302" text-anchor="middle" font-size="9">Verify tx in</text>
+                    <text x="70" y="312" text-anchor="middle" font-size="9">merkle tree,</text>
+                    <text x="70" y="322" text-anchor="middle" font-size="9">header in chain</text>
+
+                    <!-- Message 5: filteradd (optional) -->
+                    <line x1="135" y1="355" x2="515" y2="355" stroke="#9c27b0" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-purple)"/>
+                    <rect x="245" y="340" width="160" height="25" fill="#f3e5f5" stroke="#9c27b0" rx="3"/>
+                    <text x="325" y="357" text-anchor="middle" font-size="10">filteradd (new address) [optional]</text>
+
+                    <!-- Note -->
+                    <rect x="525" y="365" width="110" height="30" fill="#fff9c4" stroke="#f9a825" rx="3"/>
+                    <text x="580" y="382" text-anchor="middle" font-size="9">Add element</text>
+                    <text x="580" y="392" text-anchor="middle" font-size="9">to stored filter</text>
+
+                    <!-- Message 6: inv for new block -->
+                    <line x1="515" y1="420" x2="135" y2="420" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-green)"/>
+                    <rect x="245" y="405" width="160" height="25" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                    <text x="325" y="422" text-anchor="middle" font-size="10">inv (new block announcement)</text>
+
+                    <!-- Client requests filtered -->
+                    <line x1="135" y1="455" x2="515" y2="455" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-blue)"/>
+                    <rect x="235" y="440" width="180" height="25" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
+                    <text x="325" y="457" text-anchor="middle" font-size="10">getdata (MSG_FILTERED_BLOCK)</text>
+
+                    <!-- Cycle continues -->
+                    <text x="325" y="490" text-anchor="middle" font-size="10" fill="#666" font-style="italic">
+                        ... cycle continues for each new block ...
+                    </text>
+
+                    <defs>
+                        <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+                        </marker>
+                        <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                        <marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#9c27b0"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 18.4</strong> — Complete BIP-37 protocol flow showing filter
+                    submission, filtered block requests, and optional filter updates.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>18.6 Historical Context and Lessons</h2>
+
+            <h3>Timeline</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Event</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2012-10</td>
+                        <td>BIP-37 proposed by Mike Hearn and Matt Corallo</td>
+                    </tr>
+                    <tr>
+                        <td>2012-12</td>
+                        <td>Implemented in Bitcoin Core 0.8.0</td>
+                    </tr>
+                    <tr>
+                        <td>2014</td>
+                        <td>First academic papers demonstrating privacy attacks</td>
+                    </tr>
+                    <tr>
+                        <td>2016</td>
+                        <td>CVE-2013-5700 DoS vulnerability publicly disclosed</td>
+                    </tr>
+                    <tr>
+                        <td>2017-05</td>
+                        <td>BIP-157/158 (Compact Block Filters) proposed as replacement</td>
+                    </tr>
+                    <tr>
+                        <td>2019-11</td>
+                        <td>Bitcoin Core 0.19.0 disables Bloom filters by default</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Design Lessons</h3>
+
+            <div class="definition">
+                <p><strong>Principle 18.1</strong> (Server-Side vs Client-Side Privacy)</p>
+                <p>
+                    Privacy designs that require the client to reveal their interests to the
+                    server are fundamentally flawed. Even probabilistic "cover" (false positives)
+                    provides minimal protection when:
+                </p>
+                <ul>
+                    <li>The server can test arbitrary elements against the filter</li>
+                    <li>Multiple filter versions can be intersected</li>
+                    <li>Behavioral patterns reveal true interests</li>
+                </ul>
+                <p>
+                    <strong>Better approach:</strong> The server computes without learning client
+                    interests (compact block filters), or the client fetches everything and
+                    filters locally.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p><strong>Principle 18.2</strong> (Computational Asymmetry)</p>
+                <p>
+                    Protocols where clients can cheaply trigger expensive server operations
+                    invite DoS attacks. BIP-37 violated this by requiring:
+                </p>
+                <ul>
+                    <li>O(1) client request → O(block_size) server work</li>
+                    <li>No proof-of-work or stake from clients</li>
+                    <li>Stateful server resources (stored filters) per connection</li>
+                </ul>
+                <p>
+                    <strong>Better approach:</strong> Pre-compute data structures (Chapter 19)
+                    that amortize computation across all clients.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>18.7 Why Some Wallets Still Use BIP-37</h2>
+
+            <p>
+                Despite its flaws, BIP-37 remains in use by some wallets because:
+            </p>
+
+            <ul>
+                <li><strong>Legacy support:</strong> Existing wallets may not have been updated</li>
+                <li><strong>Bandwidth efficiency:</strong> Downloads less data than full blocks</li>
+                <li><strong>Simplicity:</strong> Easier to implement than compact block filters</li>
+                <li><strong>Historical sync:</strong> Some nodes still serve Bloom filter requests</li>
+            </ul>
+
+            <p>
+                However, using BIP-37 reveals your wallet addresses to any node you connect to.
+                Privacy-conscious users should use wallets that implement:
+            </p>
+
+            <ul>
+                <li>Compact block filters (BIP-157/158) — see Chapter 19</li>
+                <li>Full block download with local filtering</li>
+                <li>Private Electrum servers</li>
+                <li>Full node with local wallet</li>
+            </ul>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 18.1</strong></p>
+                <p>
+                    Calculate the optimal filter size and number of hash functions for a
+                    wallet with 500 addresses targeting a 0.01% false positive rate.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 18.2</strong></p>
+                <p>
+                    Prove that the intersection of two independent Bloom filters (different
+                    tweaks) for the same set has false positive rate p₁ · p₂.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 18.3</strong></p>
+                <p>
+                    A wallet connects to a malicious node with a filter containing 3 addresses.
+                    The filter has a 0.1% false positive rate and tests positive for 1000
+                    blockchain addresses. How many filter updates would eliminate all false
+                    positives with 99% probability?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 18.4</strong></p>
+                <p>
+                    Implement a simple Bloom filter in your language of choice. Verify that
+                    the false positive rate matches the theoretical prediction for various
+                    parameters.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 18.5</strong></p>
+                <p>
+                    Explain why increasing the false positive rate doesn't meaningfully
+                    improve privacy against a determined attacker with access to all
+                    blockchain addresses.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 18.6</strong></p>
+                <p>
+                    Consider an "improved" BIP-37 where the client regenerates the filter with
+                    a new random tweak for each block request. Analyze why this still fails
+                    to provide privacy.
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    Bloom filters are probabilistic data structures that test set membership
+                    with controllable false positive rates but no false negatives.
+                </li>
+                <li>
+                    BIP-37 used Bloom filters to let SPV clients request only relevant
+                    transactions from full nodes, reducing bandwidth requirements.
+                </li>
+                <li>
+                    The fundamental flaw: clients send their filter to the server, revealing
+                    their interests despite false positive "cover."
+                </li>
+                <li>
+                    Multiple attack vectors completely compromise privacy: direct filter analysis,
+                    intersection across updates, transaction graph analysis, and active probing.
+                </li>
+                <li>
+                    DoS vulnerabilities arise from computational asymmetry: small requests
+                    trigger expensive server-side operations.
+                </li>
+                <li>
+                    BIP-37 is now disabled by default in Bitcoin Core and should be considered
+                    deprecated. Compact block filters (BIP-157/158) provide a privacy-preserving
+                    alternative.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="17-spv-theory.html">← Chapter 17: SPV Theory</a>
+            <a href="../index.html">Index</a>
+            <a href="19-compact-filters.html">Chapter 19: Compact Block Filters →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

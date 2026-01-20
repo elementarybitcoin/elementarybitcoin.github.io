@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Proof of Work | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 14</p>
+        <h1>Proof of Work</h1>
+        <p class="chapter-subtitle">The Engine of Consensus</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                How can a decentralized network agree on a single history without a central
+                authority? Bitcoin's answer is proof of work: a computational puzzle that
+                is hard to solve but easy to verify. By requiring significant work to create
+                blocks, Bitcoin makes rewriting history economically prohibitive.
+            </p>
+
+            <p>
+                Proof of work transforms electricity into security. Understanding this
+                mechanism is essential for reasoning about Bitcoin's security model and
+                the economics of mining.
+            </p>
+        </section>
+
+        <section>
+            <h2>14.1 The Concept of Proof of Work</h2>
+
+            <p>
+                Proof of work was invented independently multiple times, notably by Cynthia
+                Dwork and Moni Naor (1992) for combating email spam, and by Adam Back (1997)
+                in the Hashcash system.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.1 (Proof of Work)</p>
+                <p>
+                    A <strong>proof of work</strong> system requires a prover to demonstrate that
+                    they have expended computational effort. The proof must be:
+                </p>
+                <ul>
+                    <li><strong>Hard to produce:</strong> Requires significant computation</li>
+                    <li><strong>Easy to verify:</strong> Can be checked with minimal effort</li>
+                    <li><strong>Adjustable difficulty:</strong> Can scale with available compute power</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="140" viewBox="0 0 480 140">
+                    <!-- Prover side -->
+                    <rect x="30" y="40" width="120" height="60" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="90" y="65" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Prover (Miner)</text>
+                    <text x="90" y="82" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">~10 minutes work</text>
+
+                    <!-- Arrow with proof -->
+                    <path d="M 155 70 L 295 70" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrowGreen14)"/>
+                    <text x="225" y="60" text-anchor="middle" font-family="Georgia" font-size="10">Block + Nonce</text>
+                    <text x="225" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(the proof)</text>
+
+                    <!-- Verifier side -->
+                    <rect x="300" y="40" width="120" height="60" rx="6" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="360" y="65" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Verifier (Node)</text>
+                    <text x="360" y="82" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">~1 ms to verify</text>
+
+                    <!-- Asymmetry annotation -->
+                    <text x="240" y="125" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">Asymmetric: hard to create, easy to check</text>
+
+                    <defs>
+                        <marker id="arrowGreen14" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#5a8f5a"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 14.1: Proof of work is asymmetric—expensive to produce, cheap to verify.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>14.2 Bitcoin's Hash Puzzle</h2>
+
+            <p>
+                Bitcoin uses a hash-based proof of work: find an input that produces a hash
+                below a target value.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.2 (Bitcoin Proof of Work)</p>
+                <p>
+                    A block satisfies the <strong>proof of work requirement</strong> if:
+                </p>
+                <p class="math-block">
+                    SHA256(SHA256(header)) < target
+                </p>
+                <p>
+                    where <span class="math">header</span> is the 80-byte block header and
+                    <span class="math">target</span> is a 256-bit threshold determined by the
+                    difficulty.
+                </p>
+            </div>
+
+            <p>
+                Because cryptographic hash functions behave as random oracles, the only way
+                to find a valid hash is exhaustive search—trying different nonces until one works.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 14.1 (Expected Attempts)</p>
+                <p>
+                    If the target is <span class="math">T</span> and hashes are uniformly distributed
+                    over <span class="math">[0, 2²⁵⁶)</span>, the expected number of attempts to find
+                    a valid hash is:
+                </p>
+                <p class="math-block">
+                    E[attempts] = 2²⁵⁶ / T
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    Each hash has probability <span class="math">p = T / 2²⁵⁶</span> of being below
+                    the target. The number of attempts follows a geometric distribution with
+                    parameter <span class="math">p</span>, giving expected value <span class="math">1/p = 2²⁵⁶/T</span>. □
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
+                    <!-- Hash space representation -->
+                    <rect x="40" y="30" width="400" height="120" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.5"/>
+                    <text x="240" y="22" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">256-bit Hash Space</text>
+
+                    <!-- Target zone -->
+                    <rect x="40" y="30" width="20" height="120" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="50" y="165" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Valid</text>
+
+                    <!-- Invalid zone label -->
+                    <text x="260" y="95" text-anchor="middle" font-family="Georgia" font-size="12" fill="#888">Invalid (hash ≥ target)</text>
+
+                    <!-- Target line -->
+                    <line x1="60" y1="30" x2="60" y2="150" stroke="#c44" stroke-width="2" stroke-dasharray="4,2"/>
+                    <text x="60" y="170" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Target</text>
+
+                    <!-- Hash attempts -->
+                    <circle cx="150" cy="60" r="4" fill="#999"/>
+                    <circle cx="280" cy="90" r="4" fill="#999"/>
+                    <circle cx="350" cy="120" r="4" fill="#999"/>
+                    <circle cx="200" cy="130" r="4" fill="#999"/>
+                    <circle cx="50" cy="80" r="5" fill="#5a8f5a" stroke="#333"/>
+                    <text x="50" y="65" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">✓</text>
+
+                    <!-- Scale indicator -->
+                    <text x="40" y="15" font-family="monospace" font-size="8">0x00...</text>
+                    <text x="440" y="15" text-anchor="end" font-family="monospace" font-size="8">0xFF...</text>
+                </svg>
+                <figcaption>Figure 14.2: Mining searches for a hash in the narrow valid region below the target.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>14.3 Difficulty and Target</h2>
+
+            <p>
+                The target is encoded in the block header's <code>bits</code> field and determines
+                how hard it is to mine a block.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.3 (Difficulty)</p>
+                <p>
+                    The <strong>difficulty</strong> is the ratio of the maximum target to the current target:
+                </p>
+                <p class="math-block">
+                    difficulty = target_max / target_current
+                </p>
+                <p>
+                    where <span class="math">target_max</span> is the easiest possible target
+                    (<code>0x1d00ffff</code> in compact form).
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 14.1 (Difficulty Interpretation)</p>
+                <p>
+                    If difficulty = 50,000,000,000,000 (50 trillion):
+                </p>
+                <ul>
+                    <li>Finding a valid block is 50 trillion times harder than at difficulty 1</li>
+                    <li>Expected hashes: ~50 trillion × (genesis difficulty hashes)</li>
+                    <li>At 500 EH/s network hashrate: ~10 minutes per block</li>
+                </ul>
+            </div>
+
+            <h3>14.3.1 Leading Zeros</h3>
+
+            <p>
+                A lower target means more leading zeros are required in the hash.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 14.2 (Leading Zeros)</p>
+                <p>
+                    Genesis block hash (2009, difficulty 1):
+                </p>
+                <pre class="code-block">000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+^^^^^^^^ 8 leading hex zeros (32 leading binary zeros)</pre>
+
+                <p>A modern block (difficulty ~50T):</p>
+                <pre class="code-block">0000000000000000000234abc...
+^^^^^^^^^^^^^^^^^^^ 19+ leading hex zeros (76+ leading binary zeros)</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>14.4 The Difficulty Adjustment Algorithm</h2>
+
+            <p>
+                Bitcoin automatically adjusts difficulty to maintain approximately 10-minute
+                block intervals regardless of total network hash power.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.4 (Difficulty Adjustment)</p>
+                <p>
+                    Every 2016 blocks (approximately 2 weeks), the difficulty is recalculated:
+                </p>
+                <p class="math-block">
+                    new_target = old_target × (actual_time / expected_time)
+                </p>
+                <p>
+                    where <span class="math">expected_time = 2016 × 10 minutes = 1,209,600 seconds</span>.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 14.2 (Adjustment Bounds)</p>
+                <p>
+                    The difficulty adjustment is clamped to prevent extreme changes:
+                </p>
+                <p class="math-block">
+                    0.25 ≤ adjustment_factor ≤ 4.0
+                </p>
+                <p>
+                    Difficulty can at most quadruple or quarter in a single adjustment period.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Time axis -->
+                    <line x1="50" y1="150" x2="450" y2="150" stroke="#666" stroke-width="1"/>
+                    <text x="250" y="175" text-anchor="middle" font-family="Georgia" font-size="10">Time (2016 block periods)</text>
+
+                    <!-- Difficulty axis -->
+                    <line x1="50" y1="150" x2="50" y2="30" stroke="#666" stroke-width="1"/>
+                    <text x="25" y="90" text-anchor="middle" font-family="Georgia" font-size="10" transform="rotate(-90 25 90)">Difficulty</text>
+
+                    <!-- Target line (10 min) -->
+                    <line x1="50" y1="90" x2="450" y2="90" stroke="#5a8f5a" stroke-width="1" stroke-dasharray="5,3"/>
+                    <text x="460" y="93" font-family="Georgia" font-size="9" fill="#5a8f5a">10 min target</text>
+
+                    <!-- Hash rate increase scenario -->
+                    <path d="M 50 120 L 120 120 L 120 80 L 190 80 L 190 60 L 260 60 L 260 50 L 330 50" stroke="#4a90d9" stroke-width="2" fill="none"/>
+
+                    <!-- Block time response -->
+                    <path d="M 50 90 L 80 90 L 120 70 L 160 90 L 190 75 L 230 90 L 260 80 L 300 90 L 330 85 L 370 90" stroke="#c44" stroke-width="2" fill="none"/>
+
+                    <!-- Labels -->
+                    <text x="190" y="45" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">Hash rate increases</text>
+                    <text x="350" y="110" font-family="Georgia" font-size="9" fill="#c44">Block time stabilizes</text>
+
+                    <!-- Period markers -->
+                    <line x1="120" y1="145" x2="120" y2="155" stroke="#666"/>
+                    <line x1="190" y1="145" x2="190" y2="155" stroke="#666"/>
+                    <line x1="260" y1="145" x2="260" y2="155" stroke="#666"/>
+                    <line x1="330" y1="145" x2="330" y2="155" stroke="#666"/>
+                    <text x="120" y="165" text-anchor="middle" font-family="Georgia" font-size="8">2016</text>
+                    <text x="190" y="165" text-anchor="middle" font-family="Georgia" font-size="8">4032</text>
+                    <text x="260" y="165" text-anchor="middle" font-family="Georgia" font-size="8">6048</text>
+                </svg>
+                <figcaption>Figure 14.3: Difficulty adjusts to maintain 10-minute blocks as hash rate changes.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 14.3 (Difficulty Adjustment)</p>
+                <p>
+                    If the last 2016 blocks took 12 days instead of 14:
+                </p>
+                <pre class="code-block">actual_time = 12 days = 1,036,800 seconds
+expected_time = 14 days = 1,209,600 seconds
+
+adjustment = 1,036,800 / 1,209,600 = 0.857
+
+new_difficulty = old_difficulty / 0.857
+              ≈ old_difficulty × 1.167 (16.7% increase)</pre>
+                <p>
+                    The network was mining too fast, so difficulty increases.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>14.5 The Mining Process</h2>
+
+            <p>
+                Mining is the iterative process of searching for a valid proof of work.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 14.1 (Mining)</p>
+                <ol>
+                    <li>Construct a candidate block:
+                        <ul>
+                            <li>Select transactions from mempool</li>
+                            <li>Create coinbase transaction</li>
+                            <li>Compute Merkle root</li>
+                            <li>Fill in header fields</li>
+                        </ul>
+                    </li>
+                    <li>Set nonce = 0</li>
+                    <li>Compute <span class="math">hash = SHA256(SHA256(header))</span></li>
+                    <li>If <span class="math">hash < target</span>, broadcast block (success!)</li>
+                    <li>Increment nonce</li>
+                    <li>If nonce overflows, modify extra nonce (in coinbase) and recompute Merkle root</li>
+                    <li>If new block received, restart with step 1</li>
+                    <li>Go to step 3</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="400" height="280" viewBox="0 0 400 280">
+                    <!-- Start -->
+                    <ellipse cx="200" cy="25" rx="50" ry="20" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="200" y="30" text-anchor="middle" font-family="Georgia" font-size="10">Build Block</text>
+
+                    <path d="M 200 45 L 200 60" stroke="#666" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+                    <!-- Hash -->
+                    <rect x="130" y="65" width="140" height="35" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="200" y="87" text-anchor="middle" font-family="Georgia" font-size="10">Hash(header)</text>
+
+                    <path d="M 200 100 L 200 120" stroke="#666" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+                    <!-- Decision -->
+                    <polygon points="200,125 270,155 200,185 130,155" fill="#fff8e8" stroke="#d4a574" stroke-width="1.5"/>
+                    <text x="200" y="158" text-anchor="middle" font-family="Georgia" font-size="10">hash < target?</text>
+
+                    <!-- Yes path -->
+                    <path d="M 270 155 L 340 155" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+                    <text x="305" y="148" font-family="Georgia" font-size="9" fill="#5a8f5a">Yes</text>
+
+                    <ellipse cx="340" cy="155" rx="45" ry="20" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="340" y="160" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Broadcast!</text>
+
+                    <!-- No path -->
+                    <path d="M 200 185 L 200 210" stroke="#c44" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+                    <text x="210" y="200" font-family="Georgia" font-size="9" fill="#c44">No</text>
+
+                    <!-- Increment -->
+                    <rect x="130" y="215" width="140" height="35" rx="4" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <text x="200" y="237" text-anchor="middle" font-family="Georgia" font-size="10">nonce++</text>
+
+                    <!-- Loop back -->
+                    <path d="M 130 232 L 80 232 L 80 82 L 130 82" stroke="#666" stroke-width="1.5" fill="none" marker-end="url(#arrowFlow)"/>
+
+                    <!-- New block interrupt -->
+                    <rect x="280" y="220" width="100" height="30" rx="4" fill="#ffe8e8" stroke="#c44" stroke-dasharray="3,2"/>
+                    <text x="330" y="240" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">New block?</text>
+                    <text x="330" y="260" text-anchor="middle" font-family="Georgia" font-size="8" fill="#888">→ Restart</text>
+
+                    <defs>
+                        <marker id="arrowFlow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 14.4: The mining loop: hash, check, increment, repeat.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>14.6 Hash Rate and Work</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.5 (Hash Rate)</p>
+                <p>
+                    <strong>Hash rate</strong> measures mining speed in hashes per second (H/s).
+                    Common units:
+                </p>
+                <ul>
+                    <li>KH/s = 10³ H/s (kilohash)</li>
+                    <li>MH/s = 10⁶ H/s (megahash)</li>
+                    <li>GH/s = 10⁹ H/s (gigahash)</li>
+                    <li>TH/s = 10¹² H/s (terahash)</li>
+                    <li>PH/s = 10¹⁵ H/s (petahash)</li>
+                    <li>EH/s = 10¹⁸ H/s (exahash)</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.6 (Chain Work)</p>
+                <p>
+                    The <strong>chain work</strong> (or cumulative work) of a blockchain is the
+                    sum of work in all blocks:
+                </p>
+                <p class="math-block">
+                    chainwork = Σᵢ (2²⁵⁶ / targetᵢ)
+                </p>
+                <p>
+                    This represents the expected number of hashes to produce the entire chain.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 14.3 (Heaviest Chain Rule)</p>
+                <p>
+                    Bitcoin nodes follow the chain with the most cumulative work, not necessarily
+                    the longest chain. In practice, these usually coincide, but work is the
+                    correct metric.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>14.7 Mining Economics</h2>
+
+            <p>
+                Mining is economically rational only when revenue exceeds costs.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.7 (Mining Revenue)</p>
+                <p>
+                    A miner's expected revenue per block is:
+                </p>
+                <p class="math-block">
+                    revenue = (subsidy + fees) × (miner_hashrate / network_hashrate)
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.8 (Mining Cost)</p>
+                <p>
+                    The primary costs of mining are:
+                </p>
+                <ul>
+                    <li><strong>Electricity:</strong> Power consumption × electricity price</li>
+                    <li><strong>Hardware:</strong> Amortized cost of ASICs</li>
+                    <li><strong>Operations:</strong> Cooling, facility, maintenance</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 14.4 (Mining Profitability)</p>
+                <p>
+                    An ASIC miner with:
+                </p>
+                <ul>
+                    <li>Hash rate: 100 TH/s</li>
+                    <li>Power: 3000 W</li>
+                    <li>Electricity: $0.05/kWh</li>
+                </ul>
+                <pre class="code-block">Daily electricity cost = 3 kW × 24h × $0.05 = $3.60
+
+If network hashrate = 500 EH/s:
+  Share of blocks = 100 TH / 500 EH = 0.0002%
+  Expected daily blocks = 144 × 0.000002 = 0.000288
+
+Daily revenue (at 6.25 BTC subsidy, $40,000/BTC):
+  = 0.000288 × 6.25 × $40,000 = $72
+
+Daily profit = $72 - $3.60 = $68.40</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>14.8 Security Analysis</h2>
+
+            <p>
+                Proof of work provides security through economic cost.
+            </p>
+
+            <h3>14.8.1 Double-Spend Attacks</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 14.9 (Double-Spend Attack)</p>
+                <p>
+                    A <strong>double-spend attack</strong> attempts to spend the same UTXO twice by:
+                </p>
+                <ol>
+                    <li>Making a payment that gets confirmed</li>
+                    <li>Mining a secret chain that spends the same UTXO differently</li>
+                    <li>Revealing the secret chain once it's longer</li>
+                </ol>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 14.4 (Attack Success Probability)</p>
+                <p>
+                    An attacker with fraction <span class="math">q</span> of total hash power
+                    attempting to reverse a transaction with <span class="math">z</span> confirmations
+                    has success probability:
+                </p>
+                <p class="math-block">
+                    P(success) = 1 − Σₖ₌₀^z [λᵏe^(-λ)/k! × (1 − (q/p)^(z-k))]
+                </p>
+                <p>
+                    where <span class="math">λ = z(q/p)</span> and <span class="math">p = 1 − q</span>.
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Attacker Hash %</th>
+                        <th>1 conf</th>
+                        <th>3 conf</th>
+                        <th>6 conf</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10%</td>
+                        <td>20.4%</td>
+                        <td>1.3%</td>
+                        <td>0.02%</td>
+                    </tr>
+                    <tr>
+                        <td>25%</td>
+                        <td>43.7%</td>
+                        <td>12.9%</td>
+                        <td>2.4%</td>
+                    </tr>
+                    <tr>
+                        <td>33%</td>
+                        <td>55.6%</td>
+                        <td>25.7%</td>
+                        <td>9.1%</td>
+                    </tr>
+                    <tr>
+                        <td>45%</td>
+                        <td>73.3%</td>
+                        <td>51.0%</td>
+                        <td>33.5%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>14.8.2 The 51% Attack</h3>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 14.5 (Majority Attack)</p>
+                <p>
+                    An attacker controlling more than 50% of hash power can:
+                </p>
+                <ul>
+                    <li>Reverse any past transaction (given enough time)</li>
+                    <li>Prevent specific transactions from confirming</li>
+                    <li>Double-spend with certainty</li>
+                </ul>
+                <p>
+                    However, they cannot:
+                </p>
+                <ul>
+                    <li>Create coins out of nothing</li>
+                    <li>Spend coins they don't own</li>
+                    <li>Change consensus rules (nodes still validate)</li>
+                </ul>
+            </div>
+
+            <h3>14.8.3 Selfish Mining</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 14.1 (Selfish Mining)</p>
+                <p>
+                    Eyal and Sirer (2014) showed that miners with >33% hash power can gain
+                    disproportionate rewards by strategically withholding blocks. This reduces
+                    the security threshold below 51%, though practical impact remains debated.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>14.9 Energy and Thermodynamics</h2>
+
+            <p>
+                Proof of work converts electricity into security through an irreversible
+                thermodynamic process.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 14.2 (Energy Consumption)</p>
+                <p>
+                    Bitcoin's energy consumption is a feature, not a bug. The energy spent
+                    mining represents a real-world cost that attackers must also pay. Security
+                    is proportional to energy expenditure.
+                </p>
+                <p>
+                    As of 2024, Bitcoin's estimated annual energy consumption is comparable
+                    to a small country (~100-150 TWh/year).
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 14.6 (Security Budget)</p>
+                <p>
+                    The cost to attack Bitcoin is bounded below by the mining revenue:
+                </p>
+                <p class="math-block">
+                    attack_cost ≥ mining_revenue × attack_duration / block_time
+                </p>
+                <p>
+                    This creates a "security budget" paid by inflation (subsidy) and fees.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>14.10 Mining Hardware Evolution</h2>
+
+            <p>
+                Mining hardware has evolved through several generations.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Era</th>
+                        <th>Hardware</th>
+                        <th>Efficiency</th>
+                        <th>Period</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CPU</td>
+                        <td>Intel/AMD processors</td>
+                        <td>~1 MH/s</td>
+                        <td>2009-2010</td>
+                    </tr>
+                    <tr>
+                        <td>GPU</td>
+                        <td>Graphics cards</td>
+                        <td>~100 MH/s</td>
+                        <td>2010-2013</td>
+                    </tr>
+                    <tr>
+                        <td>FPGA</td>
+                        <td>Field-programmable arrays</td>
+                        <td>~1 GH/s</td>
+                        <td>2011-2013</td>
+                    </tr>
+                    <tr>
+                        <td>ASIC</td>
+                        <td>Application-specific chips</td>
+                        <td>~100+ TH/s</td>
+                        <td>2013-present</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>
+                Modern ASICs are roughly 10 billion times more efficient than the CPUs
+                Satoshi used in 2009.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 14.1</p>
+                <p>
+                    If the target requires hashes to start with 72 zero bits, what is the
+                    expected number of hashes to find a valid block? Express your answer
+                    as a power of 2.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 14.2</p>
+                <p>
+                    The last 2016 blocks took 8 days. What is the adjustment factor?
+                    What is the new difficulty relative to the old?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 14.3</p>
+                <p>
+                    A miner has 1% of network hash power. What is their expected number
+                    of blocks per day? What is the standard deviation?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 14.4</p>
+                <p>
+                    Explain why the 4× maximum adjustment factor is important. What could
+                    go wrong if difficulty could adjust without bounds?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 14.5</p>
+                <p>
+                    An attacker with 30% hash power wants to double-spend a transaction
+                    with 6 confirmations. Using the formula or table, estimate their
+                    success probability. How long would they expect to wait for success?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="13-blocks.html" class="prev-chapter">← Chapter 13: Blocks</a>
+            <a href="15-consensus-parameters.html" class="next-chapter">Chapter 15: Consensus Parameters →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

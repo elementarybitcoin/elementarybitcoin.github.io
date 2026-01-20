@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Elliptic Curves over Finite Fields | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Chapter Four</span>
+        <h1 class="chapter-title">Elliptic Curves over Finite Fields</h1>
+        <p class="chapter-epigraph">
+            "The unreasonable effectiveness of mathematics in the natural sciences."
+            <br>&mdash; Eugene Wigner
+        </p>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                In the previous chapter, we explored elliptic curves over the real numbers,
+                where our geometric intuition could guide us. Now we make a profound transition:
+                we move from the continuous realm of real numbers to the discrete world of finite fields.
+            </p>
+            <p>
+                This transition may seem like a leap into abstraction, yet the algebraic
+                structure survives intact. The same addition formulas work, the same group
+                laws hold. What changes is the visual nature of the curve&mdash;instead of
+                a smooth flowing shape, we have a finite collection of discrete points.
+            </p>
+            <p>
+                It is in this discrete setting that cryptography becomes possible.
+            </p>
+        </section>
+
+        <section>
+            <h2>4.1 Definition over Finite Fields</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 4.1 (Elliptic Curve over 𝔽ₚ)</p>
+                <p>
+                    Let <span class="math">p > 3</span> be a prime. An <strong>elliptic curve</strong>
+                    over the finite field <span class="math">𝔽ₚ</span> is the set of points
+                    <span class="math">(x, y)</span> with <span class="math">x, y ∈ 𝔽ₚ</span> satisfying:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">y² ≡ x³ + ax + b (mod p)</span>
+                </p>
+                <p>
+                    where <span class="math">a, b ∈ 𝔽ₚ</span> and <span class="math">4a³ + 27b² ≢ 0 (mod p)</span>,
+                    together with the point at infinity <span class="math">𝒪</span>.
+                </p>
+                <p>We denote this curve by <span class="math">E(𝔽ₚ)</span>.</p>
+            </div>
+
+            <p>
+                The key insight is that all our previous formulas work in <span class="math">𝔽ₚ</span>
+                simply by performing all arithmetic modulo <span class="math">p</span>. Division
+                becomes multiplication by the modular inverse.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 4.1 (A Small Curve: E(𝔽₂₃))</p>
+                <p>
+                    Consider the curve <span class="math">y² = x³ + x + 1</span> over <span class="math">𝔽₂₃</span>.
+                    Here <span class="math">a = 1, b = 1</span>.
+                </p>
+                <p>
+                    To find all points, we check each <span class="math">x ∈ {0, 1, 2, ..., 22}</span>
+                    and see if <span class="math">x³ + x + 1</span> is a quadratic residue mod 23.
+                </p>
+                <p>For <span class="math">x = 0</span>: <span class="math">0³ + 0 + 1 = 1 = 1²</span>. So <span class="math">(0, 1)</span> and <span class="math">(0, 22)</span> are on the curve.</p>
+                <p>For <span class="math">x = 1</span>: <span class="math">1³ + 1 + 1 = 3</span>. Is 3 a square mod 23? We need <span class="math">y² ≡ 3</span>. Testing: <span class="math">7² = 49 ≡ 3</span>. Yes! Points: <span class="math">(1, 7)</span> and <span class="math">(1, 16)</span>.</p>
+                <p>Continuing this process yields all 28 points (plus <span class="math">𝒪</span>).</p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="500" viewBox="0 0 500 500">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">E(𝔽₂₃): y² = x³ + x + 1</text>
+
+                    <!-- Grid -->
+                    <g stroke="#eee" stroke-width="1">
+                        <!-- Vertical lines -->
+                        <line x1="50" y1="50" x2="50" y2="450"/>
+                        <line x1="70" y1="50" x2="70" y2="450"/>
+                        <line x1="90" y1="50" x2="90" y2="450"/>
+                        <line x1="110" y1="50" x2="110" y2="450"/>
+                        <line x1="130" y1="50" x2="130" y2="450"/>
+                        <line x1="150" y1="50" x2="150" y2="450"/>
+                        <line x1="170" y1="50" x2="170" y2="450"/>
+                        <line x1="190" y1="50" x2="190" y2="450"/>
+                        <line x1="210" y1="50" x2="210" y2="450"/>
+                        <line x1="230" y1="50" x2="230" y2="450"/>
+                        <line x1="250" y1="50" x2="250" y2="450"/>
+                        <line x1="270" y1="50" x2="270" y2="450"/>
+                        <line x1="290" y1="50" x2="290" y2="450"/>
+                        <line x1="310" y1="50" x2="310" y2="450"/>
+                        <line x1="330" y1="50" x2="330" y2="450"/>
+                        <line x1="350" y1="50" x2="350" y2="450"/>
+                        <line x1="370" y1="50" x2="370" y2="450"/>
+                        <line x1="390" y1="50" x2="390" y2="450"/>
+                        <line x1="410" y1="50" x2="410" y2="450"/>
+                        <line x1="430" y1="50" x2="430" y2="450"/>
+                        <line x1="450" y1="50" x2="450" y2="450"/>
+                        <!-- Horizontal lines -->
+                        <line x1="50" y1="50" x2="450" y2="50"/>
+                        <line x1="50" y1="70" x2="450" y2="70"/>
+                        <line x1="50" y1="90" x2="450" y2="90"/>
+                        <line x1="50" y1="110" x2="450" y2="110"/>
+                        <line x1="50" y1="130" x2="450" y2="130"/>
+                        <line x1="50" y1="150" x2="450" y2="150"/>
+                        <line x1="50" y1="170" x2="450" y2="170"/>
+                        <line x1="50" y1="190" x2="450" y2="190"/>
+                        <line x1="50" y1="210" x2="450" y2="210"/>
+                        <line x1="50" y1="230" x2="450" y2="230"/>
+                        <line x1="50" y1="250" x2="450" y2="250"/>
+                        <line x1="50" y1="270" x2="450" y2="270"/>
+                        <line x1="50" y1="290" x2="450" y2="290"/>
+                        <line x1="50" y1="310" x2="450" y2="310"/>
+                        <line x1="50" y1="330" x2="450" y2="330"/>
+                        <line x1="50" y1="350" x2="450" y2="350"/>
+                        <line x1="50" y1="370" x2="450" y2="370"/>
+                        <line x1="50" y1="390" x2="450" y2="390"/>
+                        <line x1="50" y1="410" x2="450" y2="410"/>
+                        <line x1="50" y1="430" x2="450" y2="430"/>
+                        <line x1="50" y1="450" x2="450" y2="450"/>
+                    </g>
+
+                    <!-- Axes -->
+                    <line x1="50" y1="250" x2="450" y2="250" stroke="#999" stroke-width="1.5"/>
+                    <line x1="50" y1="50" x2="50" y2="450" stroke="#999" stroke-width="1.5"/>
+
+                    <!-- Axis labels -->
+                    <text x="250" y="475" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">x</text>
+                    <text x="30" y="250" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">y</text>
+
+                    <!-- Scale: each unit = 17.4px, origin at (50, 250 - scaled) -->
+                    <!-- Points on the curve (sample points for y² = x³ + x + 1 mod 23) -->
+                    <!-- The actual points form a scattered pattern -->
+
+                    <!-- Some representative points (scaled: x*17.4 + 50, 250 - y*8.7) -->
+                    <g fill="#4a90d9">
+                        <circle cx="50" cy="163" r="5"/>   <!-- (0, 1) -->
+                        <circle cx="50" cy="337" r="5"/>   <!-- (0, 22) -->
+                        <circle cx="67" cy="189" r="5"/>   <!-- (1, 7) -->
+                        <circle cx="67" cy="311" r="5"/>   <!-- (1, 16) -->
+                        <circle cx="102" cy="172" r="5"/>  <!-- (3, 9) -->
+                        <circle cx="102" cy="328" r="5"/>  <!-- (3, 14) -->
+                        <circle cx="137" cy="163" r="5"/>  <!-- (5, 10) -->
+                        <circle cx="137" cy="337" r="5"/>  <!-- (5, 13) -->
+                        <circle cx="154" cy="198" r="5"/>  <!-- (6, 6) -->
+                        <circle cx="154" cy="302" r="5"/>  <!-- (6, 17) -->
+                        <circle cx="188" cy="180" r="5"/>  <!-- (8, 8) -->
+                        <circle cx="188" cy="320" r="5"/>  <!-- (8, 15) -->
+                        <circle cx="206" cy="163" r="5"/>  <!-- (9, 10) -->
+                        <circle cx="206" cy="337" r="5"/>  <!-- (9, 13) -->
+                        <circle cx="223" cy="206" r="5"/>  <!-- (10, 5) -->
+                        <circle cx="223" cy="294" r="5"/>  <!-- (10, 18) -->
+                        <circle cx="240" cy="172" r="5"/>  <!-- (11, 9) -->
+                        <circle cx="240" cy="328" r="5"/>  <!-- (11, 14) -->
+                        <circle cx="274" cy="215" r="5"/>  <!-- (13, 4) -->
+                        <circle cx="274" cy="285" r="5"/>  <!-- (13, 19) -->
+                        <circle cx="326" cy="198" r="5"/>  <!-- (16, 6) -->
+                        <circle cx="326" cy="302" r="5"/>  <!-- (16, 17) -->
+                        <circle cx="343" cy="189" r="5"/>  <!-- (17, 7) -->
+                        <circle cx="343" cy="311" r="5"/>  <!-- (17, 16) -->
+                        <circle cx="395" cy="206" r="5"/>  <!-- (20, 5) -->
+                        <circle cx="395" cy="294" r="5"/>  <!-- (20, 18) -->
+                        <circle cx="429" cy="180" r="5"/>  <!-- (22, 8) -->
+                        <circle cx="429" cy="320" r="5"/>  <!-- (22, 15) -->
+                    </g>
+
+                    <!-- Note -->
+                    <text x="350" y="470" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">28 finite points + 𝒪 = 29 total</text>
+
+                    <!-- Symmetry line -->
+                    <text x="475" y="250" font-family="Georgia" font-size="10" fill="#8b4513">y = 11.5</text>
+                </svg>
+                <figcaption>Figure 4.1: The elliptic curve E(𝔽₂₃) shown as discrete points. Note the symmetry about y = 11.5 (since 22 + 1 = 23).</figcaption>
+            </figure>
+
+            <p>
+                Notice that the visual "curve" has disappeared. We have only isolated points
+                scattered across the plane. Yet these points still form a group under the
+                same algebraic rules.
+            </p>
+        </section>
+
+        <section>
+            <h2>4.2 Point Addition over 𝔽ₚ</h2>
+
+            <p>
+                The addition formulas from Chapter 3 carry over directly, with all arithmetic
+                performed in <span class="math">𝔽ₚ</span>. Division becomes multiplication by
+                the modular inverse.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 4.1 (Addition Formulas over 𝔽ₚ)</p>
+                <p>
+                    Let <span class="math">P = (x₁, y₁)</span> and <span class="math">Q = (x₂, y₂)</span>
+                    be points on <span class="math">E(𝔽ₚ)</span>. Then <span class="math">P + Q = (x₃, y₃)</span>
+                    where:
+                </p>
+                <p><strong>If P ≠ Q:</strong></p>
+                <p style="text-align: center;">
+                    <span class="math">λ = (y₂ − y₁) · (x₂ − x₁)⁻¹ mod p</span>
+                </p>
+                <p><strong>If P = Q:</strong></p>
+                <p style="text-align: center;">
+                    <span class="math">λ = (3x₁² + a) · (2y₁)⁻¹ mod p</span>
+                </p>
+                <p><strong>In both cases:</strong></p>
+                <p style="text-align: center;">
+                    <span class="math">x₃ = λ² − x₁ − x₂ mod p</span>
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">y₃ = λ(x₁ − x₃) − y₁ mod p</span>
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 4.2 (Point Addition in 𝔽₂₃)</p>
+                <p>
+                    On <span class="math">E(𝔽₂₃): y² = x³ + x + 1</span>, compute
+                    <span class="math">P + Q</span> where <span class="math">P = (3, 10)</span>
+                    and <span class="math">Q = (9, 7)</span>.
+                </p>
+                <p><strong>Step 1:</strong> Compute the slope λ.</p>
+                <ul>
+                    <li><span class="math">y₂ − y₁ = 7 − 10 = −3 ≡ 20 (mod 23)</span></li>
+                    <li><span class="math">x₂ − x₁ = 9 − 3 = 6</span></li>
+                    <li>Find <span class="math">6⁻¹ mod 23</span>: Since <span class="math">6 × 4 = 24 ≡ 1</span>, we have <span class="math">6⁻¹ = 4</span>.</li>
+                    <li><span class="math">λ = 20 × 4 = 80 ≡ 11 (mod 23)</span></li>
+                </ul>
+                <p><strong>Step 2:</strong> Compute x₃.</p>
+                <ul>
+                    <li><span class="math">x₃ = λ² − x₁ − x₂ = 11² − 3 − 9 = 121 − 12 = 109 ≡ 17 (mod 23)</span></li>
+                </ul>
+                <p><strong>Step 3:</strong> Compute y₃.</p>
+                <ul>
+                    <li><span class="math">y₃ = λ(x₁ − x₃) − y₁ = 11(3 − 17) − 10 = 11(−14) − 10</span></li>
+                    <li><span class="math">= −154 − 10 = −164 ≡ −164 + 8×23 = −164 + 184 = 20 (mod 23)</span></li>
+                </ul>
+                <p><strong>Result:</strong> <span class="math">P + Q = (17, 20)</span>.</p>
+                <p>
+                    <em>Verification:</em> <span class="math">20² = 400 ≡ 9 (mod 23)</span> and
+                    <span class="math">17³ + 17 + 1 = 4913 + 18 = 4931 ≡ 9 (mod 23)</span>. ✓
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>4.3 The Order of a Curve</h2>
+
+            <p>
+                Unlike curves over the reals, which have infinitely many points, curves over
+                finite fields have finitely many. The number of points is called the <em>order</em>
+                of the curve.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 4.2 (Curve Order)</p>
+                <p>
+                    The <strong>order</strong> of an elliptic curve <span class="math">E(𝔽ₚ)</span>,
+                    denoted <span class="math">#E(𝔽ₚ)</span> or <span class="math">|E(𝔽ₚ)|</span>,
+                    is the total number of points on the curve, including the point at infinity.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 4.2 (Hasse's Theorem)</p>
+                <p>
+                    For an elliptic curve <span class="math">E</span> over <span class="math">𝔽ₚ</span>:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">|#E(𝔽ₚ) − (p + 1)| ≤ 2√p</span>
+                </p>
+                <p>
+                    Equivalently, writing <span class="math">#E(𝔽ₚ) = p + 1 − t</span>, we have
+                    <span class="math">|t| ≤ 2√p</span>. The integer <span class="math">t</span>
+                    is called the <strong>trace of Frobenius</strong>.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="450" height="180" viewBox="0 0 450 180">
+                    <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Hasse's Theorem: Curve Order Bounds</text>
+
+                    <!-- Number line -->
+                    <line x1="50" y1="100" x2="400" y2="100" stroke="#666" stroke-width="2"/>
+
+                    <!-- p + 1 center -->
+                    <circle cx="225" cy="100" r="5" fill="#8b4513"/>
+                    <text x="225" y="125" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">p + 1</text>
+
+                    <!-- Lower bound -->
+                    <circle cx="100" cy="100" r="5" fill="#4a90d9"/>
+                    <text x="100" y="125" text-anchor="middle" font-family="Georgia" font-size="11">p + 1 − 2√p</text>
+                    <line x1="100" y1="90" x2="100" y2="75" stroke="#4a90d9" stroke-width="1"/>
+
+                    <!-- Upper bound -->
+                    <circle cx="350" cy="100" r="5" fill="#4a90d9"/>
+                    <text x="350" y="125" text-anchor="middle" font-family="Georgia" font-size="11">p + 1 + 2√p</text>
+                    <line x1="350" y1="90" x2="350" y2="75" stroke="#4a90d9" stroke-width="1"/>
+
+                    <!-- Range bracket -->
+                    <path d="M 100 70 L 100 65 L 350 65 L 350 70" fill="none" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="225" y="55" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">#E(𝔽ₚ) lies here</text>
+
+                    <!-- Note -->
+                    <text x="225" y="160" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">For large p, #E(𝔽ₚ) ≈ p</text>
+                </svg>
+                <figcaption>Figure 4.2: Hasse's theorem bounds the number of points close to p + 1.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Intuition.</p>
+                <p>
+                    Hasse's theorem says that the number of points on an elliptic curve is roughly
+                    <span class="math">p</span>, the size of the underlying field. The deviation
+                    from <span class="math">p + 1</span> is at most <span class="math">2√p</span>,
+                    which for large <span class="math">p</span> is negligible in comparison.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>4.4 Cyclic Subgroups and Generators</h2>
+
+            <p>
+                For cryptographic applications, we typically work with a <em>cyclic subgroup</em>
+                of the elliptic curve group, generated by a specific point <span class="math">G</span>.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 4.3 (Order of a Point)</p>
+                <p>
+                    The <strong>order</strong> of a point <span class="math">P</span> on an elliptic
+                    curve is the smallest positive integer <span class="math">n</span> such that:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">nP = 𝒪</span>
+                </p>
+                <p>
+                    The subgroup generated by <span class="math">P</span> is
+                    <span class="math">⟨P⟩ = {𝒪, P, 2P, 3P, ..., (n−1)P}</span>.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 4.3 (Lagrange for Elliptic Curves)</p>
+                <p>
+                    The order of any point <span class="math">P</span> divides the order of the curve
+                    <span class="math">#E(𝔽ₚ)</span>.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 4.4 (Generator Point)</p>
+                <p>
+                    A point <span class="math">G</span> is called a <strong>generator</strong> (or
+                    <strong>base point</strong>) of a subgroup if every point in the subgroup can
+                    be expressed as <span class="math">kG</span> for some integer <span class="math">k</span>.
+                </p>
+                <p>
+                    For cryptographic purposes, we choose <span class="math">G</span> to generate a
+                    subgroup of prime order <span class="math">n</span>.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="250" viewBox="0 0 500 250">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Cyclic Subgroup Generated by G</text>
+
+                    <!-- Circle representing cyclic structure -->
+                    <circle cx="250" cy="140" r="90" fill="none" stroke="#4a90d9" stroke-width="2"/>
+
+                    <!-- Points around the circle -->
+                    <g font-family="Georgia" font-size="11">
+                        <!-- 𝒪 at top -->
+                        <circle cx="250" cy="50" r="5" fill="#8b4513"/>
+                        <text x="250" y="40" text-anchor="middle" font-style="italic">𝒪</text>
+
+                        <!-- G -->
+                        <circle cx="330" cy="80" r="5" fill="#5a8f5a"/>
+                        <text x="345" y="75" fill="#5a8f5a" font-weight="bold">G</text>
+
+                        <!-- 2G -->
+                        <circle cx="340" cy="140" r="5" fill="#4a90d9"/>
+                        <text x="360" y="145">2G</text>
+
+                        <!-- 3G -->
+                        <circle cx="310" cy="200" r="5" fill="#4a90d9"/>
+                        <text x="325" y="215">3G</text>
+
+                        <!-- 4G -->
+                        <circle cx="250" cy="230" r="5" fill="#4a90d9"/>
+                        <text x="250" y="248" text-anchor="middle">4G</text>
+
+                        <!-- 5G -->
+                        <circle cx="190" cy="200" r="5" fill="#4a90d9"/>
+                        <text x="170" y="215">5G</text>
+
+                        <!-- (n-1)G -->
+                        <circle cx="170" cy="80" r="5" fill="#4a90d9"/>
+                        <text x="140" y="75">(n−1)G</text>
+
+                        <!-- ... -->
+                        <text x="160" y="145" fill="#666">⋮</text>
+                    </g>
+
+                    <!-- Arrow showing progression -->
+                    <path d="M 258 55 A 85 85 0 0 1 325 85" fill="none" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arrG)"/>
+                    <text x="305" y="55" font-family="Georgia" font-size="10" fill="#5a8f5a">+G</text>
+
+                    <!-- nG = 𝒪 annotation -->
+                    <path d="M 175 75 A 85 85 0 0 0 245 52" fill="none" stroke="#8b4513" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrB)"/>
+                    <text x="200" y="45" font-family="Georgia" font-size="10" fill="#8b4513">nG = 𝒪</text>
+
+                    <defs>
+                        <marker id="arrG" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
+                        </marker>
+                        <marker id="arrB" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#8b4513"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 4.3: A cyclic subgroup of order n generated by the point G.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 4.5 (Cofactor)</p>
+                <p>
+                    If <span class="math">E(𝔽ₚ)</span> has order <span class="math">N</span> and
+                    we use a subgroup of prime order <span class="math">n</span>, then the
+                    <strong>cofactor</strong> is:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">h = N / n</span>
+                </p>
+                <p>
+                    For cryptographic security, we prefer curves with small cofactor, ideally
+                    <span class="math">h = 1</span>.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Why Prime Order?</p>
+                <p>
+                    Working in a subgroup of prime order <span class="math">n</span> ensures that
+                    the discrete logarithm problem is as hard as possible. If <span class="math">n</span>
+                    had small factors, the Pohlig-Hellman algorithm could exploit this structure
+                    to solve the DLP more efficiently.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>4.5 The Elliptic Curve Discrete Logarithm Problem</h2>
+
+            <p>
+                We now formalize the computational problem upon which all elliptic curve
+                cryptography rests.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 4.6 (ECDLP)</p>
+                <p>
+                    The <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong> is:
+                </p>
+                <blockquote>
+                    Given points <span class="math">G</span> and <span class="math">Q = kG</span>
+                    on an elliptic curve <span class="math">E(𝔽ₚ)</span>, find the integer
+                    <span class="math">k</span>.
+                </blockquote>
+            </div>
+
+            <p>
+                While computing <span class="math">Q = kG</span> is efficient (using double-and-add),
+                finding <span class="math">k</span> given only <span class="math">G</span> and
+                <span class="math">Q</span> is believed to be computationally infeasible for
+                properly chosen curves.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 4.4 (Best Known Algorithms for ECDLP)</p>
+                <p>
+                    For a generic elliptic curve group of order <span class="math">n</span>:
+                </p>
+                <ul>
+                    <li><strong>Brute force:</strong> <span class="math">O(n)</span> operations</li>
+                    <li><strong>Baby-step giant-step:</strong> <span class="math">O(√n)</span> operations, <span class="math">O(√n)</span> storage</li>
+                    <li><strong>Pollard's rho:</strong> <span class="math">O(√n)</span> operations, <span class="math">O(1)</span> storage</li>
+                </ul>
+                <p>
+                    No algorithm significantly better than <span class="math">O(√n)</span> is known
+                    for properly chosen elliptic curves.
+                </p>
+            </div>
+
+            <p>
+                For Bitcoin's secp256k1 curve, <span class="math">n ≈ 2²⁵⁶</span>, giving a
+                security level of approximately <span class="math">√(2²⁵⁶) = 2¹²⁸</span>
+                operations—well beyond any foreseeable computational capability.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">ECDLP Security</text>
+
+                    <!-- Scalar multiplication (forward) -->
+                    <rect x="40" y="60" width="140" height="50" rx="5" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="110" y="85" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">k (private key)</text>
+                    <text x="110" y="100" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">256-bit integer</text>
+
+                    <path d="M 185 85 L 275 85" stroke="#5a8f5a" stroke-width="2.5" marker-end="url(#aGreen)"/>
+                    <text x="230" y="75" text-anchor="middle" font-family="Georgia" font-size="11" fill="#5a8f5a">Q = kG</text>
+                    <text x="230" y="105" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">~256 point ops</text>
+
+                    <rect x="280" y="60" width="140" height="50" rx="5" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="350" y="85" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">Q (public key)</text>
+                    <text x="350" y="100" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Point on curve</text>
+
+                    <!-- Reverse (infeasible) -->
+                    <path d="M 275 140 L 185 140" stroke="#c44" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#aRed)"/>
+                    <text x="230" y="135" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">Find k</text>
+                    <text x="230" y="160" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">~2¹²⁸ ops (infeasible)</text>
+
+                    <defs>
+                        <marker id="aGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#5a8f5a"/>
+                        </marker>
+                        <marker id="aRed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 4.4: The asymmetry between scalar multiplication and the ECDLP.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>4.6 Choosing Secure Curves</h2>
+
+            <p>
+                Not all elliptic curves provide adequate security. The following criteria guide
+                the selection of cryptographic curves:
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Criteria for Cryptographic Curves</p>
+                <ol>
+                    <li><strong>Large prime order subgroup:</strong> The curve should have a
+                        subgroup of order <span class="math">n</span> where <span class="math">n</span>
+                        is prime and at least 256 bits.</li>
+                    <li><strong>Small cofactor:</strong> The cofactor <span class="math">h = N/n</span>
+                        should be small (ideally 1).</li>
+                    <li><strong>Resistance to MOV attack:</strong> The embedding degree should
+                        be large (the curve should not be supersingular).</li>
+                    <li><strong>Resistance to anomalous attack:</strong> <span class="math">#E(𝔽ₚ) ≠ p</span>.</li>
+                    <li><strong>Verifiable randomness:</strong> The parameters should be generated
+                        in a way that doesn't allow hidden trapdoors.</li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">NIST vs. Koblitz Curves.</p>
+                <p>
+                    The NIST curves (P-256, P-384, P-521) were selected with opaque "random" seeds,
+                    leading to suspicion that they might contain hidden weaknesses. In contrast,
+                    Koblitz curves like secp256k1 have simple, verifiable parameters
+                    (<span class="math">a = 0, b = 7</span>) that leave no room for hidden trapdoors.
+                    This transparency was one reason Satoshi Nakamoto chose secp256k1 for Bitcoin.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>4.7 From Groups to Cryptography</h2>
+
+            <p>
+                The elliptic curve group <span class="math">(E(𝔽ₚ), +)</span> provides the
+                mathematical foundation for several cryptographic constructions:
+            </p>
+
+            <table>
+                <tr>
+                    <th>Cryptographic Primitive</th>
+                    <th>Based On</th>
+                    <th>Used In Bitcoin</th>
+                </tr>
+                <tr>
+                    <td>Key Generation</td>
+                    <td>Scalar multiplication: <span class="math">Q = kG</span></td>
+                    <td>Private/public key pairs</td>
+                </tr>
+                <tr>
+                    <td>ECDSA</td>
+                    <td>ECDLP hardness</td>
+                    <td>Legacy transaction signing</td>
+                </tr>
+                <tr>
+                    <td>Schnorr Signatures</td>
+                    <td>ECDLP hardness</td>
+                    <td>Taproot (BIP-340)</td>
+                </tr>
+                <tr>
+                    <td>ECDH</td>
+                    <td>CDH assumption</td>
+                    <td>Encrypted messaging</td>
+                </tr>
+            </table>
+
+            <p>
+                In the next chapter, we shall study the specific curve chosen for Bitcoin:
+                secp256k1.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h3>Exercises</h3>
+
+            <div class="exercise">
+                <span class="exercise-number">4.1.</span>
+                Find all points on the curve <span class="math">y² = x³ + 2x + 3</span> over <span class="math">𝔽₇</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">4.2.</span>
+                On the curve from Example 4.1, compute <span class="math">2P</span> where
+                <span class="math">P = (0, 1)</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">4.3.</span>
+                Prove that <span class="math">−P = (x, p − y)</span> for <span class="math">P = (x, y)</span>
+                on a curve over <span class="math">𝔽ₚ</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">4.4.</span>
+                For the curve <span class="math">y² = x³ + x + 1</span> over <span class="math">𝔽₅</span>,
+                find the order of the curve and determine if the group is cyclic.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">4.5.</span>
+                Explain why a curve with <span class="math">#E(𝔽ₚ) = p</span> is insecure
+                (anomalous curve attack).
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">4.6.</span>
+                <em>(Computational)</em> Implement point addition over <span class="math">𝔽ₚ</span>
+                and verify your implementation on the curve and points from Example 4.2.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">4.7.</span>
+                Using Hasse's theorem, give bounds on <span class="math">#E(𝔽_{101})</span> for any
+                elliptic curve over <span class="math">𝔽_{101}</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">4.8.</span>
+                If an elliptic curve has <span class="math">#E(𝔽ₚ) = 2n</span> where <span class="math">n</span>
+                is prime, what is the cofactor? What points have order <span class="math">n</span>?
+            </div>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="03-elliptic-curves-real.html">← Chapter 3: Elliptic Curves over ℝ</a>
+            <a href="05-secp256k1.html">Chapter 5: The secp256k1 Curve →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 17: SPV Theory | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume III: Scaling and Verification</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 17</p>
+        <h1>Simplified Payment Verification</h1>
+        <p class="chapter-subtitle">What the Whitepaper Actually Says</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Section 8 of the Bitcoin whitepaper describes "Simplified Payment Verification"—a
+                method for verifying payments without running a full node. This section, spanning
+                just 479 words, has generated enormous controversy and widespread misunderstanding.
+                In this chapter, we examine SPV with mathematical precision: what it proves, what
+                it assumes, and what it does not guarantee.
+            </p>
+
+            <p>
+                Understanding SPV correctly is essential for reasoning about Bitcoin's scalability
+                and for evaluating the security of lightweight wallets. We begin with Satoshi's
+                original text, then develop the formal model.
+            </p>
+        </section>
+
+        <section>
+            <h2>17.1 The Original Text</h2>
+
+            <p>
+                Let us quote Section 8 of the whitepaper in full, then analyze it systematically.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Whitepaper Section 8: Simplified Payment Verification</p>
+                <blockquote style="font-style: italic; border-left: 3px solid #ccc; padding-left: 1rem; margin: 1rem 0;">
+                    <p>
+                        "It is possible to verify payments without running a full network node. A user
+                        only needs to keep a copy of the block headers of the longest proof-of-work chain,
+                        which he can get by querying network nodes until he's convinced he has the longest
+                        chain, and obtain the Merkle branch linking the transaction to the block it's
+                        timestamped in. He can't check the transaction for himself, but by linking it to
+                        a place in the chain, he can see that a network node has accepted it, and blocks
+                        added after it further confirm the network has accepted it."
+                    </p>
+                    <p>
+                        "As such, the verification is reliable as long as honest nodes control the network,
+                        but is more vulnerable if the network is overpowered by an attacker. While network
+                        nodes can verify transactions for themselves, the simplified method can be fooled
+                        by an attacker's fabricated transactions for as long as the attacker can continue
+                        to overpower the network. One strategy to protect against this would be to accept
+                        alerts from network nodes when they detect an invalid block, prompting the user's
+                        software to download the full block and alerted transactions to confirm the
+                        inconsistency. Businesses that receive frequent payments will probably still want
+                        to run their own nodes for more independent security and quicker verification."
+                    </p>
+                </blockquote>
+            </div>
+
+            <p>
+                Several key claims emerge from this text. Let us formalize each.
+            </p>
+        </section>
+
+        <section>
+            <h2>17.2 The SPV Data Model</h2>
+
+            <p>
+                An SPV client maintains a minimal data set compared to a full node.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 17.1 (SPV Client State)</p>
+                <p>
+                    An <strong>SPV client</strong> maintains:
+                </p>
+                <ol>
+                    <li><strong>Block headers:</strong> The chain of 80-byte headers from genesis to tip</li>
+                    <li><strong>Filter data:</strong> Optional filters to identify relevant transactions</li>
+                    <li><strong>Relevant transactions:</strong> Transactions affecting the client's addresses</li>
+                    <li><strong>Merkle proofs:</strong> Proofs linking each relevant transaction to a header</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- Full node -->
+                    <rect x="30" y="30" width="180" height="160" rx="8" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="120" y="55" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Full Node</text>
+
+                    <rect x="45" y="70" width="150" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="120" y="87" text-anchor="middle" font-family="Georgia" font-size="10">All block headers</text>
+
+                    <rect x="45" y="100" width="150" height="25" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="120" y="117" text-anchor="middle" font-family="Georgia" font-size="10">All transactions</text>
+
+                    <rect x="45" y="130" width="150" height="25" rx="4" fill="#fff8e8" stroke="#d4a574"/>
+                    <text x="120" y="147" text-anchor="middle" font-family="Georgia" font-size="10">UTXO set</text>
+
+                    <text x="120" y="175" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">~500+ GB</text>
+
+                    <!-- SPV client -->
+                    <rect x="280" y="30" width="180" height="160" rx="8" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="370" y="55" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">SPV Client</text>
+
+                    <rect x="295" y="70" width="150" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="370" y="87" text-anchor="middle" font-family="Georgia" font-size="10">All block headers</text>
+
+                    <rect x="295" y="100" width="150" height="25" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <text x="370" y="117" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Own transactions only</text>
+
+                    <rect x="295" y="130" width="150" height="25" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <text x="370" y="147" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Merkle proofs</text>
+
+                    <text x="370" y="175" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">~50 MB + txs</text>
+
+                    <!-- Comparison arrow -->
+                    <text x="250" y="115" text-anchor="middle" font-family="Georgia" font-size="20" fill="#888">→</text>
+                    <text x="250" y="140" text-anchor="middle" font-family="Georgia" font-size="9" fill="#888">10,000×</text>
+                    <text x="250" y="152" text-anchor="middle" font-family="Georgia" font-size="9" fill="#888">smaller</text>
+                </svg>
+                <figcaption>Figure 17.1: An SPV client stores orders of magnitude less data than a full node.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 17.1 (Header Chain Size)</p>
+                <p>
+                    The size of the complete header chain grows linearly with blockchain height:
+                </p>
+                <p class="math-block">
+                    size = 80 × height bytes
+                </p>
+                <p>
+                    At height 800,000: approximately 64 MB. Annual growth: ~4.2 MB/year.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    Each block has exactly one 80-byte header. At ~52,560 blocks per year,
+                    annual growth = 52,560 × 80 = 4,204,800 bytes ≈ 4.2 MB. □
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>17.3 What SPV Proves</h2>
+
+            <p>
+                The fundamental claim of SPV is that a Merkle proof demonstrates transaction
+                inclusion in a block. Let us be precise about what this means.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 17.2 (SPV Inclusion Proof)</p>
+                <p>
+                    Given:
+                </p>
+                <ul>
+                    <li>A transaction <span class="math">tx</span></li>
+                    <li>A block header <span class="math">H</span> with Merkle root <span class="math">R</span></li>
+                    <li>A valid Merkle proof <span class="math">π</span> for <span class="math">tx</span> under <span class="math">R</span></li>
+                </ul>
+                <p>
+                    Then <span class="math">tx</span> is included in the block represented by <span class="math">H</span>,
+                    assuming the hash function is collision-resistant.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    From Chapter 12, a valid Merkle proof demonstrates that <span class="math">tx</span>
+                    is a leaf in the Merkle tree with root <span class="math">R</span>. The header
+                    <span class="math">H</span> contains <span class="math">R</span> as the merkle_root
+                    field. Therefore <span class="math">tx</span> is in the block. □
+                </p>
+            </div>
+
+            <p>
+                But inclusion in a block is only the beginning. The critical question is:
+                what does this tell us about the transaction's validity?
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 17.2 (SPV Verification)</p>
+                <p>
+                    <strong>SPV verification</strong> of a transaction consists of:
+                </p>
+                <ol>
+                    <li>Verifying the transaction is well-formed</li>
+                    <li>Verifying the Merkle proof against a block header</li>
+                    <li>Verifying the block header is part of the longest PoW chain</li>
+                    <li>Optionally, waiting for additional confirmations</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Chain of headers -->
+                    <rect x="30" y="80" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="60" y="105" text-anchor="middle" font-family="Georgia" font-size="9">Header n-2</text>
+
+                    <rect x="110" y="80" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="140" y="105" text-anchor="middle" font-family="Georgia" font-size="9">Header n-1</text>
+
+                    <rect x="190" y="80" width="60" height="40" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="220" y="105" text-anchor="middle" font-family="Georgia" font-size="9">Header n</text>
+
+                    <rect x="270" y="80" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="300" y="105" text-anchor="middle" font-family="Georgia" font-size="9">Header n+1</text>
+
+                    <rect x="350" y="80" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="380" y="105" text-anchor="middle" font-family="Georgia" font-size="9">Header n+2</text>
+
+                    <!-- Arrows between headers -->
+                    <path d="M 95 100 L 105 100" stroke="#666" stroke-width="1.5"/>
+                    <path d="M 175 100 L 185 100" stroke="#666" stroke-width="1.5"/>
+                    <path d="M 255 100 L 265 100" stroke="#666" stroke-width="1.5"/>
+                    <path d="M 335 100 L 345 100" stroke="#666" stroke-width="1.5"/>
+
+                    <!-- Merkle proof -->
+                    <path d="M 220 125 L 220 155" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed17)"/>
+
+                    <!-- Transaction -->
+                    <rect x="180" y="160" width="80" height="30" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="220" y="180" text-anchor="middle" font-family="Georgia" font-size="10">Transaction</text>
+
+                    <!-- Merkle proof label -->
+                    <text x="250" y="145" font-family="Georgia" font-size="9" fill="#c44">Merkle proof</text>
+
+                    <!-- Labels -->
+                    <text x="220" y="45" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">SPV Verification</text>
+                    <text x="300" y="65" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">+2 confirmations</text>
+
+                    <defs>
+                        <marker id="arrowRed17" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 17.2: SPV verifies transaction inclusion in a header that's part of the longest chain.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>17.4 What SPV Does NOT Prove</h2>
+
+            <p>
+                This is where misunderstandings flourish. Let us be explicit about what
+                SPV cannot verify.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 17.3 (SPV Limitations)</p>
+                <p>
+                    An SPV client <strong>cannot independently verify</strong>:
+                </p>
+                <ol>
+                    <li>That the transaction's inputs are valid UTXOs</li>
+                    <li>That the transaction's signatures are correct</li>
+                    <li>That the transaction doesn't double-spend</li>
+                    <li>That the block's other transactions are valid</li>
+                    <li>That consensus rules were followed</li>
+                </ol>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    Each verification requires data the SPV client doesn't have:
+                </p>
+                <ol>
+                    <li>UTXO validation requires the UTXO set (not stored)</li>
+                    <li>Signature validation requires scripts from spent outputs (not stored)</li>
+                    <li>Double-spend detection requires transaction history (not stored)</li>
+                    <li>Block validation requires all transactions (not stored)</li>
+                    <li>Consensus validation requires full chain state (not stored)</li>
+                </ol>
+                <p>
+                    The SPV client has only headers and Merkle proofs. □
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 17.1 (The Trust Assumption)</p>
+                <p>
+                    SPV works by <em>delegating</em> validation to miners. The reasoning is:
+                </p>
+                <ol>
+                    <li>Miners expend energy to create blocks</li>
+                    <li>Blocks with invalid transactions would be rejected by full nodes</li>
+                    <li>Miners would lose their block reward</li>
+                    <li>Therefore, rational miners only include valid transactions</li>
+                    <li>Therefore, transactions in the longest PoW chain are probably valid</li>
+                </ol>
+                <p>
+                    This is an <em>economic</em> argument, not a <em>cryptographic</em> one.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>17.5 The Security Model</h2>
+
+            <p>
+                Let us formalize the SPV security assumption.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 17.3 (Honest Majority Assumption)</p>
+                <p>
+                    The <strong>honest majority assumption</strong> states that more than 50%
+                    of the network's hash power follows the protocol rules, including:
+                </p>
+                <ul>
+                    <li>Only including valid transactions</li>
+                    <li>Building on the longest valid chain</li>
+                    <li>Broadcasting blocks to the network</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 17.4 (SPV Security)</p>
+                <p>
+                    Under the honest majority assumption, an SPV client accepting a transaction
+                    with <span class="math">k</span> confirmations faces two attack vectors:
+                </p>
+                <ol>
+                    <li><strong>Fabrication attack:</strong> Attacker creates invalid transactions
+                        in a valid-looking chain</li>
+                    <li><strong>Double-spend attack:</strong> Attacker reverses confirmed transactions
+                        with a longer chain</li>
+                </ol>
+            </div>
+
+            <h3>17.5.1 Fabrication Attacks</h3>
+
+            <p>
+                Can an attacker fool an SPV client with a fake transaction?
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 17.5 (Fabrication Cost)</p>
+                <p>
+                    To fabricate a transaction with <span class="math">k</span> confirmations,
+                    an attacker must:
+                </p>
+                <ol>
+                    <li>Create a valid-looking block header (requires solving PoW)</li>
+                    <li>Create <span class="math">k-1</span> additional headers building on it</li>
+                    <li>Present this chain to the SPV client</li>
+                </ol>
+                <p>
+                    Cost: equivalent to mining <span class="math">k</span> blocks.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 17.2 (The Catch)</p>
+                <p>
+                    The fabricated chain will be shorter (less work) than the honest chain.
+                    An SPV client that correctly identifies the most-work chain will reject it.
+                    The attack only works if:
+                </p>
+                <ul>
+                    <li>The attacker has majority hash power (can create the longest chain), OR</li>
+                    <li>The SPV client is isolated from the honest network (eclipse attack)</li>
+                </ul>
+            </div>
+
+            <h3>17.5.2 Eclipse Attacks</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 17.4 (Eclipse Attack)</p>
+                <p>
+                    An <strong>eclipse attack</strong> isolates a node from the honest network
+                    by controlling all its peer connections. The attacker can then feed the
+                    victim a false view of the blockchain.
+                </p>
+            </div>
+
+            <p>
+                Eclipse attacks are more dangerous for SPV clients than full nodes because
+                SPV clients cannot independently verify that blocks contain valid transactions.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
+                    <!-- Honest network -->
+                    <ellipse cx="120" cy="90" rx="90" ry="70" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="120" y="50" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">Honest Network</text>
+
+                    <!-- Honest nodes -->
+                    <circle cx="80" cy="90" r="15" fill="#fff" stroke="#5a8f5a"/>
+                    <text x="80" y="94" text-anchor="middle" font-family="Georgia" font-size="8">Node</text>
+                    <circle cx="120" cy="110" r="15" fill="#fff" stroke="#5a8f5a"/>
+                    <text x="120" y="114" text-anchor="middle" font-family="Georgia" font-size="8">Node</text>
+                    <circle cx="160" cy="90" r="15" fill="#fff" stroke="#5a8f5a"/>
+                    <text x="160" y="94" text-anchor="middle" font-family="Georgia" font-size="8">Node</text>
+
+                    <!-- Attacker nodes -->
+                    <circle cx="280" cy="60" r="18" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="280" y="64" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Attacker</text>
+                    <circle cx="280" cy="120" r="18" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="280" y="124" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Attacker</text>
+
+                    <!-- SPV client -->
+                    <rect x="370" y="70" width="80" height="40" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="410" y="95" text-anchor="middle" font-family="Georgia" font-size="10">SPV Client</text>
+
+                    <!-- Blocked connection -->
+                    <line x1="210" y1="90" x2="250" y2="90" stroke="#ccc" stroke-width="2" stroke-dasharray="5,3"/>
+                    <text x="230" y="80" text-anchor="middle" font-family="Georgia" font-size="20" fill="#c44">✕</text>
+
+                    <!-- Attacker connections -->
+                    <line x1="298" y1="70" x2="370" y2="85" stroke="#c44" stroke-width="2"/>
+                    <line x1="298" y1="110" x2="370" y2="95" stroke="#c44" stroke-width="2"/>
+
+                    <!-- Label -->
+                    <text x="340" y="160" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">Eclipsed: sees only attacker's view</text>
+                </svg>
+                <figcaption>Figure 17.3: An eclipse attack isolates the SPV client from honest nodes.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>17.6 Confirmation Security</h2>
+
+            <p>
+                The number of confirmations affects security against double-spend attacks.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 17.6 (Confirmation Security)</p>
+                <p>
+                    For an attacker with hash power fraction <span class="math">q < 0.5</span>,
+                    the probability of reversing a transaction with <span class="math">k</span>
+                    confirmations decreases exponentially with <span class="math">k</span>:
+                </p>
+                <p class="math-block">
+                    P(reversal) ≈ (q/p)^k where p = 1 - q
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Confirmations</th>
+                        <th>10% attacker</th>
+                        <th>25% attacker</th>
+                        <th>40% attacker</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>20.4%</td>
+                        <td>43.7%</td>
+                        <td>66.7%</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>1.3%</td>
+                        <td>12.9%</td>
+                        <td>35.6%</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>0.02%</td>
+                        <td>2.4%</td>
+                        <td>15.4%</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>~0%</td>
+                        <td>0.08%</td>
+                        <td>3.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="remark">
+                <p class="remark-title">Remark 17.3 (Same Security as Full Nodes)</p>
+                <p>
+                    Importantly, these probabilities are <em>identical</em> for SPV clients and
+                    full nodes. The confirmation security against double-spends depends only on
+                    hash power distribution, not on the verification method.
+                </p>
+                <p>
+                    What differs is the vulnerability to <em>invalid block</em> attacks, which
+                    only affect SPV clients.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>17.7 The Fraud Proof Concept</h2>
+
+            <p>
+                Satoshi's whitepaper hints at a defense mechanism: fraud proofs.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 17.5 (Fraud Proof)</p>
+                <p>
+                    A <strong>fraud proof</strong> is a compact cryptographic proof that a block
+                    violates consensus rules. If fraud proofs existed, SPV clients could:
+                </p>
+                <ol>
+                    <li>Accept headers optimistically</li>
+                    <li>Wait for potential fraud proofs</li>
+                    <li>Reject blocks proven fraudulent</li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 17.4 (Fraud Proofs Don't Exist Yet)</p>
+                <p>
+                    Despite decades of research, general-purpose fraud proofs for Bitcoin do not
+                    exist. The problem is that proving a transaction is invalid requires proving
+                    a negative—that a UTXO doesn't exist—which requires either:
+                </p>
+                <ul>
+                    <li>The entire UTXO set (defeats the purpose of SPV)</li>
+                    <li>A UTXO commitment in blocks (requires a soft fork)</li>
+                </ul>
+                <p>
+                    Proposals like Utreexo (Chapter 21) may eventually enable fraud proofs.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>17.8 SPV vs Full Verification: A Comparison</h2>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Full Node</th>
+                        <th>SPV Client</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Storage required</td>
+                        <td>~500+ GB</td>
+                        <td>~50 MB + txs</td>
+                    </tr>
+                    <tr>
+                        <td>Bandwidth (sync)</td>
+                        <td>~500+ GB</td>
+                        <td>~50 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Validates transactions</td>
+                        <td>Yes</td>
+                        <td>No (trusts miners)</td>
+                    </tr>
+                    <tr>
+                        <td>Validates blocks</td>
+                        <td>Yes</td>
+                        <td>PoW only</td>
+                    </tr>
+                    <tr>
+                        <td>Double-spend protection</td>
+                        <td>k confirmations</td>
+                        <td>k confirmations</td>
+                    </tr>
+                    <tr>
+                        <td>Invalid tx protection</td>
+                        <td>Full</td>
+                        <td>Honest majority</td>
+                    </tr>
+                    <tr>
+                        <td>Eclipse resistance</td>
+                        <td>Higher</td>
+                        <td>Lower</td>
+                    </tr>
+                    <tr>
+                        <td>Privacy</td>
+                        <td>High</td>
+                        <td>Depends on implementation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>17.9 When is SPV Appropriate?</h2>
+
+            <p>
+                Given the security trade-offs, when should SPV be used?
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 17.5 (SPV Use Cases)</p>
+                <p>
+                    <strong>SPV is appropriate when:</strong>
+                </p>
+                <ul>
+                    <li>Storage/bandwidth constraints preclude full validation</li>
+                    <li>The honest majority assumption is reasonable</li>
+                    <li>Transaction values don't justify full node costs</li>
+                    <li>Additional confirmation time is acceptable</li>
+                </ul>
+                <p>
+                    <strong>SPV is inappropriate when:</strong>
+                </p>
+                <ul>
+                    <li>Receiving large, infrequent payments (merchant/exchange)</li>
+                    <li>During consensus uncertainty (contentious forks)</li>
+                    <li>When network isolation is possible</li>
+                    <li>When trustless verification is required</li>
+                </ul>
+            </div>
+
+            <p>
+                The whitepaper itself acknowledges this: "Businesses that receive frequent
+                payments will probably still want to run their own nodes for more independent
+                security and quicker verification."
+            </p>
+        </section>
+
+        <section>
+            <h2>17.10 Historical Context</h2>
+
+            <p>
+                The term "SPV" and its security model have been subject to much debate.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 17.6 (SPV in Practice)</p>
+                <p>
+                    The original SPV concept assumed:
+                </p>
+                <ul>
+                    <li>Clients connect to multiple random peers</li>
+                    <li>Clients verify the longest PoW chain</li>
+                    <li>Alerts might warn of invalid blocks</li>
+                </ul>
+                <p>
+                    In practice, most "SPV wallets" today use either:
+                </p>
+                <ul>
+                    <li>Bloom filters (BIP-37)—with serious privacy issues (Chapter 18)</li>
+                    <li>Trusted servers (Electrum model)—not SPV at all (Chapter 20)</li>
+                    <li>Compact block filters (BIP-157)—improved privacy (Chapter 19)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 17.1</p>
+                <p>
+                    An SPV client receives a transaction with 3 confirmations. List all the
+                    things the client knows for certain and all the things it assumes.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 17.2</p>
+                <p>
+                    Calculate the cost (in expected blocks mined) for an attacker with 20%
+                    hash power to create a fake 6-confirmation chain that an isolated SPV
+                    client would accept. What is this cost in USD at current mining economics?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 17.3</p>
+                <p>
+                    Explain why fraud proofs for "transaction spends a non-existent UTXO"
+                    are difficult to construct without UTXO commitments.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 17.4</p>
+                <p>
+                    A merchant accepts payments with 1 confirmation via SPV. An attacker
+                    controls 30% of hash power. What is the probability of a successful
+                    double-spend? How does this compare to a full node merchant?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 17.5</p>
+                <p>
+                    Design a protocol where SPV clients share headers with each other to
+                    resist eclipse attacks. What are the limitations of your design?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="16-soft-forks.html" class="prev-chapter">← Chapter 16: Soft Forks</a>
+            <a href="18-bloom-filters.html" class="next-chapter">Chapter 18: Bloom Filters →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

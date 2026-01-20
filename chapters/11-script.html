@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11: Script | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 11</p>
+        <h1>Script</h1>
+        <p class="chapter-subtitle">Bitcoin's Stack-Based Programming Language</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Bitcoin transactions do not simply transfer value from one public key to another.
+                Instead, they lock value to <em>programs</em> written in a simple stack-based
+                language called Script. Understanding Script is essential for comprehending
+                how Bitcoin enforces spending conditions and enables advanced features like
+                multisignature wallets and time-locked contracts.
+            </p>
+
+            <p>
+                Script is intentionally limited: it is not Turing-complete, has no loops, and
+                every program terminates in bounded time. These restrictions make transaction
+                validation predictable and prevent denial-of-service attacks.
+            </p>
+        </section>
+
+        <section>
+            <h2>11.1 The Execution Model</h2>
+
+            <p>
+                Script programs operate on two stacks: the main stack and an auxiliary "alt" stack.
+                Execution proceeds by reading opcodes (operation codes) and data from the script,
+                manipulating the stacks accordingly.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.1 (Script Execution)</p>
+                <p>
+                    A <strong>script</strong> is a sequence of opcodes and data pushes. Execution:
+                </p>
+                <ol>
+                    <li>Begins with an empty main stack</li>
+                    <li>Processes each element left-to-right</li>
+                    <li>Data elements are pushed onto the stack</li>
+                    <li>Opcodes consume and produce stack elements</li>
+                    <li>Succeeds if the final stack is non-empty and the top element is true (nonzero)</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="200" viewBox="0 0 480 200">
+                    <!-- Stack visualization -->
+                    <rect x="30" y="40" width="80" height="140" rx="4" fill="none" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="70" y="30" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Main Stack</text>
+
+                    <!-- Stack elements -->
+                    <rect x="35" y="140" width="70" height="25" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="70" y="157" text-anchor="middle" font-family="monospace" font-size="10">elem 1</text>
+
+                    <rect x="35" y="110" width="70" height="25" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="70" y="127" text-anchor="middle" font-family="monospace" font-size="10">elem 2</text>
+
+                    <rect x="35" y="80" width="70" height="25" fill="#f8f5f0" stroke="#d4a574"/>
+                    <text x="70" y="97" text-anchor="middle" font-family="monospace" font-size="10">elem 3</text>
+
+                    <text x="70" y="60" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">← top</text>
+
+                    <!-- Script being processed -->
+                    <rect x="150" y="80" width="300" height="40" rx="4" fill="#f5f5f5" stroke="#666" stroke-width="1.5"/>
+                    <text x="300" y="70" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Script (left to right)</text>
+
+                    <!-- Script elements -->
+                    <rect x="160" y="88" width="50" height="24" rx="2" fill="#ddd" stroke="#999"/>
+                    <text x="185" y="104" text-anchor="middle" font-family="monospace" font-size="9">done</text>
+
+                    <rect x="215" y="88" width="50" height="24" rx="2" fill="#ddd" stroke="#999"/>
+                    <text x="240" y="104" text-anchor="middle" font-family="monospace" font-size="9">done</text>
+
+                    <rect x="270" y="88" width="60" height="24" rx="2" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="300" y="104" text-anchor="middle" font-family="monospace" font-size="9">current</text>
+
+                    <rect x="335" y="88" width="50" height="24" rx="2" fill="#f0f0f0" stroke="#aaa"/>
+                    <text x="360" y="104" text-anchor="middle" font-family="monospace" font-size="9">next</text>
+
+                    <rect x="390" y="88" width="50" height="24" rx="2" fill="#f0f0f0" stroke="#aaa"/>
+                    <text x="415" y="104" text-anchor="middle" font-family="monospace" font-size="9">...</text>
+
+                    <!-- Arrow showing processing -->
+                    <path d="M 300 115 L 300 135 L 115 135 L 115 90" stroke="#c44" stroke-width="2" fill="none" marker-end="url(#arrowRed11)"/>
+                    <text x="200" y="150" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">affects stack</text>
+
+                    <defs>
+                        <marker id="arrowRed11" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 11.1: Script execution processes elements left-to-right, manipulating the stack.</figcaption>
+            </figure>
+
+            <h3>11.1.1 Script Concatenation</h3>
+
+            <p>
+                To validate a transaction input, the scriptSig (unlocking script) is concatenated
+                with the scriptPubKey (locking script) of the referenced output, then executed.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.2 (Script Validation)</p>
+                <p>
+                    For legacy (pre-SegWit) transactions, validation executes:
+                </p>
+                <p class="math-block">
+                    scriptSig || scriptPubKey
+                </p>
+                <p>
+                    The transaction input is valid if and only if execution succeeds and leaves
+                    a true value on the stack.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 11.1 (Separate Execution)</p>
+                <p>
+                    Historically, scriptSig and scriptPubKey were concatenated and run together.
+                    Due to security concerns (malicious scriptSigs could manipulate the stack before
+                    scriptPubKey runs), modern implementations execute them separately: scriptSig
+                    first, then scriptPubKey operates on the resulting stack.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.2 Data Push Operations</h2>
+
+            <p>
+                Non-opcode bytes in a script represent data to be pushed onto the stack.
+                The length of the data determines the push opcode.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opcode Range</th>
+                        <th>Name</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0x00</code></td>
+                        <td>OP_0 / OP_FALSE</td>
+                        <td>Push empty byte array (falsy)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x01–0x4b</code></td>
+                        <td>(direct push)</td>
+                        <td>Push next N bytes (N = opcode value)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x4c</code></td>
+                        <td>OP_PUSHDATA1</td>
+                        <td>Next byte is length; push that many bytes</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x4d</code></td>
+                        <td>OP_PUSHDATA2</td>
+                        <td>Next 2 bytes are length (little-endian)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x4e</code></td>
+                        <td>OP_PUSHDATA4</td>
+                        <td>Next 4 bytes are length (little-endian)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x4f</code></td>
+                        <td>OP_1NEGATE</td>
+                        <td>Push the number −1</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x51–0x60</code></td>
+                        <td>OP_1 through OP_16</td>
+                        <td>Push the number 1–16</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="example">
+                <p class="example-title">Example 11.1 (Data Push)</p>
+                <p>
+                    To push the 20-byte hash <code>89abcdef...12345678</code>:
+                </p>
+                <pre class="code-block">14 89abcdef...12345678
+↑  └──────────────────┘
+│         20 bytes
+└─ opcode 0x14 = 20 (push 20 bytes)</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.3 Stack Manipulation Opcodes</h2>
+
+            <p>
+                These opcodes rearrange elements on the stack without performing computation.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opcode</th>
+                        <th>Name</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0x76</code></td>
+                        <td>OP_DUP</td>
+                        <td>Duplicate top element</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x75</code></td>
+                        <td>OP_DROP</td>
+                        <td>Remove top element</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x7c</code></td>
+                        <td>OP_SWAP</td>
+                        <td>Swap top two elements</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x77</code></td>
+                        <td>OP_NIP</td>
+                        <td>Remove second element</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x78</code></td>
+                        <td>OP_OVER</td>
+                        <td>Copy second element to top</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x79</code></td>
+                        <td>OP_PICK</td>
+                        <td>Copy element at depth n to top</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x7a</code></td>
+                        <td>OP_ROLL</td>
+                        <td>Move element at depth n to top</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x73</code></td>
+                        <td>OP_IFDUP</td>
+                        <td>Duplicate top if nonzero</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x74</code></td>
+                        <td>OP_DEPTH</td>
+                        <td>Push stack depth</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <figure>
+                <svg class="diagram" width="400" height="160" viewBox="0 0 400 160">
+                    <!-- Before OP_DUP -->
+                    <text x="80" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Before OP_DUP</text>
+                    <rect x="40" y="30" width="80" height="100" rx="4" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
+                    <rect x="45" y="95" width="70" height="25" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="80" y="112" text-anchor="middle" font-family="monospace" font-size="10">A</text>
+                    <rect x="45" y="65" width="70" height="25" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="80" y="82" text-anchor="middle" font-family="monospace" font-size="10">B</text>
+
+                    <!-- Arrow -->
+                    <path d="M 140 80 L 180 80" stroke="#666" stroke-width="2" marker-end="url(#arrowGray11)"/>
+                    <text x="160" y="70" text-anchor="middle" font-family="Georgia" font-size="10">OP_DUP</text>
+
+                    <!-- After OP_DUP -->
+                    <text x="280" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">After OP_DUP</text>
+                    <rect x="240" y="30" width="80" height="100" rx="4" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
+                    <rect x="245" y="95" width="70" height="25" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="280" y="112" text-anchor="middle" font-family="monospace" font-size="10">A</text>
+                    <rect x="245" y="65" width="70" height="25" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="280" y="82" text-anchor="middle" font-family="monospace" font-size="10">B</text>
+                    <rect x="245" y="35" width="70" height="25" fill="#fff8f0" stroke="#d4a574"/>
+                    <text x="280" y="52" text-anchor="middle" font-family="monospace" font-size="10">B</text>
+                    <text x="335" y="50" font-family="Georgia" font-size="9" fill="#d4a574">← copy</text>
+
+                    <defs>
+                        <marker id="arrowGray11" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 11.2: OP_DUP duplicates the top stack element.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>11.4 Arithmetic Opcodes</h2>
+
+            <p>
+                Script supports limited arithmetic on 32-bit signed integers.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opcode</th>
+                        <th>Name</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0x93</code></td>
+                        <td>OP_ADD</td>
+                        <td>a + b</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x94</code></td>
+                        <td>OP_SUB</td>
+                        <td>a − b</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x8b</code></td>
+                        <td>OP_1ADD</td>
+                        <td>a + 1</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x8c</code></td>
+                        <td>OP_1SUB</td>
+                        <td>a − 1</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x8f</code></td>
+                        <td>OP_NEGATE</td>
+                        <td>−a</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x90</code></td>
+                        <td>OP_ABS</td>
+                        <td>|a|</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x9a</code></td>
+                        <td>OP_MIN</td>
+                        <td>min(a, b)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x9b</code></td>
+                        <td>OP_MAX</td>
+                        <td>max(a, b)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xa0</code></td>
+                        <td>OP_WITHIN</td>
+                        <td>min ≤ x < max</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="remark">
+                <p class="remark-title">Remark 11.2 (Disabled Opcodes)</p>
+                <p>
+                    <code>OP_MUL</code>, <code>OP_DIV</code>, <code>OP_MOD</code>, and bitwise
+                    operations were disabled early in Bitcoin's history due to potential
+                    implementation bugs. They remain reserved but cause script failure if encountered.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.5 Cryptographic Opcodes</h2>
+
+            <p>
+                The most important opcodes perform cryptographic operations.
+            </p>
+
+            <h3>11.5.1 Hash Functions</h3>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opcode</th>
+                        <th>Name</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0xa9</code></td>
+                        <td>OP_HASH160</td>
+                        <td>RIPEMD160(SHA256(top))</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xaa</code></td>
+                        <td>OP_HASH256</td>
+                        <td>SHA256(SHA256(top))</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xa7</code></td>
+                        <td>OP_SHA1</td>
+                        <td>SHA1(top)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xa8</code></td>
+                        <td>OP_SHA256</td>
+                        <td>SHA256(top)</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xa6</code></td>
+                        <td>OP_RIPEMD160</td>
+                        <td>RIPEMD160(top)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>11.5.2 Signature Verification</h3>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opcode</th>
+                        <th>Name</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0xac</code></td>
+                        <td>OP_CHECKSIG</td>
+                        <td>Verify signature against public key</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xad</code></td>
+                        <td>OP_CHECKSIGVERIFY</td>
+                        <td>OP_CHECKSIG + OP_VERIFY</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xae</code></td>
+                        <td>OP_CHECKMULTISIG</td>
+                        <td>Verify m-of-n multisignature</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xaf</code></td>
+                        <td>OP_CHECKMULTISIGVERIFY</td>
+                        <td>OP_CHECKMULTISIG + OP_VERIFY</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.3 (OP_CHECKSIG)</p>
+                <p>
+                    <strong>OP_CHECKSIG</strong> pops a public key and signature from the stack.
+                    It verifies that the signature is valid for the transaction (as determined
+                    by the sighash type) under that public key. It pushes <code>OP_TRUE</code>
+                    (1) on success or <code>OP_FALSE</code> (empty array) on failure.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.6 Flow Control</h2>
+
+            <p>
+                Script supports conditional execution (but not loops).
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opcode</th>
+                        <th>Name</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0x63</code></td>
+                        <td>OP_IF</td>
+                        <td>Execute following if top is true</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x64</code></td>
+                        <td>OP_NOTIF</td>
+                        <td>Execute following if top is false</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x67</code></td>
+                        <td>OP_ELSE</td>
+                        <td>Alternative branch</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x68</code></td>
+                        <td>OP_ENDIF</td>
+                        <td>End conditional block</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x69</code></td>
+                        <td>OP_VERIFY</td>
+                        <td>Fail if top is false, else remove it</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x6a</code></td>
+                        <td>OP_RETURN</td>
+                        <td>Immediately fail (marks output unspendable)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="example">
+                <p class="example-title">Example 11.2 (Conditional Script)</p>
+                <pre class="code-block">OP_IF
+    &lt;pubkey_A&gt;
+OP_ELSE
+    &lt;pubkey_B&gt;
+OP_ENDIF
+OP_CHECKSIG</pre>
+                <p>
+                    This script allows spending with either key A (if the condition is true)
+                    or key B (if false). The spender provides a boolean value before their signature.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.7 Time Lock Opcodes</h2>
+
+            <p>
+                BIP-65 and BIP-112 introduced opcodes for time-based spending conditions.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opcode</th>
+                        <th>Name</th>
+                        <th>BIP</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0xb1</code></td>
+                        <td>OP_CHECKLOCKTIMEVERIFY</td>
+                        <td>BIP-65</td>
+                        <td>Fail if current time/height < top of stack</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xb2</code></td>
+                        <td>OP_CHECKSEQUENCEVERIFY</td>
+                        <td>BIP-112</td>
+                        <td>Fail if relative time since UTXO creation < top</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="example">
+                <p class="example-title">Example 11.3 (Time-Locked Output)</p>
+                <p>
+                    An output that can only be spent after block 800,000:
+                </p>
+                <pre class="code-block">&lt;800000&gt; OP_CHECKLOCKTIMEVERIFY OP_DROP
+OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
+                <p>
+                    The <code>OP_DROP</code> removes the lock time from the stack after verification,
+                    then standard P2PKH logic follows.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.8 Standard Script Templates</h2>
+
+            <p>
+                While Script allows arbitrary programs, nodes relay only "standard" transactions
+                using recognized templates.
+            </p>
+
+            <h3>11.8.1 P2PKH (Pay-to-Public-Key-Hash)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.4 (P2PKH Scripts)</p>
+                <p>
+                    <strong>ScriptPubKey (locking):</strong>
+                </p>
+                <pre class="code-block">OP_DUP OP_HASH160 &lt;20-byte-hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
+                <p>
+                    <strong>ScriptSig (unlocking):</strong>
+                </p>
+                <pre class="code-block">&lt;signature&gt; &lt;pubkey&gt;</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="280" viewBox="0 0 520 280">
+                    <text x="260" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">P2PKH Script Execution</text>
+
+                    <!-- Step 1 -->
+                    <text x="30" y="50" font-family="Georgia" font-size="10" font-weight="bold">1. Push sig, pubkey</text>
+                    <rect x="30" y="60" width="60" height="60" rx="3" fill="none" stroke="#4a90d9"/>
+                    <rect x="35" y="90" width="50" height="20" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="60" y="104" text-anchor="middle" font-family="monospace" font-size="8">sig</text>
+                    <rect x="35" y="65" width="50" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="60" y="79" text-anchor="middle" font-family="monospace" font-size="8">pubkey</text>
+
+                    <!-- Step 2 -->
+                    <text x="120" y="50" font-family="Georgia" font-size="10" font-weight="bold">2. OP_DUP</text>
+                    <rect x="120" y="60" width="60" height="80" rx="3" fill="none" stroke="#4a90d9"/>
+                    <rect x="125" y="110" width="50" height="20" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="150" y="124" text-anchor="middle" font-family="monospace" font-size="8">sig</text>
+                    <rect x="125" y="85" width="50" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="150" y="99" text-anchor="middle" font-family="monospace" font-size="8">pubkey</text>
+                    <rect x="125" y="60" width="50" height="20" fill="#fff8e8" stroke="#d4a574"/>
+                    <text x="150" y="74" text-anchor="middle" font-family="monospace" font-size="8">pubkey</text>
+
+                    <!-- Step 3 -->
+                    <text x="210" y="50" font-family="Georgia" font-size="10" font-weight="bold">3. OP_HASH160</text>
+                    <rect x="210" y="60" width="60" height="80" rx="3" fill="none" stroke="#4a90d9"/>
+                    <rect x="215" y="110" width="50" height="20" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="240" y="124" text-anchor="middle" font-family="monospace" font-size="8">sig</text>
+                    <rect x="215" y="85" width="50" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="240" y="99" text-anchor="middle" font-family="monospace" font-size="8">pubkey</text>
+                    <rect x="215" y="60" width="50" height="20" fill="#ffe8f0" stroke="#c44"/>
+                    <text x="240" y="74" text-anchor="middle" font-family="monospace" font-size="8">hash</text>
+
+                    <!-- Step 4 -->
+                    <text x="300" y="50" font-family="Georgia" font-size="10" font-weight="bold">4. Push expected</text>
+                    <rect x="300" y="60" width="60" height="100" rx="3" fill="none" stroke="#4a90d9"/>
+                    <rect x="305" y="130" width="50" height="20" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="330" y="144" text-anchor="middle" font-family="monospace" font-size="8">sig</text>
+                    <rect x="305" y="105" width="50" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="330" y="119" text-anchor="middle" font-family="monospace" font-size="8">pubkey</text>
+                    <rect x="305" y="80" width="50" height="20" fill="#ffe8f0" stroke="#c44"/>
+                    <text x="330" y="94" text-anchor="middle" font-family="monospace" font-size="8">hash</text>
+                    <rect x="305" y="55" width="50" height="20" fill="#e8e8ff" stroke="#4a4ad9"/>
+                    <text x="330" y="69" text-anchor="middle" font-family="monospace" font-size="8">exp_hash</text>
+
+                    <!-- Step 5 -->
+                    <text x="390" y="50" font-family="Georgia" font-size="10" font-weight="bold">5. OP_EQUALVERIFY</text>
+                    <rect x="390" y="60" width="60" height="60" rx="3" fill="none" stroke="#4a90d9"/>
+                    <rect x="395" y="90" width="50" height="20" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="420" y="104" text-anchor="middle" font-family="monospace" font-size="8">sig</text>
+                    <rect x="395" y="65" width="50" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="420" y="79" text-anchor="middle" font-family="monospace" font-size="8">pubkey</text>
+                    <text x="420" y="140" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">✓ match!</text>
+
+                    <!-- Step 6 -->
+                    <text x="480" y="50" font-family="Georgia" font-size="10" font-weight="bold">6. OP_CHECKSIG</text>
+                    <rect x="460" y="60" width="50" height="40" rx="3" fill="none" stroke="#5a8f5a" stroke-width="2"/>
+                    <rect x="465" y="70" width="40" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="485" y="84" text-anchor="middle" font-family="monospace" font-size="9" fill="#5a8f5a">TRUE</text>
+
+                    <!-- Description -->
+                    <text x="260" y="180" text-anchor="middle" font-family="Georgia" font-size="11">Execution succeeds: signature valid, hash matches</text>
+                </svg>
+                <figcaption>Figure 11.3: Step-by-step execution of a P2PKH script.</figcaption>
+            </figure>
+
+            <h3>11.8.2 P2SH (Pay-to-Script-Hash)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.5 (P2SH Execution)</p>
+                <p>
+                    P2SH scripts are evaluated in two phases:
+                </p>
+                <ol>
+                    <li>Verify that the provided redeem script hashes to the expected value</li>
+                    <li>Execute the redeem script with the remaining stack elements</li>
+                </ol>
+                <p>
+                    <strong>ScriptPubKey:</strong>
+                </p>
+                <pre class="code-block">OP_HASH160 &lt;20-byte-hash&gt; OP_EQUAL</pre>
+                <p>
+                    <strong>ScriptSig:</strong>
+                </p>
+                <pre class="code-block">&lt;...signatures...&gt; &lt;redeem_script&gt;</pre>
+            </div>
+
+            <h3>11.8.3 Multisignature</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.6 (m-of-n Multisig)</p>
+                <p>
+                    An <strong>m-of-n multisignature</strong> script requires m valid signatures
+                    from a set of n public keys:
+                </p>
+                <pre class="code-block">OP_m &lt;pubkey_1&gt; ... &lt;pubkey_n&gt; OP_n OP_CHECKMULTISIG</pre>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 11.3 (Off-by-One Bug)</p>
+                <p>
+                    <code>OP_CHECKMULTISIG</code> has a historical bug: it pops one extra element
+                    from the stack beyond what's needed. The scriptSig must include a dummy
+                    <code>OP_0</code> at the beginning to account for this.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.9 OP_RETURN and Data Embedding</h2>
+
+            <p>
+                <code>OP_RETURN</code> creates a provably unspendable output, useful for
+                embedding arbitrary data in the blockchain.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.7 (OP_RETURN Output)</p>
+                <p>
+                    An <strong>OP_RETURN output</strong> has a scriptPubKey beginning with
+                    <code>OP_RETURN</code> followed by up to 80 bytes of data. Such outputs:
+                </p>
+                <ul>
+                    <li>Are provably unspendable (execution always fails)</li>
+                    <li>Can be pruned from the UTXO set</li>
+                    <li>Should have zero value</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 11.4 (Data Embedding)</p>
+                <p>
+                    To embed the text "Hello, Bitcoin!" in the blockchain:
+                </p>
+                <pre class="code-block">OP_RETURN 48656c6c6f2c20426974636f696e21
+          └─────────────────────────────┘
+             "Hello, Bitcoin!" in hex</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.10 SegWit Script Execution</h2>
+
+            <p>
+                Native SegWit outputs use a different execution model. The scriptPubKey
+                is a "witness program," and the actual unlocking data is in the witness field.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.8 (Witness Program)</p>
+                <p>
+                    A <strong>witness program</strong> is a scriptPubKey of the form:
+                </p>
+                <pre class="code-block">&lt;version&gt; &lt;program&gt;</pre>
+                <p>
+                    where version is OP_0 through OP_16, and program is 2–40 bytes.
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Program Length</th>
+                        <th>Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0</td>
+                        <td>20 bytes</td>
+                        <td>P2WPKH: witness = [sig, pubkey]</td>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td>32 bytes</td>
+                        <td>P2WSH: witness = [..., witness_script]</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>32 bytes</td>
+                        <td>P2TR: Taproot (Schnorr or Tapscript)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>11.11 Tapscript</h2>
+
+            <p>
+                Taproot (BIP-341, BIP-342) introduces Tapscript, an upgraded Script with
+                several improvements.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 11.9 (Tapscript Changes)</p>
+                <p>
+                    <strong>Tapscript</strong> differs from legacy Script:
+                </p>
+                <ul>
+                    <li><code>OP_CHECKSIG</code> uses Schnorr signatures (BIP-340)</li>
+                    <li><code>OP_CHECKMULTISIG</code> is disabled; use <code>OP_CHECKSIGADD</code> instead</li>
+                    <li><code>OP_SUCCESS</code> opcodes allow future soft-fork upgrades</li>
+                    <li>Signature validation is more efficient (batch verification possible)</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 11.5 (Tapscript Multisig)</p>
+                <p>
+                    A 2-of-3 multisig in Tapscript:
+                </p>
+                <pre class="code-block">&lt;pubkey_1&gt; OP_CHECKSIG
+&lt;pubkey_2&gt; OP_CHECKSIGADD
+&lt;pubkey_3&gt; OP_CHECKSIGADD
+OP_2 OP_NUMEQUAL</pre>
+                <p>
+                    Each <code>OP_CHECKSIGADD</code> adds 1 to a running counter if the signature
+                    is valid, enabling clean m-of-n without the legacy off-by-one bug.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>11.12 Script Limitations</h2>
+
+            <p>
+                Script's restrictions are intentional, ensuring predictable validation.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 11.1 (Script Termination)</p>
+                <p>
+                    Every valid Script program terminates. The maximum number of operations
+                    is bounded by:
+                </p>
+                <ul>
+                    <li>Maximum script size: 10,000 bytes</li>
+                    <li>Maximum stack size: 1,000 elements</li>
+                    <li>Maximum element size: 520 bytes</li>
+                    <li>Maximum opcode count: 201 (non-push operations)</li>
+                </ul>
+            </div>
+
+            <p>
+                These limits ensure that script validation has bounded time and space
+                complexity, preventing denial-of-service attacks.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 11.1</p>
+                <p>
+                    Trace the execution of the following script with initial stack [3, 5]:
+                </p>
+                <pre class="code-block">OP_ADD OP_6 OP_EQUAL</pre>
+                <p>
+                    Does execution succeed or fail?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 11.2</p>
+                <p>
+                    Write a script that allows spending if the spender provides two numbers
+                    whose product is 42. (Note: OP_MUL is disabled, so you'll need a workaround.)
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 11.3</p>
+                <p>
+                    Explain why Script is not Turing-complete. What feature would need to be
+                    added to make it Turing-complete, and why would this be problematic?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 11.4</p>
+                <p>
+                    A P2SH output encodes a 2-of-3 multisig. Write out both the scriptPubKey
+                    and a valid scriptSig (with placeholder signatures).
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 11.5</p>
+                <p>
+                    Why is OP_RETURN important for the UTXO set? What would happen if users
+                    embedded data in spendable outputs instead?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="10-transactions.html" class="prev-chapter">← Chapter 10: Transactions</a>
+            <a href="12-merkle-trees.html" class="next-chapter">Chapter 12: Merkle Trees →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

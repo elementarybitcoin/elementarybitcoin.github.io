@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 15: Consensus Parameters | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 15</p>
+        <h1>Consensus Parameters</h1>
+        <p class="chapter-subtitle">The Constants That Define Bitcoin</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Bitcoin's behavior is determined by a set of fixed parameters embedded in every
+                node's software. These consensus parameters define the supply schedule, timing,
+                and constraints that make Bitcoin what it is. Understanding these constants—and
+                why they were chosen—illuminates both the technical and economic design of the system.
+            </p>
+
+            <p>
+                Some parameters were carefully calculated; others were pragmatic choices that
+                became fixed through network effects. Together, they form the constitution
+                of Bitcoin.
+            </p>
+        </section>
+
+        <section>
+            <h2>15.1 The 21 Million Cap</h2>
+
+            <p>
+                Bitcoin's most famous parameter is its fixed supply limit.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.1 (Maximum Supply)</p>
+                <p>
+                    The <strong>maximum supply</strong> of bitcoin is:
+                </p>
+                <p class="math-block">
+                    20,999,999.9769 BTC ≈ 21,000,000 BTC
+                </p>
+                <p>
+                    This limit emerges from the halving schedule rather than being directly enforced.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 15.1 (Supply Derivation)</p>
+                <p>
+                    With initial subsidy <span class="math">S₀ = 50</span> BTC and halving every
+                    <span class="math">H = 210,000</span> blocks:
+                </p>
+                <p class="math-block">
+                    Total = H × Σᵢ₌₀^∞ (S₀ / 2ⁱ) = H × S₀ × 2 = 210,000 × 50 × 2 = 21,000,000
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    The geometric series <span class="math">Σᵢ₌₀^∞ (1/2)ⁱ = 2</span>. Each halving era
+                    produces <span class="math">210,000 × (50/2ⁱ)</span> coins. Summing all eras:
+                    <span class="math">210,000 × 50 × (1 + 1/2 + 1/4 + ...) = 210,000 × 50 × 2</span>. □
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 15.1 (Why Not Exactly 21 Million?)</p>
+                <p>
+                    The actual maximum is slightly less due to:
+                </p>
+                <ul>
+                    <li>Integer truncation in subsidy calculation (satoshis, not fractional)</li>
+                    <li>Lost genesis block reward (50 BTC unspendable)</li>
+                    <li>Miners occasionally claiming less than full subsidy</li>
+                    <li>Provably burned coins</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="220" viewBox="0 0 480 220">
+                    <!-- Axes -->
+                    <line x1="50" y1="180" x2="450" y2="180" stroke="#666" stroke-width="1"/>
+                    <line x1="50" y1="180" x2="50" y2="30" stroke="#666" stroke-width="1"/>
+
+                    <text x="250" y="210" text-anchor="middle" font-family="Georgia" font-size="10">Year</text>
+                    <text x="25" y="105" text-anchor="middle" font-family="Georgia" font-size="10" transform="rotate(-90 25 105)">Supply (millions BTC)</text>
+
+                    <!-- Y-axis labels -->
+                    <text x="45" y="185" text-anchor="end" font-family="Georgia" font-size="8">0</text>
+                    <text x="45" y="142" text-anchor="end" font-family="Georgia" font-size="8">7</text>
+                    <text x="45" y="99" text-anchor="end" font-family="Georgia" font-size="8">14</text>
+                    <text x="45" y="56" text-anchor="end" font-family="Georgia" font-size="8">21</text>
+
+                    <!-- X-axis labels -->
+                    <text x="50" y="195" text-anchor="middle" font-family="Georgia" font-size="8">2009</text>
+                    <text x="150" y="195" text-anchor="middle" font-family="Georgia" font-size="8">2020</text>
+                    <text x="250" y="195" text-anchor="middle" font-family="Georgia" font-size="8">2040</text>
+                    <text x="350" y="195" text-anchor="middle" font-family="Georgia" font-size="8">2080</text>
+                    <text x="430" y="195" text-anchor="middle" font-family="Georgia" font-size="8">2140</text>
+
+                    <!-- Supply curve (logarithmic approach to 21M) -->
+                    <path d="M 50 180
+                             Q 80 140 100 120
+                             Q 120 100 140 90
+                             Q 170 75 200 65
+                             Q 250 55 300 52
+                             Q 350 50 400 49
+                             L 450 48"
+                          stroke="#4a90d9" stroke-width="2.5" fill="none"/>
+
+                    <!-- 21M asymptote -->
+                    <line x1="50" y1="48" x2="450" y2="48" stroke="#c44" stroke-width="1" stroke-dasharray="5,3"/>
+                    <text x="460" y="52" font-family="Georgia" font-size="9" fill="#c44">21M</text>
+
+                    <!-- Halving markers -->
+                    <line x1="80" y1="175" x2="80" y2="185" stroke="#5a8f5a" stroke-width="2"/>
+                    <line x1="110" y1="175" x2="110" y2="185" stroke="#5a8f5a" stroke-width="2"/>
+                    <line x1="140" y1="175" x2="140" y2="185" stroke="#5a8f5a" stroke-width="2"/>
+                    <line x1="170" y1="175" x2="170" y2="185" stroke="#5a8f5a" stroke-width="2"/>
+
+                    <text x="125" y="172" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">halvings</text>
+                </svg>
+                <figcaption>Figure 15.1: Bitcoin supply approaches 21 million asymptotically through halvings.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>15.2 The Block Subsidy Schedule</h2>
+
+            <p>
+                New bitcoins are created exclusively through block subsidies, which halve
+                approximately every four years.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.2 (Block Subsidy)</p>
+                <p>
+                    The <strong>block subsidy</strong> at height <span class="math">h</span> is:
+                </p>
+                <p class="math-block">
+                    subsidy(h) = ⌊50 × 10⁸ / 2^⌊h/210000⌋⌋ satoshis
+                </p>
+                <p>
+                    where <span class="math">⌊·⌋</span> denotes floor (integer truncation).
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Era</th>
+                        <th>Block Heights</th>
+                        <th>Subsidy (BTC)</th>
+                        <th>Approx. Years</th>
+                        <th>Coins Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>0 – 209,999</td>
+                        <td>50</td>
+                        <td>2009–2012</td>
+                        <td>10,500,000</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>210,000 – 419,999</td>
+                        <td>25</td>
+                        <td>2012–2016</td>
+                        <td>5,250,000</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>420,000 – 629,999</td>
+                        <td>12.5</td>
+                        <td>2016–2020</td>
+                        <td>2,625,000</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>630,000 – 839,999</td>
+                        <td>6.25</td>
+                        <td>2020–2024</td>
+                        <td>1,312,500</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>840,000 – 1,049,999</td>
+                        <td>3.125</td>
+                        <td>2024–2028</td>
+                        <td>656,250</td>
+                    </tr>
+                    <tr>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                    </tr>
+                    <tr>
+                        <td>33</td>
+                        <td>~6.7M – ~6.9M</td>
+                        <td>1 satoshi</td>
+                        <td>~2136</td>
+                        <td>210,000 sats</td>
+                    </tr>
+                    <tr>
+                        <td>34+</td>
+                        <td>~6.9M+</td>
+                        <td>0</td>
+                        <td>~2140+</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 15.2 (Final Subsidy)</p>
+                <p>
+                    The last non-zero subsidy will be 1 satoshi, occurring in era 33
+                    (approximately year 2136-2140). After era 33, all subsidy calculations
+                    truncate to 0.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>15.3 Block Timing Parameters</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.3 (Target Block Time)</p>
+                <p>
+                    The <strong>target block interval</strong> is:
+                </p>
+                <p class="math-block">
+                    T_block = 600 seconds = 10 minutes
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.4 (Difficulty Adjustment Period)</p>
+                <p>
+                    Difficulty adjusts every:
+                </p>
+                <p class="math-block">
+                    2016 blocks ≈ 2016 × 10 minutes ≈ 2 weeks
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 15.2 (Why 10 Minutes?)</p>
+                <p>
+                    Satoshi chose 10 minutes as a balance between:
+                </p>
+                <ul>
+                    <li><strong>Faster:</strong> Better user experience, but more orphan blocks,
+                        wasted work, and centralization pressure</li>
+                    <li><strong>Slower:</strong> Fewer orphans, but worse user experience and
+                        slower finality</li>
+                </ul>
+                <p>
+                    10 minutes allows global propagation before the next block, minimizing
+                    honest miner disadvantage.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 15.1 (Timing Calculations)</p>
+                <pre class="code-block">Blocks per hour:    6
+Blocks per day:     144
+Blocks per week:    1,008
+Blocks per year:    ~52,560
+
+Time between halvings: 210,000 × 10 min = 2,100,000 min
+                     = 35,000 hours
+                     ≈ 1,458 days
+                     ≈ 4 years</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>15.4 Block Size and Weight Limits</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.5 (Block Weight Limit)</p>
+                <p>
+                    The maximum block weight is:
+                </p>
+                <p class="math-block">
+                    W_max = 4,000,000 weight units (4 MWU)
+                </p>
+                <p>
+                    For legacy transactions (no witness discount), this equals the original
+                    1 MB limit.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.6 (Sigop Limits)</p>
+                <p>
+                    Blocks are also limited by signature operations:
+                </p>
+                <ul>
+                    <li>Legacy: 20,000 sigops per block</li>
+                    <li>SegWit: 80,000 sigops (weighted)</li>
+                </ul>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Max block weight</td>
+                        <td>4,000,000 WU</td>
+                        <td>Limit resource usage</td>
+                    </tr>
+                    <tr>
+                        <td>Max block size (legacy)</td>
+                        <td>1,000,000 bytes</td>
+                        <td>Backward compatibility</td>
+                    </tr>
+                    <tr>
+                        <td>Max transaction size</td>
+                        <td>~400,000 bytes</td>
+                        <td>Prevent abuse</td>
+                    </tr>
+                    <tr>
+                        <td>Min transaction size</td>
+                        <td>82 bytes</td>
+                        <td>Prevent CVE-2017-12842</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>15.5 Coinbase Maturity</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.7 (Coinbase Maturity)</p>
+                <p>
+                    Coinbase outputs cannot be spent until the block has received:
+                </p>
+                <p class="math-block">
+                    100 confirmations
+                </p>
+                <p>
+                    This is approximately 16.7 hours at average block times.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 15.3 (Why 100 Blocks?)</p>
+                <p>
+                    Coinbase maturity prevents issues if a block is later orphaned:
+                </p>
+                <ul>
+                    <li>The coinbase reward would disappear</li>
+                    <li>Any transactions spending those coins would become invalid</li>
+                    <li>This could cascade through many dependent transactions</li>
+                </ul>
+                <p>
+                    100 blocks makes deep reorganizations (that would orphan mature coinbase)
+                    extremely unlikely.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>15.6 Timestamp Rules</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.8 (Median Time Past)</p>
+                <p>
+                    The <strong>Median Time Past (MTP)</strong> of a block is the median timestamp
+                    of the previous 11 blocks. Block timestamps must be strictly greater than MTP.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.9 (Future Limit)</p>
+                <p>
+                    Block timestamps must not exceed:
+                </p>
+                <p class="math-block">
+                    network\_adjusted\_time + 2 hours
+                </p>
+                <p>
+                    where network-adjusted time is derived from peer clocks.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="120" viewBox="0 0 480 120">
+                    <!-- Timeline -->
+                    <line x1="40" y1="60" x2="440" y2="60" stroke="#666" stroke-width="1.5"/>
+
+                    <!-- MTP marker -->
+                    <rect x="100" y="45" width="80" height="30" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="140" y="65" text-anchor="middle" font-family="Georgia" font-size="10">MTP</text>
+                    <text x="140" y="90" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">minimum</text>
+
+                    <!-- Valid range -->
+                    <rect x="185" y="45" width="150" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="260" y="65" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">Valid Range</text>
+
+                    <!-- Future limit -->
+                    <rect x="340" y="45" width="90" height="30" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="385" y="65" text-anchor="middle" font-family="Georgia" font-size="10">Now + 2h</text>
+                    <text x="385" y="90" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">maximum</text>
+
+                    <!-- Labels -->
+                    <text x="40" y="110" font-family="Georgia" font-size="9" fill="#666">Past</text>
+                    <text x="440" y="110" text-anchor="end" font-family="Georgia" font-size="9" fill="#666">Future</text>
+                </svg>
+                <figcaption>Figure 15.2: Valid block timestamp range is between MTP and current time + 2 hours.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>15.7 Script and Transaction Limits</h2>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                        <th>Introduced</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Max script size</td>
+                        <td>10,000 bytes</td>
+                        <td>Original</td>
+                    </tr>
+                    <tr>
+                        <td>Max stack size</td>
+                        <td>1,000 elements</td>
+                        <td>Original</td>
+                    </tr>
+                    <tr>
+                        <td>Max element size</td>
+                        <td>520 bytes</td>
+                        <td>Original</td>
+                    </tr>
+                    <tr>
+                        <td>Max ops per script</td>
+                        <td>201</td>
+                        <td>Original</td>
+                    </tr>
+                    <tr>
+                        <td>Max pubkeys in multisig</td>
+                        <td>20</td>
+                        <td>Original</td>
+                    </tr>
+                    <tr>
+                        <td>Max P2SH redeem script</td>
+                        <td>520 bytes</td>
+                        <td>BIP-16</td>
+                    </tr>
+                    <tr>
+                        <td>Max witness stack items</td>
+                        <td>100</td>
+                        <td>SegWit</td>
+                    </tr>
+                    <tr>
+                        <td>Max witness script size</td>
+                        <td>10,000 bytes</td>
+                        <td>SegWit</td>
+                    </tr>
+                    <tr>
+                        <td>Max Tapscript size</td>
+                        <td>None (policy only)</td>
+                        <td>Taproot</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>15.8 Network Protocol Constants</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 15.10 (Protocol Version)</p>
+                <p>
+                    Protocol versions indicate feature support. As of 2024, common versions
+                    are 70015-70016.
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Default port (mainnet)</td>
+                        <td>8333</td>
+                    </tr>
+                    <tr>
+                        <td>Default port (testnet)</td>
+                        <td>18333</td>
+                    </tr>
+                    <tr>
+                        <td>Default port (signet)</td>
+                        <td>38333</td>
+                    </tr>
+                    <tr>
+                        <td>Magic bytes (mainnet)</td>
+                        <td>0xF9BEB4D9</td>
+                    </tr>
+                    <tr>
+                        <td>Max message size</td>
+                        <td>32 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Max headers per message</td>
+                        <td>2000</td>
+                    </tr>
+                    <tr>
+                        <td>Max inv per message</td>
+                        <td>50,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>15.9 Economic Design Rationale</h2>
+
+            <p>
+                The parameters were chosen to create specific economic properties.
+            </p>
+
+            <h3>15.9.1 Scarcity</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 15.4 (Digital Scarcity)</p>
+                <p>
+                    The 21 million cap creates absolute digital scarcity. Unlike gold (where
+                    more can be mined) or fiat (where more can be printed), Bitcoin's supply
+                    is mathematically fixed and verifiable by any node.
+                </p>
+            </div>
+
+            <h3>15.9.2 Diminishing Inflation</h3>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 15.3 (Inflation Rate)</p>
+                <p>
+                    At block height <span class="math">h</span>, the annual inflation rate is approximately:
+                </p>
+                <p class="math-block">
+                    inflation ≈ (52,560 × subsidy(h)) / supply(h)
+                </p>
+                <p>
+                    This decreases with each halving, approaching zero.
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Era</th>
+                        <th>Supply (approx)</th>
+                        <th>Annual Inflation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1 (2009-2012)</td>
+                        <td>~5M</td>
+                        <td>~50%</td>
+                    </tr>
+                    <tr>
+                        <td>2 (2012-2016)</td>
+                        <td>~12M</td>
+                        <td>~10%</td>
+                    </tr>
+                    <tr>
+                        <td>3 (2016-2020)</td>
+                        <td>~17M</td>
+                        <td>~4%</td>
+                    </tr>
+                    <tr>
+                        <td>4 (2020-2024)</td>
+                        <td>~19M</td>
+                        <td>~1.8%</td>
+                    </tr>
+                    <tr>
+                        <td>5 (2024-2028)</td>
+                        <td>~20M</td>
+                        <td>~0.9%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>15.9.3 Security Budget Transition</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 15.5 (Fee Transition)</p>
+                <p>
+                    As subsidy decreases, network security must increasingly rely on transaction
+                    fees. This transition is gradual (100+ years), giving the ecosystem time
+                    to develop a sustainable fee market.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>15.10 Parameter Immutability</h2>
+
+            <p>
+                Consensus parameters are not merely difficult to change—changing them would
+                create a new, incompatible network.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 15.4 (Consensus Incompatibility)</p>
+                <p>
+                    If any consensus parameter changes:
+                </p>
+                <ul>
+                    <li>Nodes running old software reject new blocks</li>
+                    <li>Nodes running new software may reject old blocks</li>
+                    <li>The network splits into incompatible chains</li>
+                </ul>
+                <p>
+                    This is a <strong>hard fork</strong>, creating a new currency.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 15.2 (Parameter Change Consequences)</p>
+                <p>
+                    Changing the 21M cap would:
+                </p>
+                <ol>
+                    <li>Require modifying the subsidy calculation</li>
+                    <li>Be rejected by all existing nodes</li>
+                    <li>Create a new chain that existing users don't recognize</li>
+                    <li>Be economically equivalent to creating an altcoin</li>
+                </ol>
+                <p>
+                    The resulting currency would not be "Bitcoin" in any meaningful sense.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>15.11 Summary of Key Constants</h2>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                        <th>Significance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Maximum supply</td>
+                        <td>~21,000,000 BTC</td>
+                        <td>Absolute scarcity</td>
+                    </tr>
+                    <tr>
+                        <td>Satoshis per BTC</td>
+                        <td>100,000,000</td>
+                        <td>8 decimal places</td>
+                    </tr>
+                    <tr>
+                        <td>Initial subsidy</td>
+                        <td>50 BTC</td>
+                        <td>Starting issuance</td>
+                    </tr>
+                    <tr>
+                        <td>Halving interval</td>
+                        <td>210,000 blocks</td>
+                        <td>~4 years</td>
+                    </tr>
+                    <tr>
+                        <td>Target block time</td>
+                        <td>600 seconds</td>
+                        <td>10 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Difficulty adjustment</td>
+                        <td>2016 blocks</td>
+                        <td>~2 weeks</td>
+                    </tr>
+                    <tr>
+                        <td>Max block weight</td>
+                        <td>4,000,000 WU</td>
+                        <td>~2-2.3 MB effective</td>
+                    </tr>
+                    <tr>
+                        <td>Coinbase maturity</td>
+                        <td>100 blocks</td>
+                        <td>~16.7 hours</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 15.1</p>
+                <p>
+                    Calculate the total BTC issued in the first 10 halving eras (eras 1-10).
+                    What percentage of the total supply does this represent?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 15.2</p>
+                <p>
+                    At block height 850,000, what is the block subsidy in satoshis?
+                    Show your calculation using the subsidy formula.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 15.3</p>
+                <p>
+                    If the network hash rate doubled instantly, how long would it take
+                    for difficulty to fully adjust? What would average block times be
+                    during this period?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 15.4</p>
+                <p>
+                    Why is 100 satoshi million (1 BTC = 10⁸ satoshis) a good choice for
+                    divisibility? What problems might arise with fewer or more decimal places?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 15.5</p>
+                <p>
+                    Estimate the year when block subsidies will fall below average transaction
+                    fees, assuming fees of 0.5 BTC per block. What assumptions does this require?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="14-proof-of-work.html" class="prev-chapter">← Chapter 14: Proof of Work</a>
+            <a href="16-soft-forks.html" class="next-chapter">Chapter 16: Soft Forks and Upgrades →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

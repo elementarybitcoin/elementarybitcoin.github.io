@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 21: Node Optimizations | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .optimization-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            background: #fafafa;
+        }
+        .optimization-card h4 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .timeline-item {
+            display: flex;
+            margin: 1rem 0;
+            padding-left: 2rem;
+            border-left: 3px solid #4caf50;
+        }
+        .timeline-year {
+            font-weight: bold;
+            min-width: 80px;
+            color: #2e7d32;
+        }
+        .tradeoff-table td:nth-child(2) { color: #4caf50; }
+        .tradeoff-table td:nth-child(3) { color: #f44336; }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="20-light-clients.html">← Chapter 20: Light Client Architectures</a>
+        <a href="../index.html">Index</a>
+        <a href="22-client-side-validation.html">Chapter 22: Client-Side Validation →</a>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 21</p>
+            <h1>Node Optimizations</h1>
+            <p class="chapter-subtitle">IBD, AssumeValid, AssumeUTXO, and Utreexo</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                Running a full node requires downloading, validating, and storing the entire
+                Bitcoin blockchain—a process that has grown increasingly demanding as the
+                chain grows. This chapter examines optimizations that reduce the time,
+                bandwidth, and storage required to run a fully validating node.
+            </p>
+            <p>
+                These optimizations carefully balance efficiency against the trust assumptions
+                that make Bitcoin valuable. Understanding where each optimization draws
+                the line between "trust" and "verify" is essential for making informed
+                decisions about node configuration.
+            </p>
+        </section>
+
+        <section>
+            <h2>21.1 Initial Block Download (IBD)</h2>
+
+            <p>
+                When a new node joins the network, it must download and validate every
+                block from genesis to the current tip. This process is called Initial
+                Block Download (IBD).
+            </p>
+
+            <h3>The IBD Challenge</h3>
+
+            <div class="definition">
+                <p><strong>Definition 21.1</strong> (Initial Block Download)</p>
+                <p>
+                    IBD is the process of bootstrapping a new node by:
+                </p>
+                <ol>
+                    <li>Downloading all block headers (~60 MB)</li>
+                    <li>Downloading all block data (~550 GB)</li>
+                    <li>Validating every transaction in every block</li>
+                    <li>Building the UTXO set from genesis</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 21.1</strong> (IBD Requirements, 2024)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Requirement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Blockchain data</td>
+                            <td>~550 GB</td>
+                        </tr>
+                        <tr>
+                            <td>UTXO set</td>
+                            <td>~8 GB (in memory) / ~12 GB (on disk)</td>
+                        </tr>
+                        <tr>
+                            <td>Download bandwidth</td>
+                            <td>~600 GB (with overhead)</td>
+                        </tr>
+                        <tr>
+                            <td>Time (fast hardware)</td>
+                            <td>~6-12 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Time (modest hardware)</td>
+                            <td>~2-7 days</td>
+                        </tr>
+                        <tr>
+                            <td>Signature validations</td>
+                            <td>~900 million</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>IBD Phases</h3>
+
+            <figure>
+                <svg viewBox="0 0 700 250" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Initial Block Download Phases
+                    </text>
+
+                    <!-- Phase 1 -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="140" height="80" fill="#e3f2fd" stroke="#1976d2" rx="5"/>
+                        <text x="70" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 1</text>
+                        <text x="70" y="45" text-anchor="middle" font-size="9">Header Download</text>
+                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~60 MB</text>
+                        <text x="70" y="73" text-anchor="middle" font-size="8" fill="#666">~minutes</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 175 90 L 200 90" stroke="#666" stroke-width="2" marker-end="url(#arrow-g2)"/>
+
+                    <!-- Phase 2 -->
+                    <g transform="translate(205, 50)">
+                        <rect x="0" y="0" width="140" height="80" fill="#fff3e0" stroke="#ff9800" rx="5"/>
+                        <text x="70" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 2</text>
+                        <text x="70" y="45" text-anchor="middle" font-size="9">Block Download</text>
+                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~550 GB</text>
+                        <text x="70" y="73" text-anchor="middle" font-size="8" fill="#666">Parallel from peers</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 350 90 L 375 90" stroke="#666" stroke-width="2" marker-end="url(#arrow-g2)"/>
+
+                    <!-- Phase 3 -->
+                    <g transform="translate(380, 50)">
+                        <rect x="0" y="0" width="140" height="80" fill="#e8f5e9" stroke="#4caf50" rx="5"/>
+                        <text x="70" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 3</text>
+                        <text x="70" y="45" text-anchor="middle" font-size="9">Validation</text>
+                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~900M signatures</text>
+                        <text x="70" y="73" text-anchor="middle" font-size="8" fill="#666">CPU-intensive</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 525 90 L 550 90" stroke="#666" stroke-width="2" marker-end="url(#arrow-g2)"/>
+
+                    <!-- Phase 4 -->
+                    <g transform="translate(555, 50)">
+                        <rect x="0" y="0" width="110" height="80" fill="#fce4ec" stroke="#e91e63" rx="5"/>
+                        <text x="55" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 4</text>
+                        <text x="55" y="45" text-anchor="middle" font-size="9">UTXO Build</text>
+                        <text x="55" y="60" text-anchor="middle" font-size="8" fill="#666">~8 GB</text>
+                        <text x="55" y="73" text-anchor="middle" font-size="8" fill="#666">I/O-intensive</text>
+                    </g>
+
+                    <!-- Bottlenecks -->
+                    <g transform="translate(30, 160)">
+                        <text x="0" y="0" font-size="11" font-weight="bold">Bottlenecks by Hardware:</text>
+                        <text x="0" y="25" font-size="10">• Fast SSD + good CPU: Network bandwidth limited</text>
+                        <text x="0" y="45" font-size="10">• Slow disk (HDD): I/O limited (UTXO writes)</text>
+                        <text x="0" y="65" font-size="10">• Weak CPU: Signature validation limited</text>
+                        <text x="0" y="85" font-size="10">• Low RAM: Database cache thrashing</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-g2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 21.1</strong> — IBD proceeds through distinct phases, each with
+                    different resource bottlenecks. Modern Bitcoin Core overlaps these phases for
+                    efficiency.
+                </figcaption>
+            </figure>
+
+            <h3>Parallel Block Download</h3>
+
+            <p>
+                Bitcoin Core uses parallel block fetching during IBD:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 21.2</strong> (Headers-First Sync)</p>
+                <p>
+                    Headers-first synchronization:
+                </p>
+                <ol>
+                    <li>Download all headers first (validates PoW chain)</li>
+                    <li>Identify the best (most work) chain</li>
+                    <li>Download blocks in parallel from multiple peers</li>
+                    <li>Validate blocks as they arrive (out of order OK)</li>
+                    <li>Connect to main chain when all prerequisites validated</li>
+                </ol>
+            </div>
+
+            <p>
+                This approach allows downloading from 8+ peers simultaneously, significantly
+                reducing sync time compared to sequential download.
+            </p>
+        </section>
+
+        <section>
+            <h2>21.2 AssumeValid</h2>
+
+            <p>
+                The most time-consuming part of IBD is signature validation—verifying every
+                ECDSA and Schnorr signature in 900+ million inputs. AssumeValid optimizes
+                this by skipping signature checks for blocks buried under substantial
+                proof-of-work.
+            </p>
+
+            <div class="optimization-card">
+                <h4>AssumeValid (Bitcoin Core 0.14.0+)</h4>
+                <p><strong>What it does:</strong> Skip signature validation for blocks up to a hardcoded hash</p>
+                <p><strong>What it preserves:</strong> All other validation (amounts, scripts, structure)</p>
+                <p><strong>Trust assumption:</strong> The hardcoded block hash is in the valid chain</p>
+                <p><strong>Benefit:</strong> ~80% reduction in IBD time</p>
+            </div>
+
+            <h3>How AssumeValid Works</h3>
+
+            <div class="definition">
+                <p><strong>Definition 21.3</strong> (AssumeValid)</p>
+                <p>
+                    Given a hardcoded block hash H (the "assumevalid" block):
+                </p>
+                <ul>
+                    <li>For blocks that are ancestors of H: skip script validation (signature checks)</li>
+                    <li>For blocks after H: perform full validation including signatures</li>
+                    <li>All other checks performed for all blocks: amounts, structure, PoW</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 21.1</strong> (AssumeValid Security)</p>
+                <p>
+                    AssumeValid does not allow theft of existing coins. An attacker cannot:
+                </p>
+                <ul>
+                    <li>Create coins from nothing (supply verification still performed)</li>
+                    <li>Double-spend historical transactions (UTXO set still built correctly)</li>
+                    <li>Modify the chain structure (PoW still validated)</li>
+                </ul>
+                <p>
+                    The only attack is creating a fake alternate history with invalid
+                    signatures buried under the hardcoded assumevalid point—requiring
+                    building a valid-PoW chain with more work than the real chain up to
+                    that point.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    Skipping signature validation only affects script execution (OP_CHECKSIG, etc.).
+                    All other consensus rules are enforced:
+                </p>
+                <ul>
+                    <li>Block structure, merkle root, header validity: checked</li>
+                    <li>Transaction structure, encoding: checked</li>
+                    <li>Output values, input references: checked</li>
+                    <li>Total supply, coinbase rewards: checked</li>
+                    <li>PoW target, difficulty adjustment: checked</li>
+                </ul>
+                <p>
+                    An attacker would need to produce a chain with valid PoW leading to
+                    a different assumevalid block. This requires rewriting history with
+                    hundreds of exahashes of work—far exceeding the cost of a 51% attack
+                    on current blocks. ∎
+                </p>
+            </div>
+
+            <h3>Comparison: What Gets Checked</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Validation Type</th>
+                        <th>Full Validation</th>
+                        <th>AssumeValid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Header PoW</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Block structure</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction structure</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Input/output amounts</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>UTXO existence</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Coinbase maturity</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Merkle root</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Signature validation</td>
+                        <td>✓</td>
+                        <td>✗ (before assumevalid)</td>
+                    </tr>
+                    <tr>
+                        <td>Script execution</td>
+                        <td>✓</td>
+                        <td>✗ (before assumevalid)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Configuration</h3>
+
+            <div class="example">
+                <p><strong>Example 21.2</strong> (AssumeValid Configuration)</p>
+                <pre><code># Default: use hardcoded assumevalid block (updated each release)
+# Bitcoin Core 26.0 assumevalid:
+# 00000000000000000001a0a448d6cf2546b06801389cc030b2b18c6491266815
+
+# Disable assumevalid (full validation):
+bitcoind -assumevalid=0
+
+# Custom assumevalid block:
+bitcoind -assumevalid=00000000000000000001...</code></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>21.3 AssumeUTXO</h2>
+
+            <p>
+                While AssumeValid speeds up validation, it doesn't eliminate the need to
+                process all historical blocks. AssumeUTXO goes further by bootstrapping
+                from a pre-computed UTXO set snapshot.
+            </p>
+
+            <div class="optimization-card">
+                <h4>AssumeUTXO (Bitcoin Core 26.0+)</h4>
+                <p><strong>What it does:</strong> Start with a pre-computed UTXO set snapshot</p>
+                <p><strong>What it preserves:</strong> Background validation catches up to verify</p>
+                <p><strong>Trust assumption:</strong> Initial snapshot is correct (temporarily)</p>
+                <p><strong>Benefit:</strong> Fully functional node in ~minutes instead of hours/days</p>
+            </div>
+
+            <h3>Architecture</h3>
+
+            <figure>
+                <svg viewBox="0 0 700 350" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        AssumeUTXO Two-Phase Sync
+                    </text>
+
+                    <!-- Timeline -->
+                    <line x1="50" y1="80" x2="650" y2="80" stroke="#333" stroke-width="2"/>
+
+                    <!-- Genesis -->
+                    <circle cx="50" cy="80" r="6" fill="#333"/>
+                    <text x="50" y="100" text-anchor="middle" font-size="9">Genesis</text>
+                    <text x="50" y="112" text-anchor="middle" font-size="8" fill="#666">Block 0</text>
+
+                    <!-- Snapshot point -->
+                    <circle cx="400" cy="80" r="8" fill="#ff9800"/>
+                    <text x="400" y="100" text-anchor="middle" font-size="9" font-weight="bold">Snapshot</text>
+                    <text x="400" y="112" text-anchor="middle" font-size="8" fill="#666">Block ~800,000</text>
+
+                    <!-- Current tip -->
+                    <circle cx="650" cy="80" r="6" fill="#4caf50"/>
+                    <text x="650" y="100" text-anchor="middle" font-size="9">Current</text>
+                    <text x="650" y="112" text-anchor="middle" font-size="8" fill="#666">Tip</text>
+
+                    <!-- Phase 1: Foreground -->
+                    <g transform="translate(400, 130)">
+                        <rect x="0" y="0" width="250" height="70" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="125" y="20" text-anchor="middle" font-size="11" font-weight="bold">Phase 1: Foreground</text>
+                        <text x="125" y="38" text-anchor="middle" font-size="9">Load UTXO snapshot</text>
+                        <text x="125" y="52" text-anchor="middle" font-size="9">Sync from snapshot to tip</text>
+                        <text x="125" y="66" text-anchor="middle" font-size="8" fill="#666">~minutes (functional node)</text>
+                    </g>
+
+                    <!-- Arrow from snapshot to foreground -->
+                    <path d="M 400 88 L 400 125" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow-or)"/>
+
+                    <!-- Phase 2: Background -->
+                    <g transform="translate(50, 220)">
+                        <rect x="0" y="0" width="350" height="70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <text x="175" y="20" text-anchor="middle" font-size="11" font-weight="bold">Phase 2: Background Validation</text>
+                        <text x="175" y="38" text-anchor="middle" font-size="9">Download and validate blocks 0 → snapshot</text>
+                        <text x="175" y="52" text-anchor="middle" font-size="9">Rebuild UTXO set from scratch</text>
+                        <text x="175" y="66" text-anchor="middle" font-size="8" fill="#666">~hours/days (runs in background)</text>
+                    </g>
+
+                    <!-- Arrow from genesis -->
+                    <path d="M 50 88 L 50 130 L 50 215" stroke="#1976d2" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-bl)"/>
+
+                    <!-- Verification -->
+                    <g transform="translate(420, 220)">
+                        <rect x="0" y="0" width="230" height="70" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="115" y="20" text-anchor="middle" font-size="11" font-weight="bold">Verification Complete</text>
+                        <text x="115" y="38" text-anchor="middle" font-size="9">Background catches up to snapshot</text>
+                        <text x="115" y="52" text-anchor="middle" font-size="9">UTXO sets must match exactly</text>
+                        <text x="115" y="66" text-anchor="middle" font-size="8" fill="#666">Node is now fully validated</text>
+                    </g>
+
+                    <!-- Arrow from background to verification -->
+                    <path d="M 400 255 L 420 255" stroke="#666" stroke-width="2" marker-end="url(#arrow-g3)"/>
+
+                    <defs>
+                        <marker id="arrow-or" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/>
+                        </marker>
+                        <marker id="arrow-bl" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+                        </marker>
+                        <marker id="arrow-g3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 21.2</strong> — AssumeUTXO enables immediate sync from a snapshot
+                    while background validation eventually verifies the snapshot was correct.
+                </figcaption>
+            </figure>
+
+            <div class="definition">
+                <p><strong>Definition 21.4</strong> (AssumeUTXO)</p>
+                <p>
+                    AssumeUTXO synchronization:
+                </p>
+                <ol>
+                    <li><strong>Load snapshot:</strong> Import pre-computed UTXO set (~8 GB)</li>
+                    <li><strong>Foreground sync:</strong> Download blocks from snapshot to tip (recent blocks)</li>
+                    <li><strong>Become functional:</strong> Node can now validate new blocks, answer queries</li>
+                    <li><strong>Background sync:</strong> Download and validate historical blocks (0 → snapshot)</li>
+                    <li><strong>Verification:</strong> Computed UTXO set at snapshot height must match loaded snapshot</li>
+                </ol>
+            </div>
+
+            <h3>Trust Model</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 21.2</strong> (AssumeUTXO Security)</p>
+                <p>
+                    AssumeUTXO provides eventual full verification:
+                </p>
+                <ul>
+                    <li><strong>Temporary trust:</strong> Before background sync completes, trust snapshot</li>
+                    <li><strong>Full verification:</strong> After background completes, fully verified</li>
+                    <li><strong>Mismatch detection:</strong> Any snapshot corruption detected at completion</li>
+                </ul>
+                <p>
+                    The security degradation is bounded by the time to complete background sync.
+                </p>
+            </div>
+
+            <h3>UTXO Set Commitment</h3>
+
+            <p>
+                Snapshots are identified by a hash of the serialized UTXO set:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 21.5</strong> (UTXO Set Hash)</p>
+                <p>
+                    The UTXO set hash is computed by:
+                </p>
+                <ol>
+                    <li>Serializing each UTXO (outpoint + output data)</li>
+                    <li>Sorting by outpoint (txid:vout)</li>
+                    <li>Hashing the concatenated serialization</li>
+                </ol>
+                <p>
+                    This provides a deterministic commitment that can be embedded in software.
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 21.3</strong> (AssumeUTXO Usage)</p>
+                <pre><code># Generate a UTXO snapshot (on existing node)
+bitcoin-cli dumptxoutset utxo.dat
+
+# Load snapshot on new node
+bitcoin-cli loadtxoutset /path/to/utxo.dat
+
+# Node immediately syncs from snapshot point
+# Background validation begins automatically</code></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>21.4 Pruning</h2>
+
+            <p>
+                Pruned nodes discard old block data after validation, keeping only the
+                UTXO set needed for current validation.
+            </p>
+
+            <div class="optimization-card">
+                <h4>Block Pruning</h4>
+                <p><strong>What it does:</strong> Delete old blocks after validation</p>
+                <p><strong>What it preserves:</strong> Full validation, complete UTXO set</p>
+                <p><strong>Trade-off:</strong> Cannot serve historical blocks to other nodes</p>
+                <p><strong>Benefit:</strong> ~5-10 GB storage instead of ~550 GB</p>
+            </div>
+
+            <h3>What Pruned Nodes Keep</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Full Node</th>
+                        <th>Pruned Node</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Block headers</td>
+                        <td>All (~60 MB)</td>
+                        <td>All (~60 MB)</td>
+                    </tr>
+                    <tr>
+                        <td>Block data</td>
+                        <td>All (~550 GB)</td>
+                        <td>Recent only (~550 MB - 10 GB)</td>
+                    </tr>
+                    <tr>
+                        <td>UTXO set</td>
+                        <td>Complete (~8 GB)</td>
+                        <td>Complete (~8 GB)</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction index</td>
+                        <td>Optional</td>
+                        <td>Not available</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Configuration</h3>
+
+            <div class="example">
+                <p><strong>Example 21.4</strong> (Pruning Configuration)</p>
+                <pre><code># Enable pruning with minimum storage (550 MB)
+bitcoind -prune=550
+
+# Prune with 10 GB buffer
+bitcoind -prune=10000
+
+# In bitcoin.conf
+prune=550</code></pre>
+            </div>
+
+            <h3>Limitations</h3>
+
+            <ul>
+                <li>Cannot rescan wallet for historical transactions</li>
+                <li>Cannot serve blocks to peers doing IBD</li>
+                <li>Cannot use with -txindex (transaction index)</li>
+                <li>Limited ability to help new nodes bootstrap</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>21.5 Utreexo</h2>
+
+            <p>
+                Utreexo is a cryptographic accumulator that dramatically reduces the storage
+                needed for the UTXO set while maintaining full verification.
+            </p>
+
+            <div class="optimization-card">
+                <h4>Utreexo (Research/Experimental)</h4>
+                <p><strong>What it does:</strong> Replace UTXO database with ~1 KB accumulator</p>
+                <p><strong>What it preserves:</strong> Full transaction validation</p>
+                <p><strong>Trade-off:</strong> Proofs must accompany transactions</p>
+                <p><strong>Benefit:</strong> Node storage reduced to ~1 GB total</p>
+            </div>
+
+            <h3>The UTXO Set Problem</h3>
+
+            <p>
+                Traditional nodes store every unspent output (~170 million UTXOs, ~8 GB).
+                Utreexo replaces this with a compact cryptographic commitment.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 21.6</strong> (Cryptographic Accumulator)</p>
+                <p>
+                    A <em>cryptographic accumulator</em> is a compact representation of a set
+                    that supports:
+                </p>
+                <ul>
+                    <li><strong>Membership proofs:</strong> Prove element x is in the set</li>
+                    <li><strong>Updates:</strong> Add or remove elements efficiently</li>
+                    <li><strong>Binding:</strong> Cannot forge proofs for non-members</li>
+                </ul>
+            </div>
+
+            <h3>Utreexo Structure</h3>
+
+            <p>
+                Utreexo uses a forest of perfect Merkle trees:
+            </p>
+
+            <figure>
+                <svg viewBox="0 0 650 280" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Utreexo Forest Structure
+                    </text>
+
+                    <!-- Tree 1 (height 3) -->
+                    <g transform="translate(50, 50)">
+                        <!-- Root -->
+                        <circle cx="100" cy="20" r="15" fill="#4caf50" stroke="#2e7d32"/>
+                        <text x="100" y="25" text-anchor="middle" font-size="8" fill="white">R₃</text>
+
+                        <!-- Level 1 -->
+                        <line x1="100" y1="35" x2="50" y2="60" stroke="#666"/>
+                        <line x1="100" y1="35" x2="150" y2="60" stroke="#666"/>
+                        <circle cx="50" cy="70" r="12" fill="#81c784"/>
+                        <circle cx="150" cy="70" r="12" fill="#81c784"/>
+
+                        <!-- Level 2 -->
+                        <line x1="50" y1="82" x2="25" y2="110" stroke="#666"/>
+                        <line x1="50" y1="82" x2="75" y2="110" stroke="#666"/>
+                        <line x1="150" y1="82" x2="125" y2="110" stroke="#666"/>
+                        <line x1="150" y1="82" x2="175" y2="110" stroke="#666"/>
+
+                        <circle cx="25" cy="120" r="10" fill="#a5d6a7"/>
+                        <circle cx="75" cy="120" r="10" fill="#a5d6a7"/>
+                        <circle cx="125" cy="120" r="10" fill="#a5d6a7"/>
+                        <circle cx="175" cy="120" r="10" fill="#a5d6a7"/>
+
+                        <!-- Leaves -->
+                        <line x1="25" y1="130" x2="15" y2="155" stroke="#666"/>
+                        <line x1="25" y1="130" x2="35" y2="155" stroke="#666"/>
+                        <rect x="5" y="155" width="20" height="15" fill="#c8e6c9" stroke="#666"/>
+                        <rect x="25" y="155" width="20" height="15" fill="#c8e6c9" stroke="#666"/>
+
+                        <!-- More leaves (abbreviated) -->
+                        <text x="100" y="175" text-anchor="middle" font-size="9" fill="#666">8 UTXOs</text>
+                    </g>
+
+                    <!-- Tree 2 (height 1) -->
+                    <g transform="translate(300, 100)">
+                        <circle cx="40" cy="20" r="15" fill="#2196f3" stroke="#1565c0"/>
+                        <text x="40" y="25" text-anchor="middle" font-size="8" fill="white">R₁</text>
+
+                        <line x1="40" y1="35" x2="20" y2="60" stroke="#666"/>
+                        <line x1="40" y1="35" x2="60" y2="60" stroke="#666"/>
+
+                        <rect x="10" y="60" width="20" height="15" fill="#bbdefb" stroke="#666"/>
+                        <rect x="50" y="60" width="20" height="15" fill="#bbdefb" stroke="#666"/>
+
+                        <text x="40" y="95" text-anchor="middle" font-size="9" fill="#666">2 UTXOs</text>
+                    </g>
+
+                    <!-- Tree 3 (single leaf) -->
+                    <g transform="translate(450, 120)">
+                        <circle cx="40" cy="20" r="15" fill="#ff9800" stroke="#e65100"/>
+                        <text x="40" y="25" text-anchor="middle" font-size="8" fill="white">R₀</text>
+
+                        <line x1="40" y1="35" x2="40" y2="55" stroke="#666"/>
+                        <rect x="30" y="55" width="20" height="15" fill="#ffe0b2" stroke="#666"/>
+
+                        <text x="40" y="90" text-anchor="middle" font-size="9" fill="#666">1 UTXO</text>
+                    </g>
+
+                    <!-- Accumulator state -->
+                    <g transform="translate(50, 210)">
+                        <rect x="0" y="0" width="550" height="50" fill="#f5f5f5" stroke="#333" rx="4"/>
+                        <text x="275" y="20" text-anchor="middle" font-size="11" font-weight="bold">
+                            Utreexo Accumulator State
+                        </text>
+                        <text x="275" y="40" text-anchor="middle" font-size="10" font-family="monospace">
+                            Roots: [R₃, ∅, R₁, R₀] — representing 8 + 2 + 1 = 11 UTXOs in ~128 bytes
+                        </text>
+                    </g>
+                </svg>
+                <figcaption>
+                    <strong>Figure 21.3</strong> — Utreexo forest: perfect binary trees of heights
+                    corresponding to powers of 2 in the UTXO count. The full state is just the
+                    tree roots (~1 KB for billions of UTXOs).
+                </figcaption>
+            </figure>
+
+            <div class="definition">
+                <p><strong>Definition 21.7</strong> (Utreexo Forest)</p>
+                <p>
+                    For N UTXOs, Utreexo maintains at most ⌈log₂(N)⌉ Merkle tree roots,
+                    one for each set bit in the binary representation of N.
+                </p>
+                <p>
+                    With N = 170 million UTXOs:
+                </p>
+                <ul>
+                    <li>Maximum roots: ~28</li>
+                    <li>Storage: 28 × 32 bytes = 896 bytes</li>
+                </ul>
+            </div>
+
+            <h3>Proof Structure</h3>
+
+            <div class="definition">
+                <p><strong>Definition 21.8</strong> (Utreexo Inclusion Proof)</p>
+                <p>
+                    To spend a UTXO, the transaction must include a Merkle proof showing
+                    the UTXO exists in the accumulator:
+                </p>
+                <ul>
+                    <li>Proof size: O(log N) hashes ≈ 28 × 32 = 896 bytes maximum</li>
+                    <li>Verification: O(log N) hash operations</li>
+                </ul>
+            </div>
+
+            <h3>Trade-offs</h3>
+
+            <table class="bitcoin-table tradeoff-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Benefit</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Storage</td>
+                        <td>~1 KB vs ~8 GB</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction size</td>
+                        <td>—</td>
+                        <td>+~500 bytes per input</td>
+                    </tr>
+                    <tr>
+                        <td>Verification speed</td>
+                        <td>Cache-friendly</td>
+                        <td>More hash operations</td>
+                    </tr>
+                    <tr>
+                        <td>UTXO lookup</td>
+                        <td>—</td>
+                        <td>Cannot enumerate UTXOs</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Bridge Nodes</h3>
+
+            <p>
+                Since Utreexo proofs must accompany transactions, the network needs
+                "bridge nodes" that:
+            </p>
+
+            <ul>
+                <li>Maintain full UTXO database</li>
+                <li>Generate Utreexo proofs for transactions</li>
+                <li>Serve proofs to Utreexo clients</li>
+            </ul>
+
+            <p>
+                Utreexo is still experimental and not yet deployed on mainnet.
+            </p>
+        </section>
+
+        <section>
+            <h2>21.6 Comparison and Recommendations</h2>
+
+            <h3>Optimization Summary</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Optimization</th>
+                        <th>IBD Time</th>
+                        <th>Storage</th>
+                        <th>Trust Added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Full validation</td>
+                        <td>~Days</td>
+                        <td>~560 GB</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td>+ AssumeValid</td>
+                        <td>~Hours</td>
+                        <td>~560 GB</td>
+                        <td>Minimal*</td>
+                    </tr>
+                    <tr>
+                        <td>+ Pruning</td>
+                        <td>~Hours</td>
+                        <td>~10 GB</td>
+                        <td>Minimal*</td>
+                    </tr>
+                    <tr>
+                        <td>AssumeUTXO</td>
+                        <td>~Minutes†</td>
+                        <td>~560 GB</td>
+                        <td>Temporary‡</td>
+                    </tr>
+                    <tr>
+                        <td>Utreexo</td>
+                        <td>~Hours</td>
+                        <td>~1 GB</td>
+                        <td>Bridge nodes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="font-size: 0.9rem; color: #666;">
+                * AssumeValid requires attacker to rewrite history with valid PoW<br>
+                † Time to functional node; background validation continues<br>
+                ‡ Trust eliminated when background sync completes
+            </p>
+
+            <h3>Recommendations</h3>
+
+            <div class="definition">
+                <p><strong>Definition 21.9</strong> (Node Configuration Recommendations)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Use Case</th>
+                            <th>Configuration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Maximum security</td>
+                            <td>Full node, -assumevalid=0</td>
+                        </tr>
+                        <tr>
+                            <td>Standard full node</td>
+                            <td>Default (AssumeValid enabled)</td>
+                        </tr>
+                        <tr>
+                            <td>Limited storage</td>
+                            <td>Pruned node (-prune=550)</td>
+                        </tr>
+                        <tr>
+                            <td>Quick start needed</td>
+                            <td>AssumeUTXO</td>
+                        </tr>
+                        <tr>
+                            <td>Embedded/IoT</td>
+                            <td>Utreexo (when available)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 21.1</strong></p>
+                <p>
+                    Calculate the PoW cost (in USD) for an attacker to create a fake chain
+                    from genesis to the current assumevalid point with invalid signatures.
+                    Use current network hashrate and electricity costs.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 21.2</strong></p>
+                <p>
+                    Prove that a pruned node provides equivalent security guarantees to
+                    a full archival node for validating new transactions.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 21.3</strong></p>
+                <p>
+                    For a UTXO set of size N, calculate the maximum Utreexo accumulator
+                    size and the average proof size per transaction input.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 21.4</strong></p>
+                <p>
+                    Design an attack against an AssumeUTXO node before its background
+                    validation completes. What is the practical difficulty of this attack?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 21.5</strong></p>
+                <p>
+                    Calculate the bandwidth overhead if all Bitcoin transactions included
+                    Utreexo proofs. Would this be acceptable given current block size limits?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 21.6</strong></p>
+                <p>
+                    Explain why pruned nodes cannot help new nodes with IBD. Design a
+                    protocol modification that would allow pruned nodes to serve recent
+                    blocks while maintaining their storage benefits.
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    Initial Block Download (IBD) requires downloading ~550 GB and validating
+                    ~900 million signatures, taking hours to days depending on hardware.
+                </li>
+                <li>
+                    AssumeValid skips signature validation for deeply buried blocks,
+                    reducing IBD time by ~80% with minimal additional trust assumption.
+                </li>
+                <li>
+                    AssumeUTXO enables instant functionality by loading a pre-computed
+                    UTXO snapshot, with background validation providing eventual full
+                    verification.
+                </li>
+                <li>
+                    Pruning reduces storage to ~10 GB by discarding validated block data,
+                    while maintaining full security for current transactions.
+                </li>
+                <li>
+                    Utreexo is an experimental accumulator that could reduce UTXO storage
+                    to ~1 KB at the cost of larger transactions with inclusion proofs.
+                </li>
+                <li>
+                    Each optimization represents a different point in the trade-off space
+                    between resources, convenience, and trust assumptions.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="20-light-clients.html">← Chapter 20: Light Client Architectures</a>
+            <a href="../index.html">Index</a>
+            <a href="22-client-side-validation.html">Chapter 22: Client-Side Validation →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

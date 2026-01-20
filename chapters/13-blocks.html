@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13: Blocks | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 13</p>
+        <h1>Blocks</h1>
+        <p class="chapter-subtitle">The Fundamental Unit of Consensus</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                A Bitcoin block is a container that bundles transactions together with
+                a header that commits to the block's contents and links it to its predecessor.
+                Blocks are the atoms of consensus: nodes agree on the state of Bitcoin by
+                agreeing on which blocks are valid and which chain of blocks is canonical.
+            </p>
+
+            <p>
+                In this chapter, we examine the precise structure of blocks, the validation
+                rules they must satisfy, and how they chain together to form the blockchain.
+            </p>
+        </section>
+
+        <section>
+            <h2>13.1 Block Structure</h2>
+
+            <p>
+                A Bitcoin block consists of two parts: a compact header and a list of transactions.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.1 (Block)</p>
+                <p>
+                    A <strong>block</strong> is a data structure containing:
+                </p>
+                <ol>
+                    <li><strong>Block header</strong> (80 bytes): Metadata and proof of work</li>
+                    <li><strong>Transaction count</strong> (variable): CompactSize integer</li>
+                    <li><strong>Transactions</strong> (variable): Ordered list of transactions</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="220" viewBox="0 0 480 220">
+                    <!-- Block container -->
+                    <rect x="40" y="20" width="400" height="180" rx="8" fill="none" stroke="#333" stroke-width="2"/>
+                    <text x="240" y="12" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Bitcoin Block</text>
+
+                    <!-- Header section -->
+                    <rect x="50" y="35" width="380" height="50" rx="5" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="240" y="55" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Block Header</text>
+                    <text x="240" y="72" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">80 bytes · Fixed size</text>
+
+                    <!-- Transaction count -->
+                    <rect x="50" y="95" width="80" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="90" y="115" text-anchor="middle" font-family="Georgia" font-size="10">Tx Count</text>
+
+                    <!-- Transactions -->
+                    <rect x="140" y="95" width="290" height="95" rx="5" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="285" y="115" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Transactions</text>
+
+                    <!-- Individual transactions -->
+                    <rect x="150" y="125" width="60" height="25" rx="3" fill="#fff" stroke="#4a90d9"/>
+                    <text x="180" y="142" text-anchor="middle" font-family="Georgia" font-size="9">Coinbase</text>
+
+                    <rect x="220" y="125" width="50" height="25" rx="3" fill="#fff" stroke="#4a90d9"/>
+                    <text x="245" y="142" text-anchor="middle" font-family="Georgia" font-size="9">Tx 1</text>
+
+                    <rect x="280" y="125" width="50" height="25" rx="3" fill="#fff" stroke="#4a90d9"/>
+                    <text x="305" y="142" text-anchor="middle" font-family="Georgia" font-size="9">Tx 2</text>
+
+                    <rect x="340" y="125" width="50" height="25" rx="3" fill="#fff" stroke="#4a90d9"/>
+                    <text x="365" y="142" text-anchor="middle" font-family="Georgia" font-size="9">...</text>
+
+                    <rect x="150" y="158" width="50" height="25" rx="3" fill="#fff" stroke="#4a90d9"/>
+                    <text x="175" y="175" text-anchor="middle" font-family="Georgia" font-size="9">Tx n-1</text>
+
+                    <rect x="210" y="158" width="50" height="25" rx="3" fill="#fff" stroke="#4a90d9"/>
+                    <text x="235" y="175" text-anchor="middle" font-family="Georgia" font-size="9">Tx n</text>
+                </svg>
+                <figcaption>Figure 13.1: A block contains a fixed-size header and a variable-size list of transactions.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>13.2 The Block Header</h2>
+
+            <p>
+                The block header is the most critical 80 bytes in Bitcoin. It contains
+                all information needed to validate the block's place in the chain and
+                verify the proof of work.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.2 (Block Header)</p>
+                <p>
+                    A <strong>block header</strong> consists of six fields totaling exactly 80 bytes:
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Size</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Version</td>
+                        <td>4 bytes</td>
+                        <td>Block version number</td>
+                    </tr>
+                    <tr>
+                        <td>Previous Block Hash</td>
+                        <td>32 bytes</td>
+                        <td>Hash of the previous block header</td>
+                    </tr>
+                    <tr>
+                        <td>Merkle Root</td>
+                        <td>32 bytes</td>
+                        <td>Root of the transaction Merkle tree</td>
+                    </tr>
+                    <tr>
+                        <td>Timestamp</td>
+                        <td>4 bytes</td>
+                        <td>Unix time (seconds since 1970-01-01)</td>
+                    </tr>
+                    <tr>
+                        <td>Bits</td>
+                        <td>4 bytes</td>
+                        <td>Difficulty target (compact format)</td>
+                    </tr>
+                    <tr>
+                        <td>Nonce</td>
+                        <td>4 bytes</td>
+                        <td>Counter for proof-of-work mining</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <figure>
+                <svg class="diagram" width="500" height="100" viewBox="0 0 500 100">
+                    <!-- Header fields -->
+                    <rect x="10" y="30" width="480" height="45" rx="4" fill="none" stroke="#333" stroke-width="1.5"/>
+
+                    <rect x="15" y="35" width="50" height="35" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="40" y="50" text-anchor="middle" font-family="monospace" font-size="8">version</text>
+                    <text x="40" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#666">4B</text>
+
+                    <rect x="70" y="35" width="120" height="35" rx="3" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="130" y="50" text-anchor="middle" font-family="monospace" font-size="8">prev_block_hash</text>
+                    <text x="130" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#666">32B</text>
+
+                    <rect x="195" y="35" width="120" height="35" rx="3" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="255" y="50" text-anchor="middle" font-family="monospace" font-size="8">merkle_root</text>
+                    <text x="255" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#666">32B</text>
+
+                    <rect x="320" y="35" width="55" height="35" rx="3" fill="#fff8e8" stroke="#d4a574"/>
+                    <text x="347" y="50" text-anchor="middle" font-family="monospace" font-size="8">time</text>
+                    <text x="347" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#666">4B</text>
+
+                    <rect x="380" y="35" width="50" height="35" rx="3" fill="#f5f0f8" stroke="#a574d4"/>
+                    <text x="405" y="50" text-anchor="middle" font-family="monospace" font-size="8">bits</text>
+                    <text x="405" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#666">4B</text>
+
+                    <rect x="435" y="35" width="50" height="35" rx="3" fill="#f0f0f0" stroke="#999"/>
+                    <text x="460" y="50" text-anchor="middle" font-family="monospace" font-size="8">nonce</text>
+                    <text x="460" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#666">4B</text>
+
+                    <text x="250" y="90" text-anchor="middle" font-family="Georgia" font-size="10">Total: 80 bytes</text>
+                </svg>
+                <figcaption>Figure 13.2: The six fields of a block header, all stored in little-endian format.</figcaption>
+            </figure>
+
+            <h3>13.2.1 Version</h3>
+
+            <p>
+                The version field signals support for consensus rule changes and soft forks.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.3 (Version Bits)</p>
+                <p>
+                    Block versions follow BIP-9 <strong>version bits</strong> signaling. The top 3 bits
+                    are set to <code>001</code>, and the remaining 29 bits can signal readiness for
+                    various soft forks.
+                </p>
+            </div>
+
+            <h3>13.2.2 Previous Block Hash</h3>
+
+            <p>
+                This field creates the chain structure by referencing the parent block.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.4 (Block Hash)</p>
+                <p>
+                    The <strong>block hash</strong> is computed as:
+                </p>
+                <p class="math-block">
+                    block_hash = SHA256(SHA256(header))
+                </p>
+                <p>
+                    where <span class="math">header</span> is the 80-byte block header.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 13.1 (Hash Display Convention)</p>
+                <p>
+                    Block hashes are typically displayed in big-endian (reversed) format for
+                    readability. The internal little-endian format has leading zeros at the
+                    end, while display format has them at the beginning.
+                </p>
+            </div>
+
+            <h3>13.2.3 Merkle Root</h3>
+
+            <p>
+                The Merkle root commits to all transactions in the block, as detailed in Chapter 12.
+            </p>
+
+            <h3>13.2.4 Timestamp</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.5 (Block Timestamp)</p>
+                <p>
+                    The <strong>timestamp</strong> is a 32-bit unsigned integer representing seconds
+                    since the Unix epoch (January 1, 1970 00:00:00 UTC).
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 13.1 (Timestamp Constraints)</p>
+                <p>
+                    A valid block timestamp must satisfy:
+                </p>
+                <ul>
+                    <li>Greater than the median of the previous 11 blocks (MTP)</li>
+                    <li>Less than 2 hours in the future (network-adjusted time)</li>
+                </ul>
+            </div>
+
+            <h3>13.2.5 Bits (Difficulty Target)</h3>
+
+            <p>
+                The <code>bits</code> field encodes the difficulty target in a compact format.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.6 (Compact Target)</p>
+                <p>
+                    The <strong>compact target</strong> format encodes a 256-bit target in 4 bytes:
+                </p>
+                <p class="math-block">
+                    target = coefficient × 256^(exponent - 3)
+                </p>
+                <p>
+                    where <code>bits = exponent || coefficient</code> (1 byte + 3 bytes).
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 13.1 (Decoding Bits)</p>
+                <p>
+                    Given <code>bits = 0x1d00ffff</code> (genesis block):
+                </p>
+                <pre class="code-block">exponent = 0x1d = 29
+coefficient = 0x00ffff
+
+target = 0x00ffff × 256^(29-3)
+       = 0x00ffff × 256^26
+       = 0x00000000ffff0000...0000 (with many trailing zeros)</pre>
+            </div>
+
+            <h3>13.2.6 Nonce</h3>
+
+            <p>
+                The nonce is the "free" field that miners vary to search for a valid proof of work.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.7 (Nonce)</p>
+                <p>
+                    The <strong>nonce</strong> is a 32-bit unsigned integer (0 to 2³² − 1) that miners
+                    increment while searching for a block hash below the target.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 13.2 (Extra Nonce)</p>
+                <p>
+                    With modern hash rates, 2³² nonces are insufficient. Miners also vary the
+                    coinbase transaction (changing the Merkle root) and the timestamp to expand
+                    the search space. This "extra nonce" effectively provides unlimited attempts.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>13.3 Block Hashing and the Chain</h2>
+
+            <p>
+                The blockchain is formed by each block referencing its predecessor's hash.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="520" height="180" viewBox="0 0 520 180">
+                    <!-- Block n-2 -->
+                    <rect x="20" y="50" width="140" height="100" rx="6" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <text x="90" y="75" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Block n−2</text>
+                    <rect x="30" y="85" width="120" height="20" rx="3" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="90" y="99" text-anchor="middle" font-family="monospace" font-size="8">prev: ...abc</text>
+                    <rect x="30" y="110" width="120" height="20" rx="3" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="90" y="124" text-anchor="middle" font-family="monospace" font-size="8">hash: ...def</text>
+
+                    <!-- Arrow -->
+                    <path d="M 165 100 L 185 100" stroke="#666" stroke-width="2" marker-end="url(#arrowChain)"/>
+
+                    <!-- Block n-1 -->
+                    <rect x="190" y="50" width="140" height="100" rx="6" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <text x="260" y="75" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Block n−1</text>
+                    <rect x="200" y="85" width="120" height="20" rx="3" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="260" y="99" text-anchor="middle" font-family="monospace" font-size="8">prev: ...def</text>
+                    <rect x="200" y="110" width="120" height="20" rx="3" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="260" y="124" text-anchor="middle" font-family="monospace" font-size="8">hash: ...789</text>
+
+                    <!-- Arrow -->
+                    <path d="M 335 100 L 355 100" stroke="#666" stroke-width="2" marker-end="url(#arrowChain)"/>
+
+                    <!-- Block n -->
+                    <rect x="360" y="50" width="140" height="100" rx="6" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="430" y="75" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Block n</text>
+                    <rect x="370" y="85" width="120" height="20" rx="3" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="430" y="99" text-anchor="middle" font-family="monospace" font-size="8">prev: ...789</text>
+                    <rect x="370" y="110" width="120" height="20" rx="3" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="430" y="124" text-anchor="middle" font-family="monospace" font-size="8">hash: ...xyz</text>
+
+                    <!-- Chain annotation -->
+                    <text x="260" y="170" text-anchor="middle" font-family="Georgia" font-size="10">Each block's prev_hash = parent's block_hash</text>
+
+                    <defs>
+                        <marker id="arrowChain" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 13.3: Blocks form a chain through hash references.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 13.2 (Chain Integrity)</p>
+                <p>
+                    If block <span class="math">B_n</span> contains <code>prev_hash = H(B_{n-1})</code>,
+                    then any modification to <span class="math">B_{n-1}</span> (including its transactions)
+                    invalidates <span class="math">B_n</span> and all subsequent blocks.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    Modifying any data in <span class="math">B_{n-1}</span> changes its header (via the
+                    Merkle root if transactions change, or directly if header fields change). This changes
+                    <span class="math">H(B_{n-1})</span>. Since <span class="math">B_n</span> commits to
+                    the original hash, the link breaks. Repairing requires new proof of work for
+                    <span class="math">B_n</span> and all descendants. □
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>13.4 Block Size and Weight</h2>
+
+            <p>
+                Bitcoin limits block size to prevent resource exhaustion attacks.
+            </p>
+
+            <h3>13.4.1 Legacy Block Size Limit</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.8 (Block Size Limit)</p>
+                <p>
+                    Prior to SegWit, the <strong>block size limit</strong> was:
+                </p>
+                <p class="math-block">
+                    block_size ≤ 1,000,000 bytes (1 MB)
+                </p>
+            </div>
+
+            <h3>13.4.2 Block Weight (SegWit)</h3>
+
+            <p>
+                SegWit replaced the size limit with a weight limit, providing a discount
+                for witness data.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.9 (Block Weight)</p>
+                <p>
+                    The <strong>block weight</strong> is calculated as:
+                </p>
+                <p class="math-block">
+                    weight = (base_size × 3) + total_size
+                </p>
+                <p>
+                    where <span class="math">base_size</span> excludes witness data and
+                    <span class="math">total_size</span> includes it.
+                </p>
+                <p>
+                    The limit is:
+                </p>
+                <p class="math-block">
+                    weight ≤ 4,000,000 weight units (4 MWU)
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 13.2 (Block Weight Calculation)</p>
+                <p>
+                    A block with:
+                </p>
+                <ul>
+                    <li>Base size: 750,000 bytes</li>
+                    <li>Witness size: 500,000 bytes</li>
+                    <li>Total size: 1,250,000 bytes</li>
+                </ul>
+                <pre class="code-block">weight = (750,000 × 3) + 1,250,000
+       = 2,250,000 + 1,250,000
+       = 3,500,000 WU  (valid: < 4,000,000)</pre>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 13.3 (Effective Size Increase)</p>
+                <p>
+                    The weight system allows blocks up to approximately 2.3 MB in practice
+                    (with typical transaction mixes), while maintaining backward compatibility
+                    with the 1 MB limit for non-witness data.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>13.5 Block Validation Rules</h2>
+
+            <p>
+                A block must satisfy numerous rules to be considered valid.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.10 (Block Validity)</p>
+                <p>
+                    A block is <strong>valid</strong> if and only if all of the following hold:
+                </p>
+            </div>
+
+            <h3>Header Rules</h3>
+            <ol>
+                <li>Block hash ≤ target (proof of work)</li>
+                <li>Version is acceptable (not rejected by majority)</li>
+                <li>Timestamp > median of last 11 blocks</li>
+                <li>Timestamp < current time + 2 hours</li>
+                <li>Previous block hash references a known valid block</li>
+                <li>Bits matches expected difficulty</li>
+            </ol>
+
+            <h3>Transaction Rules</h3>
+            <ol>
+                <li>At least one transaction (the coinbase)</li>
+                <li>First transaction is coinbase; no others are</li>
+                <li>All transactions are valid</li>
+                <li>No double-spends within the block</li>
+                <li>No double-spends with existing UTXO set</li>
+                <li>Merkle root matches computed root</li>
+            </ol>
+
+            <h3>Size Rules</h3>
+            <ol>
+                <li>Block weight ≤ 4,000,000 WU</li>
+                <li>Block serialization ≤ protocol limits</li>
+            </ol>
+
+            <h3>Coinbase Rules</h3>
+            <ol>
+                <li>Coinbase outputs ≤ subsidy + fees</li>
+                <li>Coinbase contains block height (BIP-34)</li>
+                <li>Witness commitment present if SegWit transactions exist</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>13.6 The Genesis Block</h2>
+
+            <p>
+                The blockchain begins with a special hardcoded block: the genesis block.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.11 (Genesis Block)</p>
+                <p>
+                    The <strong>genesis block</strong> is block 0 of the Bitcoin blockchain.
+                    It is hardcoded into every Bitcoin implementation and serves as the
+                    root of the chain.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 13.3 (Genesis Block Details)</p>
+                <p>
+                    <strong>Block Hash:</strong>
+                </p>
+                <pre class="code-block">000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f</pre>
+
+                <p><strong>Header Fields:</strong></p>
+                <table class="data-table">
+                    <tbody>
+                        <tr>
+                            <td>Version</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Previous Hash</td>
+                            <td>0000...0000 (all zeros)</td>
+                        </tr>
+                        <tr>
+                            <td>Merkle Root</td>
+                            <td>4a5e1e...b9b63</td>
+                        </tr>
+                        <tr>
+                            <td>Timestamp</td>
+                            <td>2009-01-03 18:15:05 UTC</td>
+                        </tr>
+                        <tr>
+                            <td>Bits</td>
+                            <td>0x1d00ffff</td>
+                        </tr>
+                        <tr>
+                            <td>Nonce</td>
+                            <td>2083236893</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Coinbase Message:</strong></p>
+                <pre class="code-block">"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"</pre>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 13.4 (Genesis Block Peculiarities)</p>
+                <p>
+                    The genesis block has several unique properties:
+                </p>
+                <ul>
+                    <li>Its coinbase output (50 BTC) is unspendable due to a quirk in the original code</li>
+                    <li>The embedded newspaper headline proves the block wasn't pre-mined</li>
+                    <li>Its previous hash is all zeros (no parent)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>13.7 Block Height and Depth</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.12 (Block Height)</p>
+                <p>
+                    The <strong>block height</strong> is the number of blocks between a given
+                    block and the genesis block. The genesis block has height 0.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.13 (Confirmation Depth)</p>
+                <p>
+                    The <strong>confirmation depth</strong> of a transaction is one plus the
+                    number of blocks built on top of the block containing it:
+                </p>
+                <p class="math-block">
+                    confirmations = chain_tip_height − tx_block_height + 1
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="140" viewBox="0 0 480 140">
+                    <!-- Blocks -->
+                    <rect x="30" y="50" width="70" height="50" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <text x="65" y="75" text-anchor="middle" font-family="Georgia" font-size="10">Height 0</text>
+                    <text x="65" y="88" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Genesis</text>
+
+                    <rect x="115" y="50" width="70" height="50" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <text x="150" y="80" text-anchor="middle" font-family="Georgia" font-size="10">Height 1</text>
+
+                    <text x="200" y="75" font-family="Georgia" font-size="12">...</text>
+
+                    <rect x="230" y="50" width="70" height="50" rx="4" fill="#e8f0ff" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="265" y="72" text-anchor="middle" font-family="Georgia" font-size="10">Height n</text>
+                    <text x="265" y="88" text-anchor="middle" font-family="Georgia" font-size="8" fill="#4a90d9">Tx here</text>
+
+                    <rect x="315" y="50" width="70" height="50" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <text x="350" y="80" text-anchor="middle" font-family="Georgia" font-size="10">n+1</text>
+
+                    <rect x="400" y="50" width="70" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="435" y="72" text-anchor="middle" font-family="Georgia" font-size="10">n+2</text>
+                    <text x="435" y="88" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">Tip</text>
+
+                    <!-- Confirmation annotation -->
+                    <path d="M 265 105 L 265 120 L 435 120 L 435 105" stroke="#c44" stroke-width="1.5" fill="none"/>
+                    <text x="350" y="135" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">3 confirmations</text>
+                </svg>
+                <figcaption>Figure 13.4: A transaction at height n has 3 confirmations when the chain tip is at n+2.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>13.8 Orphan and Stale Blocks</h2>
+
+            <p>
+                Not all valid blocks become part of the main chain.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.14 (Stale Block)</p>
+                <p>
+                    A <strong>stale block</strong> is a valid block that is not part of the
+                    longest (most-work) chain. This occurs when two miners find blocks at
+                    approximately the same time, and one chain eventually "wins."
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.15 (Orphan Block)</p>
+                <p>
+                    An <strong>orphan block</strong> is a block whose parent is unknown.
+                    (Note: terminology varies; some use "orphan" for stale blocks.)
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="160" viewBox="0 0 480 160">
+                    <!-- Main chain -->
+                    <rect x="30" y="60" width="70" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="65" y="85" text-anchor="middle" font-family="Georgia" font-size="10">n−1</text>
+
+                    <rect x="115" y="60" width="70" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="150" y="85" text-anchor="middle" font-family="Georgia" font-size="10">n</text>
+
+                    <rect x="200" y="60" width="70" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="235" y="85" text-anchor="middle" font-family="Georgia" font-size="10">n+1</text>
+
+                    <rect x="285" y="60" width="70" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="320" y="85" text-anchor="middle" font-family="Georgia" font-size="10">n+2</text>
+
+                    <!-- Main chain arrows -->
+                    <path d="M 100 80 L 115 80" stroke="#5a8f5a" stroke-width="2"/>
+                    <path d="M 185 80 L 200 80" stroke="#5a8f5a" stroke-width="2"/>
+                    <path d="M 270 80 L 285 80" stroke="#5a8f5a" stroke-width="2"/>
+
+                    <!-- Stale block -->
+                    <rect x="200" y="115" width="70" height="40" rx="4" fill="#f5f5f5" stroke="#999" stroke-dasharray="4,2"/>
+                    <text x="235" y="135" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">n+1'</text>
+                    <text x="235" y="147" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">stale</text>
+
+                    <!-- Fork from n -->
+                    <path d="M 185 85 L 200 120" stroke="#999" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+                    <!-- Labels -->
+                    <text x="320" y="45" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">Main chain (most work)</text>
+                </svg>
+                <figcaption>Figure 13.5: Block n+1' is valid but stale—the main chain extended differently.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>13.9 Block Propagation</h2>
+
+            <p>
+                For the network to function, new blocks must propagate quickly to all nodes.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.16 (Compact Blocks)</p>
+                <p>
+                    <strong>Compact block relay</strong> (BIP-152) reduces block propagation
+                    bandwidth by sending only short transaction IDs. Receiving nodes
+                    reconstruct the block from their mempool.
+                </p>
+            </div>
+
+            <p>
+                Fast propagation reduces stale block rates and improves mining fairness.
+                Modern optimizations achieve sub-second propagation for most blocks.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 13.1</p>
+                <p>
+                    Calculate the block hash for a header with the following fields (all in hex):
+                </p>
+                <pre class="code-block">version: 01000000
+prev_hash: 0000...0000 (32 bytes of zeros)
+merkle_root: 3ba3...f63 (32 bytes)
+time: 29ab5f49
+bits: ffff001d
+nonce: 1dac2b7c</pre>
+                <p>
+                    Verify it matches the genesis block hash.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 13.2</p>
+                <p>
+                    A block has base size 800 KB and witness size 400 KB. Calculate its
+                    weight. Is it valid under the 4 MWU limit?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 13.3</p>
+                <p>
+                    Why is the 80-byte header size significant? What would be the implications
+                    if the header were 1 KB instead?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 13.4</p>
+                <p>
+                    Explain why modifying a transaction in block 500,000 would require
+                    re-mining all subsequent blocks. What is the economic significance?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 13.5</p>
+                <p>
+                    The genesis block coinbase has 50 BTC but cannot be spent. Research
+                    why this is the case (hint: look at how the original code handled
+                    the genesis block).
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="12-merkle-trees.html" class="prev-chapter">← Chapter 12: Merkle Trees</a>
+            <a href="14-proof-of-work.html" class="next-chapter">Chapter 14: Proof of Work →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

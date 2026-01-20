@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: Hash Functions | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Chapter Six</span>
+        <h1 class="chapter-title">Hash Functions</h1>
+        <p class="chapter-epigraph">
+            "The hash function is the Swiss army knife of cryptography."
+            <br>&mdash; Bruce Schneier
+        </p>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                Before we can understand digital signatures, we must first explore a different
+                kind of cryptographic primitive: the <em>hash function</em>. While elliptic curves
+                provide the mathematical foundation for key pairs and signatures, hash functions
+                provide the glue that binds messages to their signatures.
+            </p>
+            <p>
+                A hash function is, in essence, a fingerprinting machine for data. It takes
+                an input of any size and produces a fixed-size output that is, for all
+                practical purposes, unique to that input.
+            </p>
+        </section>
+
+        <section>
+            <h2>6.1 Cryptographic Hash Functions</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 6.1 (Cryptographic Hash Function)</p>
+                <p>
+                    A <strong>cryptographic hash function</strong> <span class="math">H</span> is a
+                    function that maps inputs of arbitrary length to outputs of fixed length:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">H: {0, 1}* → {0, 1}ⁿ</span>
+                </p>
+                <p>
+                    and satisfies the following security properties:
+                </p>
+                <ol>
+                    <li>
+                        <strong>Preimage resistance:</strong> Given <span class="math">h</span>,
+                        it is computationally infeasible to find any <span class="math">m</span>
+                        such that <span class="math">H(m) = h</span>.
+                    </li>
+                    <li>
+                        <strong>Second preimage resistance:</strong> Given <span class="math">m₁</span>,
+                        it is computationally infeasible to find <span class="math">m₂ ≠ m₁</span>
+                        such that <span class="math">H(m₁) = H(m₂)</span>.
+                    </li>
+                    <li>
+                        <strong>Collision resistance:</strong> It is computationally infeasible to
+                        find any pair <span class="math">m₁ ≠ m₂</span> such that
+                        <span class="math">H(m₁) = H(m₂)</span>.
+                    </li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">The Three Properties of Hash Functions</text>
+
+                    <!-- Preimage resistance -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                        <text x="65" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Preimage</text>
+                        <text x="65" y="35" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Resistance</text>
+                        <text x="65" y="55" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">h → m ?</text>
+                        <text x="65" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Can't reverse</text>
+                    </g>
+
+                    <!-- Second preimage resistance -->
+                    <g transform="translate(185, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                        <text x="65" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">2nd Preimage</text>
+                        <text x="65" y="35" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Resistance</text>
+                        <text x="65" y="55" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">m₁ → m₂ ?</text>
+                        <text x="65" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Can't find twin</text>
+                    </g>
+
+                    <!-- Collision resistance -->
+                    <g transform="translate(340, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                        <text x="65" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Collision</text>
+                        <text x="65" y="35" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Resistance</text>
+                        <text x="65" y="55" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">m₁, m₂ ?</text>
+                        <text x="65" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Can't find any pair</text>
+                    </g>
+
+                    <!-- Diagram showing hash as compression -->
+                    <g transform="translate(100, 150)">
+                        <rect x="0" y="0" width="80" height="40" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                        <text x="40" y="25" text-anchor="middle" font-family="Georgia" font-size="10">Any size</text>
+
+                        <path d="M 85 20 L 145 20" stroke="#666" stroke-width="2" marker-end="url(#arrHash)"/>
+                        <text x="115" y="12" text-anchor="middle" font-family="Georgia" font-size="10">H</text>
+
+                        <rect x="150" y="5" width="50" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+                        <text x="175" y="25" text-anchor="middle" font-family="Georgia" font-size="10">n bits</text>
+
+                        <text x="175" y="55" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Fixed output</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrHash" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 6.1: The three security properties that define a cryptographic hash function.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">The Pigeonhole Principle.</p>
+                <p>
+                    Since hash functions map an infinite domain to a finite range, collisions
+                    must exist by the pigeonhole principle. Collision resistance doesn't mean
+                    collisions are impossible&mdash;it means they are computationally infeasible
+                    to find deliberately.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>6.2 SHA-256: The Secure Hash Algorithm</h2>
+
+            <p>
+                Bitcoin uses SHA-256 (Secure Hash Algorithm, 256-bit) as its primary hash
+                function. It was designed by the National Security Agency (NSA) and published
+                by NIST in 2001.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 6.2 (SHA-256)</p>
+                <p>
+                    <strong>SHA-256</strong> is a hash function that produces a 256-bit (32-byte) digest:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">SHA256: {0, 1}* → {0, 1}²⁵⁶</span>
+                </p>
+                <p>
+                    The output is typically represented as a 64-character hexadecimal string.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 6.1 (SHA-256 Outputs)</p>
+                <p>Some example SHA-256 hashes:</p>
+                <table>
+                    <tr>
+                        <th>Input</th>
+                        <th>SHA-256 Hash (hex)</th>
+                    </tr>
+                    <tr>
+                        <td><code>""</code> (empty)</td>
+                        <td><code style="font-size: 0.7rem;">e3b0c44298fc1c14...9bce4dbf</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>"Bitcoin"</code></td>
+                        <td><code style="font-size: 0.7rem;">b4056df6691f8dc7...a2f9a1f6</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>"bitcoin"</code></td>
+                        <td><code style="font-size: 0.7rem;">6b88c087247aa2f0...dd43f3f3</code></td>
+                    </tr>
+                </table>
+                <p style="margin-top: 1rem;">
+                    Notice how changing a single character (capital B to lowercase b) completely
+                    changes the hash. This is the <em>avalanche effect</em>.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">The Avalanche Effect</p>
+                <p>
+                    A good hash function exhibits the <strong>avalanche effect</strong>: changing
+                    a single bit of input changes approximately 50% of the output bits. This
+                    property ensures that similar inputs produce dissimilar outputs.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="450" height="180" viewBox="0 0 450 180">
+                    <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">The Avalanche Effect</text>
+
+                    <!-- Input 1 -->
+                    <rect x="30" y="50" width="100" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="80" y="70" text-anchor="middle" font-family="monospace" font-size="11">"Hello"</text>
+
+                    <!-- Arrow -->
+                    <path d="M 135 65 L 185 65" stroke="#666" stroke-width="1.5" marker-end="url(#arr6)"/>
+                    <text x="160" y="55" text-anchor="middle" font-family="Georgia" font-size="10">H</text>
+
+                    <!-- Output 1 -->
+                    <rect x="190" y="50" width="220" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+                    <text x="300" y="70" text-anchor="middle" font-family="monospace" font-size="9">185f8db32271fe25...</text>
+
+                    <!-- Input 2 (one bit change) -->
+                    <rect x="30" y="110" width="100" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="80" y="130" text-anchor="middle" font-family="monospace" font-size="11">"Hellp"</text>
+
+                    <!-- Arrow -->
+                    <path d="M 135 125 L 185 125" stroke="#666" stroke-width="1.5" marker-end="url(#arr6)"/>
+
+                    <!-- Output 2 (completely different) -->
+                    <rect x="190" y="110" width="220" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+                    <text x="300" y="130" text-anchor="middle" font-family="monospace" font-size="9">4c716d4cf07c0495...</text>
+
+                    <!-- Annotation showing difference -->
+                    <text x="80" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">1 char change</text>
+                    <text x="300" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">~50% bits flip</text>
+
+                    <defs>
+                        <marker id="arr6" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 6.2: Changing one character completely changes the hash output.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>6.3 Double SHA-256 in Bitcoin</h2>
+
+            <p>
+                Bitcoin does not use plain SHA-256 for most purposes. Instead, it uses
+                <em>double SHA-256</em>: the SHA-256 hash is computed twice.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 6.3 (HASH256 / Double SHA-256)</p>
+                <p>
+                    Bitcoin's primary hash function, often called <strong>HASH256</strong>, is:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">HASH256(m) = SHA256(SHA256(m))</span>
+                </p>
+                <p>
+                    The result is still 256 bits, but computed via two sequential SHA-256 operations.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="450" height="120" viewBox="0 0 450 120">
+                    <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Double SHA-256 (HASH256)</text>
+
+                    <!-- Input -->
+                    <rect x="20" y="50" width="70" height="40" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="55" y="75" text-anchor="middle" font-family="Georgia" font-size="11">message</text>
+
+                    <!-- First SHA256 -->
+                    <path d="M 95 70 L 135 70" stroke="#666" stroke-width="1.5" marker-end="url(#arr62)"/>
+                    <rect x="140" y="55" width="70" height="30" fill="#fff" stroke="#666" stroke-width="1.5"/>
+                    <text x="175" y="75" text-anchor="middle" font-family="Georgia" font-size="11">SHA256</text>
+
+                    <!-- Intermediate -->
+                    <path d="M 215 70 L 255 70" stroke="#666" stroke-width="1.5" marker-end="url(#arr62)"/>
+                    <rect x="260" y="55" width="70" height="30" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+                    <text x="295" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">256 bits</text>
+
+                    <!-- Second SHA256 -->
+                    <path d="M 335 70 L 375 70" stroke="#666" stroke-width="1.5" marker-end="url(#arr62)"/>
+                    <rect x="380" y="55" width="50" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="405" y="75" text-anchor="middle" font-family="Georgia" font-size="10">hash</text>
+
+                    <!-- Labels -->
+                    <text x="175" y="100" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">1st round</text>
+                    <text x="405" y="100" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2nd round</text>
+
+                    <defs>
+                        <marker id="arr62" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 6.3: Double SHA-256 applies SHA-256 twice in sequence.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Why Double Hashing?</p>
+                <p>
+                    Satoshi Nakamoto implemented double hashing as a defense against <em>length
+                    extension attacks</em>. For Merkle-Damgård constructions like SHA-256, if you
+                    know <span class="math">H(m)</span>, you can compute <span class="math">H(m || padding || m')</span>
+                    without knowing <span class="math">m</span>. Double hashing prevents this.
+                </p>
+                <p>
+                    Modern cryptographers debate whether this precaution was necessary, but
+                    it remains a distinctive feature of Bitcoin's design.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>6.4 RIPEMD-160 and HASH160</h2>
+
+            <p>
+                For Bitcoin addresses, a different hash combination is used: SHA-256 followed
+                by RIPEMD-160, producing a 160-bit result.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 6.4 (HASH160)</p>
+                <p>
+                    <strong>HASH160</strong> is the composition:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">HASH160(m) = RIPEMD160(SHA256(m))</span>
+                </p>
+                <p>
+                    The output is 160 bits (20 bytes), which forms the basis of Bitcoin addresses.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Defense in Depth.</p>
+                <p>
+                    Using two different hash functions (SHA-256 from NSA, RIPEMD-160 from European
+                    researchers) provides redundancy: if one is broken, the other may still be secure.
+                    The shorter 160-bit output also makes addresses more compact.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="100" viewBox="0 0 480 100">
+                    <text x="240" y="20" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">HASH160 = RIPEMD160(SHA256(x))</text>
+
+                    <!-- Public Key -->
+                    <rect x="20" y="45" width="80" height="35" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="60" y="67" text-anchor="middle" font-family="Georgia" font-size="10">Public Key</text>
+                    <text x="60" y="80" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">33 or 65 bytes</text>
+
+                    <path d="M 105 62 L 135 62" stroke="#666" stroke-width="1.5" marker-end="url(#arr63)"/>
+
+                    <!-- SHA256 -->
+                    <rect x="140" y="50" width="70" height="25" fill="#fff" stroke="#666" stroke-width="1"/>
+                    <text x="175" y="67" text-anchor="middle" font-family="Georgia" font-size="10">SHA256</text>
+
+                    <path d="M 215 62 L 245 62" stroke="#666" stroke-width="1.5" marker-end="url(#arr63)"/>
+
+                    <!-- 256 bits -->
+                    <rect x="250" y="50" width="50" height="25" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+                    <text x="275" y="67" text-anchor="middle" font-family="Georgia" font-size="9">256b</text>
+
+                    <path d="M 305 62 L 335 62" stroke="#666" stroke-width="1.5" marker-end="url(#arr63)"/>
+
+                    <!-- RIPEMD160 -->
+                    <rect x="340" y="50" width="80" height="25" fill="#fff" stroke="#666" stroke-width="1"/>
+                    <text x="380" y="67" text-anchor="middle" font-family="Georgia" font-size="10">RIPEMD160</text>
+
+                    <path d="M 425 62 L 455 62" stroke="#666" stroke-width="1.5" marker-end="url(#arr63)"/>
+
+                    <!-- Result -->
+                    <rect x="460" y="50" width="15" height="25" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+
+                    <text x="460" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#8b4513">160 bits</text>
+
+                    <defs>
+                        <marker id="arr63" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 6.4: HASH160 compresses a public key to 160 bits for use in addresses.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>6.5 Hash Functions in Digital Signatures</h2>
+
+            <p>
+                In digital signature schemes, we don't sign the message directly. Instead, we
+                sign its hash. This approach offers several advantages:
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Why Hash Before Signing?</p>
+                <ol>
+                    <li>
+                        <strong>Fixed input size:</strong> The signature algorithm operates on
+                        a fixed-size input (256 bits), regardless of message length.
+                    </li>
+                    <li>
+                        <strong>Efficiency:</strong> Signing a 32-byte hash is much faster than
+                        signing a potentially gigabyte-sized message.
+                    </li>
+                    <li>
+                        <strong>Security:</strong> The hash binds the signature to the message
+                        content. If the hash is collision-resistant, an attacker cannot find
+                        a different message with the same signature.
+                    </li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="150" viewBox="0 0 500 150">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Hash-Then-Sign Paradigm</text>
+
+                    <!-- Message -->
+                    <rect x="30" y="50" width="100" height="50" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="80" y="75" text-anchor="middle" font-family="Georgia" font-size="11">Message</text>
+                    <text x="80" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(any size)</text>
+
+                    <!-- Hash -->
+                    <path d="M 135 75 L 165 75" stroke="#666" stroke-width="1.5" marker-end="url(#arr64)"/>
+                    <ellipse cx="195" cy="75" rx="25" ry="20" fill="#fff" stroke="#666" stroke-width="1.5"/>
+                    <text x="195" y="80" text-anchor="middle" font-family="Georgia" font-size="11">H</text>
+
+                    <!-- Digest -->
+                    <path d="M 225 75 L 255 75" stroke="#666" stroke-width="1.5" marker-end="url(#arr64)"/>
+                    <rect x="260" y="60" width="60" height="30" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+                    <text x="290" y="80" text-anchor="middle" font-family="Georgia" font-size="10">digest</text>
+                    <text x="290" y="105" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">256 bits</text>
+
+                    <!-- Sign -->
+                    <path d="M 325 75 L 355 75" stroke="#666" stroke-width="1.5" marker-end="url(#arr64)"/>
+                    <rect x="360" y="55" width="50" height="40" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                    <text x="385" y="72" text-anchor="middle" font-family="Georgia" font-size="10">Sign</text>
+                    <text x="385" y="85" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">+ key</text>
+
+                    <!-- Signature -->
+                    <path d="M 415 75 L 445 75" stroke="#666" stroke-width="1.5" marker-end="url(#arr64)"/>
+                    <rect x="450" y="60" width="40" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="470" y="80" text-anchor="middle" font-family="Georgia" font-size="10">σ</text>
+
+                    <defs>
+                        <marker id="arr64" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 6.5: The hash-then-sign paradigm: hash first, then sign the digest.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>6.6 The Random Oracle Model</h2>
+
+            <p>
+                When analyzing the security of cryptographic schemes, we often model hash
+                functions as <em>random oracles</em>&mdash;idealized black boxes with perfect
+                randomness.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 6.5 (Random Oracle)</p>
+                <p>
+                    A <strong>random oracle</strong> is an idealized hash function that:
+                </p>
+                <ol>
+                    <li>On a new input, outputs a uniformly random value from its range.</li>
+                    <li>On a repeated input, returns the same value as before (determinism).</li>
+                </ol>
+                <p>
+                    No real hash function is a random oracle, but well-designed functions like
+                    SHA-256 behave sufficiently "random-like" for practical security.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Theoretical vs. Practical Security.</p>
+                <p>
+                    Security proofs in the random oracle model provide strong guarantees under
+                    the assumption that the hash function is "ideal." While no real function
+                    achieves this ideal, such proofs are valuable because breaking the scheme
+                    would require exploiting specific structural weaknesses in the hash function
+                    rather than just its input-output behavior.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>6.7 Tagged Hashes (BIP-340)</h2>
+
+            <p>
+                Modern Bitcoin protocols like Schnorr signatures (BIP-340) use <em>tagged hashes</em>
+                to prevent collisions between different uses of the same hash function.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 6.6 (Tagged Hash)</p>
+                <p>
+                    A <strong>tagged hash</strong> with tag <span class="math">t</span> is defined as:
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">TaggedHash(t, m) = SHA256(SHA256(t) || SHA256(t) || m)</span>
+                </p>
+                <p>
+                    The tag is a string describing the context (e.g., "BIP0340/challenge").
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Domain Separation.</p>
+                <p>
+                    Tagged hashes ensure that a hash computed for one purpose cannot be
+                    reinterpreted as valid for another. For example, a challenge hash for
+                    a signature cannot accidentally equal a hash used for key derivation.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h3>Exercises</h3>
+
+            <div class="exercise">
+                <span class="exercise-number">6.1.</span>
+                Explain why collision resistance implies second preimage resistance.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">6.2.</span>
+                If a hash function produces 256-bit outputs, approximately how many hashes
+                must be computed before a collision is likely? (Hint: Birthday paradox)
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">6.3.</span>
+                Explain why using <span class="math">H(H(m))</span> prevents length extension
+                attacks that are possible with just <span class="math">H(m)</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">6.4.</span>
+                <em>(Computational)</em> Compute the SHA-256 hash of the string "Bitcoin"
+                and verify it has 256 bits.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">6.5.</span>
+                If SHA-256 were broken such that collisions could be found in <span class="math">2⁸⁰</span>
+                operations, what security level would remain? Would ECDSA signatures still be secure?
+            </div>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="05-secp256k1.html">← Chapter 5: The secp256k1 Curve</a>
+            <a href="07-ecdsa.html">Chapter 7: ECDSA →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>

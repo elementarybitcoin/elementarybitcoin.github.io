@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elementary Bitcoin | A Mathematical Introduction</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .title-page {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 3rem;
+        }
+        .title-page h1 {
+            font-size: 2.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            font-weight: normal;
+        }
+        .title-page .volume {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #666;
+            margin: 1.5rem 0;
+        }
+        .title-page .subtitle {
+            font-size: 1.4rem;
+            font-style: italic;
+            margin: 1rem 0;
+        }
+        .title-page .ornament {
+            font-size: 1.5rem;
+            color: #999;
+            margin: 2rem 0;
+        }
+        .title-page .description {
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 2rem auto;
+            line-height: 1.8;
+            color: #555;
+        }
+        .epigraph {
+            max-width: 450px;
+            margin: 3rem auto;
+            font-style: italic;
+            text-align: right;
+            color: #555;
+            padding: 1rem 2rem;
+            border-left: 3px solid #ddd;
+        }
+        .epigraph .attribution {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .volume-overview {
+            background: #f9f9f7;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid #e0e0e0;
+        }
+        .volume-overview h3 {
+            margin-top: 0;
+            font-variant: small-caps;
+            letter-spacing: 0.1em;
+        }
+        .volume-list {
+            list-style: none;
+            padding: 0;
+        }
+        .volume-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px dotted #ccc;
+        }
+        .volume-list li:last-child {
+            border-bottom: none;
+        }
+        .volume-list .vol-num {
+            font-weight: bold;
+            color: #8b4513;
+        }
+        .volume-list .vol-title {
+            font-style: italic;
+        }
+        .volume-list .vol-status {
+            font-size: 0.85rem;
+            color: #888;
+            margin-left: 1rem;
+        }
+        .current-volume {
+            background: #fff8f0;
+        }
+        .preface {
+            max-width: 600px;
+            margin: 3rem auto;
+            text-align: justify;
+            line-height: 1.9;
+        }
+        .preface h2 {
+            text-align: center;
+            font-variant: small-caps;
+            letter-spacing: 0.15em;
+            font-weight: normal;
+            margin-bottom: 2rem;
+        }
+        .toc-section {
+            margin: 2rem 0;
+        }
+        .toc-section h3 {
+            font-variant: small-caps;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .toc-chapter {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px dotted #ccc;
+        }
+        .toc-chapter:hover {
+            background: #f5f5f5;
+        }
+        .toc-chapter a {
+            color: #333;
+            text-decoration: none;
+        }
+        .toc-chapter a:hover {
+            color: #8b4513;
+        }
+        .toc-chapter .ch-num {
+            font-weight: bold;
+            width: 2rem;
+        }
+        .toc-chapter .ch-title {
+            flex: 1;
+        }
+        .toc-chapter .ch-page {
+            color: #888;
+            font-style: italic;
+        }
+        .toc-desc {
+            font-size: 0.85rem;
+            color: #666;
+            padding-left: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .not-yet {
+            color: #aaa;
+            font-style: italic;
+        }
+        footer.colophon {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid #ccc;
+            margin-top: 3rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="title-page">
+        <h1>Elementary Bitcoin</h1>
+        <p class="subtitle">A Mathematical Introduction from First Principles</p>
+        <p class="ornament">✦ ✦ ✦</p>
+        <p class="volume">Volumes I, II & III</p>
+        <p class="description">
+            Being a rigorous exposition of the algebraic structures, elliptic curves,
+            cryptographic protocols, protocol architecture, and scaling technologies
+            upon which Bitcoin is founded, presented in the manner of classical
+            mathematical texts for the edification of the diligent reader.
+        </p>
+    </div>
+
+    <div class="epigraph">
+        <p>"The mathematician does not study pure mathematics because it is useful;
+        he studies it because he delights in it and he delights in it because it is beautiful."</p>
+        <p class="attribution">— Henri Poincaré</p>
+    </div>
+
+    <main class="table-of-contents">
+
+        <section class="volume-overview">
+            <h3>The Complete Work</h3>
+            <ul class="volume-list">
+                <li class="current-volume">
+                    <span class="vol-num">Volume I:</span>
+                    <span class="vol-title">Mathematical Foundations</span>
+                    <span class="vol-status">— this volume</span>
+                </li>
+                <li>
+                    <span class="vol-num">Volume II:</span>
+                    <span class="vol-title">Protocol Architecture</span>
+                    <span class="vol-status">— complete</span>
+                </li>
+                <li>
+                    <span class="vol-num">Volume III:</span>
+                    <span class="vol-title">Scaling and Verification</span>
+                    <span class="vol-status">— complete</span>
+                </li>
+            </ul>
+        </section>
+
+        <section class="preface">
+            <h2>Preface</h2>
+            <p>
+                The purpose of this work is to present the mathematical foundations of Bitcoin
+                in a rigorous yet accessible manner. We assume no prior knowledge of cryptography
+                or advanced mathematics, but expect familiarity with basic algebra and a willingness
+                to engage with precise definitions.
+            </p>
+            <p>
+                Each concept builds upon those that precede it, forming a complete chain of
+                understanding—much like the blockchain itself. The reader who masters Volume I
+                will possess the tools necessary to verify, from first principles, every
+                cryptographic claim made about Bitcoin.
+            </p>
+            <p>
+                We follow the tradition of classical mathematical exposition: definition, theorem,
+                proof, example. This approach, though demanding, rewards the patient reader with
+                genuine comprehension rather than mere familiarity.
+            </p>
+        </section>
+
+        <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 2rem;">Contents</h2>
+
+        <section class="toc-section">
+            <h3>Part I · Algebraic Foundations</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">1.</span>
+                <span class="ch-title"><a href="chapters/01-groups.html">Groups and Algebraic Structures</a></span>
+            </div>
+            <p class="toc-desc">Sets and binary operations · Group axioms · Abelian and cyclic groups · Generators and order · The discrete logarithm problem</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">2.</span>
+                <span class="ch-title"><a href="chapters/02-finite-fields.html">Finite Fields and Modular Arithmetic</a></span>
+            </div>
+            <p class="toc-desc">Clock arithmetic · Prime fields · The extended Euclidean algorithm · Fermat's little theorem · Multiplicative inverses</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part II · Elliptic Curves</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">3.</span>
+                <span class="ch-title"><a href="chapters/03-elliptic-curves-real.html">Elliptic Curves over the Real Numbers</a></span>
+            </div>
+            <p class="toc-desc">The Weierstrass equation · Geometric point addition · The chord-tangent method · Point doubling · The point at infinity</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">4.</span>
+                <span class="ch-title"><a href="chapters/04-elliptic-curves-finite.html">Elliptic Curves over Finite Fields</a></span>
+            </div>
+            <p class="toc-desc">Discrete curves · The group law in 𝔽ₚ · Order and cofactor · Hasse's theorem · The elliptic curve discrete logarithm problem</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">5.</span>
+                <span class="ch-title"><a href="chapters/05-secp256k1.html">The secp256k1 Curve</a></span>
+            </div>
+            <p class="toc-desc">Bitcoin's elliptic curve · The curve parameters · The generator point G · Scalar multiplication · Why secp256k1?</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part III · Cryptographic Protocols</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">6.</span>
+                <span class="ch-title"><a href="chapters/06-hash-functions.html">Hash Functions</a></span>
+            </div>
+            <p class="toc-desc">Cryptographic hash functions · SHA-256 internals · RIPEMD-160 · Double hashing (HASH256, HASH160) · Tagged hashes · The random oracle model</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">7.</span>
+                <span class="ch-title"><a href="chapters/07-ecdsa.html">Digital Signatures: ECDSA</a></span>
+            </div>
+            <p class="toc-desc">The signing equation · Key generation · Signature creation · Verification · The nonce k and its dangers · Signature malleability</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">8.</span>
+                <span class="ch-title"><a href="chapters/08-schnorr.html">Digital Signatures: Schnorr</a></span>
+            </div>
+            <p class="toc-desc">The Schnorr identification protocol · BIP-340 signatures · Batch verification · Key aggregation · MuSig and MuSig2 · Adaptor signatures</p>
+        </section>
+
+        <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 1rem; color: #8b4513;">Volume II · Protocol Architecture</h2>
+
+        <section class="toc-section">
+            <h3>Part IV · Keys and Transactions</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">9.</span>
+                <span class="ch-title"><a href="chapters/09-keys-addresses.html">Keys and Addresses</a></span>
+            </div>
+            <p class="toc-desc">Private keys · Public key derivation · Address formats (P2PKH, P2SH, P2WPKH, P2TR) · Base58Check · Bech32 and Bech32m · WIF encoding</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">10.</span>
+                <span class="ch-title"><a href="chapters/10-transactions.html">Transactions</a></span>
+            </div>
+            <p class="toc-desc">The UTXO model · Transaction structure · Inputs and outputs · Segregated Witness · Sighash types · Transaction fees · The coinbase</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">11.</span>
+                <span class="ch-title"><a href="chapters/11-script.html">Script</a></span>
+            </div>
+            <p class="toc-desc">Stack-based execution · Opcodes · Standard templates (P2PKH, P2SH, multisig) · Time locks · OP_RETURN · Tapscript</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part V · Blocks and Mining</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">12.</span>
+                <span class="ch-title"><a href="chapters/12-merkle-trees.html">Merkle Trees</a></span>
+            </div>
+            <p class="toc-desc">Binary hash trees · Computing the Merkle root · Merkle proofs · SPV foundations · Witness commitment</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">13.</span>
+                <span class="ch-title"><a href="chapters/13-blocks.html">Blocks</a></span>
+            </div>
+            <p class="toc-desc">Block structure · The 80-byte header · Block weight · Validation rules · The genesis block · Chain structure</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">14.</span>
+                <span class="ch-title"><a href="chapters/14-proof-of-work.html">Proof of Work</a></span>
+            </div>
+            <p class="toc-desc">Hash puzzles · Difficulty and target · The difficulty adjustment algorithm · Mining economics · Security analysis</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part VI · Consensus and Upgrades</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">15.</span>
+                <span class="ch-title"><a href="chapters/15-consensus-parameters.html">Consensus Parameters</a></span>
+            </div>
+            <p class="toc-desc">The 21 million cap · Block subsidy and halvings · Timing parameters · Block limits · Coinbase maturity · Economic design</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">16.</span>
+                <span class="ch-title"><a href="chapters/16-soft-forks.html">Soft Forks and Upgrades</a></span>
+            </div>
+            <p class="toc-desc">Policy vs consensus · Hard forks vs soft forks · Activation mechanisms (BIP-9, BIP-8) · Major soft forks · Future upgrade paths</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Appendices</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">A.</span>
+                <span class="ch-title not-yet">Mathematical Notation</span>
+            </div>
+
+            <div class="toc-chapter">
+                <span class="ch-num">B.</span>
+                <span class="ch-title not-yet">Selected Proofs</span>
+            </div>
+
+            <div class="toc-chapter">
+                <span class="ch-num">C.</span>
+                <span class="ch-title not-yet">Reference Implementations</span>
+            </div>
+        </section>
+
+        <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 1rem; color: #2e7d32;">Volume III · Scaling and Verification</h2>
+
+        <section class="toc-section">
+            <h3>Part VII · Light Clients and SPV</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">17.</span>
+                <span class="ch-title"><a href="chapters/17-spv-theory.html">SPV Theory and the Whitepaper</a></span>
+            </div>
+            <p class="toc-desc">Whitepaper Section 8 · The SPV data model · What SPV proves · Security assumptions · Fraud proofs · The gap between theory and implementation</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">18.</span>
+                <span class="ch-title"><a href="chapters/18-bloom-filters.html">SPV Bloom Filters (BIP-37)</a></span>
+            </div>
+            <p class="toc-desc">Bloom filter mathematics · BIP-37 protocol · The privacy catastrophe · DoS vulnerabilities · Why Bloom filters failed</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">19.</span>
+                <span class="ch-title"><a href="chapters/19-compact-filters.html">Compact Block Filters (BIP-157/158)</a></span>
+            </div>
+            <p class="toc-desc">Golomb-Rice coding · GCS construction · Filter header chains · Privacy-preserving light clients · Neutrino</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">20.</span>
+                <span class="ch-title"><a href="chapters/20-light-clients.html">Light Client Architectures</a></span>
+            </div>
+            <p class="toc-desc">The Electrum protocol · Block explorer APIs · Trust models · Hybrid approaches · Choosing an architecture</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part VIII · Node Optimization and Validation</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">21.</span>
+                <span class="ch-title"><a href="chapters/21-node-optimizations.html">Node Optimizations</a></span>
+            </div>
+            <p class="toc-desc">Initial Block Download · AssumeValid · AssumeUTXO · Pruning · Utreexo · Trade-offs and recommendations</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">22.</span>
+                <span class="ch-title"><a href="chapters/22-client-side-validation.html">Client-Side Validation</a></span>
+            </div>
+            <p class="toc-desc">Single-use seals · Pay-to-contract · RGB protocol · Taproot Assets · Scalability and privacy analysis</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part IX · Payment Channels and Lightning</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">23.</span>
+                <span class="ch-title"><a href="chapters/23-payment-channels.html">Payment Channels</a></span>
+            </div>
+            <p class="toc-desc">Unidirectional channels · The bidirectional channel problem · LN-Penalty · Revocation mechanisms · HTLCs · Watchtowers</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">24.</span>
+                <span class="ch-title"><a href="chapters/24-lightning.html">Lightning Network</a></span>
+            </div>
+            <p class="toc-desc">Multi-hop payments · Onion routing · BOLT specifications · Invoices and offers · Pathfinding · Network topology</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part X · Analysis and Perspective</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">25.</span>
+                <span class="ch-title"><a href="chapters/25-debunking-myths.html">Debunking Myths</a></span>
+            </div>
+            <p class="toc-desc">SPV security myths · Scaling misconceptions · Cryptographic concerns · Consensus myths · Economic fallacies · Methodology for evaluation</p>
+        </section>
+
+    </main>
+
+    <footer class="colophon">
+        <p>Elementary Bitcoin · Volumes I, II & III</p>
+        <p style="font-style: italic; margin-top: 1rem;">
+            "We build understanding link by link, block by block."
+        </p>
+    </footer>
+</body>
+</html>

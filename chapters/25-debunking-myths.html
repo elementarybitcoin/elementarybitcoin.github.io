@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 25: Debunking Myths | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .myth-box {
+            border: 2px solid #c62828;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            background: #ffebee;
+        }
+        .myth-box h4 {
+            color: #c62828;
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+        .myth-box h4::before {
+            content: "✗ ";
+        }
+        .reality-box {
+            border: 2px solid #2e7d32;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            background: #e8f5e9;
+        }
+        .reality-box h4 {
+            color: #2e7d32;
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+        .reality-box h4::before {
+            content: "✓ ";
+        }
+        .nuance-box {
+            border: 2px solid #f57c00;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            background: #fff3e0;
+        }
+        .nuance-box h4 {
+            color: #e65100;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="24-lightning.html">← Chapter 24: Lightning Network</a>
+        <a href="../index.html">Index</a>
+        <span style="color: #999;">Volume III Complete</span>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 25</p>
+            <h1>Debunking Myths</h1>
+            <p class="chapter-subtitle">Replacing Hand-Waving with Mathematical Precision</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                Bitcoin discussions are plagued by persistent myths—claims that sound plausible
+                but crumble under rigorous analysis. Having developed the mathematical foundations
+                in Volumes I and II, and explored scaling technologies in this volume, we are
+                now equipped to systematically dismantle these misconceptions.
+            </p>
+            <p>
+                This chapter applies the precision of earlier chapters to commonly held but
+                incorrect beliefs about SPV security, scaling limitations, consensus mechanisms,
+                and cryptographic properties. Each myth is stated, analyzed mathematically, and
+                corrected.
+            </p>
+        </section>
+
+        <section>
+            <h2>25.1 SPV Myths</h2>
+
+            <div class="myth-box">
+                <h4>Myth: "SPV provides the same security as a full node"</h4>
+                <p>
+                    Some claim that SPV clients verify everything important, just more efficiently.
+                    The whitepaper says SPV is secure as long as honest miners control the network.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: SPV trusts miners not to commit fraud; full nodes detect it</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.1</strong> (SPV Trust Model)</p>
+                <p>
+                    An SPV client accepts a transaction as valid if:
+                </p>
+                <ol>
+                    <li>The transaction is included in a block (Merkle proof)</li>
+                    <li>The block has valid proof-of-work</li>
+                    <li>The block is in the longest chain</li>
+                </ol>
+                <p>
+                    What SPV does <em>not</em> verify:
+                </p>
+                <ul>
+                    <li>Transaction validity (correct signatures, not double-spent)</li>
+                    <li>Block validity (all transactions valid, correct subsidy)</li>
+                    <li>Consensus rule compliance (block size, script rules)</li>
+                </ul>
+            </div>
+
+            <div class="proof">
+                <p><strong>Analysis.</strong></p>
+                <p>
+                    A full node independently validates every transaction and block. If miners
+                    produce an invalid block (e.g., inflating supply), full nodes reject it.
+                    An SPV client only sees the PoW and assumes validity.
+                </p>
+                <p>
+                    Attack scenario: Miners controlling 51% of hashrate create an invalid block
+                    giving themselves 1000 BTC subsidy instead of 6.25 BTC. Full nodes reject this
+                    block. SPV clients accept it because it has the most work.
+                </p>
+                <p>
+                    The whitepaper's security claim is conditional: "as long as honest nodes
+                    control the network." If majority hashrate is malicious, SPV fails completely
+                    while full nodes continue enforcing correct rules.
+                </p>
+            </div>
+
+            <div class="nuance-box">
+                <h4>Nuance: SPV is useful, just different</h4>
+                <p>
+                    SPV provides probabilistic security against double-spends by verifying PoW.
+                    It's appropriate for low-value transactions where the cost of attacking
+                    exceeds the value stolen. It is <em>not</em> a substitute for full validation
+                    when rule enforcement matters.
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="myth-box">
+                <h4>Myth: "Fraud proofs will make SPV as secure as full nodes"</h4>
+                <p>
+                    Future fraud proofs will let SPV clients detect invalid blocks, achieving
+                    full node security with SPV efficiency.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Fraud proofs help but have fundamental limitations</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.2</strong> (Fraud Proof Limitations)</p>
+                <p>
+                    Effective fraud proofs require:
+                </p>
+                <ol>
+                    <li><strong>Data availability:</strong> Fraud proof data must be accessible</li>
+                    <li><strong>Honest relayer:</strong> Someone must generate and transmit proofs</li>
+                    <li><strong>Timeliness:</strong> Proof must arrive before SPV client acts on fraud</li>
+                    <li><strong>Completeness:</strong> All fraud types must be provable</li>
+                </ol>
+                <p>
+                    In an eclipse attack (SPV client connected only to attacker), fraud proofs
+                    cannot arrive. The fundamental assumption shifts from "majority miners honest"
+                    to "at least one honest connection."
+                </p>
+            </div>
+
+            <p>
+                Fraud proofs improve SPV security but cannot eliminate the trust gap entirely.
+                They transform the security model, not eliminate trust requirements.
+            </p>
+        </section>
+
+        <section>
+            <h2>25.2 Scaling Myths</h2>
+
+            <div class="myth-box">
+                <h4>Myth: "Bigger blocks are the only way to scale"</h4>
+                <p>
+                    Bitcoin's 7 TPS limit is artificial. Simply increasing block size to
+                    1 GB would allow VISA-level throughput. Refusing to do so is sabotage.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: On-chain scaling has diminishing returns; layer 2 scales multiplicatively</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.3</strong> (Scaling Approaches)</p>
+                <p>
+                    On-chain scaling (larger blocks):
+                </p>
+                <ul>
+                    <li>Throughput increase: linear with block size</li>
+                    <li>Node requirements: linear increase in bandwidth, storage, CPU</li>
+                    <li>Decentralization impact: fewer nodes can participate</li>
+                    <li>Security: unchanged per transaction, but network effects weaken</li>
+                </ul>
+                <p>
+                    Layer 2 scaling (channels, rollups):
+                </p>
+                <ul>
+                    <li>Throughput increase: multiplicative (many transactions per on-chain tx)</li>
+                    <li>Node requirements: unchanged for base layer</li>
+                    <li>Decentralization impact: base layer unaffected</li>
+                    <li>Security: varies by construction (channels: near-base-layer; custodial: trust)</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 25.1</strong> (Scaling Comparison)</p>
+                <p>
+                    Target: 1 million TPS
+                </p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Approach</th>
+                            <th>Block Size</th>
+                            <th>Node Requirements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pure on-chain</td>
+                            <td>~144 GB/block</td>
+                            <td>~150 GB bandwidth per 10 min</td>
+                        </tr>
+                        <tr>
+                            <td>Lightning (1000 tx/channel)</td>
+                            <td>~1 MB (current)</td>
+                            <td>Current requirements</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    Layer 2 achieves the same throughput with ~150,000x less on-chain footprint.
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="myth-box">
+                <h4>Myth: "Lightning Network is just IOUs"</h4>
+                <p>
+                    Lightning channels are like bank IOUs—not real Bitcoin. You don't own
+                    your bitcoin unless it's on-chain.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Lightning uses real Bitcoin locked in smart contracts</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.4</strong> (Lightning Ownership)</p>
+                <p>
+                    In a Lightning channel:
+                </p>
+                <ul>
+                    <li>Bitcoin is locked in a 2-of-2 multisig output (verifiable on-chain)</li>
+                    <li>Each party holds a signed commitment transaction spendable without cooperation</li>
+                    <li>Either party can unilaterally close and claim their balance</li>
+                    <li>No third party can prevent channel close or seize funds</li>
+                </ul>
+                <p>
+                    This is fundamentally different from custodial IOUs:
+                </p>
+                <ul>
+                    <li>Custodian IOU: Third party controls funds, can refuse withdrawal</li>
+                    <li>Lightning: You control keys, can exit any time, counterparty cannot stop you</li>
+                </ul>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof (by construction).</strong></p>
+                <p>
+                    Alice's commitment transaction (Chapter 23) is a valid Bitcoin transaction
+                    signed by Bob. If Alice broadcasts it, she receives her balance after the
+                    timelock. Bob cannot prevent this. The worst Bob can do is also broadcast
+                    his commitment, but he cannot take Alice's funds.
+                </p>
+                <p>
+                    This is <em>cryptographic</em> enforcement, not <em>legal</em> enforcement.
+                    No court order, no counterparty cooperation required. ∎
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="myth-box">
+                <h4>Myth: "Lightning requires you to be online 24/7"</h4>
+                <p>
+                    You must constantly monitor the blockchain or risk losing all your funds
+                    to a cheating counterparty.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Watchtowers and reasonable timelocks mitigate this concern</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.5</strong> (Liveness Requirements)</p>
+                <p>
+                    With an LN-Penalty channel:
+                </p>
+                <ul>
+                    <li><strong>Minimum:</strong> Check blockchain once per CLTV delta (typically 1-2 weeks)</li>
+                    <li><strong>With watchtower:</strong> Watchtower monitors on your behalf</li>
+                    <li><strong>eltoo channels:</strong> No punishment needed, just supersede old states</li>
+                </ul>
+            </div>
+
+            <p>
+                The risk is real but manageable. Checking once per week is sufficient for
+                typical 2016-block (2 week) timelocks. Watchtowers (Chapter 23) eliminate
+                even this requirement for most users.
+            </p>
+        </section>
+
+        <section>
+            <h2>25.3 Cryptography Myths</h2>
+
+            <div class="myth-box">
+                <h4>Myth: "Quantum computers will break Bitcoin"</h4>
+                <p>
+                    When quantum computers arrive, they'll break ECDSA and steal everyone's
+                    Bitcoin. The whole system will collapse.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Quantum threats are real but manageable with known mitigations</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.6</strong> (Quantum Threat Analysis)</p>
+                <p>
+                    Quantum computers threaten Bitcoin in two ways:
+                </p>
+                <ol>
+                    <li><strong>Signature forgery (Shor's algorithm):</strong> Breaks ECDSA/Schnorr,
+                        requires thousands of logical qubits</li>
+                    <li><strong>Mining speedup (Grover's algorithm):</strong> Quadratic speedup to
+                        hash search, requires millions of physical qubits</li>
+                </ol>
+            </div>
+
+            <div class="definition">
+                <p><strong>Definition 25.1</strong> (Quantum-Resistant Mitigations)</p>
+                <p>For signature forgery:</p>
+                <ul>
+                    <li>Addresses only reveal public keys when spent</li>
+                    <li>Hash-based addresses (P2PKH, P2WPKH) hide public keys until spending</li>
+                    <li>Post-quantum signatures can be added via soft fork</li>
+                    <li>User migration can occur before quantum computers are viable</li>
+                </ul>
+                <p>For mining:</p>
+                <ul>
+                    <li>Grover's provides only √N speedup (not exponential)</li>
+                    <li>Difficulty adjustment compensates automatically</li>
+                    <li>Hash function can be upgraded if needed</li>
+                </ul>
+            </div>
+
+            <p>
+                The timeline for cryptographically relevant quantum computers is likely
+                decades, providing ample time for protocol upgrades. This is a known
+                challenge with known solutions, not an existential threat.
+            </p>
+
+            <hr>
+
+            <div class="myth-box">
+                <h4>Myth: "SHA-256 is broken/will be broken soon"</h4>
+                <p>
+                    Hash functions get broken eventually. SHA-256 is next, which will
+                    destroy Bitcoin's security.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: No practical attacks on SHA-256 exist; theoretical weaknesses don't threaten Bitcoin</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.7</strong> (SHA-256 Security Status)</p>
+                <p>
+                    As of 2024:
+                </p>
+                <ul>
+                    <li><strong>Collision resistance:</strong> Best attack reduces 256-bit to ~250-bit equivalent (still infeasible)</li>
+                    <li><strong>Preimage resistance:</strong> No attacks better than brute force</li>
+                    <li><strong>Second preimage:</strong> No practical attacks</li>
+                </ul>
+                <p>
+                    Even if SHA-256 were weakened to 128-bit security, this provides
+                    2<sup>128</sup> operations—still computationally infeasible.
+                </p>
+            </div>
+
+            <p>
+                SHA-1 was "broken" (collisions found) after years of gradual weakening.
+                SHA-256 shows no similar trajectory. If weaknesses emerge, Bitcoin can
+                transition to SHA-3 or other functions via soft fork.
+            </p>
+        </section>
+
+        <section>
+            <h2>25.4 Consensus Myths</h2>
+
+            <div class="myth-box">
+                <h4>Myth: "51% attack means attackers control Bitcoin"</h4>
+                <p>
+                    With 51% of hashrate, attackers can do anything—steal coins, change rules,
+                    inflate supply, shut down the network.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: 51% attacks enable specific, limited actions—not arbitrary control</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.8</strong> (51% Attack Capabilities)</p>
+                <p>
+                    An attacker with majority hashrate CAN:
+                </p>
+                <ul>
+                    <li>Double-spend their own transactions</li>
+                    <li>Censor specific transactions/addresses</li>
+                    <li>Execute selfish mining for increased rewards</li>
+                    <li>Reorganize recent blocks</li>
+                </ul>
+                <p>
+                    An attacker with majority hashrate CANNOT:
+                </p>
+                <ul>
+                    <li>Steal coins they don't have keys for</li>
+                    <li>Create coins beyond the subsidy schedule</li>
+                    <li>Change consensus rules (full nodes reject invalid blocks)</li>
+                    <li>Prevent users from transacting on a minority chain</li>
+                </ul>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    Hashrate controls which valid blocks become part of the chain, not what
+                    constitutes a valid block. A block that steals coins or inflates supply
+                    is invalid by consensus rules. Full nodes reject invalid blocks regardless
+                    of their PoW.
+                </p>
+                <p>
+                    If attackers mine invalid blocks, honest nodes simply ignore them and
+                    follow the valid chain—even if it has less work. The "longest chain"
+                    rule applies only among <em>valid</em> chains. ∎
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="myth-box">
+                <h4>Myth: "Miners control Bitcoin's rules"</h4>
+                <p>
+                    Miners decide what happens in Bitcoin. If miners want a rule change,
+                    it happens. Users must accept whatever miners choose.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Full nodes enforce rules; miners just select valid transactions</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.9</strong> (Rule Enforcement Hierarchy)</p>
+                <p>
+                    Bitcoin rule enforcement:
+                </p>
+                <ol>
+                    <li><strong>Users run full nodes</strong> that enforce their chosen rules</li>
+                    <li><strong>Miners produce blocks</strong> that must satisfy user node rules</li>
+                    <li><strong>Invalid blocks are ignored</strong> regardless of hashrate</li>
+                    <li><strong>Economic consensus</strong> determines which chain has value</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 25.2</strong> (2017 UASF)</p>
+                <p>
+                    User Activated Soft Fork (BIP-148) demonstrated user power:
+                </p>
+                <ul>
+                    <li>Users signaled they would enforce SegWit activation</li>
+                    <li>Miners faced choice: activate SegWit or mine worthless chain</li>
+                    <li>Miners activated SegWit before UASF deadline</li>
+                    <li>This contradicts "miners control everything" narrative</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>25.5 Economic Myths</h2>
+
+            <div class="myth-box">
+                <h4>Myth: "Bitcoin can't work when block subsidy goes to zero"</h4>
+                <p>
+                    Without block rewards, miners won't mine, and Bitcoin will fail.
+                    The fee market can't possibly replace 6.25 BTC per block.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Fee revenue is already significant and scales with economic activity</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.10</strong> (Long-Term Security Budget)</p>
+                <p>
+                    Security budget sustainability requires:
+                </p>
+                <div class="formula">
+                    Total Fees ≥ Cost of Attack × Acceptable Attack Probability
+                </div>
+                <p>
+                    This depends on:
+                </p>
+                <ul>
+                    <li>BTC price (fees denominated in BTC)</li>
+                    <li>Transaction volume and fee rates</li>
+                    <li>Layer 2 settlement frequency</li>
+                    <li>Required security level</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 25.3</strong> (Fee Revenue Analysis)</p>
+                <p>
+                    Historical fee revenue during high demand:
+                </p>
+                <ul>
+                    <li>2017 peak: ~30 BTC/block in fees</li>
+                    <li>2021 peak: ~10-15 BTC/block in fees</li>
+                    <li>Regularly exceeds 1 BTC/block during congestion</li>
+                </ul>
+                <p>
+                    As subsidy decreases, fee pressure increases. Market equilibrium
+                    determines the sustainable security level.
+                </p>
+            </div>
+
+            <div class="nuance-box">
+                <h4>Legitimate Concern</h4>
+                <p>
+                    The transition to fee-based security is genuinely uncertain. It depends on
+                    future transaction demand, BTC price, and Layer 2 adoption. This is an
+                    active research area, not a solved problem—but neither is it proof of
+                    inevitable failure.
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="myth-box">
+                <h4>Myth: "Bitcoin wastes energy"</h4>
+                <p>
+                    Bitcoin mining consumes as much energy as small countries. This is
+                    pure waste with no benefit.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Energy consumption provides security; "waste" is subjective</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.11</strong> (Energy-Security Relationship)</p>
+                <p>
+                    The cost to attack Bitcoin ≈ mining hardware + energy cost to produce
+                    equivalent hashrate. High energy consumption directly creates high
+                    attack cost.
+                </p>
+                <p>
+                    Whether this security is "worth" the energy is an economic question,
+                    not a technical one. The market answers it: miners profit by selling
+                    security at energy cost; users pay fees indicating willingness to pay.
+                </p>
+            </div>
+
+            <p>
+                Arguments about "waste" apply to any consumption: Is air conditioning waste?
+                Data centers? Aluminum smelting? Bitcoin provides a service (censorship-resistant
+                money) that users value. Energy expenditure is the mechanism that makes it
+                resistant to attack.
+            </p>
+        </section>
+
+        <section>
+            <h2>25.6 Technical Misconceptions</h2>
+
+            <div class="myth-box">
+                <h4>Myth: "Bitcoin addresses can be 'frozen' or 'blacklisted'"</h4>
+                <p>
+                    Regulators can force miners to blacklist addresses, making coins unusable.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Protocol-level blacklisting is technically impossible</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.12</strong> (Censorship Properties)</p>
+                <p>
+                    Bitcoin addresses are pseudonymous identifiers with no protocol-level identity:
+                </p>
+                <ul>
+                    <li>Anyone can generate unlimited addresses without permission</li>
+                    <li>Coins can be mixed, making tracking uncertain</li>
+                    <li>Any miner not censoring will include censored transactions</li>
+                    <li>Users can run their own miners to include their transactions</li>
+                </ul>
+                <p>
+                    Censorship requires <em>all</em> miners to cooperate—a coordination
+                    problem with economic incentives against cooperation (censored users
+                    pay higher fees to non-censoring miners).
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="myth-box">
+                <h4>Myth: "Full nodes don't matter; only miners count"</h4>
+                <p>
+                    Running a non-mining node is pointless—it doesn't contribute to security
+                    or have any power.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Full nodes enforce rules and give users sovereignty</h4>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 25.13</strong> (Full Node Value)</p>
+                <p>
+                    A full node provides its operator:
+                </p>
+                <ul>
+                    <li><strong>Rule enforcement:</strong> Only accepts valid transactions</li>
+                    <li><strong>Privacy:</strong> No third party sees your queries</li>
+                    <li><strong>Self-sovereignty:</strong> No dependence on others for validation</li>
+                    <li><strong>Fork protection:</strong> Stays on your chosen ruleset</li>
+                </ul>
+                <p>
+                    Economically significant users (exchanges, merchants) running full nodes
+                    create the economic reality that miners must respect.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>25.7 Methodology for Myth Evaluation</h2>
+
+            <p>
+                When encountering claims about Bitcoin, apply this framework:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 25.2</strong> (Claim Evaluation Framework)</p>
+                <ol>
+                    <li><strong>State the claim precisely:</strong> What exactly is being asserted?</li>
+                    <li><strong>Identify the model:</strong> What assumptions does the claim require?</li>
+                    <li><strong>Check against protocol:</strong> Does the claim match what the code does?</li>
+                    <li><strong>Analyze incentives:</strong> Would rational actors behave as claimed?</li>
+                    <li><strong>Consider adversarial scenarios:</strong> What attacks does this enable/prevent?</li>
+                    <li><strong>Verify empirically:</strong> Has this been tested/observed?</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 25.4</strong> (Applying the Framework)</p>
+                <p>
+                    Claim: "Lightning is centralized because it has hubs."
+                </p>
+                <ol>
+                    <li><strong>Precise claim:</strong> Large routing nodes make Lightning centralized</li>
+                    <li><strong>Model:</strong> Assumes hub topology implies control</li>
+                    <li><strong>Protocol check:</strong> Any node can route; hubs have no special power</li>
+                    <li><strong>Incentives:</strong> Hubs compete on fees; users choose routes</li>
+                    <li><strong>Adversarial:</strong> Hub can refuse to route, but cannot steal or censor long-term</li>
+                    <li><strong>Empirical:</strong> Multiple competing routing nodes exist; users have choice</li>
+                </ol>
+                <p>
+                    Conclusion: Network topology ≠ power concentration. "Centralization"
+                    in Lightning is different from custodial centralization.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 25.1</strong></p>
+                <p>
+                    A claim states: "Bitcoin is deflationary because 21 million coins."
+                    Apply the evaluation framework. Is this technically correct?
+                    What nuance is missing?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 25.2</strong></p>
+                <p>
+                    Calculate the hashrate needed for an attacker to reliably double-spend
+                    a 6-confirmation transaction. What is the economic cost?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 25.3</strong></p>
+                <p>
+                    Someone argues: "If all exchanges implemented address blacklists,
+                    blacklisted coins would be worthless." Analyze this claim using
+                    game theory.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 25.4</strong></p>
+                <p>
+                    Construct a precise attack scenario where SPV fails but a full node
+                    would succeed. Calculate the attack cost and success probability.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 25.5</strong></p>
+                <p>
+                    "Layer 2 reduces security because funds aren't on the base layer."
+                    Evaluate this claim for Lightning, sidechains, and custodial solutions.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 25.6</strong></p>
+                <p>
+                    Research and evaluate: "Taproot makes Bitcoin less private because
+                    it reveals which transactions use it." Is this technically accurate?
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    SPV provides useful but weaker security than full nodes—trusting
+                    miners rather than verifying independently.
+                </li>
+                <li>
+                    Layer 2 scaling (Lightning) provides multiplicative throughput gains
+                    without degrading base layer decentralization.
+                </li>
+                <li>
+                    Lightning channels hold real Bitcoin in cryptographic smart contracts,
+                    not custodial IOUs.
+                </li>
+                <li>
+                    51% attacks enable specific manipulations (double-spends, censorship)
+                    but cannot break consensus rules or steal arbitrary coins.
+                </li>
+                <li>
+                    Quantum computing and hash function breaks are real but manageable
+                    risks with known mitigation paths.
+                </li>
+                <li>
+                    Evaluating claims requires precise statement, model identification,
+                    protocol verification, incentive analysis, and empirical checking.
+                </li>
+            </ul>
+        </section>
+
+        <section class="conclusion">
+            <h2>Volume III Conclusion</h2>
+
+            <p>
+                We have traveled from the theoretical foundations of SPV through the practical
+                realities of light clients, node optimizations, client-side validation, payment
+                channels, and the Lightning Network. Along the way, we have applied mathematical
+                rigor to separate fact from myth.
+            </p>
+            <p>
+                Bitcoin's scaling story is not one of limitations overcome by brute force, but
+                of elegant layered architecture. The base layer provides security and
+                finality; upper layers provide speed and scalability. Understanding this
+                architecture—from cryptographic primitives to network protocols—is essential
+                for building and using Bitcoin's future.
+            </p>
+            <p>
+                The reader who has worked through all three volumes now possesses the
+                mathematical and protocol knowledge to understand Bitcoin from first
+                principles—to verify rather than trust, to analyze rather than believe,
+                and to build rather than merely use.
+            </p>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="24-lightning.html">← Chapter 24: Lightning Network</a>
+            <a href="../index.html">Index</a>
+            <span style="color: #999;">Volume III Complete</span>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+        <p style="font-style: italic; margin-top: 1rem;">
+            "We build understanding link by link, block by block."
+        </p>
+    </footer>
+</body>
+</html>

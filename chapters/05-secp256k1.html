@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: The secp256k1 Curve | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Chapter Five</span>
+        <h1 class="chapter-title">The secp256k1 Curve</h1>
+        <p class="chapter-epigraph">
+            "Simplicity is the ultimate sophistication."
+            <br>&mdash; Leonardo da Vinci
+        </p>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                We now focus our attention on the specific elliptic curve chosen by Satoshi Nakamoto
+                for Bitcoin: <strong>secp256k1</strong>. This curve, defined in the "Standards for
+                Efficient Cryptography" (SEC) document, possesses remarkable properties that make it
+                both efficient to compute and resistant to known attacks.
+            </p>
+            <p>
+                Understanding secp256k1 in detail is essential for anyone seeking to comprehend
+                Bitcoin at its deepest level. Every private key, every public key, every digital
+                signature in Bitcoin emerges from operations on this curve.
+            </p>
+        </section>
+
+        <section>
+            <h2>5.1 The Name Decoded</h2>
+
+            <p>
+                The cryptic name "secp256k1" encodes several pieces of information:
+            </p>
+
+            <figure>
+                <svg class="diagram" width="500" height="120" viewBox="0 0 500 120">
+                    <!-- The name broken down -->
+                    <text x="250" y="30" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="#2f4f4f">secp256k1</text>
+
+                    <!-- Brackets and labels -->
+                    <path d="M 122 45 L 122 55 L 157 55 L 157 45" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="140" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#4a90d9">SEC</text>
+                    <text x="140" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Standards for</text>
+                    <text x="140" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Efficient Crypto</text>
+
+                    <path d="M 162 45 L 162 55 L 185 55 L 185 45" fill="none" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="174" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#8b4513">p</text>
+                    <text x="174" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Prime field</text>
+
+                    <path d="M 190 45 L 190 55 L 250 55 L 250 45" fill="none" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="220" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">256</text>
+                    <text x="220" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">256-bit</text>
+                    <text x="220" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">field size</text>
+
+                    <path d="M 255 45 L 255 55 L 285 55 L 285 45" fill="none" stroke="#c44" stroke-width="1.5"/>
+                    <text x="270" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">k</text>
+                    <text x="270" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Koblitz curve</text>
+
+                    <path d="M 290 45 L 290 55 L 320 55 L 320 45" fill="none" stroke="#666" stroke-width="1.5"/>
+                    <text x="305" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">1</text>
+                    <text x="305" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">First in</text>
+                    <text x="305" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">category</text>
+                </svg>
+                <figcaption>Figure 5.1: Decoding the secp256k1 name.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Koblitz Curves.</p>
+                <p>
+                    The "k" indicates this is a <em>Koblitz curve</em>, named after Neal Koblitz,
+                    one of the inventors of elliptic curve cryptography. Koblitz curves have
+                    coefficients chosen for computational efficiency rather than from seemingly
+                    random seeds. The simplicity of these parameters (in secp256k1: <span class="math">a = 0, b = 7</span>)
+                    means there is no suspicion of hidden backdoors.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5.2 The Curve Equation</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 5.1 (The secp256k1 Curve)</p>
+                <p>
+                    The secp256k1 curve is defined by the equation:
+                </p>
+                <p style="text-align: center; font-size: 1.3em; margin: 1rem 0;">
+                    <span class="math">y² = x³ + 7</span>
+                </p>
+                <p>
+                    over the prime field <span class="math">𝔽ₚ</span>, where:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">a = 0, &nbsp; b = 7</span>
+                </p>
+            </div>
+
+            <p>
+                The simplicity of this equation&mdash;the absence of the <span class="math">ax</span>
+                term&mdash;makes certain optimizations possible. It also means that the curve
+                parameters are completely transparent: there are no mysterious constants that
+                might conceal a mathematical trapdoor.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="400" height="300" viewBox="0 0 400 300">
+                    <text x="200" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">y² = x³ + 7 (over ℝ for visualization)</text>
+
+                    <!-- Axes -->
+                    <line x1="50" y1="150" x2="350" y2="150" stroke="#ccc" stroke-width="1"/>
+                    <line x1="120" y1="30" x2="120" y2="270" stroke="#ccc" stroke-width="1"/>
+
+                    <!-- Axis labels -->
+                    <text x="360" y="155" font-family="Georgia" font-size="12" font-style="italic">x</text>
+                    <text x="125" y="25" font-family="Georgia" font-size="12" font-style="italic">y</text>
+
+                    <!-- The curve y² = x³ + 7 -->
+                    <!-- This curve exists only for x ≥ -∛7 ≈ -1.91 -->
+                    <path d="M 95 270 Q 100 200, 105 160 Q 115 100, 140 60 Q 180 20, 220 0
+                             M 95 30 Q 100 100, 105 140 Q 115 200, 140 240 Q 180 280, 220 300"
+                          fill="none" stroke="#5a8f5a" stroke-width="3"/>
+
+                    <!-- Annotation for x = -∛7 -->
+                    <line x1="95" y1="150" x2="95" y2="160" stroke="#666" stroke-width="1"/>
+                    <text x="95" y="175" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">−∛7</text>
+
+                    <!-- Annotation for the shape -->
+                    <text x="280" y="100" font-family="Georgia" font-size="11" fill="#666">Single</text>
+                    <text x="280" y="115" font-family="Georgia" font-size="11" fill="#666">component</text>
+
+                    <!-- Origin point -->
+                    <circle cx="120" cy="150" r="3" fill="#666"/>
+                    <text x="130" y="165" font-family="Georgia" font-size="10" fill="#666">O</text>
+                </svg>
+                <figcaption>Figure 5.2: The secp256k1 curve over the real numbers. The actual cryptographic curve exists over a finite field.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>5.3 The Field Parameters</h2>
+
+            <p>
+                The curve is defined over a prime field of size approximately <span class="math">2²⁵⁶</span>.
+                The specific prime was chosen for its special form, which allows efficient modular reduction.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 5.2 (The Field Prime p)</p>
+                <p>
+                    The prime <span class="math">p</span> for secp256k1 is:
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">p = 2²⁵⁶ − 2³² − 2⁹ − 2⁸ − 2⁷ − 2⁶ − 2⁴ − 1</span>
+                </p>
+                <p>Or equivalently:</p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">p = 2²⁵⁶ − 2³² − 977</span>
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 5.1 (The Prime in Various Representations)</p>
+                <p><strong>Hexadecimal:</strong></p>
+                <pre style="font-size: 0.85rem;">p = FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF
+    FFFFFFFF FFFFFFFF FFFFFFFE FFFFFC2F</pre>
+                <p><strong>Decimal:</strong></p>
+                <pre style="font-size: 0.75rem;">p = 115792089237316195423570985008687907853269984665640564039457584007908834671663</pre>
+                <p>This is a 256-bit number, approximately <span class="math">1.158 × 10⁷⁷</span>.</p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Why This Specific Prime?</p>
+                <p>
+                    The form <span class="math">p = 2²⁵⁶ − 2³² − c</span> (where <span class="math">c = 977</span>
+                    is small) enables fast modular reduction. When computing <span class="math">x mod p</span>
+                    for a 512-bit number <span class="math">x</span>, we can use the identity:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">2²⁵⁶ ≡ 2³² + 977 (mod p)</span>
+                </p>
+                <p>
+                    This allows the high bits of <span class="math">x</span> to be folded back into the
+                    low bits with simple additions, avoiding expensive division.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5.4 The Generator Point</h2>
+
+            <p>
+                Every point operation in Bitcoin begins with a fixed <em>generator point</em>
+                <span class="math">G</span>. This point generates a cyclic subgroup of prime order.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 5.3 (The Generator Point G)</p>
+                <p>
+                    The generator point <span class="math">G = (G_x, G_y)</span> has coordinates:
+                </p>
+                <p><strong>G_x (hexadecimal):</strong></p>
+                <pre style="font-size: 0.85rem;">79BE667E F9DCBBAC 55A06295 CE870B07
+029BFCDB 2DCE28D9 59F2815B 16F81798</pre>
+                <p><strong>G_y (hexadecimal):</strong></p>
+                <pre style="font-size: 0.85rem;">483ADA77 26A3C465 5DA4FBFC 0E1108A8
+FD17B448 A6855419 9C47D08F FB10D4B8</pre>
+            </div>
+
+            <p>
+                The generator point was chosen such that its order <span class="math">n</span>
+                is a large prime. Starting from <span class="math">G</span>, we can reach any
+                point in the cryptographic subgroup by scalar multiplication.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="450" height="200" viewBox="0 0 450 200">
+                    <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Key Generation from G</text>
+
+                    <!-- G -->
+                    <circle cx="80" cy="100" r="25" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="80" y="105" text-anchor="middle" font-family="Georgia" font-size="16" font-weight="bold" fill="#4a90d9">G</text>
+                    <text x="80" y="145" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Generator</text>
+                    <text x="80" y="157" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">(fixed, public)</text>
+
+                    <!-- Arrow: × k -->
+                    <path d="M 110 100 L 200 100" stroke="#8b4513" stroke-width="2" marker-end="url(#arrowMult)"/>
+                    <text x="155" y="90" text-anchor="middle" font-family="Georgia" font-size="13" fill="#8b4513">× k</text>
+                    <text x="155" y="120" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">scalar mult</text>
+
+                    <!-- k (private key) above -->
+                    <rect x="130" y="50" width="50" height="25" rx="4" fill="#fff8f0" stroke="#c44" stroke-width="1"/>
+                    <text x="155" y="67" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">k</text>
+                    <path d="M 155 75 L 155 87" stroke="#c44" stroke-width="1" marker-end="url(#arrowRed2)"/>
+
+                    <!-- P = kG -->
+                    <circle cx="240" cy="100" r="25" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
+                    <text x="240" y="105" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold" fill="#8b4513">kG</text>
+                    <text x="240" y="145" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Public Key</text>
+
+                    <!-- Equals sign -->
+                    <text x="280" y="105" font-family="Georgia" font-size="18">=</text>
+
+                    <!-- P -->
+                    <circle cx="330" cy="100" r="25" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="330" y="105" text-anchor="middle" font-family="Georgia" font-size="16" font-weight="bold" fill="#5a8f5a">P</text>
+                    <text x="330" y="145" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Point on curve</text>
+
+                    <!-- Summary -->
+                    <rect x="300" y="165" width="140" height="25" rx="4" fill="#fff" stroke="#666" stroke-width="1"/>
+                    <text x="370" y="182" text-anchor="middle" font-family="Georgia" font-size="10">Private key k → Public key P</text>
+
+                    <defs>
+                        <marker id="arrowMult" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#8b4513"/>
+                        </marker>
+                        <marker id="arrowRed2" markerWidth="8" markerHeight="6" refX="4" refY="5" orient="auto">
+                            <polygon points="0 0, 4 6, 8 0" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 5.3: A private key k multiplied by G produces the public key P = kG.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>5.5 The Group Order</h2>
+
+            <p>
+                The order of the generator point <span class="math">G</span>&mdash;and hence the
+                size of the cryptographic subgroup&mdash;is a prime number slightly less than
+                <span class="math">2²⁵⁶</span>.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 5.4 (The Group Order n)</p>
+                <p>
+                    The order of <span class="math">G</span> is:
+                </p>
+                <p><strong>Hexadecimal:</strong></p>
+                <pre style="font-size: 0.85rem;">n = FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE
+    BAAEDCE6 AF48A03B BFD25E8C D0364141</pre>
+                <p><strong>Decimal:</strong></p>
+                <pre style="font-size: 0.75rem;">n = 115792089237316195423570985008687907852837564279074904382605163141518161494337</pre>
+                <p>
+                    This means <span class="math">nG = 𝒪</span> and <span class="math">n</span> is prime.
+                </p>
+            </div>
+
+            <p>
+                The fact that <span class="math">n < p</span> might seem surprising. Hasse's
+                theorem guarantees that <span class="math">|n - (p+1)| ≤ 2√p</span>, but it
+                doesn't specify whether <span class="math">n</span> is slightly above or
+                below <span class="math">p + 1</span>. For secp256k1, we have
+                <span class="math">n ≈ p - 4.3 × 10³⁸</span>.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Proposition 5.1 (Cofactor)</p>
+                <p>
+                    The cofactor of secp256k1 is <span class="math">h = 1</span>.
+                </p>
+                <p>
+                    This means the entire curve group is cyclic and generated by <span class="math">G</span>:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">#E(𝔽ₚ) = n × h = n × 1 = n</span>
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Security Implication.</p>
+                <p>
+                    A cofactor of 1 is cryptographically ideal. It means there are no "small
+                    subgroup" attacks to worry about, and every point on the curve (except
+                    <span class="math">𝒪</span>) has order <span class="math">n</span>.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5.6 Complete Parameter Summary</h2>
+
+            <p>
+                For reference, here are all the secp256k1 parameters collected together:
+            </p>
+
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Symbol</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Curve equation</td>
+                    <td>&mdash;</td>
+                    <td><span class="math">y² = x³ + 7</span></td>
+                </tr>
+                <tr>
+                    <td>Coefficient a</td>
+                    <td>a</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>Coefficient b</td>
+                    <td>b</td>
+                    <td>7</td>
+                </tr>
+                <tr>
+                    <td>Field prime</td>
+                    <td>p</td>
+                    <td><span class="math">2²⁵⁶ − 2³² − 977</span></td>
+                </tr>
+                <tr>
+                    <td>Group order</td>
+                    <td>n</td>
+                    <td>≈ <span class="math">2²⁵⁶ − 4.3 × 10³⁸</span></td>
+                </tr>
+                <tr>
+                    <td>Cofactor</td>
+                    <td>h</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td>Generator x-coord</td>
+                    <td>G_x</td>
+                    <td>79BE667EF9DCBBAC...</td>
+                </tr>
+                <tr>
+                    <td>Generator y-coord</td>
+                    <td>G_y</td>
+                    <td>483ADA7726A3C465...</td>
+                </tr>
+                <tr>
+                    <td>Security level</td>
+                    <td>&mdash;</td>
+                    <td>~128 bits</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>5.7 Private and Public Keys</h2>
+
+            <p>
+                With the curve parameters established, we can now precisely define what
+                constitutes a Bitcoin private key and public key.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 5.5 (Private Key)</p>
+                <p>
+                    A <strong>private key</strong> is an integer <span class="math">k</span> satisfying:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">1 ≤ k ≤ n − 1</span>
+                </p>
+                <p>
+                    In Bitcoin, this is typically a 256-bit random number. The private key must
+                    be kept secret; anyone who knows it can spend the associated funds.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 5.6 (Public Key)</p>
+                <p>
+                    Given a private key <span class="math">k</span>, the <strong>public key</strong>
+                    is the point:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">P = kG = (x, y)</span>
+                </p>
+                <p>
+                    This point can be shared publicly. The security of the system relies on
+                    the infeasibility of computing <span class="math">k</span> from <span class="math">P</span>
+                    and <span class="math">G</span>.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 5.2 (A Simple Private Key)</p>
+                <p>
+                    Let the private key be <span class="math">k = 1</span>. Then the public key is:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">P = 1 × G = G</span>
+                </p>
+                <p>
+                    So the public key is simply the generator point itself. While this is
+                    mathematically valid, it would be a catastrophically weak key in practice!
+                </p>
+                <p>
+                    For <span class="math">k = 2</span>, the public key is <span class="math">P = 2G</span>,
+                    computed via point doubling.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Key Space Size.</p>
+                <p>
+                    There are approximately <span class="math">2²⁵⁶</span> possible private keys.
+                    For comparison:
+                </p>
+                <ul>
+                    <li>Atoms in the observable universe: ~<span class="math">10⁸⁰ ≈ 2²⁶⁶</span></li>
+                    <li>Possible secp256k1 private keys: ~<span class="math">2²⁵⁶</span></li>
+                    <li>Grains of sand on Earth: ~<span class="math">10¹⁸ ≈ 2⁶⁰</span></li>
+                </ul>
+                <p>
+                    The key space is astronomical. A randomly chosen key has negligible probability
+                    of collision with any other key ever generated.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5.8 Public Key Encoding</h2>
+
+            <p>
+                A public key is a point <span class="math">(x, y)</span> on the curve. There
+                are several ways to encode this point as a byte sequence.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 5.7 (Public Key Formats)</p>
+                <p><strong>Uncompressed format (65 bytes):</strong></p>
+                <p style="font-family: monospace; margin-left: 2rem;">
+                    04 || x (32 bytes) || y (32 bytes)
+                </p>
+                <p>The prefix <code>04</code> indicates uncompressed format.</p>
+
+                <p><strong>Compressed format (33 bytes):</strong></p>
+                <p style="font-family: monospace; margin-left: 2rem;">
+                    (02 or 03) || x (32 bytes)
+                </p>
+                <p>
+                    The prefix is <code>02</code> if <span class="math">y</span> is even,
+                    <code>03</code> if <span class="math">y</span> is odd.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Public Key Encoding Formats</text>
+
+                    <!-- Uncompressed -->
+                    <g transform="translate(50, 50)">
+                        <text x="0" y="15" font-family="Georgia" font-size="12" font-weight="bold">Uncompressed (65 bytes):</text>
+                        <rect x="0" y="25" width="30" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+                        <text x="15" y="45" text-anchor="middle" font-family="monospace" font-size="11">04</text>
+                        <rect x="35" y="25" width="140" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                        <text x="105" y="45" text-anchor="middle" font-family="Georgia" font-size="11">x (32 bytes)</text>
+                        <rect x="180" y="25" width="140" height="30" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1"/>
+                        <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="11">y (32 bytes)</text>
+                    </g>
+
+                    <!-- Compressed -->
+                    <g transform="translate(50, 120)">
+                        <text x="0" y="15" font-family="Georgia" font-size="12" font-weight="bold">Compressed (33 bytes):</text>
+                        <rect x="0" y="25" width="45" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+                        <text x="22" y="45" text-anchor="middle" font-family="monospace" font-size="11">02/03</text>
+                        <rect x="50" y="25" width="140" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                        <text x="120" y="45" text-anchor="middle" font-family="Georgia" font-size="11">x (32 bytes)</text>
+
+                        <!-- Recovery note -->
+                        <text x="210" y="45" font-family="Georgia" font-size="10" fill="#666">y recovered from x</text>
+                    </g>
+                </svg>
+                <figcaption>Figure 5.4: Uncompressed and compressed public key formats.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Proposition 5.2 (Point Recovery)</p>
+                <p>
+                    Given <span class="math">x</span> and the parity of <span class="math">y</span>,
+                    the full point <span class="math">(x, y)</span> can be recovered:
+                </p>
+                <ol>
+                    <li>Compute <span class="math">y² = x³ + 7 mod p</span></li>
+                    <li>Compute <span class="math">y = (y²)^{(p+1)/4} mod p</span> (valid since <span class="math">p ≡ 3 (mod 4)</span>)</li>
+                    <li>If the parity of <span class="math">y</span> doesn't match the prefix, use <span class="math">p − y</span></li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Compression Benefits.</p>
+                <p>
+                    Compressed public keys save 32 bytes per key. In Bitcoin transactions,
+                    this reduces transaction size and hence fees. Modern Bitcoin software
+                    uses compressed keys by default.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5.9 Why Satoshi Chose secp256k1</h2>
+
+            <p>
+                When Satoshi Nakamoto designed Bitcoin, he chose secp256k1 over the more
+                common NIST curves. Several factors likely influenced this decision:
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Advantages of secp256k1</p>
+                <ol>
+                    <li>
+                        <strong>Efficiency:</strong> The special form of <span class="math">p</span>
+                        and the fact that <span class="math">a = 0</span> allow for faster field
+                        operations. Optimized implementations can be 30% faster than NIST curves.
+                    </li>
+                    <li>
+                        <strong>Transparency:</strong> The simple parameters (<span class="math">a = 0, b = 7</span>)
+                        are clearly not derived from any hidden structure. There is no suspicion
+                        of "nothing up my sleeve" numbers concealing a backdoor.
+                    </li>
+                    <li>
+                        <strong>Cofactor 1:</strong> The absence of small subgroups simplifies
+                        implementation and removes a class of potential attacks.
+                    </li>
+                    <li>
+                        <strong>Endomorphism:</strong> secp256k1 possesses an efficiently computable
+                        endomorphism that can accelerate signature verification.
+                    </li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Historical Note.</p>
+                <p>
+                    The NIST curves (P-256, etc.) were specified with seed values used to
+                    generate their parameters, but these seeds were never fully explained.
+                    This has led to speculation about potential NSA influence. secp256k1's
+                    verifiable simplicity sidesteps these concerns entirely.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5.10 Security Analysis</h2>
+
+            <p>
+                The security of secp256k1 has been extensively analyzed. The main conclusion:
+                for well-implemented systems, the curve provides excellent security.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Security Properties of secp256k1</p>
+                <ul>
+                    <li>
+                        <strong>ECDLP hardness:</strong> No algorithm better than
+                        <span class="math">O(√n) ≈ O(2¹²⁸)</span> is known.
+                    </li>
+                    <li>
+                        <strong>Not anomalous:</strong> <span class="math">n ≠ p</span>, so the
+                        anomalous curve attack doesn't apply.
+                    </li>
+                    <li>
+                        <strong>High embedding degree:</strong> The curve is not supersingular,
+                        so the MOV attack doesn't apply.
+                    </li>
+                    <li>
+                        <strong>Twist security:</strong> The quadratic twist of secp256k1 also
+                        has near-prime order, providing resistance to twist attacks.
+                    </li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="450" height="120" viewBox="0 0 450 120">
+                    <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Security Level: 128 bits</text>
+
+                    <!-- Scale bar -->
+                    <rect x="50" y="50" width="350" height="30" rx="4" fill="none" stroke="#2f4f4f" stroke-width="2"/>
+
+                    <!-- Filled portion representing security -->
+                    <rect x="50" y="50" width="350" height="30" rx="4" fill="#5a8f5a" fill-opacity="0.3"/>
+
+                    <!-- Labels -->
+                    <text x="50" y="100" text-anchor="start" font-family="Georgia" font-size="10">0 bits</text>
+                    <text x="225" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold" fill="#2f4f4f">128-bit security</text>
+                    <text x="400" y="100" text-anchor="end" font-family="Georgia" font-size="10">256 bits</text>
+
+                    <!-- Annotation -->
+                    <text x="225" y="115" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Best attack: ~2¹²⁸ operations (computationally infeasible)</text>
+                </svg>
+                <figcaption>Figure 5.5: secp256k1 provides approximately 128 bits of security.</figcaption>
+            </figure>
+
+            <p>
+                To put <span class="math">2¹²⁸</span> operations in perspective: if every
+                computer on Earth performed one billion operations per second, and they
+                all worked together for the age of the universe, they would still be
+                nowhere close to completing <span class="math">2¹²⁸</span> operations.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h3>Exercises</h3>
+
+            <div class="exercise">
+                <span class="exercise-number">5.1.</span>
+                Verify that the generator point <span class="math">G</span> satisfies the
+                curve equation <span class="math">y² = x³ + 7</span> over <span class="math">𝔽ₚ</span>.
+                (You will need to work with large numbers.)
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">5.2.</span>
+                Explain why compressed public keys are possible. What mathematical property
+                of the curve allows recovery of <span class="math">y</span> from <span class="math">x</span>?
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">5.3.</span>
+                The prime <span class="math">p</span> satisfies <span class="math">p ≡ 3 (mod 4)</span>.
+                Verify this and explain why it enables efficient square root computation.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">5.4.</span>
+                If a private key has 256 bits of entropy, and the group order is slightly
+                less than <span class="math">2²⁵⁶</span>, what is the probability that a
+                randomly chosen 256-bit number is a valid private key?
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">5.5.</span>
+                <em>(Research)</em> What is the "GLV endomorphism" on secp256k1 and how
+                does it accelerate scalar multiplication?
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">5.6.</span>
+                <em>(Computational)</em> Using a big-integer library, implement point
+                addition and scalar multiplication on secp256k1. Verify that
+                <span class="math">2G</span> has the expected coordinates.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">5.7.</span>
+                The prefix byte for compressed public keys is <code>02</code> or <code>03</code>.
+                Explain why the y-coordinate's parity determines which prefix to use.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">5.8.</span>
+                <em>(Research)</em> What is the "twist" of an elliptic curve? Why is it
+                important for security that the twist of secp256k1 also has near-prime order?
+            </div>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="04-elliptic-curves-finite.html">← Chapter 4: Elliptic Curves over Finite Fields</a>
+            <a href="06-hash-functions.html">Chapter 6: Hash Functions →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>

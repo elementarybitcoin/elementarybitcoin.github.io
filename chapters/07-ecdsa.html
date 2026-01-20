@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Digital Signatures: ECDSA | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Chapter Seven</span>
+        <h1 class="chapter-title">Digital Signatures: ECDSA</h1>
+        <p class="chapter-epigraph">
+            "In mathematics, the art of proposing a question must be held of
+            higher value than solving it."
+            <br>&mdash; Georg Cantor
+        </p>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                We have now assembled all the pieces: groups, finite fields, elliptic curves,
+                the secp256k1 parameters, and hash functions. It is time to construct the
+                digital signature scheme that has secured billions of dollars in Bitcoin
+                transactions since 2009.
+            </p>
+            <p>
+                The <strong>Elliptic Curve Digital Signature Algorithm (ECDSA)</strong> transforms
+                the abstract mathematics of previous chapters into a practical tool for proving
+                ownership and authorizing transactions. Every legacy Bitcoin transaction carries
+                an ECDSA signature; understanding this algorithm is understanding Bitcoin itself.
+            </p>
+        </section>
+
+        <section>
+            <h2>7.1 What is a Digital Signature?</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 7.1 (Digital Signature Scheme)</p>
+                <p>
+                    A <strong>digital signature scheme</strong> consists of three algorithms:
+                </p>
+                <ol>
+                    <li>
+                        <strong>KeyGen():</strong> Generates a key pair <span class="math">(sk, pk)</span>
+                        where <span class="math">sk</span> is the private (signing) key and
+                        <span class="math">pk</span> is the public (verification) key.
+                    </li>
+                    <li>
+                        <strong>Sign(sk, m):</strong> Given a private key and message, produces
+                        a signature <span class="math">σ</span>.
+                    </li>
+                    <li>
+                        <strong>Verify(pk, m, σ):</strong> Given a public key, message, and
+                        signature, returns <em>true</em> if valid, <em>false</em> otherwise.
+                    </li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="550" height="250" viewBox="0 0 550 250">
+                    <text x="275" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Digital Signature: Sign and Verify</text>
+
+                    <!-- SIGNING SIDE -->
+                    <g transform="translate(30, 50)">
+                        <text x="100" y="0" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold" fill="#4a90d9">Signing (Alice)</text>
+
+                        <!-- Private key -->
+                        <rect x="10" y="20" width="70" height="30" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                        <text x="45" y="40" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">sk (secret)</text>
+
+                        <!-- Message -->
+                        <rect x="120" y="20" width="70" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                        <text x="155" y="40" text-anchor="middle" font-family="Georgia" font-size="10">message</text>
+
+                        <!-- Sign box -->
+                        <rect x="60" y="70" width="80" height="35" fill="#fff" stroke="#2f4f4f" stroke-width="2"/>
+                        <text x="100" y="92" text-anchor="middle" font-family="Georgia" font-size="12">Sign</text>
+
+                        <!-- Arrows into sign -->
+                        <path d="M 45 55 L 80 70" stroke="#666" stroke-width="1"/>
+                        <path d="M 155 55 L 120 70" stroke="#666" stroke-width="1"/>
+
+                        <!-- Signature output -->
+                        <path d="M 100 105 L 100 125" stroke="#666" stroke-width="1.5" marker-end="url(#arr7)"/>
+                        <rect x="65" y="130" width="70" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                        <text x="100" y="150" text-anchor="middle" font-family="Georgia" font-size="11" fill="#8b4513">σ</text>
+                    </g>
+
+                    <!-- Arrow from sign to verify -->
+                    <path d="M 230 165 L 300 165" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arr7g)"/>
+                    <text x="265" y="155" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">transmit</text>
+                    <text x="265" y="180" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(m, σ)</text>
+
+                    <!-- VERIFICATION SIDE -->
+                    <g transform="translate(310, 50)">
+                        <text x="100" y="0" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold" fill="#5a8f5a">Verification (Bob)</text>
+
+                        <!-- Public key -->
+                        <rect x="10" y="20" width="70" height="30" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                        <text x="45" y="40" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">pk (public)</text>
+
+                        <!-- Message + Signature -->
+                        <rect x="100" y="15" width="70" height="20" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                        <text x="135" y="30" text-anchor="middle" font-family="Georgia" font-size="9">message</text>
+                        <rect x="100" y="35" width="70" height="20" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+                        <text x="135" y="50" text-anchor="middle" font-family="Georgia" font-size="9">σ</text>
+
+                        <!-- Verify box -->
+                        <rect x="50" y="70" width="80" height="35" fill="#fff" stroke="#2f4f4f" stroke-width="2"/>
+                        <text x="90" y="92" text-anchor="middle" font-family="Georgia" font-size="12">Verify</text>
+
+                        <!-- Arrows into verify -->
+                        <path d="M 45 55 L 70 70" stroke="#666" stroke-width="1"/>
+                        <path d="M 135 60 L 110 70" stroke="#666" stroke-width="1"/>
+
+                        <!-- Output -->
+                        <path d="M 90 105 L 90 125" stroke="#666" stroke-width="1.5" marker-end="url(#arr7)"/>
+                        <text x="90" y="145" text-anchor="middle" font-family="Georgia" font-size="11" fill="#5a8f5a">✓ or ✗</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arr7" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                        <marker id="arr7g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 7.1: The signing and verification process in a digital signature scheme.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Security Properties of Digital Signatures</p>
+                <p>A secure signature scheme must satisfy:</p>
+                <ol>
+                    <li>
+                        <strong>Correctness:</strong> Valid signatures always verify.
+                        <span class="math">Verify(pk, m, Sign(sk, m)) = true</span>
+                    </li>
+                    <li>
+                        <strong>Unforgeability:</strong> Without the private key, it is
+                        computationally infeasible to produce a valid signature for any message.
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section>
+            <h2>7.2 ECDSA Parameters</h2>
+
+            <p>
+                ECDSA operates on an elliptic curve with the following publicly known parameters:
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 7.2 (ECDSA Domain Parameters)</p>
+                <p>The ECDSA domain parameters are:</p>
+                <ul>
+                    <li><span class="math">E</span>: An elliptic curve over <span class="math">𝔽ₚ</span></li>
+                    <li><span class="math">G</span>: A generator point of prime order <span class="math">n</span></li>
+                    <li><span class="math">n</span>: The order of <span class="math">G</span></li>
+                    <li><span class="math">H</span>: A cryptographic hash function (SHA-256 for Bitcoin)</li>
+                </ul>
+                <p>
+                    For Bitcoin, these are the secp256k1 parameters from Chapter 5.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>7.3 Key Generation</h2>
+
+            <p>
+                Key generation in ECDSA is remarkably simple: choose a random number, multiply
+                by the generator.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 7.1 (ECDSA Key Generation)</p>
+                <pre>
+KeyGen():
+    1. Select a random integer d such that 1 ≤ d ≤ n - 1
+    2. Compute Q = dG
+    3. Return (d, Q)
+       where d is the private key
+       and Q is the public key</pre>
+            </div>
+
+            <p>
+                The security rests entirely on the ECDLP: given <span class="math">Q</span> and
+                <span class="math">G</span>, finding <span class="math">d</span> is computationally
+                infeasible.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="400" height="120" viewBox="0 0 400 120">
+                    <text x="200" y="20" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">ECDSA Key Generation</text>
+
+                    <!-- Random d -->
+                    <rect x="30" y="50" width="80" height="40" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                    <text x="70" y="70" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">d</text>
+                    <text x="70" y="85" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">random</text>
+
+                    <!-- G -->
+                    <circle cx="170" cy="70" r="20" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="170" y="75" text-anchor="middle" font-family="Georgia" font-size="12" fill="#4a90d9">G</text>
+
+                    <!-- Multiply -->
+                    <path d="M 115 70 L 145 70" stroke="#666" stroke-width="1.5"/>
+                    <text x="130" y="62" text-anchor="middle" font-family="Georgia" font-size="12">×</text>
+
+                    <!-- Arrow -->
+                    <path d="M 195 70 L 260 70" stroke="#666" stroke-width="1.5" marker-end="url(#arr71)"/>
+                    <text x="227" y="62" text-anchor="middle" font-family="Georgia" font-size="10">= dG</text>
+
+                    <!-- Q -->
+                    <circle cx="290" cy="70" r="20" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="290" y="75" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">Q</text>
+                    <text x="290" y="105" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">public key</text>
+
+                    <defs>
+                        <marker id="arr71" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 7.2: Key generation: multiply a random scalar by the generator.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>7.4 The Signing Algorithm</h2>
+
+            <p>
+                The ECDSA signing algorithm is where the mathematical elegance emerges. It
+                combines the private key, a random nonce, and the message hash into a pair
+                of integers <span class="math">(r, s)</span>.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 7.2 (ECDSA Signing)</p>
+                <pre>
+Sign(d, m):
+    1. Compute z = H(m)                    // Hash the message
+    2. Select a random k such that 1 ≤ k ≤ n - 1   // The nonce
+    3. Compute (x₁, y₁) = kG               // A random curve point
+    4. Compute r = x₁ mod n                // First signature component
+       If r = 0, go back to step 2
+    5. Compute s = k⁻¹(z + rd) mod n       // Second signature component
+       If s = 0, go back to step 2
+    6. Return signature (r, s)</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="550" height="300" viewBox="0 0 550 300">
+                    <text x="275" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">ECDSA Signing Algorithm</text>
+
+                    <!-- Input: message -->
+                    <rect x="30" y="50" width="80" height="35" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="70" y="72" text-anchor="middle" font-family="Georgia" font-size="11">message m</text>
+
+                    <!-- Hash -->
+                    <path d="M 115 67 L 145 67" stroke="#666" stroke-width="1" marker-end="url(#arr72)"/>
+                    <ellipse cx="175" cy="67" rx="25" ry="17" fill="#fff" stroke="#666" stroke-width="1"/>
+                    <text x="175" y="72" text-anchor="middle" font-family="Georgia" font-size="10">H</text>
+
+                    <!-- z -->
+                    <path d="M 205 67 L 235 67" stroke="#666" stroke-width="1" marker-end="url(#arr72)"/>
+                    <rect x="240" y="52" width="40" height="30" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+                    <text x="260" y="72" text-anchor="middle" font-family="Georgia" font-size="11">z</text>
+
+                    <!-- Random k -->
+                    <rect x="30" y="110" width="60" height="35" fill="#fff8f0" stroke="#c44" stroke-width="1"/>
+                    <text x="60" y="125" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">k</text>
+                    <text x="60" y="140" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">nonce</text>
+
+                    <!-- kG computation -->
+                    <path d="M 95 127 L 140 127" stroke="#666" stroke-width="1" marker-end="url(#arr72)"/>
+                    <text x="117" y="120" text-anchor="middle" font-family="Georgia" font-size="10">×G</text>
+
+                    <!-- Point (x₁, y₁) -->
+                    <circle cx="175" cy="127" r="25" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="175" y="125" text-anchor="middle" font-family="Georgia" font-size="10">(x₁, y₁)</text>
+                    <text x="175" y="137" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">= kG</text>
+
+                    <!-- r = x₁ mod n -->
+                    <path d="M 205 127 L 245 127" stroke="#666" stroke-width="1" marker-end="url(#arr72)"/>
+                    <text x="225" y="118" text-anchor="middle" font-family="Georgia" font-size="9">mod n</text>
+                    <rect x="250" y="112" width="40" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="270" y="132" text-anchor="middle" font-family="Georgia" font-size="12" fill="#8b4513">r</text>
+
+                    <!-- Private key d -->
+                    <rect x="30" y="180" width="60" height="35" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                    <text x="60" y="202" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">d</text>
+                    <text x="60" y="230" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">private key</text>
+
+                    <!-- s computation box -->
+                    <rect x="320" y="100" width="200" height="80" fill="#fff" stroke="#2f4f4f" stroke-width="2" rx="5"/>
+                    <text x="420" y="125" text-anchor="middle" font-family="Georgia" font-size="11">Compute s:</text>
+                    <text x="420" y="150" text-anchor="middle" font-family="Georgia" font-size="13" font-style="italic">s = k⁻¹(z + rd) mod n</text>
+                    <text x="420" y="170" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">modular inverse of k</text>
+
+                    <!-- Arrows into s computation -->
+                    <path d="M 280 67 L 320 115" stroke="#666" stroke-width="1"/>
+                    <path d="M 290 127 L 320 135" stroke="#666" stroke-width="1"/>
+                    <path d="M 90 197 L 320 155" stroke="#666" stroke-width="1"/>
+
+                    <!-- Output s -->
+                    <path d="M 420 185 L 420 220" stroke="#666" stroke-width="1.5" marker-end="url(#arr72)"/>
+                    <rect x="400" y="225" width="40" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="420" y="245" text-anchor="middle" font-family="Georgia" font-size="12" fill="#8b4513">s</text>
+
+                    <!-- Final signature -->
+                    <rect x="340" y="265" width="100" height="25" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
+                    <text x="390" y="282" text-anchor="middle" font-family="Georgia" font-size="12" fill="#8b4513">σ = (r, s)</text>
+
+                    <defs>
+                        <marker id="arr72" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 7.3: The ECDSA signing algorithm produces a signature (r, s).</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Understanding the Formula.</p>
+                <p>
+                    The signature equation <span class="math">s = k⁻¹(z + rd) mod n</span> cleverly
+                    entangles:
+                </p>
+                <ul>
+                    <li><span class="math">z</span>: the message hash (binds signature to message)</li>
+                    <li><span class="math">r</span>: derived from the random point kG</li>
+                    <li><span class="math">d</span>: the private key (proves ownership)</li>
+                    <li><span class="math">k</span>: the random nonce (provides freshness)</li>
+                </ul>
+                <p>
+                    Without knowing both <span class="math">d</span> and <span class="math">k</span>,
+                    an attacker cannot produce a valid <span class="math">s</span>.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>7.5 The Verification Algorithm</h2>
+
+            <p>
+                Verification uses only public information to check whether a signature is valid.
+                The private key is never needed.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 7.3 (ECDSA Verification)</p>
+                <pre>
+Verify(Q, m, (r, s)):
+    1. Check that r and s are integers in [1, n-1]
+       If not, return false
+    2. Compute z = H(m)
+    3. Compute w = s⁻¹ mod n
+    4. Compute u₁ = zw mod n
+    5. Compute u₂ = rw mod n
+    6. Compute (x₁, y₁) = u₁G + u₂Q
+       If (x₁, y₁) = 𝒪, return false
+    7. Return true if r ≡ x₁ (mod n), false otherwise</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="220" viewBox="0 0 520 220">
+                    <text x="260" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">ECDSA Verification: The Key Equation</text>
+
+                    <!-- The verification equation -->
+                    <rect x="60" y="50" width="400" height="60" fill="#f8f5f0" stroke="#8b4513" stroke-width="2" rx="5"/>
+                    <text x="260" y="85" text-anchor="middle" font-family="Georgia" font-size="16" font-style="italic">u₁G + u₂Q = (x₁, y₁)</text>
+                    <text x="260" y="100" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">where u₁ = zs⁻¹, u₂ = rs⁻¹</text>
+
+                    <!-- Check -->
+                    <rect x="180" y="130" width="160" height="40" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2" rx="5"/>
+                    <text x="260" y="155" text-anchor="middle" font-family="Georgia" font-size="13" fill="#5a8f5a">Check: r ≟ x₁ mod n</text>
+
+                    <!-- Result -->
+                    <path d="M 260 175 L 260 195" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arr73g)"/>
+                    <text x="260" y="210" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">Valid if equal ✓</text>
+
+                    <defs>
+                        <marker id="arr73g" markerWidth="8" markerHeight="6" refX="4" refY="5" orient="auto">
+                            <polygon points="0 0, 4 6, 8 0" fill="#5a8f5a"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 7.4: Verification computes a point and checks if its x-coordinate matches r.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>7.6 Why Verification Works</h2>
+
+            <p>
+                The verification algorithm may seem like magic, but it follows logically from
+                the signing algorithm. Let us prove correctness.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 7.1 (ECDSA Correctness)</p>
+                <p>
+                    If <span class="math">(r, s)</span> is a valid signature on message
+                    <span class="math">m</span> created with private key <span class="math">d</span>,
+                    then verification with public key <span class="math">Q = dG</span> returns true.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    Recall from signing: <span class="math">s = k⁻¹(z + rd) mod n</span>.
+                </p>
+                <p>
+                    Rearranging: <span class="math">k = s⁻¹(z + rd) = s⁻¹z + s⁻¹rd mod n</span>.
+                </p>
+                <p>
+                    Let <span class="math">w = s⁻¹</span>, <span class="math">u₁ = zw</span>,
+                    <span class="math">u₂ = rw</span>. Then:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">k = u₁ + u₂d mod n</span>
+                </p>
+                <p>
+                    Multiplying both sides by <span class="math">G</span>:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">kG = u₁G + u₂(dG) = u₁G + u₂Q</span>
+                </p>
+                <p>
+                    Since <span class="math">r</span> was defined as the x-coordinate of
+                    <span class="math">kG</span> modulo <span class="math">n</span>, and
+                    verification computes the x-coordinate of <span class="math">u₁G + u₂Q</span>,
+                    they must match.
+                    <span class="qed"></span>
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>7.7 The Nonce: ECDSA's Achilles' Heel</h2>
+
+            <p>
+                The random nonce <span class="math">k</span> is the most critical security
+                parameter in ECDSA. Its misuse has led to catastrophic failures.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 7.2 (Nonce Reuse Attack)</p>
+                <p>
+                    If the same nonce <span class="math">k</span> is used to sign two different
+                    messages <span class="math">m₁</span> and <span class="math">m₂</span>,
+                    the private key can be recovered.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    Let the two signatures be <span class="math">(r, s₁)</span> and
+                    <span class="math">(r, s₂)</span> (same <span class="math">r</span> since same
+                    <span class="math">k</span>).
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">s₁ = k⁻¹(z₁ + rd) mod n</span>
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">s₂ = k⁻¹(z₂ + rd) mod n</span>
+                </p>
+                <p>Subtracting:</p>
+                <p style="text-align: center;">
+                    <span class="math">s₁ - s₂ = k⁻¹(z₁ - z₂) mod n</span>
+                </p>
+                <p>Solving for k:</p>
+                <p style="text-align: center;">
+                    <span class="math">k = (z₁ - z₂)(s₁ - s₂)⁻¹ mod n</span>
+                </p>
+                <p>
+                    Once <span class="math">k</span> is known, the private key follows:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">d = r⁻¹(sk - z) mod n</span>
+                    <span class="qed"></span>
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="450" height="150" viewBox="0 0 450 150">
+                    <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold" fill="#c44">Nonce Reuse: Catastrophic Failure</text>
+
+                    <!-- Two signatures with same k -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="150" height="40" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                        <text x="75" y="17" text-anchor="middle" font-family="Georgia" font-size="10">Sign(m₁) with k</text>
+                        <text x="75" y="32" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">→ (r, s₁)</text>
+
+                        <rect x="0" y="50" width="150" height="40" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                        <text x="75" y="67" text-anchor="middle" font-family="Georgia" font-size="10">Sign(m₂) with k</text>
+                        <text x="75" y="82" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">→ (r, s₂)</text>
+
+                        <text x="75" y="45" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">same k!</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 220 90 L 270 90" stroke="#c44" stroke-width="2" marker-end="url(#arr74r)"/>
+                    <text x="245" y="80" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">⚠</text>
+
+                    <!-- Result: key recovered -->
+                    <g transform="translate(280, 50)">
+                        <rect x="0" y="15" width="140" height="50" fill="#fee" stroke="#c44" stroke-width="2" rx="5"/>
+                        <text x="70" y="38" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">Private key d</text>
+                        <text x="70" y="55" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">RECOVERED!</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arr74r" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 7.5: Reusing a nonce allows complete private key recovery.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 7.1 (The PlayStation 3 Hack)</p>
+                <p>
+                    In 2010, hackers discovered that Sony used the same nonce for all ECDSA
+                    signatures on PS3 software. This allowed them to recover Sony's private
+                    signing key and sign unauthorized software, completely breaking the
+                    console's security model.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 7.2 (Android Bitcoin Wallet, 2013)</p>
+                <p>
+                    A bug in Android's random number generator caused some Bitcoin wallets to
+                    generate predictable nonces. Attackers monitored the blockchain for
+                    transactions with repeated <span class="math">r</span> values, recovered
+                    the private keys, and stole the associated bitcoins.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Deterministic Nonces (RFC 6979).</p>
+                <p>
+                    To prevent nonce-related failures, modern implementations use <strong>RFC 6979</strong>,
+                    which derives <span class="math">k</span> deterministically from the private key
+                    and message:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">k = HMAC(d, H(m))</span>
+                </p>
+                <p>
+                    This ensures the same message always produces the same signature (eliminating
+                    randomness errors) while different messages produce different nonces.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>7.8 Signature Malleability</h2>
+
+            <p>
+                ECDSA signatures have an inherent property called <em>malleability</em>: given
+                a valid signature, anyone can produce a different valid signature for the same
+                message without knowing the private key.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 7.3 (Signature Malleability)</p>
+                <p>
+                    If <span class="math">(r, s)</span> is a valid ECDSA signature, then so is
+                    <span class="math">(r, n - s)</span>.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    Verification computes <span class="math">u₁G + u₂Q</span> where
+                    <span class="math">u₁ = zs⁻¹</span> and <span class="math">u₂ = rs⁻¹</span>.
+                </p>
+                <p>
+                    For <span class="math">s' = n - s</span>, we have
+                    <span class="math">(s')⁻¹ = (n - s)⁻¹ = -s⁻¹ mod n</span>.
+                </p>
+                <p>
+                    Thus <span class="math">u₁' = -u₁</span> and <span class="math">u₂' = -u₂</span>,
+                    giving <span class="math">u₁'G + u₂'Q = -(u₁G + u₂Q)</span>.
+                </p>
+                <p>
+                    Since negating a point only changes the y-coordinate, the x-coordinate
+                    (and hence <span class="math">r</span>) is unchanged.
+                    <span class="qed"></span>
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Bitcoin's Low-S Rule.</p>
+                <p>
+                    To mitigate malleability, Bitcoin enforces that <span class="math">s ≤ n/2</span>.
+                    If a signature has <span class="math">s > n/2</span>, nodes reject it. This
+                    makes each valid signature unique.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>7.9 ECDSA in Bitcoin Transactions</h2>
+
+            <p>
+                In Bitcoin, ECDSA signatures authorize the spending of funds. A transaction
+                input includes a signature proving the spender controls the private key
+                corresponding to the output's public key.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 7.3 (DER Encoding)</p>
+                <p>
+                    Bitcoin encodes ECDSA signatures using DER (Distinguished Encoding Rules):
+                </p>
+                <pre style="font-size: 0.85rem;">
+30 [total-length]
+   02 [r-length] [r-bytes]
+   02 [s-length] [s-bytes]
+[sighash-flag]</pre>
+                <p>
+                    The sighash flag indicates which parts of the transaction are signed.
+                </p>
+            </div>
+
+            <p>
+                DER encoding results in variable-length signatures, typically 71-73 bytes.
+                This inefficiency is one reason Bitcoin later adopted Schnorr signatures
+                (Chapter 8), which have a fixed 64-byte encoding.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h3>Exercises</h3>
+
+            <div class="exercise">
+                <span class="exercise-number">7.1.</span>
+                Trace through the ECDSA signing algorithm with small numbers:
+                <span class="math">n = 17</span>, <span class="math">z = 5</span>,
+                <span class="math">d = 7</span>, <span class="math">k = 3</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">7.2.</span>
+                Verify your signature from Exercise 7.1 using the verification algorithm.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">7.3.</span>
+                Show that if an attacker knows <span class="math">k</span> for any single
+                signature, they can recover the private key <span class="math">d</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">7.4.</span>
+                Why is it important that <span class="math">r ≠ 0</span> and <span class="math">s ≠ 0</span>
+                in a valid signature?
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">7.5.</span>
+                <em>(Computational)</em> Implement ECDSA signing and verification using a
+                big-integer library and the secp256k1 parameters.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">7.6.</span>
+                Explain why RFC 6979 deterministic nonces don't violate the requirement
+                that each signature use a "random" nonce.
+            </div>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="06-hash-functions.html">← Chapter 6: Hash Functions</a>
+            <a href="08-schnorr.html">Chapter 8: Schnorr Signatures →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>

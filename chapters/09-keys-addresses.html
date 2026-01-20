@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 9: Keys and Addresses | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 9</p>
+        <h1>Keys and Addresses</h1>
+        <p class="chapter-subtitle">From Random Numbers to Bitcoin Identities</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                In Volume I, we developed the mathematical machinery of elliptic curves and digital
+                signatures. Now we apply this knowledge to construct the fundamental objects of
+                the Bitcoin protocol: private keys, public keys, and addresses. These form the
+                cryptographic identity system that allows users to receive and spend bitcoin
+                without relying on any central authority.
+            </p>
+
+            <p>
+                The journey from a random number to a Bitcoin address involves several layers of
+                transformation, each serving a specific purpose. Understanding these transformations
+                is essential for anyone who wishes to implement Bitcoin software or verify
+                its correctness.
+            </p>
+        </section>
+
+        <section>
+            <h2>9.1 Private Keys</h2>
+
+            <p>
+                A Bitcoin private key is, at its core, simply a number. But not just any number—it
+                must be chosen with extreme care.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.1 (Private Key)</p>
+                <p>
+                    A <strong>private key</strong> is an integer <span class="math">k</span> satisfying
+                    <span class="math">1 ≤ k < n</span>, where <span class="math">n</span> is the order
+                    of the secp256k1 curve:
+                </p>
+                <p class="math-block">
+                    n = FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C D0364141₁₆
+                </p>
+                <p>
+                    In decimal, <span class="math">n ≈ 1.158 × 10⁷⁷</span>.
+                </p>
+            </div>
+
+            <p>
+                The requirement that <span class="math">k < n</span> ensures that scalar multiplication
+                <span class="math">k · G</span> produces a valid curve point. The requirement that
+                <span class="math">k ≥ 1</span> excludes the trivial case where the public key would
+                be the point at infinity.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 9.1 (On Randomness)</p>
+                <p>
+                    The security of Bitcoin depends entirely on private keys being chosen uniformly
+                    at random from the valid range. A private key generated with insufficient
+                    randomness can be discovered by an attacker, resulting in theft of all
+                    associated funds.
+                </p>
+                <p>
+                    Cryptographically secure random number generators (CSPRNGs) must be used.
+                    Common sources include <code>/dev/urandom</code> on Unix systems,
+                    <code>CryptGenRandom</code> on Windows, or hardware random number generators.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 9.1 (A Valid Private Key)</p>
+                <p>
+                    The following 256-bit hexadecimal value is a valid private key:
+                </p>
+                <pre class="code-block">e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35</pre>
+                <p>
+                    This is simply a 32-byte sequence. In binary, it contains exactly 256 bits.
+                    The probability that a randomly chosen 256-bit number falls within the valid
+                    range is approximately 1 − 2⁻¹²⁸, which is negligibly different from 1.
+                </p>
+            </div>
+
+            <h3>9.1.1 The Keyspace</h3>
+
+            <p>
+                The set of valid private keys contains approximately 2²⁵⁶ elements. To appreciate
+                how large this is, consider:
+            </p>
+
+            <ul>
+                <li>The number of atoms in the observable universe: ≈ 10⁸⁰ ≈ 2²⁶⁶</li>
+                <li>The number of valid Bitcoin private keys: ≈ 2²⁵⁶ ≈ 10⁷⁷</li>
+                <li>The age of the universe in nanoseconds: ≈ 10²⁶ ≈ 2⁸⁶</li>
+            </ul>
+
+            <p>
+                Even if every atom in the universe were a computer generating a billion keys
+                per second since the Big Bang, the probability of generating any specific
+                private key would still be negligible.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 9.1 (Birthday Bound for Collisions)</p>
+                <p>
+                    If <span class="math">m</span> private keys are generated uniformly at random
+                    from a space of size <span class="math">N ≈ 2²⁵⁶</span>, the probability of
+                    any collision (two identical keys) is approximately:
+                </p>
+                <p class="math-block">
+                    P(collision) ≈ m² / (2N) = m² / 2²⁵⁷
+                </p>
+                <p>
+                    For this probability to reach 50%, we would need <span class="math">m ≈ 2¹²⁸</span>
+                    key generations—a number beyond any conceivable computation.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>9.2 Public Keys</h2>
+
+            <p>
+                Given a private key <span class="math">k</span>, the corresponding public key is
+                computed via elliptic curve scalar multiplication.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.2 (Public Key)</p>
+                <p>
+                    The <strong>public key</strong> corresponding to private key <span class="math">k</span>
+                    is the elliptic curve point:
+                </p>
+                <p class="math-block">
+                    K = k · G
+                </p>
+                <p>
+                    where <span class="math">G</span> is the generator point of secp256k1.
+                </p>
+            </div>
+
+            <p>
+                This computation is the "easy direction" of the trapdoor function we studied
+                in Chapter 1. Given <span class="math">k</span>, computing <span class="math">K</span>
+                requires only <span class="math">O(log k)</span> group operations via the
+                double-and-add algorithm. The reverse—finding <span class="math">k</span> given
+                <span class="math">K</span>—is the elliptic curve discrete logarithm problem (ECDLP),
+                believed to be computationally infeasible.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="450" height="140" viewBox="0 0 450 140">
+                    <!-- Private key box -->
+                    <rect x="20" y="45" width="100" height="50" rx="8" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="70" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-style="italic">k</text>
+                    <text x="70" y="87" text-anchor="middle" font-family="Georgia" font-size="11">(private key)</text>
+
+                    <!-- Arrow with operation -->
+                    <path d="M 125 70 L 215 70" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrowGreen9)"/>
+                    <text x="170" y="60" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">× G</text>
+                    <text x="170" y="95" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">scalar multiplication</text>
+
+                    <!-- Public key box -->
+                    <rect x="220" y="45" width="100" height="50" rx="8" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="270" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-style="italic">K = (x, y)</text>
+                    <text x="270" y="87" text-anchor="middle" font-family="Georgia" font-size="11">(public key)</text>
+
+                    <!-- Security note -->
+                    <text x="380" y="65" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">Cannot reverse:</text>
+                    <text x="380" y="80" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">ECDLP is hard</text>
+
+                    <defs>
+                        <marker id="arrowGreen9" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#5a8f5a"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 9.1: Public key derivation from private key via scalar multiplication.</figcaption>
+            </figure>
+
+            <h3>9.2.1 Public Key Serialization</h3>
+
+            <p>
+                A public key is a point <span class="math">K = (x, y)</span> on the secp256k1 curve.
+                Both coordinates are 256-bit integers, so the full representation requires 64 bytes
+                (512 bits). However, Bitcoin supports two serialization formats.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.3 (Uncompressed Public Key)</p>
+                <p>
+                    The <strong>uncompressed</strong> serialization of a public key <span class="math">(x, y)</span>
+                    is the 65-byte sequence:
+                </p>
+                <p class="math-block">
+                    04 || x || y
+                </p>
+                <p>
+                    where <code>04</code> is a single prefix byte, and <span class="math">x</span> and
+                    <span class="math">y</span> are each encoded as 32-byte big-endian integers.
+                </p>
+            </div>
+
+            <p>
+                The uncompressed format is wasteful. Since any valid <span class="math">x</span>-coordinate
+                determines at most two possible <span class="math">y</span>-coordinates (the curve equation
+                is quadratic in <span class="math">y</span>), we can compress the representation.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.4 (Compressed Public Key)</p>
+                <p>
+                    The <strong>compressed</strong> serialization of a public key <span class="math">(x, y)</span>
+                    is the 33-byte sequence:
+                </p>
+                <p class="math-block">
+                    prefix || x
+                </p>
+                <p>
+                    where the prefix byte is <code>02</code> if <span class="math">y</span> is even, or
+                    <code>03</code> if <span class="math">y</span> is odd.
+                </p>
+            </div>
+
+            <p>
+                To recover the full point from a compressed key, one computes
+                <span class="math">y² = x³ + 7 (mod p)</span>, takes the square root, and selects
+                the root with the correct parity.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 9.2 (Public Key Formats)</p>
+                <p>
+                    For the private key from Example 9.1, the public key is:
+                </p>
+                <p><strong>Uncompressed (65 bytes):</strong></p>
+                <pre class="code-block">04
+339dcdb23a4e82c904f6da32b42dbda63e3646e6e6e6b0a9b13e7a3d7e8b2c1a
+7f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5</pre>
+                <p><strong>Compressed (33 bytes):</strong></p>
+                <pre class="code-block">02339dcdb23a4e82c904f6da32b42dbda63e3646e6e6e6b0a9b13e7a3d7e8b2c1a</pre>
+                <p>
+                    The prefix <code>02</code> indicates that the <span class="math">y</span>-coordinate is even.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 9.2 (Compressed Keys are Standard)</p>
+                <p>
+                    Modern Bitcoin software uses compressed public keys exclusively. Uncompressed
+                    keys waste block space and are discouraged. Taproot (BIP-340) goes further,
+                    using only the <span class="math">x</span>-coordinate with an implicit even
+                    <span class="math">y</span>.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>9.3 Hash Functions in Address Generation</h2>
+
+            <p>
+                Bitcoin addresses are not public keys directly, but rather hashes of public keys.
+                This indirection provides several benefits: shorter addresses, quantum resistance
+                (partial), and scripting flexibility.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.5 (HASH160)</p>
+                <p>
+                    The <strong>HASH160</strong> function is the composition:
+                </p>
+                <p class="math-block">
+                    HASH160(x) = RIPEMD160(SHA256(x))
+                </p>
+                <p>
+                    This produces a 160-bit (20-byte) digest from an arbitrary input.
+                </p>
+            </div>
+
+            <p>
+                The use of two different hash functions (SHA-256 followed by RIPEMD-160) provides
+                defense in depth: if either function is found to have weaknesses, the composition
+                may still be secure.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="500" height="100" viewBox="0 0 500 100">
+                    <!-- Public key -->
+                    <rect x="10" y="30" width="80" height="40" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="50" y="55" text-anchor="middle" font-family="Georgia" font-size="12">Public Key</text>
+
+                    <!-- Arrow to SHA256 -->
+                    <path d="M 95 50 L 125 50" stroke="#666" stroke-width="2" marker-end="url(#arrowGray9)"/>
+
+                    <!-- SHA256 -->
+                    <rect x="130" y="30" width="80" height="40" rx="6" fill="#fff8f0" stroke="#d4a574" stroke-width="2"/>
+                    <text x="170" y="55" text-anchor="middle" font-family="Georgia" font-size="12">SHA-256</text>
+
+                    <!-- Arrow to RIPEMD -->
+                    <path d="M 215 50 L 245 50" stroke="#666" stroke-width="2" marker-end="url(#arrowGray9)"/>
+
+                    <!-- RIPEMD-160 -->
+                    <rect x="250" y="30" width="90" height="40" rx="6" fill="#f8f0f8" stroke="#a574d4" stroke-width="2"/>
+                    <text x="295" y="55" text-anchor="middle" font-family="Georgia" font-size="12">RIPEMD-160</text>
+
+                    <!-- Arrow to result -->
+                    <path d="M 345 50 L 375 50" stroke="#666" stroke-width="2" marker-end="url(#arrowGray9)"/>
+
+                    <!-- Result -->
+                    <rect x="380" y="30" width="100" height="40" rx="6" fill="#f0f8f0" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="430" y="50" text-anchor="middle" font-family="Georgia" font-size="11">20-byte hash</text>
+                    <text x="430" y="65" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">(pubkey hash)</text>
+
+                    <defs>
+                        <marker id="arrowGray9" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 9.2: The HASH160 function produces a 20-byte public key hash.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>9.4 Base58Check Encoding</h2>
+
+            <p>
+                Raw binary data is inconvenient for humans to read, copy, or transcribe.
+                Bitcoin's legacy addresses use Base58Check encoding—a variant of base conversion
+                designed for clarity and error detection.
+            </p>
+
+            <h3>9.4.1 The Base58 Alphabet</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.6 (Base58 Alphabet)</p>
+                <p>
+                    The <strong>Base58</strong> alphabet consists of 58 characters:
+                </p>
+                <pre class="code-block">123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz</pre>
+                <p>
+                    Notably absent are: <code>0</code> (zero), <code>O</code> (capital O),
+                    <code>I</code> (capital I), and <code>l</code> (lowercase L)—characters
+                    easily confused in certain fonts.
+                </p>
+            </div>
+
+            <p>
+                Base58 encoding treats the input bytes as a big-endian integer and converts
+                it to base 58, mapping each digit to the corresponding alphabet character.
+            </p>
+
+            <h3>9.4.2 Adding the Checksum</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.7 (Base58Check)</p>
+                <p>
+                    <strong>Base58Check</strong> encoding of data <span class="math">d</span> with
+                    version byte <span class="math">v</span> is:
+                </p>
+                <p class="math-block">
+                    Base58(v || d || checksum)
+                </p>
+                <p>
+                    where <span class="math">checksum</span> is the first 4 bytes of
+                    <span class="math">SHA256(SHA256(v || d))</span>.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
+                    <!-- Input components -->
+                    <rect x="20" y="20" width="70" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="55" y="42" text-anchor="middle" font-family="Georgia" font-size="11">Version</text>
+
+                    <rect x="100" y="20" width="120" height="35" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="160" y="42" text-anchor="middle" font-family="Georgia" font-size="11">Payload (data)</text>
+
+                    <!-- Concatenation arrow -->
+                    <path d="M 115 60 L 115 80" stroke="#666" stroke-width="1.5"/>
+                    <path d="M 55 55 L 55 70 L 115 70" stroke="#666" stroke-width="1.5"/>
+
+                    <!-- Double SHA256 box -->
+                    <rect x="70" y="85" width="90" height="30" rx="4" fill="#fff8f0" stroke="#d4a574" stroke-width="1.5"/>
+                    <text x="115" y="105" text-anchor="middle" font-family="Georgia" font-size="10">SHA256(SHA256(·))</text>
+
+                    <!-- Arrow to checksum -->
+                    <path d="M 165 100 L 200 100" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray9b)"/>
+
+                    <!-- Checksum -->
+                    <rect x="205" y="85" width="80" height="30" rx="4" fill="#f8f0f0" stroke="#c44" stroke-width="1.5"/>
+                    <text x="245" y="100" text-anchor="middle" font-family="Georgia" font-size="10">First 4 bytes</text>
+                    <text x="245" y="112" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(checksum)</text>
+
+                    <!-- Final assembly -->
+                    <rect x="20" y="135" width="70" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="55" y="155" text-anchor="middle" font-family="Georgia" font-size="10">Version</text>
+
+                    <rect x="95" y="135" width="120" height="30" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="155" y="155" text-anchor="middle" font-family="Georgia" font-size="10">Payload</text>
+
+                    <rect x="220" y="135" width="70" height="30" rx="4" fill="#f8f0f0" stroke="#c44" stroke-width="1.5"/>
+                    <text x="255" y="155" text-anchor="middle" font-family="Georgia" font-size="10">Checksum</text>
+
+                    <!-- Arrow to Base58 -->
+                    <path d="M 295 150 L 330 150" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray9b)"/>
+
+                    <!-- Base58 -->
+                    <rect x="335" y="135" width="70" height="30" rx="4" fill="#f5f0f8" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="370" y="155" text-anchor="middle" font-family="Georgia" font-size="10">Base58</text>
+
+                    <!-- Result -->
+                    <path d="M 410 150 L 430 150" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray9b)"/>
+                    <text x="455" y="155" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">Address</text>
+
+                    <defs>
+                        <marker id="arrowGray9b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 9.3: Base58Check encoding with version prefix and checksum.</figcaption>
+            </figure>
+
+            <p>
+                The 4-byte checksum catches transcription errors with high probability. A single
+                changed character will almost certainly produce an invalid checksum, alerting
+                the user before funds are sent to an unreachable address.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 9.2 (Checksum Error Detection)</p>
+                <p>
+                    For a random single-character error in a Base58Check-encoded string, the
+                    probability of the error going undetected is approximately
+                    <span class="math">2⁻³²</span>, or about 1 in 4 billion.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>9.5 Legacy Addresses (P2PKH)</h2>
+
+            <p>
+                The original Bitcoin address format encodes a public key hash with a version
+                prefix indicating the network.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.8 (P2PKH Address)</p>
+                <p>
+                    A <strong>Pay-to-Public-Key-Hash (P2PKH)</strong> address is the Base58Check
+                    encoding of:
+                </p>
+                <p class="math-block">
+                    version || HASH160(public_key)
+                </p>
+                <p>
+                    where <span class="math">version = 0x00</span> for mainnet and
+                    <span class="math">version = 0x6F</span> for testnet.
+                </p>
+            </div>
+
+            <p>
+                The version byte determines the leading character of the address:
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Network</th>
+                        <th>Version Byte</th>
+                        <th>Address Prefix</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mainnet</td>
+                        <td><code>0x00</code></td>
+                        <td><code>1</code></td>
+                        <td><code>1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2</code></td>
+                    </tr>
+                    <tr>
+                        <td>Testnet</td>
+                        <td><code>0x6F</code></td>
+                        <td><code>m</code> or <code>n</code></td>
+                        <td><code>mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="example">
+                <p class="example-title">Example 9.3 (P2PKH Address Generation)</p>
+                <p>Starting with a compressed public key:</p>
+                <pre class="code-block">0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798</pre>
+
+                <p><strong>Step 1:</strong> Compute SHA-256:</p>
+                <pre class="code-block">0b7c28c9b7290c98d7438e70b3d3f7c848fbd7d1dc194ff83f4f7cc9b1378e98</pre>
+
+                <p><strong>Step 2:</strong> Compute RIPEMD-160 of the above:</p>
+                <pre class="code-block">751e76e8199196d454941c45d1b3a323f1433bd6</pre>
+
+                <p><strong>Step 3:</strong> Prepend version byte (0x00):</p>
+                <pre class="code-block">00751e76e8199196d454941c45d1b3a323f1433bd6</pre>
+
+                <p><strong>Step 4:</strong> Compute double SHA-256 for checksum:</p>
+                <pre class="code-block">c7f18fe8fcbed6396741e58ad259b5cb16b7fd7f041904147ba1dcffabf747fd</pre>
+
+                <p><strong>Step 5:</strong> Take first 4 bytes as checksum:</p>
+                <pre class="code-block">c7f18fe8</pre>
+
+                <p><strong>Step 6:</strong> Append checksum and Base58 encode:</p>
+                <pre class="code-block">1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>9.6 Script Hash Addresses (P2SH)</h2>
+
+            <p>
+                P2SH addresses, introduced in BIP-16, allow payments to arbitrary scripts
+                rather than simple public key hashes. The script itself is revealed only
+                when spending.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.9 (P2SH Address)</p>
+                <p>
+                    A <strong>Pay-to-Script-Hash (P2SH)</strong> address is the Base58Check
+                    encoding of:
+                </p>
+                <p class="math-block">
+                    version || HASH160(redeem_script)
+                </p>
+                <p>
+                    where <span class="math">version = 0x05</span> for mainnet (yielding addresses
+                    starting with <code>3</code>).
+                </p>
+            </div>
+
+            <p>
+                P2SH enables complex spending conditions—multisignature wallets, time-locked
+                contracts, and more—while presenting a uniform address format to senders.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Network</th>
+                        <th>Version Byte</th>
+                        <th>Address Prefix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mainnet</td>
+                        <td><code>0x05</code></td>
+                        <td><code>3</code></td>
+                    </tr>
+                    <tr>
+                        <td>Testnet</td>
+                        <td><code>0xC4</code></td>
+                        <td><code>2</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>9.7 Bech32 and Native SegWit (P2WPKH)</h2>
+
+            <p>
+                Segregated Witness (SegWit), activated in 2017, introduced a new address format
+                called Bech32, specified in BIP-173. These addresses offer improved error
+                detection and are more efficient on-chain.
+            </p>
+
+            <h3>9.7.1 The Bech32 Alphabet</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.10 (Bech32 Alphabet)</p>
+                <p>
+                    The <strong>Bech32</strong> alphabet consists of 32 lowercase alphanumeric characters:
+                </p>
+                <pre class="code-block">qpzry9x8gf2tvdw0s3jn54khce6mua7l</pre>
+                <p>
+                    Excluded are: <code>1</code>, <code>b</code>, <code>i</code>, <code>o</code>—characters
+                    easily confused with others.
+                </p>
+            </div>
+
+            <h3>9.7.2 Address Structure</h3>
+
+            <p>
+                A Bech32 address has three parts:
+            </p>
+
+            <ol>
+                <li><strong>Human-readable part (HRP):</strong> <code>bc</code> for mainnet, <code>tb</code> for testnet</li>
+                <li><strong>Separator:</strong> always <code>1</code></li>
+                <li><strong>Data part:</strong> witness version + witness program + checksum</li>
+            </ol>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.11 (P2WPKH Address)</p>
+                <p>
+                    A <strong>Pay-to-Witness-Public-Key-Hash (P2WPKH)</strong> address encodes:
+                </p>
+                <ul>
+                    <li>Witness version: <code>0</code></li>
+                    <li>Witness program: <span class="math">HASH160(compressed_pubkey)</span> (20 bytes)</li>
+                </ul>
+                <p>
+                    The result begins with <code>bc1q</code> on mainnet (the <code>q</code> represents
+                    witness version 0).
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 9.4 (P2WPKH Address)</p>
+                <p>
+                    For the same public key as Example 9.3:
+                </p>
+                <pre class="code-block">bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4</pre>
+                <p>
+                    This encodes the same 20-byte hash but uses the more efficient SegWit format.
+                </p>
+            </div>
+
+            <h3>9.7.3 Error Detection</h3>
+
+            <p>
+                Bech32 uses a BCH code for error detection, offering stronger guarantees than
+                Base58Check.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 9.3 (Bech32 Error Detection)</p>
+                <p>
+                    Bech32 encoding guarantees detection of:
+                </p>
+                <ul>
+                    <li>Any single character error</li>
+                    <li>Any single transposition of adjacent characters</li>
+                    <li>Any error affecting up to 4 characters</li>
+                </ul>
+                <p>
+                    For longer error bursts, undetected errors occur with probability at most
+                    1 in 10⁹.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>9.8 Taproot Addresses (P2TR)</h2>
+
+            <p>
+                Taproot, activated in November 2021, introduced a new output type using
+                Schnorr signatures and Bech32m encoding (BIP-350).
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.12 (P2TR Address)</p>
+                <p>
+                    A <strong>Pay-to-Taproot (P2TR)</strong> address encodes:
+                </p>
+                <ul>
+                    <li>Witness version: <code>1</code></li>
+                    <li>Witness program: 32-byte <span class="math">x</span>-only public key</li>
+                </ul>
+                <p>
+                    The result begins with <code>bc1p</code> on mainnet (the <code>p</code> represents
+                    witness version 1).
+                </p>
+            </div>
+
+            <p>
+                Note that Taproot uses the <span class="math">x</span>-coordinate directly (with
+                implicit even <span class="math">y</span>), not a hash. This enables key-path
+                spending without revealing a script.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 9.5 (P2TR Address)</p>
+                <pre class="code-block">bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr</pre>
+                <p>
+                    This 62-character address encodes a 32-byte tweaked public key using
+                    Bech32m encoding.
+                </p>
+            </div>
+
+            <h3>9.8.1 Bech32 vs Bech32m</h3>
+
+            <p>
+                BIP-350 introduced Bech32m, a slight modification of Bech32 that fixes an
+                issue where certain errors in witness version 1+ addresses could go undetected.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Witness Version</th>
+                        <th>Encoding</th>
+                        <th>Address Prefix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0</td>
+                        <td>Bech32</td>
+                        <td><code>bc1q...</code></td>
+                    </tr>
+                    <tr>
+                        <td>1 (Taproot)</td>
+                        <td>Bech32m</td>
+                        <td><code>bc1p...</code></td>
+                    </tr>
+                    <tr>
+                        <td>2–16 (future)</td>
+                        <td>Bech32m</td>
+                        <td><code>bc1z...</code>, etc.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>9.9 Wallet Import Format (WIF)</h2>
+
+            <p>
+                Private keys also need a human-readable encoding for backup and import.
+                The Wallet Import Format (WIF) uses Base58Check.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 9.13 (WIF Encoding)</p>
+                <p>
+                    The <strong>Wallet Import Format</strong> of a private key <span class="math">k</span> is:
+                </p>
+                <p class="math-block">
+                    Base58Check(version || k || [suffix])
+                </p>
+                <p>
+                    where:
+                </p>
+                <ul>
+                    <li><span class="math">version = 0x80</span> for mainnet</li>
+                    <li><span class="math">suffix = 0x01</span> if the corresponding public key is compressed</li>
+                </ul>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Version</th>
+                        <th>Suffix</th>
+                        <th>Prefix</th>
+                        <th>Length</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mainnet, uncompressed</td>
+                        <td><code>0x80</code></td>
+                        <td>none</td>
+                        <td><code>5</code></td>
+                        <td>51 chars</td>
+                    </tr>
+                    <tr>
+                        <td>Mainnet, compressed</td>
+                        <td><code>0x80</code></td>
+                        <td><code>0x01</code></td>
+                        <td><code>K</code> or <code>L</code></td>
+                        <td>52 chars</td>
+                    </tr>
+                    <tr>
+                        <td>Testnet, compressed</td>
+                        <td><code>0xEF</code></td>
+                        <td><code>0x01</code></td>
+                        <td><code>c</code></td>
+                        <td>52 chars</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="example">
+                <p class="example-title">Example 9.6 (WIF Private Key)</p>
+                <p>
+                    The private key from Example 9.1 in WIF format (compressed):
+                </p>
+                <pre class="code-block">L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1</pre>
+                <p>
+                    The <code>L</code> prefix indicates a mainnet compressed key.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>9.10 Summary of Address Types</h2>
+
+            <figure>
+                <svg class="diagram" width="520" height="280" viewBox="0 0 520 280">
+                    <!-- Timeline/evolution arrow -->
+                    <path d="M 50 250 L 470 250" stroke="#ccc" stroke-width="2" marker-end="url(#arrowTime)"/>
+                    <text x="260" y="272" text-anchor="middle" font-family="Georgia" font-size="11" fill="#888">Evolution of Bitcoin Address Formats</text>
+
+                    <!-- P2PKH -->
+                    <rect x="30" y="30" width="100" height="80" rx="6" fill="#f5f5f5" stroke="#666" stroke-width="1.5"/>
+                    <text x="80" y="55" text-anchor="middle" font-family="Georgia" font-size="13" font-weight="bold">P2PKH</text>
+                    <text x="80" y="75" text-anchor="middle" font-family="monospace" font-size="11" fill="#666">1...</text>
+                    <text x="80" y="95" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">2009</text>
+                    <line x1="80" y1="110" x2="80" y2="250" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+
+                    <!-- P2SH -->
+                    <rect x="150" y="30" width="100" height="80" rx="6" fill="#f5f5f5" stroke="#666" stroke-width="1.5"/>
+                    <text x="200" y="55" text-anchor="middle" font-family="Georgia" font-size="13" font-weight="bold">P2SH</text>
+                    <text x="200" y="75" text-anchor="middle" font-family="monospace" font-size="11" fill="#666">3...</text>
+                    <text x="200" y="95" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">2012</text>
+                    <line x1="200" y1="110" x2="200" y2="250" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+
+                    <!-- P2WPKH -->
+                    <rect x="270" y="30" width="100" height="80" rx="6" fill="#e8f4f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="320" y="55" text-anchor="middle" font-family="Georgia" font-size="13" font-weight="bold">P2WPKH</text>
+                    <text x="320" y="75" text-anchor="middle" font-family="monospace" font-size="11" fill="#666">bc1q...</text>
+                    <text x="320" y="95" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">2017</text>
+                    <line x1="320" y1="110" x2="320" y2="250" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+
+                    <!-- P2TR -->
+                    <rect x="390" y="30" width="100" height="80" rx="6" fill="#f0f8e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="440" y="55" text-anchor="middle" font-family="Georgia" font-size="13" font-weight="bold">P2TR</text>
+                    <text x="440" y="75" text-anchor="middle" font-family="monospace" font-size="11" fill="#666">bc1p...</text>
+                    <text x="440" y="95" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">2021</text>
+                    <line x1="440" y1="110" x2="440" y2="250" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+
+                    <!-- Feature labels -->
+                    <text x="80" y="140" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Base58Check</text>
+                    <text x="80" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">20-byte hash</text>
+
+                    <text x="200" y="140" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Base58Check</text>
+                    <text x="200" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Script flexibility</text>
+
+                    <text x="320" y="140" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">Bech32</text>
+                    <text x="320" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">SegWit v0</text>
+
+                    <text x="440" y="140" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Bech32m</text>
+                    <text x="440" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Schnorr + Tapscript</text>
+
+                    <defs>
+                        <marker id="arrowTime" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ccc"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 9.4: Evolution of Bitcoin address formats from 2009 to 2021.</figcaption>
+            </figure>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Prefix</th>
+                        <th>Encoding</th>
+                        <th>Data</th>
+                        <th>Length</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>P2PKH</td>
+                        <td><code>1</code></td>
+                        <td>Base58Check</td>
+                        <td>20-byte pubkey hash</td>
+                        <td>25–34 chars</td>
+                    </tr>
+                    <tr>
+                        <td>P2SH</td>
+                        <td><code>3</code></td>
+                        <td>Base58Check</td>
+                        <td>20-byte script hash</td>
+                        <td>25–34 chars</td>
+                    </tr>
+                    <tr>
+                        <td>P2WPKH</td>
+                        <td><code>bc1q</code></td>
+                        <td>Bech32</td>
+                        <td>20-byte pubkey hash</td>
+                        <td>42 chars</td>
+                    </tr>
+                    <tr>
+                        <td>P2WSH</td>
+                        <td><code>bc1q</code></td>
+                        <td>Bech32</td>
+                        <td>32-byte script hash</td>
+                        <td>62 chars</td>
+                    </tr>
+                    <tr>
+                        <td>P2TR</td>
+                        <td><code>bc1p</code></td>
+                        <td>Bech32m</td>
+                        <td>32-byte x-only pubkey</td>
+                        <td>62 chars</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 9.1</p>
+                <p>
+                    Verify that the private key <code>0x01</code> (the integer 1) is valid.
+                    Compute the corresponding compressed public key and P2PKH address.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 9.2</p>
+                <p>
+                    The Base58 alphabet has 58 characters. Explain why a 20-byte hash
+                    (160 bits) encodes to approximately 27–28 Base58 characters.
+                    (Hint: compute <span class="math">160 / log₂(58)</span>.)
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 9.3</p>
+                <p>
+                    Given the P2PKH address <code>1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2</code>,
+                    decode it to recover the 20-byte public key hash. Verify the checksum.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 9.4</p>
+                <p>
+                    Why does Taproot use the <span class="math">x</span>-coordinate directly
+                    rather than a hash? What are the privacy and efficiency implications?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 9.5</p>
+                <p>
+                    A user claims their address is <code>bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5</code>
+                    (note the final <code>5</code> instead of <code>4</code>). Explain how the
+                    Bech32 checksum detects this error.
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="08-schnorr.html" class="prev-chapter">← Chapter 8: Schnorr Signatures</a>
+            <a href="10-transactions.html" class="next-chapter">Chapter 10: Transactions →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

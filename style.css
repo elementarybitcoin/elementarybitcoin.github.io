@@ -1,0 +1,396 @@
+/* Elementary Bitcoin - Classic Mathematics Textbook Style */
+
+:root {
+    --text-color: #1a1a1a;
+    --bg-color: #fefefe;
+    --accent-color: #8b4513;
+    --secondary-color: #2f4f4f;
+    --light-border: #ddd;
+    --theorem-bg: #f8f5f0;
+    --definition-bg: #f0f5f8;
+    --example-bg: #f5f8f0;
+    --exercise-bg: #fff8f0;
+    --proof-border: #666;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text-color);
+    background: var(--bg-color);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Headers */
+h1, h2, h3, h4 {
+    font-weight: normal;
+    color: var(--secondary-color);
+    margin-top: 2rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    font-size: 1.8rem;
+    border-bottom: 1px solid var(--light-border);
+    padding-bottom: 0.5rem;
+}
+
+h3 {
+    font-size: 1.4rem;
+    font-style: italic;
+}
+
+/* Book header */
+.book-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.book-header .subtitle {
+    font-size: 1.3rem;
+    font-style: italic;
+    color: var(--secondary-color);
+    margin: 0.5rem 0;
+}
+
+.book-header .author {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Chapter header */
+.chapter-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--light-border);
+}
+
+.chapter-number {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent-color);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.chapter-title {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.chapter-epigraph {
+    font-style: italic;
+    color: #666;
+    margin-top: 1rem;
+    padding: 0 2rem;
+}
+
+/* Table of Contents */
+.table-of-contents h2 {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.part h3 {
+    font-size: 1.1rem;
+    color: var(--accent-color);
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.chapters {
+    list-style: none;
+    padding-left: 0;
+}
+
+.chapters li {
+    margin: 0.8rem 0;
+    padding-left: 2rem;
+    position: relative;
+}
+
+.chapters li::before {
+    content: counter(list-item) ".";
+    position: absolute;
+    left: 0;
+    color: var(--secondary-color);
+}
+
+.chapters a {
+    color: var(--text-color);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-color);
+}
+
+.chapters a:hover {
+    color: var(--accent-color);
+}
+
+.chapter-desc {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.2rem;
+}
+
+/* Mathematical blocks */
+.definition, .theorem, .lemma, .corollary, .proposition {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid var(--accent-color);
+}
+
+.definition {
+    background: var(--definition-bg);
+    border-left-color: #4a90d9;
+}
+
+.theorem, .lemma, .corollary, .proposition {
+    background: var(--theorem-bg);
+}
+
+.definition-title, .theorem-title {
+    font-weight: bold;
+    font-variant: small-caps;
+    margin-bottom: 0.5rem;
+}
+
+.definition-title::after, .theorem-title::after {
+    content: ".";
+}
+
+/* Examples */
+.example {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--example-bg);
+    border-left: 4px solid #5a8f5a;
+}
+
+.example-title {
+    font-weight: bold;
+    font-variant: small-caps;
+    color: #3a6f3a;
+}
+
+/* Proofs */
+.proof {
+    margin: 1rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--proof-border);
+}
+
+.proof-title {
+    font-style: italic;
+    font-weight: normal;
+}
+
+.proof-title::before {
+    content: "Proof. ";
+    font-style: italic;
+}
+
+.qed {
+    float: right;
+    font-size: 1rem;
+}
+
+.qed::after {
+    content: "◻";
+}
+
+/* Exercises */
+.exercises {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--light-border);
+}
+
+.exercises h3 {
+    font-size: 1.2rem;
+    font-style: normal;
+    font-variant: small-caps;
+}
+
+.exercise {
+    margin: 1rem 0;
+    padding: 0.8rem 1rem;
+    background: var(--exercise-bg);
+    border-left: 3px solid #d4a574;
+}
+
+.exercise-number {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+/* Code and mathematical notation */
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    background: #f4f4f4;
+    padding: 0.1em 0.3em;
+    border-radius: 2px;
+}
+
+pre {
+    background: #2d2d2d;
+    color: #f8f8f2;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Mathematical expressions - inline */
+.math {
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
+}
+
+/* SVG diagrams */
+.diagram {
+    display: block;
+    margin: 2rem auto;
+    max-width: 100%;
+}
+
+.diagram-caption {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+figure {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+figcaption {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+/* Remarks and notes */
+.remark {
+    margin: 1rem 0;
+    padding: 0.8rem 1rem;
+    background: #fafafa;
+    border: 1px dashed #ccc;
+    font-size: 0.95rem;
+}
+
+.remark-title {
+    font-style: italic;
+    color: #666;
+}
+
+/* Navigation */
+.chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--light-border);
+}
+
+.chapter-nav a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.chapter-nav a:hover {
+    text-decoration: underline;
+}
+
+/* Blockquotes */
+blockquote {
+    margin: 1.5rem 2rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--light-border);
+    color: #555;
+    font-style: italic;
+}
+
+/* Lists */
+ul, ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+li {
+    margin: 0.3rem 0;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+th, td {
+    border: 1px solid var(--light-border);
+    padding: 0.5rem;
+    text-align: left;
+}
+
+th {
+    background: #f5f5f5;
+    font-weight: normal;
+    font-variant: small-caps;
+}
+
+/* Footer */
+footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--light-border);
+    text-align: center;
+}
+
+.preface-note {
+    font-size: 0.95rem;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    body {
+        padding: 1rem;
+        font-size: 16px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .definition, .theorem, .example, .proof {
+        padding: 0.8rem;
+        margin: 1rem -0.5rem;
+    }
+}

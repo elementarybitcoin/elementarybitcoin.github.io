@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 22: Client-Side Validation | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .paradigm-box {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        .paradigm-card {
+            flex: 1;
+            min-width: 280px;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+        .paradigm-on-chain {
+            background: #e3f2fd;
+            border-color: #1976d2;
+        }
+        .paradigm-csv {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .paradigm-card h4 {
+            margin-top: 0;
+        }
+        .seal-diagram {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="21-node-optimizations.html">← Chapter 21: Node Optimizations</a>
+        <a href="../index.html">Index</a>
+        <a href="23-payment-channels.html">Chapter 23: Payment Channels →</a>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 22</p>
+            <h1>Client-Side Validation</h1>
+            <p class="chapter-subtitle">Single-Use Seals and Off-Chain State</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                Bitcoin's blockchain provides a globally replicated, publicly verifiable ledger.
+                But this publicity comes at a cost: every node must validate every transaction,
+                limiting throughput and privacy. <em>Client-side validation</em> inverts this model—
+                validation happens privately between transacting parties, with Bitcoin serving
+                only as a timestamping and anti-double-spend anchor.
+            </p>
+            <p>
+                This chapter explores the theoretical foundations of client-side validation,
+                from Peter Todd's single-use seals to modern implementations like RGB and
+                Taproot Assets. These protocols enable scalable, private asset issuance on
+                Bitcoin without bloating the blockchain.
+            </p>
+        </section>
+
+        <section>
+            <h2>22.1 The Validation Paradigm Shift</h2>
+
+            <p>
+                Traditional blockchain design couples state transitions with global consensus:
+            </p>
+
+            <div class="paradigm-box">
+                <div class="paradigm-card paradigm-on-chain">
+                    <h4>On-Chain Validation</h4>
+                    <p><strong>Model:</strong> Publish all data on-chain; every node validates everything</p>
+                    <p><strong>Scaling:</strong> O(n) validation for n transactions</p>
+                    <p><strong>Privacy:</strong> All transaction data public</p>
+                    <p><strong>Example:</strong> Standard Bitcoin, Ethereum ERC-20</p>
+                </div>
+
+                <div class="paradigm-card paradigm-csv">
+                    <h4>Client-Side Validation</h4>
+                    <p><strong>Model:</strong> Data exchanged privately; blockchain proves non-double-spend</p>
+                    <p><strong>Scaling:</strong> O(1) on-chain, O(history) for recipient</p>
+                    <p><strong>Privacy:</strong> Only parties see transaction data</p>
+                    <p><strong>Example:</strong> RGB, Taproot Assets</p>
+                </div>
+            </div>
+
+            <div class="definition">
+                <p><strong>Definition 22.1</strong> (Client-Side Validation)</p>
+                <p>
+                    In a <em>client-side validation</em> protocol:
+                </p>
+                <ol>
+                    <li>State transitions (e.g., asset transfers) happen off-chain</li>
+                    <li>The sender proves validity to the receiver directly</li>
+                    <li>Bitcoin transactions serve as <em>witnesses</em> to prevent double-spending</li>
+                    <li>Full nodes see only opaque commitments, not transaction meaning</li>
+                </ol>
+            </div>
+
+            <h3>What Bitcoin Provides</h3>
+
+            <p>
+                Client-side validation leverages specific Bitcoin properties:
+            </p>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Use in CSV</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Transaction ordering</td>
+                        <td>Determines which spend came first</td>
+                    </tr>
+                    <tr>
+                        <td>UTXO uniqueness</td>
+                        <td>Each UTXO can be spent exactly once</td>
+                    </tr>
+                    <tr>
+                        <td>OP_RETURN / Taproot</td>
+                        <td>Embed commitments in transactions</td>
+                    </tr>
+                    <tr>
+                        <td>Timestamping</td>
+                        <td>Prove state existed at block time</td>
+                    </tr>
+                    <tr>
+                        <td>Censorship resistance</td>
+                        <td>Anyone can publish commitments</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>22.2 Single-Use Seals</h2>
+
+            <p>
+                The theoretical foundation of client-side validation is the <em>single-use seal</em>,
+                introduced by Peter Todd in 2016.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 22.2</strong> (Single-Use Seal)</p>
+                <p>
+                    A <em>single-use seal</em> is a cryptographic primitive that can be:
+                </p>
+                <ul>
+                    <li><strong>Opened:</strong> Closed over a message exactly once</li>
+                    <li><strong>Verified:</strong> Anyone can check if a seal was closed over message m</li>
+                    <li><strong>Unique:</strong> A seal cannot be closed over two different messages</li>
+                </ul>
+                <p>
+                    Formally, a seal S provides:
+                </p>
+                <ul>
+                    <li><code>Close(S, m) → witness</code>: Close seal over message m</li>
+                    <li><code>Verify(S, m, witness) → bool</code>: Verify seal was closed over m</li>
+                </ul>
+                <p>
+                    With the property that if <code>Verify(S, m₁, w₁)</code> and <code>Verify(S, m₂, w₂)</code>
+                    both return true, then m₁ = m₂.
+                </p>
+            </div>
+
+            <h3>Bitcoin UTXOs as Seals</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 22.1</strong> (UTXO Single-Use Seal)</p>
+                <p>
+                    A Bitcoin UTXO naturally implements a single-use seal:
+                </p>
+                <ul>
+                    <li><strong>Seal identifier:</strong> The outpoint (txid:vout)</li>
+                    <li><strong>Close operation:</strong> Spend the UTXO with commitment to m in the spending tx</li>
+                    <li><strong>Witness:</strong> The spending transaction</li>
+                    <li><strong>Verification:</strong> Check tx spends the UTXO and contains commitment to m</li>
+                </ul>
+                <p>
+                    The seal can only be closed once because a UTXO can only be spent once.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    Suppose an adversary could close seal (UTXO) over both m₁ and m₂ where m₁ ≠ m₂.
+                    This would require two transactions tx₁ and tx₂ both spending the same UTXO,
+                    with tx₁ committing to m₁ and tx₂ committing to m₂. But Bitcoin consensus
+                    ensures only one transaction spending a given UTXO can be included in the
+                    blockchain. Therefore, at most one closing can be valid. ∎
+                </p>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 650 280" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Single-Use Seal Using Bitcoin UTXO
+                    </text>
+
+                    <!-- UTXO (Seal) -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="150" height="80" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="75" y="25" text-anchor="middle" font-size="11" font-weight="bold">UTXO (Seal)</text>
+                        <text x="75" y="45" text-anchor="middle" font-size="9" font-family="monospace">abc123...:0</text>
+                        <text x="75" y="65" text-anchor="middle" font-size="9" fill="#666">State: OPEN</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 205 100 L 260 100" stroke="#666" stroke-width="2" marker-end="url(#arrow-g4)"/>
+                    <text x="232" y="90" text-anchor="middle" font-size="9">Spend with</text>
+                    <text x="232" y="115" text-anchor="middle" font-size="9">commitment</text>
+
+                    <!-- Spending Transaction -->
+                    <g transform="translate(265, 50)">
+                        <rect x="0" y="0" width="180" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <text x="90" y="20" text-anchor="middle" font-size="10" font-weight="bold">Spending Transaction</text>
+
+                        <rect x="10" y="30" width="160" height="25" fill="#bbdefb" rx="3"/>
+                        <text x="90" y="48" text-anchor="middle" font-size="8">Input: spends abc123...:0</text>
+
+                        <rect x="10" y="60" width="160" height="30" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                        <text x="90" y="75" text-anchor="middle" font-size="8" font-weight="bold">OP_RETURN / Taproot commit</text>
+                        <text x="90" y="86" text-anchor="middle" font-size="7" fill="#666">Hash(message)</text>
+                    </g>
+
+                    <!-- Arrow to closed state -->
+                    <path d="M 450 100 L 505 100" stroke="#666" stroke-width="2" marker-end="url(#arrow-g4)"/>
+
+                    <!-- Closed seal -->
+                    <g transform="translate(510, 60)">
+                        <rect x="0" y="0" width="120" height="80" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="60" y="25" text-anchor="middle" font-size="10" font-weight="bold">Seal</text>
+                        <text x="60" y="45" text-anchor="middle" font-size="9" fill="#4caf50">CLOSED</text>
+                        <text x="60" y="65" text-anchor="middle" font-size="8" fill="#666">over message m</text>
+                    </g>
+
+                    <!-- Double-spend attempt -->
+                    <g transform="translate(50, 180)">
+                        <rect x="0" y="0" width="550" height="70" fill="#ffebee" stroke="#c62828" stroke-dasharray="5" rx="5"/>
+                        <text x="275" y="20" text-anchor="middle" font-size="10" font-weight="bold" fill="#c62828">
+                            Double-Close Attempt (Impossible)
+                        </text>
+                        <text x="275" y="40" text-anchor="middle" font-size="9" fill="#c62828">
+                            Cannot create second valid spending tx for same UTXO
+                        </text>
+                        <text x="275" y="55" text-anchor="middle" font-size="9" fill="#c62828">
+                            Bitcoin consensus guarantees UTXO uniqueness
+                        </text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-g4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 22.1</strong> — A Bitcoin UTXO as a single-use seal: spending
+                    the UTXO with a commitment "closes" the seal over that message. The UTXO can
+                    only be spent once, ensuring the seal can only be closed once.
+                </figcaption>
+            </figure>
+
+            <h3>Commitment Schemes</h3>
+
+            <p>
+                The message committed to in the seal can be embedded in various ways:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 22.3</strong> (Commitment Methods)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Location</th>
+                            <th>Size</th>
+                            <th>Privacy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>OP_RETURN</td>
+                            <td>Output script</td>
+                            <td>Up to 80 bytes</td>
+                            <td>Visible commitment</td>
+                        </tr>
+                        <tr>
+                            <td>Pay-to-contract</td>
+                            <td>Public key tweak</td>
+                            <td>32 bytes (hidden)</td>
+                            <td>Indistinguishable from regular</td>
+                        </tr>
+                        <tr>
+                            <td>Taproot</td>
+                            <td>Script tree leaf</td>
+                            <td>Arbitrary</td>
+                            <td>Hidden unless revealed</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="definition">
+                <p><strong>Definition 22.4</strong> (Pay-to-Contract)</p>
+                <p>
+                    Given public key P and message m, the tweaked key is:
+                </p>
+                <div class="formula">
+                    P' = P + H(P || m) · G
+                </div>
+                <p>
+                    Where H is a hash function and G is the generator. The commitment is
+                    hidden in P' but verifiable given P and m.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>22.3 RGB Protocol</h2>
+
+            <p>
+                RGB is the most developed client-side validation protocol for Bitcoin,
+                enabling smart contracts and asset issuance with full privacy and scalability.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 22.5</strong> (RGB)</p>
+                <p>
+                    RGB (Really Good Bitcoin) is a client-side validation system where:
+                </p>
+                <ul>
+                    <li><strong>State:</strong> Asset ownership, contract data stored off-chain</li>
+                    <li><strong>Transitions:</strong> State changes validated by recipients</li>
+                    <li><strong>Anchoring:</strong> Commitments embedded in Bitcoin transactions</li>
+                    <li><strong>Seals:</strong> UTXOs define ownership and prevent double-spending</li>
+                </ul>
+            </div>
+
+            <h3>RGB Architecture</h3>
+
+            <figure>
+                <svg viewBox="0 0 700 400" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        RGB Protocol Architecture
+                    </text>
+
+                    <!-- Bitcoin Layer -->
+                    <g transform="translate(50, 300)">
+                        <rect x="0" y="0" width="600" height="70" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="300" y="25" text-anchor="middle" font-size="12" font-weight="bold">Bitcoin Layer</text>
+                        <text x="300" y="45" text-anchor="middle" font-size="10">UTXOs (seals) + Taproot commitments (anchors)</text>
+                        <text x="300" y="60" text-anchor="middle" font-size="9" fill="#666">Public, validates ordering and uniqueness only</text>
+                    </g>
+
+                    <!-- RGB Layer -->
+                    <g transform="translate(50, 180)">
+                        <rect x="0" y="0" width="600" height="100" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="300" y="25" text-anchor="middle" font-size="12" font-weight="bold">RGB State Layer</text>
+
+                        <!-- Contract -->
+                        <rect x="20" y="40" width="150" height="50" fill="#c8e6c9" stroke="#4caf50" rx="3"/>
+                        <text x="95" y="60" text-anchor="middle" font-size="9" font-weight="bold">Contract Schema</text>
+                        <text x="95" y="75" text-anchor="middle" font-size="8">Defines state + transitions</text>
+
+                        <!-- State -->
+                        <rect x="190" y="40" width="150" height="50" fill="#c8e6c9" stroke="#4caf50" rx="3"/>
+                        <text x="265" y="60" text-anchor="middle" font-size="9" font-weight="bold">State (Off-chain)</text>
+                        <text x="265" y="75" text-anchor="middle" font-size="8">Asset ownership, data</text>
+
+                        <!-- Transitions -->
+                        <rect x="360" y="40" width="150" height="50" fill="#c8e6c9" stroke="#4caf50" rx="3"/>
+                        <text x="435" y="60" text-anchor="middle" font-size="9" font-weight="bold">State Transitions</text>
+                        <text x="435" y="75" text-anchor="middle" font-size="8">Transfers, operations</text>
+
+                        <!-- Consignments -->
+                        <rect x="530" y="40" width="55" height="50" fill="#a5d6a7" stroke="#4caf50" rx="3"/>
+                        <text x="557" y="60" text-anchor="middle" font-size="8" font-weight="bold">Consign</text>
+                        <text x="557" y="75" text-anchor="middle" font-size="7">Proofs</text>
+                    </g>
+
+                    <!-- Client Layer -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="600" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <text x="300" y="25" text-anchor="middle" font-size="12" font-weight="bold">Client Validation Layer</text>
+
+                        <!-- Sender -->
+                        <rect x="50" y="40" width="120" height="50" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <text x="110" y="60" text-anchor="middle" font-size="9" font-weight="bold">Sender</text>
+                        <text x="110" y="75" text-anchor="middle" font-size="8">Creates transition</text>
+
+                        <!-- Arrow -->
+                        <path d="M 175 65 L 325 65" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-bl2)"/>
+                        <text x="250" y="55" text-anchor="middle" font-size="8">Consignment</text>
+                        <text x="250" y="80" text-anchor="middle" font-size="8">(state proof)</text>
+
+                        <!-- Receiver -->
+                        <rect x="330" y="40" width="120" height="50" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <text x="390" y="60" text-anchor="middle" font-size="9" font-weight="bold">Receiver</text>
+                        <text x="390" y="75" text-anchor="middle" font-size="8">Validates proof</text>
+
+                        <!-- Note -->
+                        <text x="530" y="65" text-anchor="middle" font-size="9" fill="#666">Private</text>
+                        <text x="530" y="80" text-anchor="middle" font-size="9" fill="#666">P2P only</text>
+                    </g>
+
+                    <!-- Arrows between layers -->
+                    <path d="M 350 160 L 350 180" stroke="#666" stroke-width="2" marker-end="url(#arrow-g5)"/>
+                    <path d="M 350 280 L 350 300" stroke="#666" stroke-width="2" marker-end="url(#arrow-g5)"/>
+
+                    <defs>
+                        <marker id="arrow-bl2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+                        </marker>
+                        <marker id="arrow-g5" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 22.2</strong> — RGB architecture: clients exchange proofs
+                    directly; Bitcoin provides only anchoring and anti-double-spend guarantees.
+                </figcaption>
+            </figure>
+
+            <h3>RGB State Transitions</h3>
+
+            <div class="definition">
+                <p><strong>Definition 22.6</strong> (RGB State Transition)</p>
+                <p>
+                    An RGB state transition contains:
+                </p>
+                <ul>
+                    <li><strong>Inputs:</strong> References to previous state (seals being closed)</li>
+                    <li><strong>Outputs:</strong> New state assignments to new seals</li>
+                    <li><strong>Metadata:</strong> Contract-specific data</li>
+                    <li><strong>Anchor:</strong> Reference to Bitcoin transaction commitment</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 22.1</strong> (RGB Asset Transfer)</p>
+                <p>
+                    Alice owns 100 RGB tokens sealed to UTXO A. She transfers 30 to Bob:
+                </p>
+                <ol>
+                    <li>Create state transition: Input: 100@UTXO_A → Outputs: 70@UTXO_A', 30@UTXO_B</li>
+                    <li>Anchor transition to Bitcoin tx that spends UTXO_A</li>
+                    <li>Create consignment (proof) for Bob containing:
+                        <ul>
+                            <li>The state transition</li>
+                            <li>Complete history back to issuance</li>
+                            <li>Bitcoin anchoring proofs</li>
+                        </ul>
+                    </li>
+                    <li>Bob validates the entire history client-side</li>
+                    <li>If valid, Bob accepts the 30 tokens</li>
+                </ol>
+            </div>
+
+            <h3>Consignments</h3>
+
+            <div class="definition">
+                <p><strong>Definition 22.7</strong> (Consignment)</p>
+                <p>
+                    A <em>consignment</em> is the proof package sent from sender to receiver:
+                </p>
+                <ul>
+                    <li>Complete DAG of state transitions from genesis to current</li>
+                    <li>Bitcoin anchoring data (transaction proofs)</li>
+                    <li>Contract schema and validation code</li>
+                    <li>Only the branch relevant to the receiver's incoming state</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 22.2</strong> (RGB Validation Completeness)</p>
+                <p>
+                    Given a valid consignment, a receiver can independently verify:
+                </p>
+                <ol>
+                    <li>The genesis contract is valid</li>
+                    <li>Every state transition follows contract rules</li>
+                    <li>Every anchor exists in a confirmed Bitcoin block</li>
+                    <li>No seal was closed twice (via Bitcoin UTXO uniqueness)</li>
+                </ol>
+                <p>
+                    The receiver needs no trusted third party—verification is purely mathematical.
+                </p>
+            </div>
+
+            <h3>Privacy Properties</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Observer</th>
+                        <th>What They Learn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bitcoin full node</td>
+                        <td>Nothing (just sees regular Bitcoin tx)</td>
+                    </tr>
+                    <tr>
+                        <td>Blockchain analyst</td>
+                        <td>Cannot link RGB activity without consignment</td>
+                    </tr>
+                    <tr>
+                        <td>Receiver</td>
+                        <td>Only the history leading to their receipt</td>
+                    </tr>
+                    <tr>
+                        <td>Other RGB users</td>
+                        <td>Nothing about unrelated transfers</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>22.4 Taproot Assets (Taro)</h2>
+
+            <p>
+                Taproot Assets (formerly Taro) is Lightning Labs' implementation of client-side
+                validation, designed specifically for Lightning Network integration.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 22.8</strong> (Taproot Assets)</p>
+                <p>
+                    Taproot Assets uses Taproot's script tree for commitments:
+                </p>
+                <ul>
+                    <li><strong>Asset tree:</strong> Merkle tree of asset commitments in Taproot leaves</li>
+                    <li><strong>MS-SMT:</strong> Merkle-Sum Sparse Merkle Tree for asset state</li>
+                    <li><strong>Universe:</strong> Optional public registry for asset discovery</li>
+                    <li><strong>Lightning:</strong> Native integration via asset channels</li>
+                </ul>
+            </div>
+
+            <h3>Taproot Integration</h3>
+
+            <figure>
+                <svg viewBox="0 0 650 250" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Taproot Assets Commitment Structure
+                    </text>
+
+                    <!-- Taproot output -->
+                    <g transform="translate(225, 50)">
+                        <rect x="0" y="0" width="200" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="100" y="20" text-anchor="middle" font-size="10" font-weight="bold">Taproot Output</text>
+                        <text x="100" y="38" text-anchor="middle" font-size="9">P = Internal + H(Internal||root)·G</text>
+                    </g>
+
+                    <!-- Script tree -->
+                    <g transform="translate(225, 120)">
+                        <text x="100" y="0" text-anchor="middle" font-size="10" font-weight="bold">Script Tree</text>
+
+                        <!-- Root -->
+                        <circle cx="100" cy="30" r="15" fill="#e3f2fd" stroke="#1976d2"/>
+                        <text x="100" y="35" text-anchor="middle" font-size="8">Root</text>
+
+                        <!-- Branches -->
+                        <line x1="100" y1="45" x2="50" y2="75" stroke="#666"/>
+                        <line x1="100" y1="45" x2="150" y2="75" stroke="#666"/>
+
+                        <!-- Regular script -->
+                        <rect x="20" y="75" width="60" height="35" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
+                        <text x="50" y="92" text-anchor="middle" font-size="8">Regular</text>
+                        <text x="50" y="103" text-anchor="middle" font-size="7">Scripts</text>
+
+                        <!-- Asset commitment -->
+                        <rect x="120" y="75" width="60" height="35" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
+                        <text x="150" y="92" text-anchor="middle" font-size="8" font-weight="bold">Asset</text>
+                        <text x="150" y="103" text-anchor="middle" font-size="7">Commit</text>
+                    </g>
+
+                    <!-- Asset tree detail -->
+                    <g transform="translate(420, 100)">
+                        <rect x="0" y="0" width="180" height="100" fill="#f5f5f5" stroke="#666" rx="4"/>
+                        <text x="90" y="20" text-anchor="middle" font-size="9" font-weight="bold">Asset Commitment</text>
+
+                        <text x="10" y="40" font-size="8">• Asset ID</text>
+                        <text x="10" y="55" font-size="8">• Amount</text>
+                        <text x="10" y="70" font-size="8">• Script key</text>
+                        <text x="10" y="85" font-size="8">• Version, metadata</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 180 147 L 220 147" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-gr2)"/>
+
+                    <defs>
+                        <marker id="arrow-gr2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 22.3</strong> — Taproot Assets embeds asset commitments in
+                    Taproot script trees. The commitment is invisible unless revealed.
+                </figcaption>
+            </figure>
+
+            <h3>Comparison: RGB vs Taproot Assets</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>RGB</th>
+                        <th>Taproot Assets</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Smart contracts</td>
+                        <td>Full schema system</td>
+                        <td>Limited (assets focus)</td>
+                    </tr>
+                    <tr>
+                        <td>Commitment</td>
+                        <td>Taproot / OP_RETURN</td>
+                        <td>Taproot only</td>
+                    </tr>
+                    <tr>
+                        <td>Data structure</td>
+                        <td>DAG of transitions</td>
+                        <td>MS-SMT</td>
+                    </tr>
+                    <tr>
+                        <td>Lightning</td>
+                        <td>Via separate channels</td>
+                        <td>Native integration</td>
+                    </tr>
+                    <tr>
+                        <td>Discovery</td>
+                        <td>Fully private</td>
+                        <td>Optional "Universe"</td>
+                    </tr>
+                    <tr>
+                        <td>Maturity</td>
+                        <td>Longer development</td>
+                        <td>Newer</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>22.5 Scalability Analysis</h2>
+
+            <h3>On-Chain Footprint</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 22.3</strong> (CSV On-Chain Scaling)</p>
+                <p>
+                    For N client-side validation transfers, the blockchain footprint is:
+                </p>
+                <ul>
+                    <li><strong>Optimal case:</strong> O(1) — multiple transfers share one anchor tx</li>
+                    <li><strong>Typical case:</strong> O(N) Bitcoin transactions, but each tx is minimal size</li>
+                    <li><strong>Data stored:</strong> Only commitments (~32 bytes), not state</li>
+                </ul>
+                <p>
+                    Compare to on-chain tokens (e.g., ERC-20): each transfer requires full
+                    transaction data stored forever.
+                </p>
+            </div>
+
+            <h3>Validation Cost</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 22.4</strong> (Validation Scaling)</p>
+                <p>
+                    Receiver validation cost is O(history_length), not O(all_transfers):
+                </p>
+                <ul>
+                    <li>Receiver only validates their branch of history</li>
+                    <li>Parallel branches (other users' transfers) never seen</li>
+                    <li>History can be pruned after validation</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 22.2</strong> (Validation Comparison)</p>
+                <p>
+                    An asset with 1 million total transfers, Alice receiving for the first time:
+                </p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Approach</th>
+                            <th>Alice Must Validate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>On-chain (Ethereum ERC-20)</td>
+                            <td>Sync entire blockchain</td>
+                        </tr>
+                        <tr>
+                            <td>RGB / Taproot Assets</td>
+                            <td>~10-100 transitions (her branch only)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Trade-offs</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Benefit</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Privacy</td>
+                        <td>Complete (only parties see data)</td>
+                        <td>No public auditability</td>
+                    </tr>
+                    <tr>
+                        <td>Scalability</td>
+                        <td>Minimal blockchain footprint</td>
+                        <td>Client storage of proofs</td>
+                    </tr>
+                    <tr>
+                        <td>Interactivity</td>
+                        <td>—</td>
+                        <td>Receiver must be online to validate</td>
+                    </tr>
+                    <tr>
+                        <td>Recovery</td>
+                        <td>—</td>
+                        <td>Must backup consignments, not just seed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>22.6 Applications</h2>
+
+            <h3>Use Cases</h3>
+
+            <ul>
+                <li><strong>Stablecoins:</strong> USD-backed tokens with Bitcoin security</li>
+                <li><strong>Securities:</strong> Private, compliant token issuance</li>
+                <li><strong>Collectibles:</strong> NFTs without blockchain bloat</li>
+                <li><strong>Credentials:</strong> Verifiable claims without public registry</li>
+                <li><strong>Supply chain:</strong> Asset tracking with selective disclosure</li>
+            </ul>
+
+            <h3>Lightning Integration</h3>
+
+            <p>
+                Both RGB and Taproot Assets support Lightning Network transfers:
+            </p>
+
+            <ul>
+                <li>Asset channels parallel BTC channels</li>
+                <li>Atomic swaps between assets and BTC</li>
+                <li>Instant settlement with CSV finality</li>
+                <li>Routing through existing Lightning infrastructure</li>
+            </ul>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 22.1</strong></p>
+                <p>
+                    Prove that a single-use seal based on Bitcoin UTXOs cannot be
+                    closed twice, assuming Bitcoin's consensus rules hold.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 22.2</strong></p>
+                <p>
+                    Design a pay-to-contract scheme for committing to RGB state transitions
+                    in a Taproot output. Show how to verify the commitment.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 22.3</strong></p>
+                <p>
+                    Alice transfers RGB tokens to Bob, who transfers to Carol.
+                    What must Carol's consignment contain? What can Carol learn
+                    about Alice from this consignment?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 22.4</strong></p>
+                <p>
+                    Compare the blockchain footprint of transferring a token 1000 times using:
+                    (a) Ethereum ERC-20, (b) RGB with individual anchors, (c) RGB with batched anchors.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 22.5</strong></p>
+                <p>
+                    Explain why client-side validation cannot provide the same "trustless
+                    audit" properties as on-chain tokens. In what scenarios is this
+                    acceptable or even desirable?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 22.6</strong></p>
+                <p>
+                    Design a backup strategy for RGB assets. What must be preserved beyond
+                    the Bitcoin wallet seed? What happens if a consignment is lost?
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    Client-side validation inverts the blockchain paradigm: state lives
+                    off-chain, validated privately, with Bitcoin providing only anti-double-spend.
+                </li>
+                <li>
+                    Single-use seals are the theoretical foundation: Bitcoin UTXOs can be
+                    "closed" over a message exactly once, preventing double-spending of
+                    committed state.
+                </li>
+                <li>
+                    RGB implements full smart contracts via client-side validation with
+                    consignments proving complete state history to receivers.
+                </li>
+                <li>
+                    Taproot Assets focuses on asset issuance with native Lightning
+                    integration and optional public discovery.
+                </li>
+                <li>
+                    Scalability improves dramatically: receivers validate only their
+                    history branch, not all global activity.
+                </li>
+                <li>
+                    Privacy is inherent: blockchain observers see only opaque commitments;
+                    only transacting parties see state data.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="21-node-optimizations.html">← Chapter 21: Node Optimizations</a>
+            <a href="../index.html">Index</a>
+            <a href="23-payment-channels.html">Chapter 23: Payment Channels →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

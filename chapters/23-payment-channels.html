@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 23: Payment Channels | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .channel-state {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+        .channel-state .header {
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .balance-bar {
+            display: flex;
+            height: 30px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        .balance-alice {
+            background: #2196f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .balance-bob {
+            background: #ff9800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="22-client-side-validation.html">← Chapter 22: Client-Side Validation</a>
+        <a href="../index.html">Index</a>
+        <a href="24-lightning.html">Chapter 24: Lightning Network →</a>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 23</p>
+            <h1>Payment Channels</h1>
+            <p class="chapter-subtitle">The Foundation of Layer 2 Scaling</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                Bitcoin's blockchain processes approximately 7 transactions per second globally.
+                Payment channels provide a mechanism for parties to transact thousands of times
+                while touching the blockchain only twice—once to open the channel and once to close it.
+            </p>
+            <p>
+                This chapter develops the theory of payment channels from first principles,
+                building from simple unidirectional channels to the sophisticated bidirectional
+                channels that underpin the Lightning Network. Understanding these primitives
+                is essential for grasping how Bitcoin scales to millions of transactions per second.
+            </p>
+        </section>
+
+        <section>
+            <h2>23.1 The Scaling Problem</h2>
+
+            <p>
+                Bitcoin's on-chain capacity is fundamentally limited:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 23.1</strong> (On-Chain Throughput Limit)</p>
+                <p>
+                    With ~4 million weight units per block and ~10 minutes per block:
+                </p>
+                <ul>
+                    <li>Average transaction: ~500-1000 weight units</li>
+                    <li>Transactions per block: ~2000-4000</li>
+                    <li>Transactions per second: ~3-7 TPS</li>
+                    <li>Transactions per day: ~300,000-600,000</li>
+                </ul>
+                <p>
+                    This is roughly 7 orders of magnitude below global payment demand.
+                </p>
+            </div>
+
+            <h3>Layer 2 Approach</h3>
+
+            <p>
+                Rather than increasing block size (which has centralizing effects), Layer 2
+                solutions move transactions off-chain while preserving Bitcoin's security:
+            </p>
+
+            <div class="theorem">
+                <p><strong>Theorem 23.1</strong> (Payment Channel Scaling)</p>
+                <p>
+                    A payment channel between two parties requires:
+                </p>
+                <ul>
+                    <li><strong>On-chain:</strong> 2 transactions (open + close)</li>
+                    <li><strong>Off-chain:</strong> Unlimited transactions between parties</li>
+                </ul>
+                <p>
+                    If a channel supports N off-chain payments, throughput multiplies by N/2.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>23.2 Unidirectional Payment Channels</h2>
+
+            <p>
+                We begin with the simplest channel type: one party (customer) pays another
+                (merchant) repeatedly.
+            </p>
+
+            <h3>Basic Construction</h3>
+
+            <div class="definition">
+                <p><strong>Definition 23.2</strong> (Unidirectional Channel)</p>
+                <p>
+                    A unidirectional payment channel from Alice to Bob:
+                </p>
+                <ol>
+                    <li><strong>Funding:</strong> Alice locks funds in a 2-of-2 multisig with Bob</li>
+                    <li><strong>Payments:</strong> Alice signs transactions giving Bob increasing amounts</li>
+                    <li><strong>Settlement:</strong> Bob broadcasts the latest transaction</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 700 350" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Unidirectional Payment Channel
+                    </text>
+
+                    <!-- Funding Transaction -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="180" height="80" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <text x="90" y="25" text-anchor="middle" font-size="11" font-weight="bold">Funding Transaction</text>
+                        <text x="90" y="45" text-anchor="middle" font-size="9">Input: Alice's UTXO (1 BTC)</text>
+                        <text x="90" y="65" text-anchor="middle" font-size="9">Output: 2-of-2 multisig</text>
+                        <text x="90" y="78" text-anchor="middle" font-size="8" fill="#666">(Alice + Bob)</text>
+                    </g>
+
+                    <!-- Arrow to blockchain -->
+                    <path d="M 230 90 L 280 90" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-b2)"/>
+                    <text x="255" y="82" text-anchor="middle" font-size="8">Broadcast</text>
+
+                    <!-- Blockchain -->
+                    <g transform="translate(285, 60)">
+                        <rect x="0" y="0" width="100" height="60" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="50" y="35" text-anchor="middle" font-size="10">Blockchain</text>
+                    </g>
+
+                    <!-- Off-chain payments -->
+                    <g transform="translate(50, 160)">
+                        <rect x="0" y="0" width="550" height="120" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="275" y="25" text-anchor="middle" font-size="11" font-weight="bold">Off-Chain Payments (Not Broadcast)</text>
+
+                        <!-- Payment 1 -->
+                        <g transform="translate(20, 40)">
+                            <rect x="0" y="0" width="120" height="60" fill="#ffe0b2" stroke="#ff9800" rx="3"/>
+                            <text x="60" y="20" text-anchor="middle" font-size="9" font-weight="bold">Payment 1</text>
+                            <text x="60" y="35" text-anchor="middle" font-size="8">Alice: 0.9 BTC</text>
+                            <text x="60" y="48" text-anchor="middle" font-size="8">Bob: 0.1 BTC</text>
+                        </g>
+
+                        <!-- Arrow -->
+                        <path d="M 145 70 L 175 70" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow-o)"/>
+
+                        <!-- Payment 2 -->
+                        <g transform="translate(180, 40)">
+                            <rect x="0" y="0" width="120" height="60" fill="#ffe0b2" stroke="#ff9800" rx="3"/>
+                            <text x="60" y="20" text-anchor="middle" font-size="9" font-weight="bold">Payment 2</text>
+                            <text x="60" y="35" text-anchor="middle" font-size="8">Alice: 0.7 BTC</text>
+                            <text x="60" y="48" text-anchor="middle" font-size="8">Bob: 0.3 BTC</text>
+                        </g>
+
+                        <!-- Arrow -->
+                        <path d="M 305 70 L 335 70" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow-o)"/>
+
+                        <!-- Payment N -->
+                        <g transform="translate(340, 40)">
+                            <text x="20" y="30" font-size="14">...</text>
+                        </g>
+
+                        <!-- Final payment -->
+                        <g transform="translate(400, 40)">
+                            <rect x="0" y="0" width="120" height="60" fill="#ffcc80" stroke="#ff9800" stroke-width="2" rx="3"/>
+                            <text x="60" y="20" text-anchor="middle" font-size="9" font-weight="bold">Final State</text>
+                            <text x="60" y="35" text-anchor="middle" font-size="8">Alice: 0.2 BTC</text>
+                            <text x="60" y="48" text-anchor="middle" font-size="8">Bob: 0.8 BTC</text>
+                        </g>
+                    </g>
+
+                    <!-- Settlement -->
+                    <g transform="translate(450, 300)">
+                        <rect x="0" y="0" width="150" height="40" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="75" y="25" text-anchor="middle" font-size="10" font-weight="bold">Settlement (broadcast)</text>
+                    </g>
+
+                    <path d="M 520 280 L 520 300" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-g6)"/>
+
+                    <defs>
+                        <marker id="arrow-b2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+                        </marker>
+                        <marker id="arrow-o" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/>
+                        </marker>
+                        <marker id="arrow-g6" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 23.1</strong> — Unidirectional channel: Alice funds a multisig,
+                    signs transactions giving Bob increasing amounts, Bob broadcasts the final state.
+                </figcaption>
+            </figure>
+
+            <h3>Security Analysis</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 23.2</strong> (Unidirectional Channel Security)</p>
+                <p>
+                    In a unidirectional channel:
+                </p>
+                <ul>
+                    <li><strong>Bob's guarantee:</strong> Can always claim the latest payment Alice signed</li>
+                    <li><strong>Alice's guarantee:</strong> Bob can only claim what Alice signed</li>
+                    <li><strong>Problem:</strong> Alice cannot recover uncommitted funds if Bob disappears</li>
+                </ul>
+            </div>
+
+            <h3>Adding Timelocks</h3>
+
+            <p>
+                To allow Alice to recover funds if Bob is unresponsive, we add a refund path:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 23.3</strong> (Timelocked Unidirectional Channel)</p>
+                <p>
+                    The funding output script:
+                </p>
+                <pre><code>OP_IF
+    2 &lt;Alice_pubkey&gt; &lt;Bob_pubkey&gt; 2 OP_CHECKMULTISIG
+OP_ELSE
+    &lt;locktime&gt; OP_CHECKLOCKTIMEVERIFY OP_DROP
+    &lt;Alice_pubkey&gt; OP_CHECKSIG
+OP_ENDIF</code></pre>
+                <p>
+                    Either: 2-of-2 multisig (normal operation)<br>
+                    Or: After locktime, Alice can recover funds alone
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 23.1</strong> (Coffee Shop Channel)</p>
+                <p>
+                    Alice opens a 0.1 BTC channel to her local coffee shop:
+                </p>
+                <ol>
+                    <li>Day 1: Fund channel (0.1 BTC), refund timelock = 30 days</li>
+                    <li>Day 2: Buy coffee, sign tx giving shop 0.004 BTC</li>
+                    <li>Day 5: Buy coffee, sign tx giving shop 0.008 BTC</li>
+                    <li>... (many more coffees)</li>
+                    <li>Day 25: Balance is Alice 0.02, Shop 0.08</li>
+                    <li>Day 26: Shop broadcasts final state, closes channel</li>
+                </ol>
+                <p>
+                    30 coffees, 2 on-chain transactions.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>23.3 The Bidirectional Channel Problem</h2>
+
+            <p>
+                Unidirectional channels only allow value to flow one way. For general payment
+                networks, we need bidirectional channels where either party can pay the other.
+            </p>
+
+            <div class="definition">
+                <p><strong>Problem 23.1</strong> (State Revocation)</p>
+                <p>
+                    In a bidirectional channel, both parties sign each state update.
+                    The problem: how to prevent a party from broadcasting an old,
+                    favorable state?
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 23.2</strong> (The Double-Spend Attack)</p>
+                <p>
+                    Alice and Bob open a channel with 0.5 BTC each:
+                </p>
+                <ol>
+                    <li>State 1: Alice 0.5, Bob 0.5 (initial)</li>
+                    <li>State 2: Alice 0.3, Bob 0.7 (Alice paid Bob 0.2)</li>
+                    <li>State 3: Alice 0.6, Bob 0.4 (Bob paid Alice 0.3)</li>
+                </ol>
+                <p>
+                    If Bob broadcasts State 2 instead of State 3, he steals 0.3 BTC.
+                    We need a mechanism to <em>punish</em> broadcasting old states.
+                </p>
+            </div>
+
+            <h3>Solution Approaches</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Approach</th>
+                        <th>Mechanism</th>
+                        <th>Used In</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Replace-by-version</td>
+                        <td>nSequence invalidation</td>
+                        <td>Historical (limited)</td>
+                    </tr>
+                    <tr>
+                        <td>Punishment</td>
+                        <td>Breach remediation</td>
+                        <td>LN-Penalty (current Lightning)</td>
+                    </tr>
+                    <tr>
+                        <td>Symmetry</td>
+                        <td>Relative timelocks</td>
+                        <td>eltoo/LN-Symmetry (proposed)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>23.4 LN-Penalty Channels</h2>
+
+            <p>
+                The Lightning Network uses <em>revocable commitment transactions</em> with
+                a punishment mechanism: if you broadcast an old state, your counterparty
+                can take all the funds.
+            </p>
+
+            <h3>Commitment Transaction Structure</h3>
+
+            <div class="definition">
+                <p><strong>Definition 23.4</strong> (Commitment Transaction)</p>
+                <p>
+                    Each party holds their own version of the commitment transaction.
+                    Alice's version:
+                </p>
+                <ul>
+                    <li>Input: Spends the funding output (2-of-2 multisig)</li>
+                    <li>Output 1 (to Alice): Delayed by timelock OR Bob can spend with revocation key</li>
+                    <li>Output 2 (to Bob): Immediately spendable by Bob</li>
+                </ul>
+                <p>
+                    Bob's version is symmetric (his output delayed, Alice's immediate).
+                </p>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 700 400" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Asymmetric Commitment Transactions
+                    </text>
+
+                    <!-- Funding output -->
+                    <g transform="translate(275, 50)">
+                        <rect x="0" y="0" width="150" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <text x="75" y="20" text-anchor="middle" font-size="10" font-weight="bold">Funding Output</text>
+                        <text x="75" y="38" text-anchor="middle" font-size="9">2-of-2 (Alice, Bob)</text>
+                    </g>
+
+                    <!-- Arrows -->
+                    <path d="M 300 100 L 200 130" stroke="#666" stroke-width="2" marker-end="url(#arrow-g7)"/>
+                    <path d="M 400 100 L 500 130" stroke="#666" stroke-width="2" marker-end="url(#arrow-g7)"/>
+
+                    <!-- Alice's commitment -->
+                    <g transform="translate(50, 135)">
+                        <rect x="0" y="0" width="250" height="180" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" rx="5"/>
+                        <text x="125" y="20" text-anchor="middle" font-size="11" font-weight="bold" fill="#1565c0">Alice's Commitment TX</text>
+                        <text x="125" y="38" text-anchor="middle" font-size="9" fill="#666">(Held by Alice)</text>
+
+                        <!-- Output to Alice (delayed) -->
+                        <rect x="15" y="50" width="220" height="55" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <text x="125" y="68" text-anchor="middle" font-size="9" font-weight="bold">To Alice (delayed)</text>
+                        <text x="125" y="82" text-anchor="middle" font-size="8">IF: Alice after 144 blocks</text>
+                        <text x="125" y="95" text-anchor="middle" font-size="8" fill="#c62828">ELSE: Bob with revocation_key</text>
+
+                        <!-- Output to Bob -->
+                        <rect x="15" y="115" width="220" height="40" fill="#c8e6c9" stroke="#4caf50" rx="3"/>
+                        <text x="125" y="133" text-anchor="middle" font-size="9" font-weight="bold">To Bob (immediate)</text>
+                        <text x="125" y="147" text-anchor="middle" font-size="8">Bob can spend immediately</text>
+                    </g>
+
+                    <!-- Bob's commitment -->
+                    <g transform="translate(400, 135)">
+                        <rect x="0" y="0" width="250" height="180" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="125" y="20" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">Bob's Commitment TX</text>
+                        <text x="125" y="38" text-anchor="middle" font-size="9" fill="#666">(Held by Bob)</text>
+
+                        <!-- Output to Bob (delayed) -->
+                        <rect x="15" y="50" width="220" height="55" fill="#ffe0b2" stroke="#ff9800" rx="3"/>
+                        <text x="125" y="68" text-anchor="middle" font-size="9" font-weight="bold">To Bob (delayed)</text>
+                        <text x="125" y="82" text-anchor="middle" font-size="8">IF: Bob after 144 blocks</text>
+                        <text x="125" y="95" text-anchor="middle" font-size="8" fill="#c62828">ELSE: Alice with revocation_key</text>
+
+                        <!-- Output to Alice -->
+                        <rect x="15" y="115" width="220" height="40" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <text x="125" y="133" text-anchor="middle" font-size="9" font-weight="bold">To Alice (immediate)</text>
+                        <text x="125" y="147" text-anchor="middle" font-size="8">Alice can spend immediately</text>
+                    </g>
+
+                    <!-- Asymmetry note -->
+                    <g transform="translate(50, 340)">
+                        <rect x="0" y="0" width="600" height="45" fill="#fff9c4" stroke="#f9a825" rx="4"/>
+                        <text x="300" y="18" text-anchor="middle" font-size="10" font-weight="bold">
+                            Key Insight: Asymmetry Creates Accountability
+                        </text>
+                        <text x="300" y="35" text-anchor="middle" font-size="9">
+                            The broadcaster's funds are delayed; counterparty can punish if state was revoked
+                        </text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-g7" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 23.2</strong> — Each party holds a different commitment transaction.
+                    The broadcaster's funds are delayed, giving the counterparty time to punish
+                    if an old (revoked) state is broadcast.
+                </figcaption>
+            </figure>
+
+            <h3>Revocation Mechanism</h3>
+
+            <div class="definition">
+                <p><strong>Definition 23.5</strong> (Revocation Keys)</p>
+                <p>
+                    Each commitment uses unique revocation keys:
+                </p>
+                <ul>
+                    <li><strong>revocation_basepoint:</strong> Each party's fixed public key</li>
+                    <li><strong>per_commitment_point:</strong> Unique per state, derived from secret</li>
+                    <li><strong>revocation_pubkey:</strong> Derived from both, known to counterparty after revocation</li>
+                </ul>
+                <p>
+                    To revoke state N, a party reveals the per_commitment_secret for state N.
+                    This allows the counterparty to compute the revocation private key.
+                </p>
+            </div>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 23.1</strong> (State Update Protocol)</p>
+                <pre><code>// To update from state N to state N+1:
+
+1. Alice creates commitment_tx_{N+1} for Bob
+   - Uses new per_commitment_point from Bob
+   - Signs it with her funding key
+   - Sends signature to Bob
+
+2. Bob creates commitment_tx_{N+1} for Alice
+   - Uses new per_commitment_point from Alice
+   - Signs it with his funding key
+   - Sends signature to Alice
+
+3. Alice sends per_commitment_secret_N to Bob
+   (Revokes state N - Bob can now punish if Alice broadcasts)
+
+4. Bob sends per_commitment_secret_N to Alice
+   (Revokes state N - Alice can now punish if Bob broadcasts)
+
+// State N is now revoked; only state N+1 is safe to broadcast</code></pre>
+            </div>
+
+            <h3>Punishment Transaction</h3>
+
+            <div class="definition">
+                <p><strong>Definition 23.6</strong> (Breach Remedy Transaction)</p>
+                <p>
+                    If a party broadcasts a revoked commitment:
+                </p>
+                <ol>
+                    <li>The honest party detects the old state on-chain</li>
+                    <li>During the timelock delay, they construct a punishment transaction</li>
+                    <li>Using the revealed revocation secret, they spend ALL channel funds</li>
+                    <li>The cheater loses everything</li>
+                </ol>
+            </div>
+
+            <div class="theorem">
+                <p><strong>Theorem 23.3</strong> (LN-Penalty Security)</p>
+                <p>
+                    In an LN-Penalty channel:
+                </p>
+                <ul>
+                    <li><strong>Honest behavior:</strong> Both parties receive their balance</li>
+                    <li><strong>Cheating attempt:</strong> Cheater loses all funds to counterparty</li>
+                    <li><strong>Requirement:</strong> Honest party must be online during timelock</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>23.5 Channel Operations</h2>
+
+            <h3>Channel Lifecycle</h3>
+
+            <figure>
+                <svg viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Payment Channel Lifecycle
+                    </text>
+
+                    <!-- States -->
+                    <g transform="translate(30, 60)">
+                        <rect x="0" y="0" width="100" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <text x="50" y="30" text-anchor="middle" font-size="10" font-weight="bold">Opening</text>
+                    </g>
+
+                    <path d="M 135 85 L 175 85" stroke="#666" stroke-width="2" marker-end="url(#arrow-g8)"/>
+
+                    <g transform="translate(180, 60)">
+                        <rect x="0" y="0" width="100" height="50" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="50" y="30" text-anchor="middle" font-size="10" font-weight="bold">Normal</text>
+                    </g>
+
+                    <path d="M 285 85 L 325 85" stroke="#666" stroke-width="2" marker-end="url(#arrow-g8)"/>
+
+                    <g transform="translate(330, 60)">
+                        <rect x="0" y="0" width="100" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="50" y="30" text-anchor="middle" font-size="10" font-weight="bold">Closing</text>
+                    </g>
+
+                    <path d="M 435 85 L 475 85" stroke="#666" stroke-width="2" marker-end="url(#arrow-g8)"/>
+
+                    <g transform="translate(480, 60)">
+                        <rect x="0" y="0" width="100" height="50" fill="#f5f5f5" stroke="#666" stroke-width="2" rx="5"/>
+                        <text x="50" y="30" text-anchor="middle" font-size="10" font-weight="bold">Closed</text>
+                    </g>
+
+                    <!-- Force close path -->
+                    <path d="M 230 110 L 230 150 L 380 150 L 380 110" stroke="#c62828" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-r)"/>
+                    <text x="305" y="165" text-anchor="middle" font-size="9" fill="#c62828">Force Close</text>
+
+                    <!-- On-chain labels -->
+                    <text x="80" y="135" text-anchor="middle" font-size="8" fill="#666">On-chain</text>
+                    <text x="230" y="135" text-anchor="middle" font-size="8" fill="#666">Off-chain</text>
+                    <text x="380" y="135" text-anchor="middle" font-size="8" fill="#666">On-chain</text>
+
+                    <defs>
+                        <marker id="arrow-g8" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                        <marker id="arrow-r" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c62828"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 23.3</strong> — Channel lifecycle: opening and closing are
+                    on-chain; normal operation is entirely off-chain.
+                </figcaption>
+            </figure>
+
+            <h3>Opening a Channel</h3>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 23.2</strong> (Channel Opening)</p>
+                <pre><code>1. Alice proposes: open_channel message
+   - Funding amount, fee rate, keys, parameters
+
+2. Bob accepts: accept_channel message
+   - His keys and parameters
+
+3. Alice creates funding transaction (not broadcast yet)
+   - 2-of-2 output with both keys
+
+4. Alice sends funding_created with:
+   - Funding txid/vout
+   - Signature for Bob's first commitment
+
+5. Bob validates and sends funding_signed with:
+   - Signature for Alice's first commitment
+
+6. Alice broadcasts funding transaction
+
+7. Both watch for confirmations
+
+8. After N confirmations: channel_ready (formerly funding_locked)</code></pre>
+            </div>
+
+            <h3>Cooperative Close</h3>
+
+            <div class="definition">
+                <p><strong>Definition 23.7</strong> (Cooperative Close)</p>
+                <p>
+                    The ideal channel close:
+                </p>
+                <ol>
+                    <li>Either party sends shutdown message</li>
+                    <li>No new HTLCs accepted</li>
+                    <li>Existing HTLCs resolved</li>
+                    <li>Parties negotiate closing transaction</li>
+                    <li>Simple outputs (no delays, no scripts)</li>
+                    <li>Both sign and broadcast</li>
+                </ol>
+                <p>
+                    Result: Immediate access to funds, minimal fees.
+                </p>
+            </div>
+
+            <h3>Force Close</h3>
+
+            <div class="definition">
+                <p><strong>Definition 23.8</strong> (Unilateral Close)</p>
+                <p>
+                    If cooperation fails:
+                </p>
+                <ol>
+                    <li>One party broadcasts their commitment transaction</li>
+                    <li>Their own funds are timelocked (e.g., 144 blocks / ~1 day)</li>
+                    <li>Counterparty's funds are immediately available</li>
+                    <li>HTLCs resolved with additional transactions</li>
+                </ol>
+                <p>
+                    Result: Delayed access, higher fees, but trustless.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>23.6 HTLCs: Conditional Payments</h2>
+
+            <p>
+                Payment channels become truly powerful when combined with Hash Time-Locked
+                Contracts (HTLCs), enabling conditional payments and multi-hop routing.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 23.9</strong> (HTLC)</p>
+                <p>
+                    A Hash Time-Locked Contract locks funds that can be claimed in two ways:
+                </p>
+                <ul>
+                    <li><strong>Success path:</strong> Recipient provides preimage R where H(R) = hash</li>
+                    <li><strong>Timeout path:</strong> Sender reclaims after timeout expires</li>
+                </ul>
+                <pre><code>OP_IF
+    OP_HASH160 &lt;payment_hash&gt; OP_EQUALVERIFY
+    &lt;recipient_pubkey&gt; OP_CHECKSIG
+OP_ELSE
+    &lt;timeout&gt; OP_CHECKLOCKTIMEVERIFY OP_DROP
+    &lt;sender_pubkey&gt; OP_CHECKSIG
+OP_ENDIF</code></pre>
+            </div>
+
+            <h3>HTLC in Commitment Transactions</h3>
+
+            <p>
+                When an HTLC is added to a channel, commitment transactions include
+                additional outputs:
+            </p>
+
+            <div class="channel-state">
+                <div class="header">Channel State with HTLC</div>
+                <p>Funding: 1.0 BTC total</p>
+                <p>Alice balance: 0.4 BTC</p>
+                <p>Bob balance: 0.3 BTC</p>
+                <p>HTLC (Alice → Bob): 0.3 BTC, hash=abc123, timeout=block 700000</p>
+                <div class="balance-bar">
+                    <div class="balance-alice" style="width: 40%;">Alice: 0.4</div>
+                    <div style="width: 30%; background: #9c27b0; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px;">HTLC: 0.3</div>
+                    <div class="balance-bob" style="width: 30%;">Bob: 0.3</div>
+                </div>
+            </div>
+
+            <h3>HTLC Resolution</h3>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 23.3</strong> (HTLC Lifecycle)</p>
+                <pre><code>// Adding an HTLC
+1. Alice sends update_add_htlc:
+   - Amount, payment_hash, expiry
+2. Both create new commitment txs with HTLC output
+3. Exchange signatures, revoke old state
+
+// Success (Bob knows preimage)
+4a. Bob sends update_fulfill_htlc with preimage R
+5a. Both create new commitments moving HTLC amount to Bob
+6a. Exchange signatures, revoke HTLC state
+
+// Timeout (expiry passes)
+4b. Alice sends update_fail_htlc
+5b. Both create new commitments returning amount to Alice
+6b. Exchange signatures, revoke HTLC state</code></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>23.7 Watchtowers</h2>
+
+            <p>
+                A key requirement of LN-Penalty channels: the honest party must monitor the
+                blockchain during the timelock period. Watchtowers provide this service.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 23.10</strong> (Watchtower)</p>
+                <p>
+                    A watchtower is a service that:
+                </p>
+                <ol>
+                    <li>Receives encrypted breach remedy data from channel participants</li>
+                    <li>Monitors the blockchain for revoked commitments</li>
+                    <li>Broadcasts punishment transactions if breach detected</li>
+                    <li>Optionally collects a fee from recovered funds</li>
+                </ol>
+            </div>
+
+            <h3>Watchtower Privacy</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 23.4</strong> (Watchtower Privacy)</p>
+                <p>
+                    Watchtowers can operate without learning channel balances:
+                </p>
+                <ul>
+                    <li>Client provides encrypted blob keyed to commitment txid</li>
+                    <li>Watchtower cannot decrypt without seeing breach on-chain</li>
+                    <li>Blob contains only enough info to construct punishment</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 23.1</strong></p>
+                <p>
+                    Design a unidirectional payment channel using only OP_CHECKLOCKTIMEVERIFY
+                    and multisig. What are the limitations compared to bidirectional channels?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 23.2</strong></p>
+                <p>
+                    Prove that in an LN-Penalty channel, a rational actor will never broadcast
+                    an old state, assuming they value funds more than the cost of the punishment.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 23.3</strong></p>
+                <p>
+                    Calculate the maximum number of state updates before the commitment
+                    transaction becomes too large to broadcast (assuming ~100 bytes per HTLC
+                    and standard transaction size limits).
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 23.4</strong></p>
+                <p>
+                    Alice and Bob have a channel. Alice goes offline for 1 week. Bob broadcasts
+                    a state from 3 days ago. Analyze the security implications if the timelock
+                    is (a) 144 blocks, (b) 2016 blocks.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 23.5</strong></p>
+                <p>
+                    Design an HTLC that uses Schnorr signatures instead of hash preimages.
+                    What privacy benefits does this provide? (Hint: adaptor signatures)
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 23.6</strong></p>
+                <p>
+                    Calculate the on-chain footprint reduction for 1000 users each making
+                    100 payments per day via payment channels vs. on-chain transactions.
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    Payment channels allow unlimited off-chain transactions between two
+                    parties with only two on-chain transactions (open and close).
+                </li>
+                <li>
+                    Unidirectional channels are simple but limited; bidirectional channels
+                    require mechanisms to revoke old states.
+                </li>
+                <li>
+                    LN-Penalty uses asymmetric commitments where the broadcaster's funds
+                    are timelocked, allowing punishment if revoked states are broadcast.
+                </li>
+                <li>
+                    Revocation secrets shared during state updates allow counterparties
+                    to construct punishment transactions for cheating attempts.
+                </li>
+                <li>
+                    HTLCs enable conditional payments with hash preimages and timelocks,
+                    forming the basis for multi-hop routing.
+                </li>
+                <li>
+                    Watchtowers provide monitoring services to ensure security even when
+                    channel participants are offline.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="22-client-side-validation.html">← Chapter 22: Client-Side Validation</a>
+            <a href="../index.html">Index</a>
+            <a href="24-lightning.html">Chapter 24: Lightning Network →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

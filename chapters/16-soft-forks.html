@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 16: Soft Forks and Upgrades | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 16</p>
+        <h1>Soft Forks and Upgrades</h1>
+        <p class="chapter-subtitle">Evolving a Decentralized Protocol</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                How does a decentralized network upgrade itself when there's no central authority
+                to mandate changes? Bitcoin has evolved significantly since 2009, adding new
+                features while maintaining backward compatibility. This chapter examines the
+                mechanisms that make this possible: the distinction between policy and consensus,
+                the mechanics of soft forks, and the social and technical coordination required
+                to upgrade a global monetary system.
+            </p>
+        </section>
+
+        <section>
+            <h2>16.1 Policy vs Consensus</h2>
+
+            <p>
+                Bitcoin nodes enforce two distinct sets of rules, and understanding their
+                difference is crucial for reasoning about network upgrades.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.1 (Consensus Rules)</p>
+                <p>
+                    <strong>Consensus rules</strong> determine block validity. A block violating
+                    any consensus rule is rejected and will never be accepted by the node,
+                    regardless of how much work is built on top of it.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.2 (Policy Rules / Standardness)</p>
+                <p>
+                    <strong>Policy rules</strong> (also called <strong>standardness rules</strong>)
+                    determine which transactions a node will relay and accept into its mempool.
+                    Transactions violating policy are called "non-standard" but may still be
+                    valid if included in a block.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="200" viewBox="0 0 480 200">
+                    <!-- Consensus set (larger) -->
+                    <ellipse cx="240" cy="110" rx="200" ry="80" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="240" y="175" text-anchor="middle" font-family="Georgia" font-size="11" fill="#4a90d9">Consensus Valid</text>
+
+                    <!-- Policy set (smaller, inside) -->
+                    <ellipse cx="240" cy="100" rx="120" ry="50" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="240" y="105" text-anchor="middle" font-family="Georgia" font-size="11" fill="#5a8f5a">Standard (Policy)</text>
+
+                    <!-- Labels -->
+                    <text x="380" y="90" font-family="Georgia" font-size="10" fill="#4a90d9">Valid but</text>
+                    <text x="380" y="105" font-family="Georgia" font-size="10" fill="#4a90d9">non-standard</text>
+
+                    <!-- Example transactions -->
+                    <circle cx="240" cy="100" r="5" fill="#5a8f5a"/>
+                    <text x="255" y="95" font-family="Georgia" font-size="8">P2PKH</text>
+
+                    <circle cx="200" cy="85" r="5" fill="#5a8f5a"/>
+                    <text x="175" y="80" font-family="Georgia" font-size="8">P2WPKH</text>
+
+                    <circle cx="370" cy="120" r="5" fill="#4a90d9"/>
+                    <text x="355" y="140" font-family="Georgia" font-size="8">Bare multisig</text>
+
+                    <circle cx="110" cy="130" r="5" fill="#4a90d9"/>
+                    <text x="95" y="150" font-family="Georgia" font-size="8">Large OP_RETURN</text>
+                </svg>
+                <figcaption>Figure 16.1: Policy (standardness) is a subset of consensus validity.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 16.1 (Standard vs Non-Standard)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction Type</th>
+                            <th>Consensus</th>
+                            <th>Standard Policy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>P2PKH, P2WPKH, P2TR</td>
+                            <td>✓ Valid</td>
+                            <td>✓ Standard</td>
+                        </tr>
+                        <tr>
+                            <td>OP_RETURN with 80 bytes</td>
+                            <td>✓ Valid</td>
+                            <td>✓ Standard</td>
+                        </tr>
+                        <tr>
+                            <td>OP_RETURN with 100 bytes</td>
+                            <td>✓ Valid</td>
+                            <td>✗ Non-standard</td>
+                        </tr>
+                        <tr>
+                            <td>Bare 15-of-15 multisig</td>
+                            <td>✓ Valid</td>
+                            <td>✗ Non-standard</td>
+                        </tr>
+                        <tr>
+                            <td>Coinbase spending <100 conf</td>
+                            <td>✗ Invalid</td>
+                            <td>N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.1 (Why Policy Exists)</p>
+                <p>
+                    Policy rules serve multiple purposes:
+                </p>
+                <ul>
+                    <li><strong>DoS protection:</strong> Limit resource-intensive transactions</li>
+                    <li><strong>Upgrade preparation:</strong> Make new features "standard" before mandatory</li>
+                    <li><strong>Network hygiene:</strong> Discourage undesirable patterns</li>
+                    <li><strong>Future flexibility:</strong> Reserve space for future soft forks</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>16.2 Hard Forks vs Soft Forks</h2>
+
+            <p>
+                Protocol changes are categorized by their compatibility properties.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.3 (Hard Fork)</p>
+                <p>
+                    A <strong>hard fork</strong> relaxes consensus rules—it makes previously
+                    invalid blocks valid. Old nodes will reject blocks valid under new rules.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.4 (Soft Fork)</p>
+                <p>
+                    A <strong>soft fork</strong> tightens consensus rules—it makes some previously
+                    valid blocks invalid. Old nodes will accept blocks valid under new rules
+                    (though they may not fully understand them).
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- Hard Fork -->
+                    <text x="125" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Hard Fork</text>
+
+                    <ellipse cx="125" cy="90" rx="80" ry="50" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="125" y="85" text-anchor="middle" font-family="Georgia" font-size="10">Old rules</text>
+
+                    <ellipse cx="125" cy="110" rx="100" ry="70" fill="none" stroke="#c44" stroke-width="2" stroke-dasharray="5,3"/>
+                    <text x="125" y="165" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">New rules (larger)</text>
+
+                    <text x="125" y="200" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Old nodes reject new blocks</text>
+
+                    <!-- Soft Fork -->
+                    <text x="375" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Soft Fork</text>
+
+                    <ellipse cx="375" cy="100" rx="100" ry="70" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="375" y="155" text-anchor="middle" font-family="Georgia" font-size="10">Old rules</text>
+
+                    <ellipse cx="375" cy="90" rx="70" ry="45" fill="#d4ecd4" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="375" y="95" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">New rules (smaller)</text>
+
+                    <text x="375" y="200" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Old nodes accept new blocks</text>
+                </svg>
+                <figcaption>Figure 16.2: Hard forks expand valid blocks; soft forks restrict them.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 16.1 (Soft Fork Backward Compatibility)</p>
+                <p>
+                    If a soft fork activates with majority hash power support:
+                </p>
+                <ul>
+                    <li>Upgraded nodes enforce new stricter rules</li>
+                    <li>Non-upgraded nodes see a valid (if possibly confusing) chain</li>
+                    <li>The network remains unified on one chain</li>
+                </ul>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof sketch.</p>
+                <p>
+                    New rules are a subset of old rules. Any block valid under new rules is
+                    therefore valid under old rules. Old nodes accept the chain built by
+                    upgraded miners. Since upgraded miners have majority hash power, their
+                    chain will be longest/heaviest, and all nodes follow it. □
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>16.3 Activation Mechanisms</h2>
+
+            <p>
+                Soft forks require coordination to activate safely. Several mechanisms
+                have been developed.
+            </p>
+
+            <h3>16.3.1 Flag Day Activation</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.5 (Flag Day)</p>
+                <p>
+                    A <strong>flag day activation</strong> enables new rules at a predetermined
+                    block height or time. Used in early soft forks (BIP-30, BIP-34).
+                </p>
+            </div>
+
+            <h3>16.3.2 BIP-9: Miner Signaling</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.6 (BIP-9 Version Bits)</p>
+                <p>
+                    <strong>BIP-9</strong> allows miners to signal readiness for soft forks
+                    using version bits in block headers:
+                </p>
+                <ul>
+                    <li>Each soft fork uses one of 29 available bits</li>
+                    <li>Signaling occurs during a defined window</li>
+                    <li>Activation requires 95% of blocks signaling over 2016 blocks</li>
+                    <li>If threshold not reached by timeout, deployment fails</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="160" viewBox="0 0 480 160">
+                    <!-- Timeline -->
+                    <line x1="40" y1="80" x2="440" y2="80" stroke="#666" stroke-width="1.5"/>
+
+                    <!-- Start time -->
+                    <line x1="80" y1="70" x2="80" y2="90" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="80" y="60" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Start</text>
+                    <text x="80" y="105" text-anchor="middle" font-family="Georgia" font-size="8">DEFINED</text>
+
+                    <!-- Signaling period -->
+                    <rect x="85" y="75" width="200" height="10" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="185" y="125" text-anchor="middle" font-family="Georgia" font-size="9">STARTED (signaling)</text>
+
+                    <!-- Threshold reached -->
+                    <line x1="290" y1="70" x2="290" y2="90" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="290" y="60" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">95% reached</text>
+                    <text x="290" y="105" text-anchor="middle" font-family="Georgia" font-size="8">LOCKED_IN</text>
+
+                    <!-- Activation -->
+                    <line x1="360" y1="70" x2="360" y2="90" stroke="#c44" stroke-width="2"/>
+                    <text x="360" y="60" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Activate</text>
+                    <text x="395" y="105" text-anchor="middle" font-family="Georgia" font-size="8">ACTIVE</text>
+
+                    <!-- Active period -->
+                    <rect x="365" y="75" width="70" height="10" fill="#ffe8e8" stroke="#c44"/>
+
+                    <!-- Timeout -->
+                    <text x="420" y="145" text-anchor="middle" font-family="Georgia" font-size="8" fill="#888">(or FAILED if timeout)</text>
+                </svg>
+                <figcaption>Figure 16.3: BIP-9 state machine for soft fork activation.</figcaption>
+            </figure>
+
+            <h3>16.3.3 BIP-8: Mandatory Activation</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.7 (BIP-8)</p>
+                <p>
+                    <strong>BIP-8</strong> extends BIP-9 with a <code>lockinontimeout</code> parameter.
+                    If true, the soft fork activates at timeout regardless of miner signaling
+                    (User Activated Soft Fork / UASF model).
+                </p>
+            </div>
+
+            <h3>16.3.4 Speedy Trial</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.8 (Speedy Trial)</p>
+                <p>
+                    <strong>Speedy Trial</strong> is a fast signaling period (typically 3 months)
+                    with a longer delay before activation. Used for Taproot (BIP-341).
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>16.4 Major Soft Forks in Bitcoin History</h2>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Soft Fork</th>
+                        <th>BIP(s)</th>
+                        <th>Activated</th>
+                        <th>Mechanism</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BIP-34 (Height in Coinbase)</td>
+                        <td>34</td>
+                        <td>March 2013</td>
+                        <td>Miner voting</td>
+                    </tr>
+                    <tr>
+                        <td>BIP-66 (Strict DER)</td>
+                        <td>66</td>
+                        <td>July 2015</td>
+                        <td>BIP-9</td>
+                    </tr>
+                    <tr>
+                        <td>BIP-65 (CHECKLOCKTIMEVERIFY)</td>
+                        <td>65</td>
+                        <td>December 2015</td>
+                        <td>BIP-9</td>
+                    </tr>
+                    <tr>
+                        <td>BIP-68/112/113 (Relative Locks)</td>
+                        <td>68, 112, 113</td>
+                        <td>July 2016</td>
+                        <td>BIP-9</td>
+                    </tr>
+                    <tr>
+                        <td>Segregated Witness</td>
+                        <td>141, 143, 144</td>
+                        <td>August 2017</td>
+                        <td>BIP-9 + UASF pressure</td>
+                    </tr>
+                    <tr>
+                        <td>Taproot</td>
+                        <td>340, 341, 342</td>
+                        <td>November 2021</td>
+                        <td>Speedy Trial</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>16.4.1 P2SH (BIP-16)</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.2 (P2SH Soft Fork)</p>
+                <p>
+                    Pay-to-Script-Hash (2012) made <code>OP_HASH160 &lt;hash&gt; OP_EQUAL</code>
+                    outputs special. Old nodes see a simple hash check passing; new nodes
+                    additionally execute the revealed script. This pattern—reinterpreting
+                    previously "anyone can spend" outputs—became a template for future soft forks.
+                </p>
+            </div>
+
+            <h3>16.4.2 Segregated Witness (BIP-141)</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.3 (SegWit Soft Fork)</p>
+                <p>
+                    SegWit (2017) was the largest soft fork, adding:
+                </p>
+                <ul>
+                    <li>Witness data segregation (fixing transaction malleability)</li>
+                    <li>Block weight (effective capacity increase)</li>
+                    <li>Script versioning (enabling future upgrades)</li>
+                    <li>New address formats (bech32)</li>
+                </ul>
+                <p>
+                    Old nodes see SegWit outputs as "anyone can spend" (but miners won't include
+                    invalid spends, so this is safe once majority hash power upgrades).
+                </p>
+            </div>
+
+            <h3>16.4.3 Taproot (BIP-341)</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.4 (Taproot Soft Fork)</p>
+                <p>
+                    Taproot (2021) added:
+                </p>
+                <ul>
+                    <li>Schnorr signatures (BIP-340)</li>
+                    <li>Taproot output type (BIP-341)</li>
+                    <li>Tapscript (BIP-342)</li>
+                    <li>Key aggregation capabilities (MuSig)</li>
+                </ul>
+                <p>
+                    Taproot used witness version 1, leveraging SegWit's script versioning.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>16.5 The Soft Fork Design Pattern</h2>
+
+            <p>
+                Most soft forks follow a common pattern: redefine outputs that old nodes
+                see as valid (often "anyone can spend") to have new meaning.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 16.2 (Soft Fork Template)</p>
+                <p>
+                    A rule change is a valid soft fork if it can be expressed as:
+                </p>
+                <ol>
+                    <li>Identify a class of currently-valid transactions</li>
+                    <li>Add constraints that make some of them invalid</li>
+                    <li>Ensure the constraints are enforceable by upgraded nodes</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
+                    <!-- Old node view -->
+                    <rect x="30" y="40" width="180" height="100" rx="6" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <text x="120" y="30" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Old Node View</text>
+
+                    <rect x="45" y="60" width="150" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="120" y="80" text-anchor="middle" font-family="Georgia" font-size="10">scriptPubKey: 0014{hash}</text>
+
+                    <text x="120" y="115" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">"Anyone can spend"</text>
+                    <text x="120" y="130" text-anchor="middle" font-family="Georgia" font-size="9" fill="#888">(but miners won't relay invalid)</text>
+
+                    <!-- New node view -->
+                    <rect x="270" y="40" width="180" height="100" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="360" y="30" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">New Node View</text>
+
+                    <rect x="285" y="60" width="150" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="360" y="80" text-anchor="middle" font-family="Georgia" font-size="10">scriptPubKey: 0014{hash}</text>
+
+                    <text x="360" y="110" text-anchor="middle" font-family="Georgia" font-size="10" fill="#4a90d9">"P2WPKH output"</text>
+                    <text x="360" y="125" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">Requires valid witness</text>
+
+                    <!-- Arrow -->
+                    <path d="M 215 90 L 265 90" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray16)"/>
+                    <text x="240" y="80" text-anchor="middle" font-family="Georgia" font-size="8">upgrade</text>
+
+                    <defs>
+                        <marker id="arrowGray16" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 16.4: Old nodes see SegWit as "anyone can spend"; new nodes enforce witness rules.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>16.6 Standardness as Soft Fork Preparation</h2>
+
+            <p>
+                Policy rules often prepare the ground for future consensus changes.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.9 (Policy-First Deployment)</p>
+                <p>
+                    <strong>Policy-first deployment</strong> introduces new behavior in two stages:
+                </p>
+                <ol>
+                    <li>Make the new pattern "standard" (relayed, accepted in mempool)</li>
+                    <li>Later, make violations a consensus failure</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 16.2 (SegWit Policy Evolution)</p>
+                <p>
+                    Before SegWit activated:
+                </p>
+                <ol>
+                    <li>Witness programs were made non-standard to spend improperly</li>
+                    <li>This prevented anyone from claiming "anyone can spend" outputs</li>
+                    <li>Once 95% of miners upgraded, consensus rules activated</li>
+                    <li>The policy protection was no longer necessary (consensus enforced)</li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.5 (Standardness Changes)</p>
+                <p>
+                    Notable standardness changes that were <em>not</em> soft forks:
+                </p>
+                <ul>
+                    <li>OP_RETURN data size limits (policy only)</li>
+                    <li>Dust threshold (policy only)</li>
+                    <li>Replace-by-fee signaling (policy only)</li>
+                    <li>Mempool size limits (policy only)</li>
+                </ul>
+                <p>
+                    These can be changed by individual nodes without network consensus.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>16.7 Risks and Challenges</h2>
+
+            <h3>16.7.1 Chain Split Risk</h3>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 16.3 (Soft Fork Split Conditions)</p>
+                <p>
+                    A soft fork can cause a chain split if:
+                </p>
+                <ul>
+                    <li>Miners produce blocks violating new rules</li>
+                    <li>These blocks have enough work to be longest for old nodes</li>
+                    <li>Upgraded nodes reject them, following a shorter (but valid) chain</li>
+                </ul>
+                <p>
+                    This is why 95% miner signaling is required—it ensures the new-rules
+                    chain will be longest.
+                </p>
+            </div>
+
+            <h3>16.7.2 Coordination Challenges</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.6 (Upgrade Coordination)</p>
+                <p>
+                    Soft fork deployment requires coordinating:
+                </p>
+                <ul>
+                    <li><strong>Developers:</strong> Write and review code</li>
+                    <li><strong>Node operators:</strong> Upgrade software</li>
+                    <li><strong>Miners:</strong> Signal readiness</li>
+                    <li><strong>Businesses:</strong> Test and integrate</li>
+                    <li><strong>Users:</strong> Understand implications</li>
+                </ul>
+                <p>
+                    This natural friction makes changes deliberate and conservative.
+                </p>
+            </div>
+
+            <h3>16.7.3 Irreversibility</h3>
+
+            <p>
+                Once a soft fork activates, reversing it would require a hard fork (the
+                reverse operation). This makes soft forks effectively permanent.
+            </p>
+        </section>
+
+        <section>
+            <h2>16.8 Future Upgrade Paths</h2>
+
+            <p>
+                Bitcoin's design includes provisions for future upgrades.
+            </p>
+
+            <h3>16.8.1 Witness Versions</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.10 (Witness Versions)</p>
+                <p>
+                    SegWit defined 17 <strong>witness versions</strong> (0-16). Currently used:
+                </p>
+                <ul>
+                    <li><strong>Version 0:</strong> P2WPKH, P2WSH</li>
+                    <li><strong>Version 1:</strong> Taproot (P2TR)</li>
+                    <li><strong>Versions 2-16:</strong> Reserved for future soft forks</li>
+                </ul>
+            </div>
+
+            <h3>16.8.2 Taproot's OP_SUCCESS</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 16.11 (OP_SUCCESS)</p>
+                <p>
+                    Tapscript redefines many unused opcodes as <strong>OP_SUCCESSx</strong>.
+                    These cause the script to immediately succeed, allowing future soft forks
+                    to give them new meaning without breaking existing scripts.
+                </p>
+            </div>
+
+            <h3>16.8.3 Proposed Soft Forks</h3>
+
+            <p>
+                Several soft forks are under discussion (as of 2024):
+            </p>
+            <ul>
+                <li><strong>OP_CTV (BIP-119):</strong> Covenants via CHECKTEMPLATEVERIFY</li>
+                <li><strong>OP_CAT:</strong> Re-enable concatenation opcode</li>
+                <li><strong>ANYPREVOUT (BIP-118):</strong> New sighash for Eltoo/LN-Symmetry</li>
+                <li><strong>Cross-input signature aggregation:</strong> Batch Schnorr verification</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>16.9 The Social Layer</h2>
+
+            <p>
+                Technical mechanisms are necessary but not sufficient for upgrades.
+                The social layer—community consensus—ultimately determines what changes
+                are accepted.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.7 (Consensus Beyond Code)</p>
+                <p>
+                    "Consensus" in Bitcoin has two meanings:
+                </p>
+                <ol>
+                    <li><strong>Technical consensus:</strong> Rules enforced by software</li>
+                    <li><strong>Social consensus:</strong> Agreement among participants</li>
+                </ol>
+                <p>
+                    Changes require both. Code without social consensus is an altcoin.
+                    Social consensus without code changes existing behavior.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 16.3 (SegWit Activation Controversy)</p>
+                <p>
+                    SegWit's activation (2017) illustrated social consensus dynamics:
+                </p>
+                <ul>
+                    <li>Technical readiness: 2015-2016</li>
+                    <li>Miner signaling stalled at ~30% for months</li>
+                    <li>User Activated Soft Fork (BIP-148) threatened August 1 activation</li>
+                    <li>Miners signaled rapidly, reaching 95% before the deadline</li>
+                    <li>Demonstrated that users, not just miners, determine consensus</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 16.1</p>
+                <p>
+                    Explain why "increasing the block size limit" would be a hard fork,
+                    while "decreasing the block size limit" would be a soft fork.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 16.2</p>
+                <p>
+                    A proposed change would make transactions with more than 100 inputs
+                    invalid. Is this a soft fork or hard fork? What might motivate such a change?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 16.3</p>
+                <p>
+                    Why does BIP-9 require 95% rather than 51% miner signaling? What could
+                    go wrong with a lower threshold?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 16.4</p>
+                <p>
+                    Research the "UASF" (User Activated Soft Fork) concept. How does it differ
+                    from miner-activated soft forks? What are its advantages and risks?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 16.5</p>
+                <p>
+                    If you wanted to add a new opcode (say, OP_SHA3 for SHA-3 hashing) to
+                    Bitcoin via soft fork, describe how you would design it using the
+                    OP_SUCCESS pattern in Tapscript.
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="15-consensus-parameters.html" class="prev-chapter">← Chapter 15: Consensus Parameters</a>
+            <a href="../index.html" class="next-chapter">Back to Contents →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

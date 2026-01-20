@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: Transactions | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 10</p>
+        <h1>Transactions</h1>
+        <p class="chapter-subtitle">The Fundamental Unit of Value Transfer</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                A Bitcoin transaction is a signed data structure that transfers value from
+                one or more sources to one or more destinations. Understanding transaction
+                structure is essential—every bitcoin that exists can be traced through an
+                unbroken chain of transactions back to its creation in a coinbase.
+            </p>
+
+            <p>
+                In this chapter, we examine the precise byte-level format of transactions,
+                the UTXO model that governs value flow, and the serialization rules that
+                determine transaction identifiers.
+            </p>
+        </section>
+
+        <section>
+            <h2>10.1 The UTXO Model</h2>
+
+            <p>
+                Bitcoin does not track account balances. Instead, it tracks individual
+                chunks of value called <em>unspent transaction outputs</em>.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.1 (UTXO)</p>
+                <p>
+                    An <strong>Unspent Transaction Output (UTXO)</strong> is a transaction output
+                    that has not yet been consumed as an input to another transaction. Each UTXO
+                    represents a discrete amount of bitcoin locked to a specific spending condition.
+                </p>
+            </div>
+
+            <p>
+                The UTXO set is the complete collection of all unspent outputs at any given
+                moment. A full node maintains this set and updates it with each new block.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Transaction A -->
+                    <rect x="20" y="60" width="120" height="80" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="80" y="85" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Transaction A</text>
+                    <text x="80" y="105" text-anchor="middle" font-family="Georgia" font-size="10">Output 0: 0.5 BTC</text>
+                    <text x="80" y="120" text-anchor="middle" font-family="Georgia" font-size="10">Output 1: 0.3 BTC</text>
+
+                    <!-- Arrow from A to B -->
+                    <path d="M 145 90 L 200 90" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrowGreen10)"/>
+                    <text x="172" y="82" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">spent</text>
+
+                    <!-- Transaction B -->
+                    <rect x="205" y="30" width="140" height="110" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="275" y="55" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Transaction B</text>
+                    <line x1="215" y1="65" x2="335" y2="65" stroke="#ccc" stroke-width="1"/>
+                    <text x="225" y="82" font-family="Georgia" font-size="9" fill="#666">Input: A:0</text>
+                    <line x1="215" y1="92" x2="335" y2="92" stroke="#ccc" stroke-width="1"/>
+                    <text x="225" y="108" font-family="Georgia" font-size="9">Output 0: 0.2 BTC</text>
+                    <text x="225" y="122" font-family="Georgia" font-size="9">Output 1: 0.29 BTC</text>
+
+                    <!-- UTXO indicators -->
+                    <rect x="360" y="100" width="80" height="25" rx="4" fill="#e8f8e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="400" y="117" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">UTXOs</text>
+
+                    <path d="M 345 105 L 360 105" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <path d="M 345 120 L 360 120" stroke="#5a8f5a" stroke-width="1.5"/>
+
+                    <!-- A:1 still unspent -->
+                    <path d="M 80 145 L 80 170 L 400 170 L 400 130" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,2"/>
+                    <text x="240" y="185" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">A:1 remains unspent (UTXO)</text>
+
+                    <!-- Fee annotation -->
+                    <text x="275" y="148" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Fee: 0.01 BTC</text>
+
+                    <defs>
+                        <marker id="arrowGreen10" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#5a8f5a"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 10.1: Transaction B spends output 0 from Transaction A. Output 1 from A and both outputs from B remain as UTXOs.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 10.1 (No Partial Spending)</p>
+                <p>
+                    A UTXO must be spent entirely—you cannot spend "part" of an output.
+                    If you wish to send less than a UTXO's full value, you create a transaction
+                    with one output to the recipient and another "change" output back to yourself.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 10.1 (Conservation of Value)</p>
+                <p>
+                    For any valid non-coinbase transaction:
+                </p>
+                <p class="math-block">
+                    Σ(input values) ≥ Σ(output values)
+                </p>
+                <p>
+                    The difference <span class="math">Σ(inputs) − Σ(outputs)</span> is the
+                    <strong>transaction fee</strong>, claimed by the miner who includes the
+                    transaction in a block.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>10.2 Transaction Structure</h2>
+
+            <p>
+                A Bitcoin transaction consists of four main components, serialized in a
+                specific order.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.2 (Transaction)</p>
+                <p>
+                    A <strong>transaction</strong> is a data structure containing:
+                </p>
+                <ol>
+                    <li><strong>Version</strong> (4 bytes): Protocol version number</li>
+                    <li><strong>Inputs</strong> (variable): List of transaction inputs</li>
+                    <li><strong>Outputs</strong> (variable): List of transaction outputs</li>
+                    <li><strong>Locktime</strong> (4 bytes): Earliest time/block for inclusion</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="160" viewBox="0 0 480 160">
+                    <!-- Main transaction box -->
+                    <rect x="20" y="20" width="440" height="120" rx="8" fill="none" stroke="#333" stroke-width="2"/>
+                    <text x="240" y="15" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Transaction Structure</text>
+
+                    <!-- Version -->
+                    <rect x="30" y="35" width="70" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="65" y="58" text-anchor="middle" font-family="Georgia" font-size="10">Version</text>
+                    <text x="65" y="73" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">4 bytes</text>
+
+                    <!-- Inputs -->
+                    <rect x="110" y="35" width="130" height="50" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="175" y="58" text-anchor="middle" font-family="Georgia" font-size="10">Inputs</text>
+                    <text x="175" y="73" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">variable</text>
+
+                    <!-- Outputs -->
+                    <rect x="250" y="35" width="130" height="50" rx="4" fill="#f8f5f0" stroke="#d4a574" stroke-width="1.5"/>
+                    <text x="315" y="58" text-anchor="middle" font-family="Georgia" font-size="10">Outputs</text>
+                    <text x="315" y="73" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">variable</text>
+
+                    <!-- Locktime -->
+                    <rect x="390" y="35" width="60" height="50" rx="4" fill="#f5f0f8" stroke="#a574d4" stroke-width="1.5"/>
+                    <text x="420" y="58" text-anchor="middle" font-family="Georgia" font-size="10">Locktime</text>
+                    <text x="420" y="73" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">4 bytes</text>
+
+                    <!-- Byte order annotation -->
+                    <path d="M 30 100 L 450 100" stroke="#ccc" stroke-width="1" marker-end="url(#arrowGray10)"/>
+                    <text x="240" y="118" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Serialization order (little-endian integers)</text>
+
+                    <defs>
+                        <marker id="arrowGray10" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#ccc"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 10.2: High-level transaction structure.</figcaption>
+            </figure>
+
+            <h3>10.2.1 Version Field</h3>
+
+            <p>
+                The version field indicates which transaction validation rules apply.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Meaning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Original transaction format</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>BIP-68 relative lock-time semantics enabled</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>
+                The version is encoded as a 4-byte little-endian integer. Version 1 is
+                <code>01000000</code> in hex; version 2 is <code>02000000</code>.
+            </p>
+
+            <h3>10.2.2 Locktime</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.3 (Locktime)</p>
+                <p>
+                    The <strong>locktime</strong> field specifies the earliest time a transaction
+                    can be included in a block:
+                </p>
+                <ul>
+                    <li>If <span class="math">locktime < 500,000,000</span>: interpreted as a block height</li>
+                    <li>If <span class="math">locktime ≥ 500,000,000</span>: interpreted as a Unix timestamp</li>
+                    <li>If <span class="math">locktime = 0</span>: no restriction (immediately valid)</li>
+                </ul>
+            </div>
+
+            <p>
+                Locktime enables time-locked transactions—useful for inheritance planning,
+                escrow, and payment channels.
+            </p>
+        </section>
+
+        <section>
+            <h2>10.3 Transaction Inputs</h2>
+
+            <p>
+                Each input references a specific output from a previous transaction and
+                provides proof of authorization to spend it.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.4 (Transaction Input)</p>
+                <p>
+                    A <strong>transaction input</strong> consists of:
+                </p>
+                <ol>
+                    <li><strong>Outpoint</strong> (36 bytes): Reference to the UTXO being spent
+                        <ul>
+                            <li>Previous txid (32 bytes)</li>
+                            <li>Output index (4 bytes)</li>
+                        </ul>
+                    </li>
+                    <li><strong>ScriptSig</strong> (variable): Unlocking script (empty for SegWit)</li>
+                    <li><strong>Sequence</strong> (4 bytes): Sequence number for replacement/locktime</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="460" height="140" viewBox="0 0 460 140">
+                    <!-- Input box -->
+                    <rect x="20" y="20" width="420" height="100" rx="6" fill="none" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="230" y="12" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Transaction Input</text>
+
+                    <!-- Outpoint section -->
+                    <rect x="30" y="35" width="180" height="70" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="120" y="52" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Outpoint (36 bytes)</text>
+
+                    <rect x="40" y="58" width="100" height="20" rx="2" fill="#fff" stroke="#ccc"/>
+                    <text x="90" y="72" text-anchor="middle" font-family="monospace" font-size="8">prev_txid (32)</text>
+
+                    <rect x="145" y="58" width="55" height="20" rx="2" fill="#fff" stroke="#ccc"/>
+                    <text x="172" y="72" text-anchor="middle" font-family="monospace" font-size="8">vout (4)</text>
+
+                    <!-- ScriptSig -->
+                    <rect x="220" y="35" width="120" height="70" rx="4" fill="#f8f5f0" stroke="#d4a574" stroke-width="1"/>
+                    <text x="280" y="55" text-anchor="middle" font-family="Georgia" font-size="10">ScriptSig</text>
+                    <text x="280" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">variable</text>
+                    <text x="280" y="90" text-anchor="middle" font-family="Georgia" font-size="8" fill="#888">(unlocking script)</text>
+
+                    <!-- Sequence -->
+                    <rect x="350" y="35" width="80" height="70" rx="4" fill="#f5f0f8" stroke="#a574d4" stroke-width="1"/>
+                    <text x="390" y="55" text-anchor="middle" font-family="Georgia" font-size="10">Sequence</text>
+                    <text x="390" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">4 bytes</text>
+                </svg>
+                <figcaption>Figure 10.3: Structure of a transaction input.</figcaption>
+            </figure>
+
+            <h3>10.3.1 The Outpoint</h3>
+
+            <p>
+                An outpoint uniquely identifies a UTXO by specifying which transaction created
+                it and which output within that transaction.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 10.1 (Outpoint Reference)</p>
+                <p>
+                    To spend output index 1 from transaction with txid:
+                </p>
+                <pre class="code-block">a1b2c3d4e5f6...789012345678abcdef</pre>
+                <p>
+                    The outpoint would be (in serialized form):
+                </p>
+                <pre class="code-block"># txid (32 bytes, reversed for little-endian)
+efcdab78563412...f6e5d4c3b2a1
+# output index (4 bytes, little-endian)
+01000000</pre>
+            </div>
+
+            <h3>10.3.2 Sequence Numbers</h3>
+
+            <p>
+                Originally intended for transaction replacement, sequence numbers now serve
+                multiple purposes:
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Meaning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0xFFFFFFFF</code></td>
+                        <td>Final; locktime disabled for this input</td>
+                    </tr>
+                    <tr>
+                        <td><code>0xFFFFFFFE</code></td>
+                        <td>Locktime enabled, RBF disabled</td>
+                    </tr>
+                    <tr>
+                        <td><code>< 0xFFFFFFFE</code></td>
+                        <td>RBF enabled (BIP-125); may encode relative locktime (BIP-68)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>10.4 Transaction Outputs</h2>
+
+            <p>
+                Each output specifies an amount and a locking condition.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.5 (Transaction Output)</p>
+                <p>
+                    A <strong>transaction output</strong> consists of:
+                </p>
+                <ol>
+                    <li><strong>Value</strong> (8 bytes): Amount in satoshis (little-endian)</li>
+                    <li><strong>ScriptPubKey</strong> (variable): Locking script defining spending conditions</li>
+                </ol>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.6 (Satoshi)</p>
+                <p>
+                    A <strong>satoshi</strong> is the smallest unit of bitcoin:
+                </p>
+                <p class="math-block">
+                    1 BTC = 100,000,000 satoshis = 10⁸ satoshis
+                </p>
+                <p>
+                    All values in Bitcoin are represented internally as integer satoshis.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="360" height="100" viewBox="0 0 360 100">
+                    <!-- Output box -->
+                    <rect x="20" y="20" width="320" height="60" rx="6" fill="none" stroke="#d4a574" stroke-width="2"/>
+                    <text x="180" y="12" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Transaction Output</text>
+
+                    <!-- Value -->
+                    <rect x="30" y="35" width="100" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1"/>
+                    <text x="80" y="52" text-anchor="middle" font-family="Georgia" font-size="10">Value</text>
+                    <text x="80" y="65" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">8 bytes (sats)</text>
+
+                    <!-- ScriptPubKey -->
+                    <rect x="140" y="35" width="190" height="35" rx="4" fill="#f8f5f0" stroke="#d4a574" stroke-width="1"/>
+                    <text x="235" y="52" text-anchor="middle" font-family="Georgia" font-size="10">ScriptPubKey</text>
+                    <text x="235" y="65" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">variable (locking script)</text>
+                </svg>
+                <figcaption>Figure 10.4: Structure of a transaction output.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 10.2 (Output Value Encoding)</p>
+                <p>
+                    To encode 0.01 BTC (1,000,000 satoshis):
+                </p>
+                <pre class="code-block">1,000,000 = 0x0F4240
+
+# As 8-byte little-endian:
+40420f0000000000</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>10.5 Standard ScriptPubKey Types</h2>
+
+            <p>
+                While Bitcoin Script allows arbitrary programs, most outputs use one of
+                several standard templates.
+            </p>
+
+            <h3>10.5.1 P2PKH (Pay-to-Public-Key-Hash)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.7 (P2PKH ScriptPubKey)</p>
+                <p>
+                    A <strong>P2PKH</strong> output has the locking script:
+                </p>
+                <pre class="code-block">OP_DUP OP_HASH160 &lt;20-byte-pubkey-hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
+                <p>
+                    In hex: <code>76a914{hash}88ac</code>
+                </p>
+            </div>
+
+            <h3>10.5.2 P2SH (Pay-to-Script-Hash)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.8 (P2SH ScriptPubKey)</p>
+                <p>
+                    A <strong>P2SH</strong> output has the locking script:
+                </p>
+                <pre class="code-block">OP_HASH160 &lt;20-byte-script-hash&gt; OP_EQUAL</pre>
+                <p>
+                    In hex: <code>a914{hash}87</code>
+                </p>
+            </div>
+
+            <h3>10.5.3 Native SegWit (P2WPKH, P2WSH)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.9 (Witness Program)</p>
+                <p>
+                    A <strong>native SegWit</strong> output has a scriptPubKey of the form:
+                </p>
+                <pre class="code-block">&lt;witness-version&gt; &lt;witness-program&gt;</pre>
+                <p>
+                    For P2WPKH: <code>0014{20-byte-hash}</code><br>
+                    For P2WSH: <code>0020{32-byte-hash}</code>
+                </p>
+            </div>
+
+            <h3>10.5.4 Taproot (P2TR)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.10 (P2TR ScriptPubKey)</p>
+                <p>
+                    A <strong>Taproot</strong> output has the locking script:
+                </p>
+                <pre class="code-block">OP_1 &lt;32-byte-x-only-pubkey&gt;</pre>
+                <p>
+                    In hex: <code>5120{pubkey}</code>
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>ScriptPubKey Pattern</th>
+                        <th>Size (bytes)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>P2PKH</td>
+                        <td><code>76a914{20}88ac</code></td>
+                        <td>25</td>
+                    </tr>
+                    <tr>
+                        <td>P2SH</td>
+                        <td><code>a914{20}87</code></td>
+                        <td>23</td>
+                    </tr>
+                    <tr>
+                        <td>P2WPKH</td>
+                        <td><code>0014{20}</code></td>
+                        <td>22</td>
+                    </tr>
+                    <tr>
+                        <td>P2WSH</td>
+                        <td><code>0020{32}</code></td>
+                        <td>34</td>
+                    </tr>
+                    <tr>
+                        <td>P2TR</td>
+                        <td><code>5120{32}</code></td>
+                        <td>34</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>10.6 Segregated Witness</h2>
+
+            <p>
+                Segregated Witness (SegWit), activated in August 2017, separates signature
+                data from the main transaction structure.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.11 (Witness)</p>
+                <p>
+                    The <strong>witness</strong> is a separate data structure containing the
+                    signatures and other data needed to validate SegWit inputs. It is not
+                    included in the transaction hash (txid) but is included in the witness
+                    transaction hash (wtxid).
+                </p>
+            </div>
+
+            <h3>10.6.1 SegWit Transaction Format</h3>
+
+            <p>
+                A SegWit transaction includes additional marker, flag, and witness fields:
+            </p>
+
+            <figure>
+                <svg class="diagram" width="520" height="120" viewBox="0 0 520 120">
+                    <!-- Main box -->
+                    <rect x="10" y="30" width="500" height="60" rx="6" fill="none" stroke="#333" stroke-width="2"/>
+
+                    <!-- Version -->
+                    <rect x="20" y="42" width="55" height="36" rx="3" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1"/>
+                    <text x="47" y="58" text-anchor="middle" font-family="Georgia" font-size="9">Version</text>
+                    <text x="47" y="72" text-anchor="middle" font-family="monospace" font-size="8" fill="#666">4</text>
+
+                    <!-- Marker -->
+                    <rect x="80" y="42" width="35" height="36" rx="3" fill="#ffe8e8" stroke="#c44" stroke-width="1"/>
+                    <text x="97" y="58" text-anchor="middle" font-family="Georgia" font-size="9">Marker</text>
+                    <text x="97" y="72" text-anchor="middle" font-family="monospace" font-size="8" fill="#c44">0x00</text>
+
+                    <!-- Flag -->
+                    <rect x="120" y="42" width="35" height="36" rx="3" fill="#ffe8e8" stroke="#c44" stroke-width="1"/>
+                    <text x="137" y="58" text-anchor="middle" font-family="Georgia" font-size="9">Flag</text>
+                    <text x="137" y="72" text-anchor="middle" font-family="monospace" font-size="8" fill="#c44">0x01</text>
+
+                    <!-- Inputs -->
+                    <rect x="160" y="42" width="80" height="36" rx="3" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="200" y="63" text-anchor="middle" font-family="Georgia" font-size="9">Inputs</text>
+
+                    <!-- Outputs -->
+                    <rect x="245" y="42" width="80" height="36" rx="3" fill="#f8f5f0" stroke="#d4a574" stroke-width="1"/>
+                    <text x="285" y="63" text-anchor="middle" font-family="Georgia" font-size="9">Outputs</text>
+
+                    <!-- Witness -->
+                    <rect x="330" y="42" width="100" height="36" rx="3" fill="#e8e8ff" stroke="#4a4ad9" stroke-width="1"/>
+                    <text x="380" y="58" text-anchor="middle" font-family="Georgia" font-size="9">Witness</text>
+                    <text x="380" y="72" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(signatures)</text>
+
+                    <!-- Locktime -->
+                    <rect x="435" y="42" width="65" height="36" rx="3" fill="#f5f0f8" stroke="#a574d4" stroke-width="1"/>
+                    <text x="467" y="63" text-anchor="middle" font-family="Georgia" font-size="9">Locktime</text>
+
+                    <!-- Labels -->
+                    <text x="260" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">SegWit Transaction Structure</text>
+                    <text x="97" y="105" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">SegWit markers</text>
+                    <path d="M 80 95 L 155 95" stroke="#c44" stroke-width="1"/>
+                </svg>
+                <figcaption>Figure 10.5: SegWit transaction structure with marker, flag, and witness fields.</figcaption>
+            </figure>
+
+            <h3>10.6.2 Transaction IDs</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.12 (Txid and Wtxid)</p>
+                <p>
+                    The <strong>txid</strong> is the double-SHA256 hash of the "legacy" serialization
+                    (version, inputs, outputs, locktime)—excluding marker, flag, and witness.
+                </p>
+                <p>
+                    The <strong>wtxid</strong> is the double-SHA256 hash of the complete serialization
+                    including witness data.
+                </p>
+            </div>
+
+            <p>
+                This separation is crucial: the txid remains unchanged regardless of witness
+                data, preventing certain forms of transaction malleability.
+            </p>
+        </section>
+
+        <section>
+            <h2>10.7 Signature Hash Types</h2>
+
+            <p>
+                When signing an input, the signer commits to a specific subset of the transaction
+                data. The <em>sighash type</em> determines what is signed.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.13 (Sighash Types)</p>
+                <p>
+                    Bitcoin defines the following <strong>signature hash types</strong>:
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Signs Inputs</th>
+                        <th>Signs Outputs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SIGHASH_ALL</td>
+                        <td><code>0x01</code></td>
+                        <td>All</td>
+                        <td>All</td>
+                    </tr>
+                    <tr>
+                        <td>SIGHASH_NONE</td>
+                        <td><code>0x02</code></td>
+                        <td>All</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td>SIGHASH_SINGLE</td>
+                        <td><code>0x03</code></td>
+                        <td>All</td>
+                        <td>Same index only</td>
+                    </tr>
+                    <tr>
+                        <td>SIGHASH_ANYONECANPAY</td>
+                        <td><code>0x80</code></td>
+                        <td colspan="2">(Modifier: signs only this input)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>
+                <code>SIGHASH_ANYONECANPAY</code> can be combined with any of the first three types,
+                yielding six valid sighash values in total.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 10.3 (Sighash Applications)</p>
+                <ul>
+                    <li><strong>SIGHASH_ALL:</strong> Standard signing. Commits to the entire transaction.</li>
+                    <li><strong>SIGHASH_NONE:</strong> "Blank check"—anyone can add outputs.</li>
+                    <li><strong>SIGHASH_SINGLE:</strong> Useful for atomic swaps.</li>
+                    <li><strong>SIGHASH_ANYONECANPAY | SIGHASH_ALL:</strong> Crowdfunding—others can add inputs.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>10.8 Transaction Fees</h2>
+
+            <p>
+                Transaction fees incentivize miners and prevent spam.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.14 (Transaction Fee)</p>
+                <p>
+                    The <strong>transaction fee</strong> is the difference between total input
+                    value and total output value:
+                </p>
+                <p class="math-block">
+                    fee = Σ(input values) − Σ(output values)
+                </p>
+                <p>
+                    Fees are typically measured in satoshis per virtual byte (sat/vB).
+                </p>
+            </div>
+
+            <h3>10.8.1 Virtual Size</h3>
+
+            <p>
+                SegWit introduced <em>weight units</em> to discount witness data.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.15 (Transaction Weight)</p>
+                <p>
+                    The <strong>weight</strong> of a transaction is:
+                </p>
+                <p class="math-block">
+                    weight = (base size × 3) + total size
+                </p>
+                <p>
+                    where <em>base size</em> excludes witness data and <em>total size</em> includes it.
+                </p>
+                <p>
+                    The <strong>virtual size (vsize)</strong> is:
+                </p>
+                <p class="math-block">
+                    vsize = ⌈weight / 4⌉
+                </p>
+            </div>
+
+            <p>
+                This formula gives witness data a 75% discount, encouraging SegWit adoption
+                while maintaining backward compatibility with the 1 MB block limit (now
+                measured as 4 million weight units).
+            </p>
+        </section>
+
+        <section>
+            <h2>10.9 A Complete Transaction Example</h2>
+
+            <div class="example">
+                <p class="example-title">Example 10.4 (Parsing a Raw Transaction)</p>
+                <p>
+                    Consider this SegWit transaction (simplified):
+                </p>
+                <pre class="code-block">02000000                                  # Version 2
+0001                                      # SegWit marker + flag
+01                                        # 1 input
+  a1b2c3...32bytes...txid                 # Previous txid
+  01000000                                # Output index 1
+  00                                      # Empty scriptSig (SegWit)
+  fdffffff                                # Sequence (RBF enabled)
+02                                        # 2 outputs
+  40420f0000000000                        # Output 0: 1,000,000 sats
+  160014{20-byte-witness-program}         # P2WPKH scriptPubKey
+  a086010000000000                        # Output 1: 100,000 sats (change)
+  160014{20-byte-witness-program}         # P2WPKH scriptPubKey
+02                                        # Witness stack for input 0
+  47{71-byte-signature}                   # Signature
+  21{33-byte-compressed-pubkey}           # Public key
+00000000                                  # Locktime: 0</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>10.10 The Coinbase Transaction</h2>
+
+            <p>
+                Every block contains exactly one special transaction: the coinbase.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 10.16 (Coinbase Transaction)</p>
+                <p>
+                    A <strong>coinbase transaction</strong> is the first transaction in every block.
+                    It has:
+                </p>
+                <ul>
+                    <li>Exactly one input with a null outpoint (32 zero bytes + <code>0xFFFFFFFF</code>)</li>
+                    <li>ScriptSig containing arbitrary data (the "coinbase" field)</li>
+                    <li>Outputs that may claim the block reward plus fees</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 10.2 (Coinbase Constraint)</p>
+                <p>
+                    The total output value of a coinbase transaction must not exceed:
+                </p>
+                <p class="math-block">
+                    subsidy + Σ(fees of all transactions in the block)
+                </p>
+                <p>
+                    Any value not claimed is permanently lost (burned).
+                </p>
+            </div>
+
+            <p>
+                The coinbase scriptSig must contain the block height (BIP-34) and can include
+                arbitrary data—famously used by Satoshi to embed the headline "The Times
+                03/Jan/2009 Chancellor on brink of second bailout for banks."
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 10.1</p>
+                <p>
+                    A transaction has inputs totaling 0.5 BTC and outputs totaling 0.499 BTC.
+                    What is the fee? If the transaction is 250 vbytes, what is the fee rate
+                    in sat/vB?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 10.2</p>
+                <p>
+                    Explain why a P2WPKH output is more efficient than a P2PKH output,
+                    considering both the output scriptPubKey size and the spending input size.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 10.3</p>
+                <p>
+                    A legacy transaction has base size 225 bytes. A SegWit transaction
+                    spending the same inputs has base size 150 bytes and witness size 110 bytes.
+                    Calculate the weight and vsize of each.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 10.4</p>
+                <p>
+                    Why does the coinbase transaction need a special 100-block maturity rule
+                    before its outputs can be spent? What problem does this prevent?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 10.5</p>
+                <p>
+                    Describe a scenario where <code>SIGHASH_ANYONECANPAY | SIGHASH_ALL</code>
+                    would be useful. What are the security considerations?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="09-keys-addresses.html" class="prev-chapter">← Chapter 9: Keys and Addresses</a>
+            <a href="11-script.html" class="next-chapter">Chapter 11: Script →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

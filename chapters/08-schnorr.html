@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Digital Signatures: Schnorr | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Chapter Eight</span>
+        <h1 class="chapter-title">Digital Signatures: Schnorr</h1>
+        <p class="chapter-epigraph">
+            "Simplicity is the keynote of all true elegance."
+            <br>&mdash; Coco Chanel
+        </p>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                In 2021, the Bitcoin network activated <em>Taproot</em>, the most significant
+                upgrade since SegWit. At its cryptographic heart lies the <strong>Schnorr
+                signature scheme</strong>&mdash;a elegant algorithm that predates ECDSA yet
+                offers superior properties.
+            </p>
+            <p>
+                Schnorr signatures were invented by Claus-Peter Schnorr in the 1980s, but
+                a patent prevented their widespread adoption. The patent expired in 2008,
+                and Bitcoin's BIP-340 brought Schnorr to the world's most valuable blockchain.
+            </p>
+            <p>
+                In this chapter, we present Schnorr signatures as specified in BIP-340,
+                explaining both the mathematics and the design decisions that make this
+                scheme particularly suited for Bitcoin.
+            </p>
+        </section>
+
+        <section>
+            <h2>8.1 Why Schnorr?</h2>
+
+            <p>
+                Before diving into the mathematics, let us understand why Bitcoin adopted
+                Schnorr signatures alongside ECDSA rather than replacing it entirely.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Advantages of Schnorr over ECDSA</p>
+                <ol>
+                    <li>
+                        <strong>Provable security:</strong> Schnorr has a formal security proof
+                        in the random oracle model, reducing to the ECDLP. ECDSA's security
+                        proof is more complex and less tight.
+                    </li>
+                    <li>
+                        <strong>Linearity:</strong> Schnorr signatures are <em>linear</em>,
+                        enabling key aggregation and multi-signatures. Multiple parties can
+                        combine their public keys and signatures into single values
+                        indistinguishable from ordinary ones.
+                    </li>
+                    <li>
+                        <strong>Non-malleability:</strong> Unlike ECDSA, Schnorr signatures
+                        are inherently non-malleable.
+                    </li>
+                    <li>
+                        <strong>Efficiency:</strong> Fixed 64-byte signatures (vs. variable
+                        ~71-73 bytes for DER-encoded ECDSA). Batch verification is also possible.
+                    </li>
+                    <li>
+                        <strong>Simplicity:</strong> The algorithm is conceptually simpler,
+                        with fewer edge cases.
+                    </li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Schnorr vs. ECDSA Comparison</text>
+
+                    <!-- ECDSA column -->
+                    <g transform="translate(80, 50)">
+                        <rect x="0" y="0" width="140" height="130" fill="#fff8f0" stroke="#c44" stroke-width="1.5" rx="5"/>
+                        <text x="70" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">ECDSA</text>
+
+                        <text x="10" y="45" font-family="Georgia" font-size="10">• Variable size (71-73B)</text>
+                        <text x="10" y="62" font-family="Georgia" font-size="10">• Malleable</text>
+                        <text x="10" y="79" font-family="Georgia" font-size="10">• No key aggregation</text>
+                        <text x="10" y="96" font-family="Georgia" font-size="10">• Heuristic security</text>
+                        <text x="10" y="113" font-family="Georgia" font-size="10">• Complex verification</text>
+                    </g>
+
+                    <!-- Schnorr column -->
+                    <g transform="translate(280, 50)">
+                        <rect x="0" y="0" width="140" height="130" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5" rx="5"/>
+                        <text x="70" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Schnorr</text>
+
+                        <text x="10" y="45" font-family="Georgia" font-size="10">• Fixed size (64B) ✓</text>
+                        <text x="10" y="62" font-family="Georgia" font-size="10">• Non-malleable ✓</text>
+                        <text x="10" y="79" font-family="Georgia" font-size="10">• Key aggregation ✓</text>
+                        <text x="10" y="96" font-family="Georgia" font-size="10">• Provably secure ✓</text>
+                        <text x="10" y="113" font-family="Georgia" font-size="10">• Simple verification ✓</text>
+                    </g>
+                </svg>
+                <figcaption>Figure 8.1: Schnorr offers several improvements over ECDSA.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>8.2 The Core Idea: A Zero-Knowledge Proof of Knowledge</h2>
+
+            <p>
+                At its heart, a Schnorr signature is a <em>non-interactive zero-knowledge proof</em>
+                that the signer knows the discrete logarithm of their public key. The signer
+                proves they know <span class="math">d</span> (where <span class="math">Q = dG</span>)
+                without revealing <span class="math">d</span> itself.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 8.1 (Interactive Schnorr Protocol)</p>
+                <p>
+                    The interactive version (for understanding) works as follows:
+                </p>
+                <ol>
+                    <li><strong>Commitment:</strong> Prover chooses random <span class="math">k</span>, sends <span class="math">R = kG</span></li>
+                    <li><strong>Challenge:</strong> Verifier sends random <span class="math">e</span></li>
+                    <li><strong>Response:</strong> Prover sends <span class="math">s = k + ed</span></li>
+                    <li><strong>Verify:</strong> Verifier checks <span class="math">sG = R + eQ</span></li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="250" viewBox="0 0 500 250">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Interactive Schnorr Protocol</text>
+
+                    <!-- Prover -->
+                    <rect x="40" y="50" width="120" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="100" y="70" text-anchor="middle" font-family="Georgia" font-size="12">Prover (knows d)</text>
+
+                    <!-- Verifier -->
+                    <rect x="340" y="50" width="120" height="30" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="400" y="70" text-anchor="middle" font-family="Georgia" font-size="12">Verifier (knows Q)</text>
+
+                    <!-- Step 1: R -->
+                    <path d="M 160 100 L 340 100" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arr8b)"/>
+                    <text x="250" y="95" text-anchor="middle" font-family="Georgia" font-size="11" fill="#4a90d9">R = kG</text>
+                    <text x="90" y="115" font-family="Georgia" font-size="9" fill="#666">pick random k</text>
+
+                    <!-- Step 2: e -->
+                    <path d="M 340 140 L 160 140" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arr8g)"/>
+                    <text x="250" y="135" text-anchor="middle" font-family="Georgia" font-size="11" fill="#5a8f5a">e (challenge)</text>
+                    <text x="410" y="155" font-family="Georgia" font-size="9" fill="#666">random</text>
+
+                    <!-- Step 3: s -->
+                    <path d="M 160 180 L 340 180" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arr8b)"/>
+                    <text x="250" y="175" text-anchor="middle" font-family="Georgia" font-size="11" fill="#4a90d9">s = k + ed</text>
+
+                    <!-- Verification -->
+                    <rect x="330" y="200" width="140" height="35" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5" rx="4"/>
+                    <text x="400" y="215" text-anchor="middle" font-family="Georgia" font-size="10">Check:</text>
+                    <text x="400" y="228" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">sG = R + eQ ?</text>
+
+                    <defs>
+                        <marker id="arr8b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4a90d9"/>
+                        </marker>
+                        <marker id="arr8g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 8.2: The interactive Schnorr identification protocol.</figcaption>
+            </figure>
+
+            <div class="proof">
+                <p class="proof-title">Why verification works</p>
+                <p>
+                    <span class="math">sG = (k + ed)G = kG + edG = R + e(dG) = R + eQ</span>
+                    <span class="qed"></span>
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>8.3 The Fiat-Shamir Transform</h2>
+
+            <p>
+                Digital signatures require non-interactivity: the signer produces the signature
+                alone, without a verifier providing a challenge. The <em>Fiat-Shamir transform</em>
+                achieves this by deriving the challenge from a hash.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 8.2 (Fiat-Shamir Heuristic)</p>
+                <p>
+                    To convert an interactive protocol to a signature scheme, replace the
+                    random challenge <span class="math">e</span> with a hash:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">e = H(R || message)</span>
+                </p>
+                <p>
+                    The hash acts as a "virtual verifier" providing an unpredictable challenge
+                    derived from the commitment and the message being signed.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Binding to the Message.</p>
+                <p>
+                    Including the message in the challenge hash binds the signature to that
+                    specific message. Any attempt to use the same signature for a different
+                    message would produce a different <span class="math">e</span>, invalidating
+                    the verification equation.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>8.4 BIP-340: Schnorr for Bitcoin</h2>
+
+            <p>
+                BIP-340 specifies Schnorr signatures for Bitcoin, making several design
+                decisions that optimize for this use case.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 8.3 (BIP-340 Key Format)</p>
+                <p>
+                    Public keys in BIP-340 are 32 bytes: just the x-coordinate.
+                    The y-coordinate is implicitly chosen to be <em>even</em>.
+                </p>
+                <p>
+                    If the full point <span class="math">(x, y)</span> has odd <span class="math">y</span>,
+                    we instead use the negation <span class="math">(x, p-y)</span> which has even
+                    <span class="math">y</span>.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Why x-only Public Keys?</p>
+                <p>
+                    Using only the x-coordinate saves 1 byte per public key (32 vs. 33 bytes for
+                    compressed keys). More importantly, it simplifies key aggregation protocols
+                    since there's no need to track y-coordinate parity through aggregation.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 8.4 (BIP-340 Tagged Hash)</p>
+                <p>
+                    To prevent hash collisions between different contexts, BIP-340 uses
+                    tagged hashes:
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">H_{tag}(x) = SHA256(SHA256(tag) || SHA256(tag) || x)</span>
+                </p>
+                <p>
+                    The tag is prepended twice (64 bytes total) to align with SHA256's block size,
+                    enabling precomputation optimizations.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>8.5 The BIP-340 Signing Algorithm</h2>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 8.1 (BIP-340 Schnorr Signing)</p>
+                <pre>
+Sign(d, m):
+    // Ensure private key produces even-y public key
+    1. Compute P = dG
+    2. If y(P) is odd, set d = n - d       // Negate if needed
+    3. Let p = x(P)                        // x-coordinate (public key)
+
+    // Generate deterministic nonce
+    4. Let a = bytes(d)                    // 32 bytes
+    5. Let t = a XOR H_aux(aux_rand)       // Optional auxiliary randomness
+    6. Let rand = H_nonce(t || p || m)
+    7. Let k' = int(rand) mod n
+    8. If k' = 0, fail
+
+    // Compute R and ensure even y
+    9. Let R = k'G
+    10. If y(R) is odd, set k = n - k', else k = k'
+    11. Let r = x(R)                       // x-coordinate of R
+
+    // Compute challenge and signature
+    12. Let e = int(H_challenge(r || p || m)) mod n
+    13. Let s = (k + ed) mod n
+
+    // Return 64-byte signature
+    14. Return bytes(r) || bytes(s)</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="280" viewBox="0 0 520 280">
+                    <text x="260" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">BIP-340 Schnorr Signing</text>
+
+                    <!-- Private key d -->
+                    <rect x="30" y="50" width="70" height="35" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                    <text x="65" y="72" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">d</text>
+
+                    <!-- Message m -->
+                    <rect x="30" y="100" width="70" height="35" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
+                    <text x="65" y="122" text-anchor="middle" font-family="Georgia" font-size="11">m</text>
+
+                    <!-- Nonce derivation -->
+                    <rect x="130" y="60" width="120" height="60" fill="#fff" stroke="#666" stroke-width="1.5" rx="4"/>
+                    <text x="190" y="80" text-anchor="middle" font-family="Georgia" font-size="10">Deterministic</text>
+                    <text x="190" y="95" text-anchor="middle" font-family="Georgia" font-size="10">nonce k</text>
+                    <text x="190" y="110" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">H_nonce(d||p||m)</text>
+
+                    <path d="M 100 67 L 130 80" stroke="#666" stroke-width="1"/>
+                    <path d="M 100 117 L 130 100" stroke="#666" stroke-width="1"/>
+
+                    <!-- kG = R -->
+                    <path d="M 255 90 L 290 90" stroke="#666" stroke-width="1.5" marker-end="url(#arr80)"/>
+                    <text x="272" y="82" text-anchor="middle" font-family="Georgia" font-size="9">×G</text>
+
+                    <circle cx="320" cy="90" r="25" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="320" y="88" text-anchor="middle" font-family="Georgia" font-size="11">R</text>
+                    <text x="320" y="100" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">= kG</text>
+
+                    <!-- r = x(R) -->
+                    <path d="M 350 90 L 380 90" stroke="#666" stroke-width="1"/>
+                    <rect x="385" y="75" width="40" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
+                    <text x="405" y="95" text-anchor="middle" font-family="Georgia" font-size="11" fill="#8b4513">r</text>
+                    <text x="450" y="93" font-family="Georgia" font-size="9" fill="#666">= x(R)</text>
+
+                    <!-- Challenge e -->
+                    <rect x="280" y="150" width="150" height="40" fill="#fff" stroke="#666" stroke-width="1.5" rx="4"/>
+                    <text x="355" y="168" text-anchor="middle" font-family="Georgia" font-size="10">e = H(r || p || m)</text>
+                    <text x="355" y="183" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">challenge</text>
+
+                    <!-- Arrows to challenge -->
+                    <path d="M 405 110 L 380 150" stroke="#666" stroke-width="1"/>
+                    <path d="M 65 135 Q 170 200, 280 170" stroke="#666" stroke-width="1" fill="none"/>
+
+                    <!-- s computation -->
+                    <rect x="180" y="210" width="150" height="45" fill="#f8f5f0" stroke="#8b4513" stroke-width="2" rx="4"/>
+                    <text x="255" y="230" text-anchor="middle" font-family="Georgia" font-size="11">s = k + ed mod n</text>
+                    <text x="255" y="248" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">response</text>
+
+                    <!-- Arrows to s -->
+                    <path d="M 355 195 L 290 210" stroke="#666" stroke-width="1"/>
+                    <path d="M 190 120 Q 160 170, 210 210" stroke="#666" stroke-width="1" fill="none"/>
+                    <path d="M 65 85 Q 80 170, 180 225" stroke="#c44" stroke-width="1" fill="none"/>
+
+                    <!-- Final signature -->
+                    <rect x="360" y="220" width="120" height="35" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
+                    <text x="420" y="235" text-anchor="middle" font-family="Georgia" font-size="10" fill="#8b4513">σ = (r, s)</text>
+                    <text x="420" y="250" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">64 bytes</text>
+
+                    <path d="M 335 232 L 360 232" stroke="#8b4513" stroke-width="1.5" marker-end="url(#arr80b)"/>
+
+                    <defs>
+                        <marker id="arr80" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                        <marker id="arr80b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#8b4513"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 8.3: BIP-340 Schnorr signing uses deterministic nonce generation.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Even Y-Coordinates.</p>
+                <p>
+                    BIP-340 requires that both the public key <span class="math">P</span> and the
+                    nonce point <span class="math">R</span> have even y-coordinates. This is achieved
+                    by negating the corresponding scalar when necessary. The benefit is that
+                    signatures only need to encode x-coordinates, saving space and simplifying
+                    arithmetic.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>8.6 The BIP-340 Verification Algorithm</h2>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 8.2 (BIP-340 Schnorr Verification)</p>
+                <pre>
+Verify(p, m, sig):
+    // Parse inputs
+    1. Let P = lift_x(p)               // Recover point with even y
+       If P is invalid, return false
+    2. Let r = int(sig[0:32])
+    3. Let s = int(sig[32:64])
+    4. If r ≥ p or s ≥ n, return false
+
+    // Compute challenge
+    5. Let e = int(H_challenge(bytes(r) || p || m)) mod n
+
+    // Verify equation: sG = R + eP
+    6. Let R = sG - eP
+    7. If R is the point at infinity, return false
+    8. If y(R) is odd, return false
+    9. If x(R) ≠ r, return false
+    10. Return true</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
+                    <text x="240" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">BIP-340 Verification Equation</text>
+
+                    <!-- The key equation -->
+                    <rect x="90" y="50" width="300" height="50" fill="#f8f5f0" stroke="#8b4513" stroke-width="2" rx="5"/>
+                    <text x="240" y="80" text-anchor="middle" font-family="Georgia" font-size="18" font-style="italic">sG = R + eP</text>
+
+                    <!-- Expanded form -->
+                    <text x="240" y="120" text-anchor="middle" font-family="Georgia" font-size="12" fill="#666">equivalently: R = sG − eP</text>
+
+                    <!-- Check conditions -->
+                    <rect x="120" y="135" width="240" height="35" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5" rx="4"/>
+                    <text x="240" y="155" text-anchor="middle" font-family="Georgia" font-size="11" fill="#5a8f5a">Check: x(R) = r and y(R) is even</text>
+                </svg>
+                <figcaption>Figure 8.4: The Schnorr verification equation is simpler than ECDSA's.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 8.1 (Schnorr Correctness)</p>
+                <p>
+                    If <span class="math">(r, s)</span> is a valid BIP-340 signature on
+                    <span class="math">m</span> with key <span class="math">d</span>, then
+                    verification with <span class="math">p = x(dG)</span> returns true.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    From signing: <span class="math">s = k + ed mod n</span>, where
+                    <span class="math">R = kG</span> and <span class="math">e = H(r||p||m)</span>.
+                </p>
+                <p>
+                    Verification computes <span class="math">sG - eP</span>:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">sG - eP = (k + ed)G - e(dG) = kG + edG - edG = kG = R</span>
+                </p>
+                <p>
+                    Since <span class="math">r = x(R)</span> and <span class="math">R</span> has even
+                    <span class="math">y</span> by construction, verification succeeds.
+                    <span class="qed"></span>
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>8.7 The Linearity Property</h2>
+
+            <p>
+                The defining feature that makes Schnorr signatures powerful is <em>linearity</em>:
+                signatures and public keys can be added together algebraically.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 8.2 (Signature Linearity)</p>
+                <p>
+                    Given two Schnorr signatures <span class="math">(R₁, s₁)</span> and
+                    <span class="math">(R₂, s₂)</span> for the same message with keys
+                    <span class="math">P₁ = d₁G</span> and <span class="math">P₂ = d₂G</span>,
+                    we have:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">(s₁ + s₂)G = (R₁ + R₂) + e(P₁ + P₂)</span>
+                </p>
+                <p>
+                    where <span class="math">e</span> is the appropriate challenge for the aggregated key.
+                </p>
+            </div>
+
+            <p>
+                This linearity enables several powerful constructions:
+            </p>
+
+            <figure>
+                <svg class="diagram" width="520" height="200" viewBox="0 0 520 200">
+                    <text x="260" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Linearity Enables Key Aggregation</text>
+
+                    <!-- Individual keys -->
+                    <g transform="translate(30, 50)">
+                        <circle cx="30" cy="30" r="20" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                        <text x="30" y="35" text-anchor="middle" font-family="Georgia" font-size="11">P₁</text>
+                        <text x="30" y="65" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Alice</text>
+
+                        <circle cx="100" cy="30" r="20" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                        <text x="100" y="35" text-anchor="middle" font-family="Georgia" font-size="11">P₂</text>
+                        <text x="100" y="65" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Bob</text>
+
+                        <circle cx="170" cy="30" r="20" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                        <text x="170" y="35" text-anchor="middle" font-family="Georgia" font-size="11">P₃</text>
+                        <text x="170" y="65" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Carol</text>
+                    </g>
+
+                    <!-- Arrow and aggregation -->
+                    <path d="M 230 80 L 290 80" stroke="#8b4513" stroke-width="2" marker-end="url(#arr81)"/>
+                    <text x="260" y="70" text-anchor="middle" font-family="Georgia" font-size="10" fill="#8b4513">aggregate</text>
+
+                    <!-- Aggregated key -->
+                    <g transform="translate(310, 50)">
+                        <circle cx="50" cy="30" r="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
+                        <text x="50" y="28" text-anchor="middle" font-family="Georgia" font-size="12">P</text>
+                        <text x="50" y="42" text-anchor="middle" font-family="Georgia" font-size="10">= P₁+P₂+P₃</text>
+                        <text x="50" y="75" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Single key!</text>
+                    </g>
+
+                    <!-- Benefit box -->
+                    <rect x="80" y="130" width="360" height="50" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5" rx="5"/>
+                    <text x="260" y="150" text-anchor="middle" font-family="Georgia" font-size="11">On-chain: looks like a single-party signature</text>
+                    <text x="260" y="168" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Privacy + efficiency: 3 parties, 1 signature, 64 bytes</text>
+
+                    <defs>
+                        <marker id="arr81" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#8b4513"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 8.5: Multiple parties can create an aggregated public key indistinguishable from a single key.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>8.8 MuSig: Secure Multi-Signatures</h2>
+
+            <p>
+                While naive key and signature aggregation is possible, it's vulnerable to
+                <em>rogue key attacks</em>. The <strong>MuSig</strong> protocol provides
+                secure multi-signatures.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 8.5 (Rogue Key Attack)</p>
+                <p>
+                    In naive aggregation, a malicious party can choose their "public key" as
+                    <span class="math">P_{rogue} = P' - P_{honest}</span> where <span class="math">P'</span>
+                    is a key they control. The aggregated key becomes just <span class="math">P'</span>,
+                    which the attacker can sign alone.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 8.6 (MuSig Key Aggregation)</p>
+                <p>
+                    MuSig prevents rogue key attacks by "tweaking" each public key before aggregation:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">L = H(P₁ || P₂ || ... || Pₙ)</span>
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">aᵢ = H(L || Pᵢ)</span> &nbsp; (coefficient for party i)
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">P = a₁P₁ + a₂P₂ + ... + aₙPₙ</span>
+                </p>
+                <p>
+                    Each party must prove knowledge of their discrete log before their key
+                    affects the aggregate.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">MuSig2: The Production Protocol.</p>
+                <p>
+                    MuSig2 is the current recommended protocol, requiring only two rounds of
+                    communication (compared to three in original MuSig). It achieves this by
+                    having each party commit to multiple nonces upfront, enabling non-interactive
+                    signing once nonces are exchanged.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>8.9 Batch Verification</h2>
+
+            <p>
+                Schnorr's linearity also enables efficient <em>batch verification</em>: checking
+                many signatures faster than verifying each individually.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 8.3 (Batch Verification)</p>
+                <p>
+                    Given <span class="math">n</span> signatures <span class="math">(rᵢ, sᵢ)</span>
+                    on messages <span class="math">mᵢ</span> with public keys <span class="math">Pᵢ</span>,
+                    we can verify all simultaneously:
+                </p>
+                <ol>
+                    <li>Generate random weights <span class="math">cᵢ</span></li>
+                    <li>Check: <span class="math">(Σ cᵢsᵢ)G = Σ cᵢRᵢ + Σ cᵢeᵢPᵢ</span></li>
+                </ol>
+                <p>
+                    This requires only one expensive multi-scalar multiplication instead of
+                    <span class="math">n</span> separate verifications, yielding approximately
+                    2× speedup for large batches.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Block Validation.</p>
+                <p>
+                    Bitcoin nodes can batch-verify all Schnorr signatures in a block, significantly
+                    speeding up initial block download and validation of new blocks.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>8.10 Schnorr in Taproot</h2>
+
+            <p>
+                Schnorr signatures are the foundation of Bitcoin's Taproot upgrade (BIP-341).
+                Taproot combines Schnorr signatures with Merkleized Abstract Syntax Trees (MAST)
+                to enable sophisticated spending conditions that remain private until executed.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 8.7 (Taproot Output)</p>
+                <p>
+                    A Taproot output commits to a public key <span class="math">Q</span> that encodes:
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">Q = P + H(P || merkle_root) · G</span>
+                </p>
+                <p>
+                    where <span class="math">P</span> is an internal key (possibly aggregated via MuSig)
+                    and <span class="math">merkle_root</span> commits to alternative spending scripts.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Taproot: Key Path vs. Script Path</text>
+
+                    <!-- Key path (most common) -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="180" height="80" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5" rx="5"/>
+                        <text x="90" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold" fill="#5a8f5a">Key Path Spend</text>
+                        <text x="90" y="40" text-anchor="middle" font-family="Georgia" font-size="10">Single Schnorr signature</text>
+                        <text x="90" y="55" text-anchor="middle" font-family="Georgia" font-size="10">Reveals nothing extra</text>
+                        <text x="90" y="70" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">~90% of spends</text>
+                    </g>
+
+                    <!-- Script path (fallback) -->
+                    <g transform="translate(270, 50)">
+                        <rect x="0" y="0" width="180" height="80" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5" rx="5"/>
+                        <text x="90" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold" fill="#8b4513">Script Path Spend</text>
+                        <text x="90" y="40" text-anchor="middle" font-family="Georgia" font-size="10">Merkle proof + script</text>
+                        <text x="90" y="55" text-anchor="middle" font-family="Georgia" font-size="10">Reveals only used path</text>
+                        <text x="90" y="70" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Fallback/complex cases</text>
+                    </g>
+
+                    <!-- Common appearance -->
+                    <rect x="100" y="150" width="300" height="35" fill="#f8f5f0" stroke="#2f4f4f" stroke-width="2" rx="5"/>
+                    <text x="250" y="172" text-anchor="middle" font-family="Georgia" font-size="11">Both look identical on-chain until spent!</text>
+                </svg>
+                <figcaption>Figure 8.6: Taproot uses Schnorr to make complex spending look like simple payments.</figcaption>
+            </figure>
+
+            <p>
+                The beauty of Taproot is that the most common case (all parties agree to spend)
+                produces a single Schnorr signature indistinguishable from any other. Only when
+                the fallback script is needed does the spending condition become public.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h3>Exercises</h3>
+
+            <div class="exercise">
+                <span class="exercise-number">8.1.</span>
+                Prove that the interactive Schnorr protocol is zero-knowledge: the verifier
+                learns nothing about <span class="math">d</span> beyond the fact that the
+                prover knows it.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">8.2.</span>
+                Trace through BIP-340 signing with small numbers: <span class="math">n = 17</span>,
+                <span class="math">d = 5</span>, <span class="math">k = 3</span>, and a message
+                hash representing <span class="math">m</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">8.3.</span>
+                Explain why Schnorr signatures are non-malleable, unlike ECDSA.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">8.4.</span>
+                Describe the rogue key attack in detail. Why doesn't it work against MuSig?
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">8.5.</span>
+                <em>(Computational)</em> Implement BIP-340 Schnorr signing and verification.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">8.6.</span>
+                How does batch verification achieve a speedup? What is the security argument?
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">8.7.</span>
+                In Taproot, explain why the tweak <span class="math">H(P||merkle_root)·G</span>
+                prevents an attacker from creating a fake script path after seeing <span class="math">Q</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">8.8.</span>
+                <em>(Research)</em> Compare the security proofs of ECDSA and Schnorr.
+                Why is Schnorr's proof considered "tighter"?
+            </div>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="07-ecdsa.html">← Chapter 7: ECDSA</a>
+            <a href="09-keys-addresses.html">Chapter 9: Keys and Addresses →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>

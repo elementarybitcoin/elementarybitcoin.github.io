@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 24: Lightning Network | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .bolt-table td:first-child {
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .routing-path {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        .routing-node {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .routing-arrow {
+            color: #666;
+        }
+        .invoice-example {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="23-payment-channels.html">← Chapter 23: Payment Channels</a>
+        <a href="../index.html">Index</a>
+        <a href="25-debunking-myths.html">Chapter 25: Debunking Myths →</a>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 24</p>
+            <h1>Lightning Network</h1>
+            <p class="chapter-subtitle">A Network of Payment Channels</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                The Lightning Network transforms individual payment channels into a global
+                payment network. By routing payments through chains of channels, any participant
+                can pay any other without establishing a direct channel—enabling Bitcoin to
+                scale to millions of transactions per second while preserving its fundamental
+                security properties.
+            </p>
+            <p>
+                This chapter covers the network layer built atop the payment channels of
+                Chapter 23: routing algorithms, invoices, the BOLT specifications, and the
+                emergent network topology that enables instant, low-cost Bitcoin payments.
+            </p>
+        </section>
+
+        <section>
+            <h2>24.1 Multi-Hop Payments</h2>
+
+            <p>
+                The key insight of Lightning: if Alice has a channel with Bob, and Bob has a
+                channel with Carol, Alice can pay Carol through Bob—atomically and trustlessly.
+            </p>
+
+            <h3>The Routing Problem</h3>
+
+            <div class="definition">
+                <p><strong>Definition 24.1</strong> (Multi-Hop Payment)</p>
+                <p>
+                    A multi-hop payment from sender S to receiver R through intermediaries I₁, I₂, ..., Iₙ:
+                </p>
+                <ol>
+                    <li>R generates secret preimage r and payment_hash H(r)</li>
+                    <li>R sends payment_hash to S (via invoice)</li>
+                    <li>S routes payment through I₁ → I₂ → ... → Iₙ → R</li>
+                    <li>R reveals r to Iₙ to claim payment</li>
+                    <li>r propagates back: Iₙ → ... → I₁ → S</li>
+                    <li>Each hop atomically settles their HTLC</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 700 300" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Multi-Hop Payment via HTLCs
+                    </text>
+
+                    <!-- Nodes -->
+                    <g transform="translate(50, 80)">
+                        <circle cx="30" cy="30" r="30" fill="#2196f3" stroke="#1565c0" stroke-width="2"/>
+                        <text x="30" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Alice</text>
+                        <text x="30" y="75" text-anchor="middle" font-size="9">Sender</text>
+                    </g>
+
+                    <g transform="translate(200, 80)">
+                        <circle cx="30" cy="30" r="30" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2"/>
+                        <text x="30" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Bob</text>
+                        <text x="30" y="75" text-anchor="middle" font-size="9">Routing</text>
+                    </g>
+
+                    <g transform="translate(350, 80)">
+                        <circle cx="30" cy="30" r="30" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2"/>
+                        <text x="30" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Carol</text>
+                        <text x="30" y="75" text-anchor="middle" font-size="9">Routing</text>
+                    </g>
+
+                    <g transform="translate(500, 80)">
+                        <circle cx="30" cy="30" r="30" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+                        <text x="30" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Dave</text>
+                        <text x="30" y="75" text-anchor="middle" font-size="9">Receiver</text>
+                    </g>
+
+                    <!-- Forward path (HTLCs) -->
+                    <g transform="translate(0, 0)">
+                        <path d="M 115 105 L 195 105" stroke="#4caf50" stroke-width="3" marker-end="url(#arrow-grn)"/>
+                        <text x="155" y="95" text-anchor="middle" font-size="8" fill="#4caf50">HTLC 1.003 BTC</text>
+                        <text x="155" y="120" text-anchor="middle" font-size="7" fill="#666">timeout: T+30</text>
+
+                        <path d="M 265 105 L 345 105" stroke="#4caf50" stroke-width="3" marker-end="url(#arrow-grn)"/>
+                        <text x="305" y="95" text-anchor="middle" font-size="8" fill="#4caf50">HTLC 1.002 BTC</text>
+                        <text x="305" y="120" text-anchor="middle" font-size="7" fill="#666">timeout: T+20</text>
+
+                        <path d="M 415 105 L 495 105" stroke="#4caf50" stroke-width="3" marker-end="url(#arrow-grn)"/>
+                        <text x="455" y="95" text-anchor="middle" font-size="8" fill="#4caf50">HTLC 1.001 BTC</text>
+                        <text x="455" y="120" text-anchor="middle" font-size="7" fill="#666">timeout: T+10</text>
+                    </g>
+
+                    <!-- Backward path (preimage) -->
+                    <g transform="translate(0, 150)">
+                        <path d="M 495 50 L 415 50" stroke="#ff5722" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-org)"/>
+                        <text x="455" y="40" text-anchor="middle" font-size="8" fill="#ff5722">preimage r</text>
+
+                        <path d="M 345 50 L 265 50" stroke="#ff5722" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-org)"/>
+                        <text x="305" y="40" text-anchor="middle" font-size="8" fill="#ff5722">preimage r</text>
+
+                        <path d="M 195 50 L 115 50" stroke="#ff5722" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-org)"/>
+                        <text x="155" y="40" text-anchor="middle" font-size="8" fill="#ff5722">preimage r</text>
+                    </g>
+
+                    <!-- Labels -->
+                    <text x="350" y="250" text-anchor="middle" font-size="10" fill="#666">
+                        Each HTLC uses same payment_hash; preimage unlocks entire chain atomically
+                    </text>
+
+                    <!-- Fee note -->
+                    <g transform="translate(530, 180)">
+                        <rect x="0" y="0" width="130" height="60" fill="#fff9c4" stroke="#f9a825" rx="4"/>
+                        <text x="65" y="20" text-anchor="middle" font-size="9" font-weight="bold">Routing Fees</text>
+                        <text x="65" y="35" text-anchor="middle" font-size="8">Bob: 0.001 BTC</text>
+                        <text x="65" y="48" text-anchor="middle" font-size="8">Carol: 0.001 BTC</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-grn" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                        <marker id="arrow-org" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ff5722"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 24.1</strong> — Multi-hop payment: HTLCs chain forward with
+                    decreasing amounts (fees) and decreasing timeouts. The preimage propagates
+                    backward to settle all HTLCs atomically.
+                </figcaption>
+            </figure>
+
+            <h3>Atomicity Guarantee</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 24.1</strong> (Atomic Multi-Hop Payment)</p>
+                <p>
+                    In a multi-hop HTLC payment:
+                </p>
+                <ul>
+                    <li><strong>Complete success:</strong> All HTLCs settle, receiver gets paid, all routing nodes receive fees</li>
+                    <li><strong>Complete failure:</strong> All HTLCs timeout, sender loses nothing</li>
+                    <li><strong>No partial state:</strong> Either all or nothing, never some HTLCs settled and others failed</li>
+                </ul>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    The payment_hash H(r) is identical across all HTLCs. If receiver reveals r
+                    to claim the final HTLC, every intermediate node learns r (from their
+                    downstream) and can claim their incoming HTLC. Since timeouts decrease
+                    toward the receiver, each node has sufficient time to claim after learning r.
+                </p>
+                <p>
+                    Conversely, if receiver never reveals r, all HTLCs eventually timeout and
+                    funds return to senders. An intermediate node cannot steal funds because
+                    they cannot claim their outgoing HTLC without r, and cannot keep their
+                    incoming HTLC without the timeout expiring. ∎
+                </p>
+            </div>
+
+            <h3>Timeout Decrements</h3>
+
+            <div class="definition">
+                <p><strong>Definition 24.2</strong> (CLTV Delta)</p>
+                <p>
+                    Each hop requires a <em>CLTV delta</em>—the number of blocks between
+                    incoming and outgoing HTLC timeouts. This ensures:
+                </p>
+                <ul>
+                    <li>Sufficient time to detect preimage revelation downstream</li>
+                    <li>Sufficient time to claim incoming HTLC after learning preimage</li>
+                    <li>Protection against blockchain congestion delays</li>
+                </ul>
+                <p>
+                    Typical values: 40-144 blocks per hop.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>24.2 Onion Routing</h2>
+
+            <p>
+                Lightning uses Sphinx-style onion routing to preserve payment privacy.
+                Intermediate nodes learn only their immediate predecessor and successor.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 24.3</strong> (Onion Packet)</p>
+                <p>
+                    The sender constructs a 1366-byte onion packet containing:
+                </p>
+                <ul>
+                    <li><strong>Per-hop payload:</strong> Instructions for each routing node</li>
+                    <li><strong>Layered encryption:</strong> Each hop can only decrypt their layer</li>
+                    <li><strong>Shared secrets:</strong> Derived via ECDH with each hop's public key</li>
+                    <li><strong>MAC chain:</strong> Integrity verification at each hop</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 700 280" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Onion Routing: Layered Encryption
+                    </text>
+
+                    <!-- Original onion -->
+                    <g transform="translate(50, 50)">
+                        <ellipse cx="80" cy="90" rx="75" ry="85" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <ellipse cx="80" cy="90" rx="55" ry="65" fill="#bbdefb" stroke="#1976d2"/>
+                        <ellipse cx="80" cy="90" rx="35" ry="45" fill="#90caf9" stroke="#1976d2"/>
+                        <circle cx="80" cy="90" r="20" fill="#64b5f6" stroke="#1976d2"/>
+                        <text x="80" y="95" text-anchor="middle" font-size="8" fill="white">Dave</text>
+
+                        <text x="80" y="55" text-anchor="middle" font-size="8">Carol</text>
+                        <text x="80" y="35" text-anchor="middle" font-size="8">Bob</text>
+                        <text x="80" y="12" text-anchor="middle" font-size="9" font-weight="bold">Alice creates</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 180 140 L 220 140" stroke="#666" stroke-width="2" marker-end="url(#arrow-gy)"/>
+                    <text x="200" y="130" text-anchor="middle" font-size="8">Bob peels</text>
+
+                    <!-- After Bob -->
+                    <g transform="translate(230, 60)">
+                        <ellipse cx="70" cy="80" rx="65" ry="75" fill="#bbdefb" stroke="#1976d2" stroke-width="2"/>
+                        <ellipse cx="70" cy="80" rx="45" ry="55" fill="#90caf9" stroke="#1976d2"/>
+                        <circle cx="70" cy="80" r="25" fill="#64b5f6" stroke="#1976d2"/>
+                        <text x="70" y="85" text-anchor="middle" font-size="8" fill="white">Dave</text>
+                        <text x="70" y="50" text-anchor="middle" font-size="8">Carol</text>
+                        <text x="70" y="8" text-anchor="middle" font-size="9" font-weight="bold">Bob sees</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 365 140 L 405 140" stroke="#666" stroke-width="2" marker-end="url(#arrow-gy)"/>
+                    <text x="385" y="130" text-anchor="middle" font-size="8">Carol peels</text>
+
+                    <!-- After Carol -->
+                    <g transform="translate(415, 70)">
+                        <ellipse cx="60" cy="70" rx="55" ry="65" fill="#90caf9" stroke="#1976d2" stroke-width="2"/>
+                        <circle cx="60" cy="70" r="30" fill="#64b5f6" stroke="#1976d2"/>
+                        <text x="60" y="75" text-anchor="middle" font-size="9" fill="white">Dave</text>
+                        <text x="60" y="8" text-anchor="middle" font-size="9" font-weight="bold">Carol sees</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M 530 140 L 570 140" stroke="#666" stroke-width="2" marker-end="url(#arrow-gy)"/>
+
+                    <!-- Dave receives -->
+                    <g transform="translate(580, 90)">
+                        <circle cx="40" cy="50" r="40" fill="#64b5f6" stroke="#1976d2" stroke-width="2"/>
+                        <text x="40" y="45" text-anchor="middle" font-size="10" fill="white" font-weight="bold">Dave</text>
+                        <text x="40" y="58" text-anchor="middle" font-size="8" fill="white">final hop</text>
+                        <text x="40" y="8" text-anchor="middle" font-size="9" font-weight="bold">Dave sees</text>
+                    </g>
+
+                    <!-- Privacy note -->
+                    <g transform="translate(50, 210)">
+                        <rect x="0" y="0" width="600" height="50" fill="#e8f5e9" stroke="#4caf50" rx="4"/>
+                        <text x="300" y="20" text-anchor="middle" font-size="10" font-weight="bold" fill="#2e7d32">Privacy Properties</text>
+                        <text x="300" y="38" text-anchor="middle" font-size="9">
+                            Bob knows: Alice → ? (doesn't know final destination)
+                        </text>
+                        <text x="300" y="50" text-anchor="middle" font-size="9">
+                            Carol knows: ? → ? (doesn't know source or destination)
+                        </text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-gy" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 24.2</strong> — Each node peels one encryption layer, forwards
+                    to next hop. No node knows the complete path except the sender.
+                </figcaption>
+            </figure>
+
+            <h3>Per-Hop Payload</h3>
+
+            <div class="definition">
+                <p><strong>Definition 24.4</strong> (Per-Hop Data)</p>
+                <p>
+                    Each routing node's decrypted payload contains:
+                </p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>short_channel_id</td>
+                            <td>Which channel to forward to</td>
+                        </tr>
+                        <tr>
+                            <td>amt_to_forward</td>
+                            <td>Amount for next hop (less fee)</td>
+                        </tr>
+                        <tr>
+                            <td>outgoing_cltv</td>
+                            <td>Timeout for outgoing HTLC</td>
+                        </tr>
+                        <tr>
+                            <td>padding</td>
+                            <td>Fixed size for unlinkability</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>24.3 Invoices and Payment Requests</h2>
+
+            <p>
+                Lightning payments are typically initiated by the receiver generating an
+                invoice (BOLT #11) containing payment details.
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 24.5</strong> (BOLT #11 Invoice)</p>
+                <p>
+                    A Lightning invoice encodes:
+                </p>
+                <ul>
+                    <li><strong>payment_hash:</strong> H(preimage) to verify payment</li>
+                    <li><strong>amount:</strong> Requested payment (optional)</li>
+                    <li><strong>destination:</strong> Receiver's node public key</li>
+                    <li><strong>expiry:</strong> Invoice validity period</li>
+                    <li><strong>route hints:</strong> Private channels for routing</li>
+                    <li><strong>description:</strong> Human-readable payment purpose</li>
+                    <li><strong>signature:</strong> Receiver's signature over invoice</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 24.1</strong> (Lightning Invoice)</p>
+                <div class="invoice-example">
+lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpl2pkx2ctnv5sxxmmwwd5kgetjypeh2ursdae8g6twvus8g6rfwvs8qun0dfjkxaq9qrsgq357wnc5r2ueh7ck6q93dj32dlqnls087fxdwk8qakdyafkq3yap9us6v52vjjsrvywa6rt52cm9r9zqt8r2t7mlcwspyetp5h2tztugp9lfyql
+                </div>
+                <p>Decodes to:</p>
+                <ul>
+                    <li>Network: mainnet (lnbc)</li>
+                    <li>Amount: unspecified</li>
+                    <li>Payment hash: 0001020304050607...</li>
+                    <li>Description: "Please consider supporting this project"</li>
+                    <li>Expiry: 3600 seconds</li>
+                </ul>
+            </div>
+
+            <h3>BOLT #12 Offers</h3>
+
+            <p>
+                BOLT #12 introduces <em>offers</em>—reusable payment requests with better privacy:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 24.6</strong> (BOLT #12 Offer)</p>
+                <p>
+                    Unlike invoices, offers:
+                </p>
+                <ul>
+                    <li>Are reusable (no pre-generated payment_hash)</li>
+                    <li>Support subscription/recurring payments</li>
+                    <li>Use blinded paths for receiver privacy</li>
+                    <li>Enable two-way communication via onion messages</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>24.4 Pathfinding and Routing</h2>
+
+            <p>
+                Finding efficient payment paths through the Lightning Network is a complex
+                graph problem combining cost optimization with reliability.
+            </p>
+
+            <h3>Network Graph</h3>
+
+            <div class="definition">
+                <p><strong>Definition 24.7</strong> (Channel Graph)</p>
+                <p>
+                    The Lightning Network graph G = (V, E) where:
+                </p>
+                <ul>
+                    <li><strong>Vertices V:</strong> Lightning nodes (public keys)</li>
+                    <li><strong>Edges E:</strong> Payment channels</li>
+                    <li><strong>Edge weights:</strong> Fees, capacity, reliability metrics</li>
+                </ul>
+                <p>
+                    Nodes gossip channel announcements and updates via BOLT #7.
+                </p>
+            </div>
+
+            <h3>Fee Structure</h3>
+
+            <div class="definition">
+                <p><strong>Definition 24.8</strong> (Routing Fees)</p>
+                <p>
+                    Each channel advertises:
+                </p>
+                <ul>
+                    <li><strong>base_fee:</strong> Fixed fee per forwarded HTLC (satoshis)</li>
+                    <li><strong>fee_rate:</strong> Proportional fee (millionths of amount)</li>
+                </ul>
+                <p>
+                    Total fee = base_fee + (amount × fee_rate / 1,000,000)
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 24.2</strong> (Fee Calculation)</p>
+                <p>
+                    Channel with base_fee = 1000 msat, fee_rate = 100:
+                </p>
+                <ul>
+                    <li>Forward 100,000 sat: fee = 1000 + (100,000,000 × 100 / 1,000,000) = 1000 + 10,000 = 11,000 msat = 11 sat</li>
+                    <li>Forward 1,000 sat: fee = 1000 + (1,000,000 × 100 / 1,000,000) = 1000 + 100 = 1,100 msat ≈ 1 sat</li>
+                </ul>
+            </div>
+
+            <h3>Pathfinding Algorithms</h3>
+
+            <div class="algorithm">
+                <p><strong>Algorithm 24.1</strong> (Basic Pathfinding)</p>
+                <pre><code>function FindRoute(source, destination, amount):
+    // Build graph from gossip data
+    graph = BuildChannelGraph()
+
+    // Filter edges with insufficient capacity
+    graph = FilterByCapacity(graph, amount)
+
+    // Find shortest path by fee
+    path = Dijkstra(graph, source, destination,
+                    weight = base_fee + amount * fee_rate)
+
+    // Verify path validity
+    if VerifyPath(path, amount):
+        return path
+    else:
+        return FindRoute(source, destination, amount,
+                        exclude = path.failed_edges)</code></pre>
+            </div>
+
+            <h3>Multipath Payments (MPP)</h3>
+
+            <div class="definition">
+                <p><strong>Definition 24.9</strong> (Multi-Path Payment)</p>
+                <p>
+                    Large payments can be split across multiple routes:
+                </p>
+                <ul>
+                    <li>Same payment_hash, different payment_secret per shard</li>
+                    <li>Receiver waits for all shards before revealing preimage</li>
+                    <li>Enables payments larger than any single channel capacity</li>
+                    <li>Improves privacy by obscuring payment amounts</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg viewBox="0 0 600 200" style="max-width: 600px; margin: 2rem auto; display: block;">
+                    <text x="300" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Multi-Path Payment
+                    </text>
+
+                    <!-- Sender -->
+                    <circle cx="50" cy="100" r="25" fill="#2196f3" stroke="#1565c0" stroke-width="2"/>
+                    <text x="50" y="105" text-anchor="middle" font-size="10" fill="white">Alice</text>
+
+                    <!-- Path 1 -->
+                    <circle cx="200" cy="50" r="20" fill="#9c27b0" stroke="#7b1fa2"/>
+                    <text x="200" y="55" text-anchor="middle" font-size="9" fill="white">B</text>
+
+                    <circle cx="350" cy="50" r="20" fill="#9c27b0" stroke="#7b1fa2"/>
+                    <text x="350" y="55" text-anchor="middle" font-size="9" fill="white">C</text>
+
+                    <!-- Path 2 -->
+                    <circle cx="200" cy="150" r="20" fill="#9c27b0" stroke="#7b1fa2"/>
+                    <text x="200" y="155" text-anchor="middle" font-size="9" fill="white">D</text>
+
+                    <circle cx="350" cy="150" r="20" fill="#9c27b0" stroke="#7b1fa2"/>
+                    <text x="350" y="155" text-anchor="middle" font-size="9" fill="white">E</text>
+
+                    <!-- Receiver -->
+                    <circle cx="500" cy="100" r="25" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+                    <text x="500" y="105" text-anchor="middle" font-size="10" fill="white">Dave</text>
+
+                    <!-- Path 1 arrows -->
+                    <path d="M 75 85 L 175 55" stroke="#4caf50" stroke-width="2" marker-end="url(#arr-g)"/>
+                    <path d="M 225 50 L 325 50" stroke="#4caf50" stroke-width="2" marker-end="url(#arr-g)"/>
+                    <path d="M 375 55 L 475 90" stroke="#4caf50" stroke-width="2" marker-end="url(#arr-g)"/>
+                    <text x="275" y="40" text-anchor="middle" font-size="9" fill="#4caf50">0.3 BTC</text>
+
+                    <!-- Path 2 arrows -->
+                    <path d="M 75 115 L 175 145" stroke="#2196f3" stroke-width="2" marker-end="url(#arr-b)"/>
+                    <path d="M 225 150 L 325 150" stroke="#2196f3" stroke-width="2" marker-end="url(#arr-b)"/>
+                    <path d="M 375 145 L 475 110" stroke="#2196f3" stroke-width="2" marker-end="url(#arr-b)"/>
+                    <text x="275" y="170" text-anchor="middle" font-size="9" fill="#2196f3">0.7 BTC</text>
+
+                    <defs>
+                        <marker id="arr-g" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                        <marker id="arr-b" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#2196f3"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 24.3</strong> — Multi-path payment: 1 BTC split across two
+                    routes with different intermediate nodes.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>24.5 BOLT Specifications</h2>
+
+            <p>
+                The Lightning Network is defined by the BOLT (Basis of Lightning Technology)
+                specifications:
+            </p>
+
+            <table class="bitcoin-table bolt-table">
+                <thead>
+                    <tr>
+                        <th>BOLT</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#1</td>
+                        <td>Base Protocol</td>
+                        <td>Message framing, encryption, authentication</td>
+                    </tr>
+                    <tr>
+                        <td>#2</td>
+                        <td>Peer Protocol</td>
+                        <td>Channel establishment, operation, closing</td>
+                    </tr>
+                    <tr>
+                        <td>#3</td>
+                        <td>Transactions</td>
+                        <td>On-chain transaction formats</td>
+                    </tr>
+                    <tr>
+                        <td>#4</td>
+                        <td>Onion Routing</td>
+                        <td>Payment packet construction</td>
+                    </tr>
+                    <tr>
+                        <td>#5</td>
+                        <td>On-Chain Handling</td>
+                        <td>Unilateral close, HTLC resolution</td>
+                    </tr>
+                    <tr>
+                        <td>#7</td>
+                        <td>P2P Node Discovery</td>
+                        <td>Gossip protocol for graph</td>
+                    </tr>
+                    <tr>
+                        <td>#8</td>
+                        <td>Transport</td>
+                        <td>Encrypted communication (Noise_XK)</td>
+                    </tr>
+                    <tr>
+                        <td>#9</td>
+                        <td>Feature Bits</td>
+                        <td>Capability negotiation</td>
+                    </tr>
+                    <tr>
+                        <td>#10</td>
+                        <td>DNS Bootstrap</td>
+                        <td>Initial peer discovery</td>
+                    </tr>
+                    <tr>
+                        <td>#11</td>
+                        <td>Invoice Protocol</td>
+                        <td>Payment request encoding</td>
+                    </tr>
+                    <tr>
+                        <td>#12</td>
+                        <td>Offers</td>
+                        <td>Reusable payment requests (draft)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>24.6 Network Topology</h2>
+
+            <h3>Network Statistics</h3>
+
+            <div class="example">
+                <p><strong>Example 24.3</strong> (Network Size, 2024)</p>
+                <table class="bitcoin-table">
+                    <tbody>
+                        <tr>
+                            <td>Public nodes</td>
+                            <td>~15,000-20,000</td>
+                        </tr>
+                        <tr>
+                            <td>Public channels</td>
+                            <td>~60,000-80,000</td>
+                        </tr>
+                        <tr>
+                            <td>Total capacity</td>
+                            <td>~5,000+ BTC</td>
+                        </tr>
+                        <tr>
+                            <td>Private channels</td>
+                            <td>Unknown (significant)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Hub and Spoke vs Mesh</h3>
+
+            <p>
+                The network exhibits characteristics of both topologies:
+            </p>
+
+            <ul>
+                <li><strong>Large routing nodes:</strong> High connectivity, significant capacity</li>
+                <li><strong>Edge nodes:</strong> Few channels, mostly to large nodes</li>
+                <li><strong>Private channels:</strong> Direct connections between frequent transactors</li>
+            </ul>
+
+            <h3>Liquidity Management</h3>
+
+            <div class="definition">
+                <p><strong>Definition 24.10</strong> (Channel Balance Problem)</p>
+                <p>
+                    As payments flow through channels, balances shift:
+                </p>
+                <ul>
+                    <li><strong>Outbound liquidity:</strong> Amount you can send</li>
+                    <li><strong>Inbound liquidity:</strong> Amount you can receive</li>
+                </ul>
+                <p>
+                    A channel with 1 BTC capacity split 0.9/0.1 can only receive 0.1 BTC
+                    until rebalanced.
+                </p>
+            </div>
+
+            <p>
+                Liquidity management techniques:
+            </p>
+
+            <ul>
+                <li><strong>Circular rebalancing:</strong> Route payment to yourself through different path</li>
+                <li><strong>Submarine swaps:</strong> Exchange on-chain for off-chain liquidity</li>
+                <li><strong>Liquidity ads:</strong> Market for channel leases</li>
+                <li><strong>JIT routing:</strong> Just-in-time channel rebalancing</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>24.7 Future Developments</h2>
+
+            <h3>eltoo / LN-Symmetry</h3>
+
+            <p>
+                A proposed channel construction using SIGHASH_ANYPREVOUT:
+            </p>
+
+            <ul>
+                <li>Symmetric state (no asymmetric commitment transactions)</li>
+                <li>No penalty mechanism (just supersede old states)</li>
+                <li>Simpler implementation, fewer edge cases</li>
+                <li>Requires soft fork (BIP-118)</li>
+            </ul>
+
+            <h3>Channel Factories</h3>
+
+            <p>
+                Multi-party constructions enabling:
+            </p>
+
+            <ul>
+                <li>Single on-chain transaction opens multiple channels</li>
+                <li>Off-chain channel reallocation within factory</li>
+                <li>Better capital efficiency</li>
+            </ul>
+
+            <h3>PTLCs (Point Time-Locked Contracts)</h3>
+
+            <p>
+                Replace hash-based HTLCs with Schnorr-based PTLCs:
+            </p>
+
+            <ul>
+                <li>Better privacy (no payment_hash linking hops)</li>
+                <li>Enables adaptor signatures</li>
+                <li>Stuckless payments</li>
+            </ul>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 24.1</strong></p>
+                <p>
+                    Calculate the minimum total fees to route 0.1 BTC through a 5-hop path
+                    where each node charges base_fee = 1 sat and fee_rate = 1000 (0.1%).
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 24.2</strong></p>
+                <p>
+                    Prove that the CLTV timeouts must decrease toward the receiver.
+                    What attack becomes possible if they don't?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 24.3</strong></p>
+                <p>
+                    A routing node sees an onion packet. What information can they extract?
+                    What remains hidden?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 24.4</strong></p>
+                <p>
+                    Design an attack where a malicious intermediate node delays HTLC
+                    settlement to profit. How do CLTV deltas mitigate this?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 24.5</strong></p>
+                <p>
+                    A node has 10 channels with 1 BTC each. After receiving many payments,
+                    8 channels have 0.9 BTC local, 0.1 BTC remote. Calculate the cost to
+                    rebalance using circular payments with 0.1% fees.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 24.6</strong></p>
+                <p>
+                    Explain why multi-path payments must use the same payment_hash but
+                    different payment_secrets. What attack would be possible otherwise?
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    The Lightning Network connects payment channels into a global network
+                    where anyone can pay anyone via multi-hop routing.
+                </li>
+                <li>
+                    HTLCs with the same payment_hash chain across multiple hops, settling
+                    atomically when the receiver reveals the preimage.
+                </li>
+                <li>
+                    Onion routing provides privacy: intermediate nodes see only their
+                    immediate predecessor and successor, not the full path.
+                </li>
+                <li>
+                    BOLT #11 invoices encode payment requests; BOLT #12 offers enable
+                    reusable payment endpoints with better privacy.
+                </li>
+                <li>
+                    Pathfinding balances fee minimization with reliability, using network
+                    graph data from the gossip protocol.
+                </li>
+                <li>
+                    Multi-path payments split large amounts across routes, enabling
+                    payments larger than any single channel capacity.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="23-payment-channels.html">← Chapter 23: Payment Channels</a>
+            <a href="../index.html">Index</a>
+            <a href="25-debunking-myths.html">Chapter 25: Debunking Myths →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

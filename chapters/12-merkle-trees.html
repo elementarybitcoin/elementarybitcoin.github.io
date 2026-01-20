@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 12: Merkle Trees | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume II: Protocol Architecture</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 12</p>
+        <h1>Merkle Trees</h1>
+        <p class="chapter-subtitle">Efficient Verification Through Hash Trees</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                How can we prove that a specific transaction is included in a block without
+                revealing all other transactions? The answer lies in a elegant data structure
+                invented by Ralph Merkle in 1979: the hash tree, now universally known as the
+                Merkle tree. This structure enables Bitcoin's crucial ability to verify
+                transaction inclusion with logarithmic efficiency.
+            </p>
+
+            <p>
+                Merkle trees are foundational to Bitcoin's scalability. They allow lightweight
+                clients to verify payments without downloading full blocks—a property we will
+                explore thoroughly in Volume III when we study Simplified Payment Verification.
+            </p>
+        </section>
+
+        <section>
+            <h2>12.1 Binary Hash Trees</h2>
+
+            <p>
+                A Merkle tree is a binary tree where each leaf node contains a hash of data,
+                and each internal node contains a hash of its two children.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 12.1 (Merkle Tree)</p>
+                <p>
+                    A <strong>Merkle tree</strong> over data elements <span class="math">d₁, d₂, ..., dₙ</span>
+                    is a binary tree where:
+                </p>
+                <ul>
+                    <li>Each leaf <span class="math">Lᵢ = H(dᵢ)</span> is the hash of a data element</li>
+                    <li>Each internal node <span class="math">N = H(left || right)</span> is the hash
+                        of its two children concatenated</li>
+                    <li>The <strong>Merkle root</strong> is the single hash at the top of the tree</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="280" viewBox="0 0 500 280">
+                    <!-- Level 0: Root -->
+                    <rect x="200" y="20" width="100" height="40" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Merkle Root</text>
+
+                    <!-- Level 1 -->
+                    <rect x="100" y="90" width="80" height="35" rx="5" fill="#fff8e8" stroke="#d4a574" stroke-width="1.5"/>
+                    <text x="140" y="112" text-anchor="middle" font-family="Georgia" font-size="10">H(AB)</text>
+
+                    <rect x="320" y="90" width="80" height="35" rx="5" fill="#fff8e8" stroke="#d4a574" stroke-width="1.5"/>
+                    <text x="360" y="112" text-anchor="middle" font-family="Georgia" font-size="10">H(CD)</text>
+
+                    <!-- Connections to level 1 -->
+                    <line x1="220" y1="60" x2="140" y2="90" stroke="#666" stroke-width="1.5"/>
+                    <line x1="280" y1="60" x2="360" y2="90" stroke="#666" stroke-width="1.5"/>
+
+                    <!-- Level 2 -->
+                    <rect x="50" y="155" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="80" y="175" text-anchor="middle" font-family="Georgia" font-size="10">H(A)</text>
+
+                    <rect x="130" y="155" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="160" y="175" text-anchor="middle" font-family="Georgia" font-size="10">H(B)</text>
+
+                    <rect x="310" y="155" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="340" y="175" text-anchor="middle" font-family="Georgia" font-size="10">H(C)</text>
+
+                    <rect x="390" y="155" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="420" y="175" text-anchor="middle" font-family="Georgia" font-size="10">H(D)</text>
+
+                    <!-- Connections to level 2 -->
+                    <line x1="110" y1="125" x2="80" y2="155" stroke="#666" stroke-width="1.5"/>
+                    <line x1="170" y1="125" x2="160" y2="155" stroke="#666" stroke-width="1.5"/>
+                    <line x1="330" y1="125" x2="340" y2="155" stroke="#666" stroke-width="1.5"/>
+                    <line x1="390" y1="125" x2="420" y2="155" stroke="#666" stroke-width="1.5"/>
+
+                    <!-- Data layer -->
+                    <rect x="50" y="220" width="60" height="30" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="80" y="240" text-anchor="middle" font-family="Georgia" font-size="10">Tx A</text>
+
+                    <rect x="130" y="220" width="60" height="30" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="160" y="240" text-anchor="middle" font-family="Georgia" font-size="10">Tx B</text>
+
+                    <rect x="310" y="220" width="60" height="30" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="340" y="240" text-anchor="middle" font-family="Georgia" font-size="10">Tx C</text>
+
+                    <rect x="390" y="220" width="60" height="30" rx="4" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="420" y="240" text-anchor="middle" font-family="Georgia" font-size="10">Tx D</text>
+
+                    <!-- Connections to data -->
+                    <line x1="80" y1="185" x2="80" y2="220" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+                    <line x1="160" y1="185" x2="160" y2="220" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+                    <line x1="340" y1="185" x2="340" y2="220" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+                    <line x1="420" y1="185" x2="420" y2="220" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+
+                    <!-- Labels -->
+                    <text x="480" y="40" font-family="Georgia" font-size="9" fill="#c44">Level 0</text>
+                    <text x="480" y="107" font-family="Georgia" font-size="9" fill="#d4a574">Level 1</text>
+                    <text x="480" y="170" font-family="Georgia" font-size="9" fill="#5a8f5a">Level 2</text>
+                    <text x="480" y="235" font-family="Georgia" font-size="9" fill="#4a90d9">Data</text>
+                </svg>
+                <figcaption>Figure 12.1: A Merkle tree over four transactions. The root commits to all data.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 12.2 (Bitcoin Merkle Tree)</p>
+                <p>
+                    In Bitcoin, the Merkle tree is constructed using double SHA-256:
+                </p>
+                <p class="math-block">
+                    H(x) = SHA256(SHA256(x))
+                </p>
+                <p>
+                    Leaf nodes are hashes of serialized transactions (txids). Internal nodes
+                    hash the concatenation of their children in left-to-right order.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>12.2 Computing the Merkle Root</h2>
+
+            <p>
+                The Merkle root is computed bottom-up, starting from the transaction hashes.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 12.1 (Merkle Root Computation)</p>
+                <p>
+                    Given transaction hashes <span class="math">h₁, h₂, ..., hₙ</span>:
+                </p>
+                <ol>
+                    <li>If <span class="math">n = 1</span>, return <span class="math">h₁</span></li>
+                    <li>If <span class="math">n</span> is odd, duplicate the last hash: <span class="math">hₙ₊₁ = hₙ</span></li>
+                    <li>Pair adjacent hashes and compute: <span class="math">pᵢ = H(h₂ᵢ₋₁ || h₂ᵢ)</span></li>
+                    <li>Recursively compute the Merkle root of <span class="math">p₁, p₂, ..., p_{n/2}</span></li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 12.1 (Odd Number of Elements)</p>
+                <p>
+                    When a tree level has an odd number of nodes, Bitcoin duplicates the last
+                    node before pairing. This ensures every internal node has exactly two children.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="200" viewBox="0 0 520 200">
+                    <!-- 5 transaction case -->
+                    <text x="260" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Merkle Tree with 5 Transactions (Odd Count)</text>
+
+                    <!-- Root -->
+                    <rect x="210" y="35" width="100" height="30" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="260" y="55" text-anchor="middle" font-family="Georgia" font-size="10">Root</text>
+
+                    <!-- Level 1 -->
+                    <rect x="110" y="85" width="80" height="25" rx="4" fill="#fff8e8" stroke="#d4a574"/>
+                    <text x="150" y="102" text-anchor="middle" font-family="Georgia" font-size="9">H(ABCD)</text>
+
+                    <rect x="330" y="85" width="80" height="25" rx="4" fill="#fff8e8" stroke="#d4a574"/>
+                    <text x="370" y="102" text-anchor="middle" font-family="Georgia" font-size="9">H(EE)</text>
+
+                    <line x1="230" y1="65" x2="150" y2="85" stroke="#666" stroke-width="1"/>
+                    <line x1="290" y1="65" x2="370" y2="85" stroke="#666" stroke-width="1"/>
+
+                    <!-- Level 2 -->
+                    <rect x="50" y="130" width="60" height="22" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="80" y="145" text-anchor="middle" font-family="Georgia" font-size="9">H(AB)</text>
+
+                    <rect x="130" y="130" width="60" height="22" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="160" y="145" text-anchor="middle" font-family="Georgia" font-size="9">H(CD)</text>
+
+                    <rect x="310" y="130" width="50" height="22" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="335" y="145" text-anchor="middle" font-family="Georgia" font-size="9">H(E)</text>
+
+                    <rect x="380" y="130" width="50" height="22" rx="3" fill="#f5e8e8" stroke="#c44" stroke-dasharray="3,2"/>
+                    <text x="405" y="145" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">H(E)</text>
+
+                    <line x1="120" y1="110" x2="80" y2="130" stroke="#666" stroke-width="1"/>
+                    <line x1="180" y1="110" x2="160" y2="130" stroke="#666" stroke-width="1"/>
+                    <line x1="340" y1="110" x2="335" y2="130" stroke="#666" stroke-width="1"/>
+                    <line x1="400" y1="110" x2="405" y2="130" stroke="#666" stroke-width="1"/>
+
+                    <!-- Data level -->
+                    <rect x="20" y="168" width="40" height="20" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="40" y="182" text-anchor="middle" font-family="monospace" font-size="8">A</text>
+
+                    <rect x="70" y="168" width="40" height="20" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="90" y="182" text-anchor="middle" font-family="monospace" font-size="8">B</text>
+
+                    <rect x="120" y="168" width="40" height="20" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="140" y="182" text-anchor="middle" font-family="monospace" font-size="8">C</text>
+
+                    <rect x="170" y="168" width="40" height="20" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="190" y="182" text-anchor="middle" font-family="monospace" font-size="8">D</text>
+
+                    <rect x="315" y="168" width="40" height="20" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="335" y="182" text-anchor="middle" font-family="monospace" font-size="8">E</text>
+
+                    <!-- Duplicate annotation -->
+                    <text x="405" y="178" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">duplicated</text>
+                </svg>
+                <figcaption>Figure 12.2: When the transaction count is odd, the last hash is duplicated.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 12.1 (Computing a Merkle Root)</p>
+                <p>
+                    Given four transaction hashes (32 bytes each, shown truncated):
+                </p>
+                <pre class="code-block">TxA: 3a5b...8c1d
+TxB: 7f2e...4a9b
+TxC: 1c8d...2e3f
+TxD: 9a4b...5c6d</pre>
+
+                <p><strong>Step 1:</strong> Compute leaf pairs:</p>
+                <pre class="code-block">H(AB) = SHA256(SHA256(3a5b...8c1d || 7f2e...4a9b))
+H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
+
+                <p><strong>Step 2:</strong> Compute root:</p>
+                <pre class="code-block">Root = SHA256(SHA256(H(AB) || H(CD)))</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>12.3 Merkle Proofs</h2>
+
+            <p>
+                The key insight of Merkle trees is that inclusion of any element can be proven
+                with only <span class="math">O(log n)</span> hashes.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 12.3 (Merkle Proof)</p>
+                <p>
+                    A <strong>Merkle proof</strong> (or <strong>inclusion proof</strong>) for element
+                    <span class="math">dᵢ</span> is the sequence of sibling hashes along the path
+                    from the leaf to the root, together with directional flags indicating whether
+                    each sibling is on the left or right.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="280" viewBox="0 0 500 280">
+                    <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Merkle Proof for Transaction B</text>
+
+                    <!-- Root -->
+                    <rect x="200" y="35" width="100" height="35" rx="5" fill="#e8ffe8" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="250" y="57" text-anchor="middle" font-family="Georgia" font-size="10">Root ✓</text>
+
+                    <!-- Level 1 -->
+                    <rect x="100" y="100" width="80" height="30" rx="4" fill="#e8ffe8" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="140" y="120" text-anchor="middle" font-family="Georgia" font-size="10">H(AB)</text>
+
+                    <rect x="320" y="100" width="80" height="30" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="360" y="120" text-anchor="middle" font-family="Georgia" font-size="10">H(CD)</text>
+                    <text x="430" y="115" font-family="Georgia" font-size="9" fill="#c44">← proof[1]</text>
+
+                    <line x1="220" y1="70" x2="140" y2="100" stroke="#5a8f5a" stroke-width="2"/>
+                    <line x1="280" y1="70" x2="360" y2="100" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+
+                    <!-- Level 2 -->
+                    <rect x="50" y="165" width="60" height="28" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="80" y="183" text-anchor="middle" font-family="Georgia" font-size="10">H(A)</text>
+                    <text x="10" y="180" font-family="Georgia" font-size="9" fill="#c44">proof[0] →</text>
+
+                    <rect x="130" y="165" width="60" height="28" rx="4" fill="#e8ffe8" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="160" y="183" text-anchor="middle" font-family="Georgia" font-size="10">H(B)</text>
+
+                    <rect x="310" y="165" width="60" height="28" rx="4" fill="#f0f0f0" stroke="#ccc"/>
+                    <text x="340" y="183" text-anchor="middle" font-family="Georgia" font-size="10" fill="#999">H(C)</text>
+
+                    <rect x="390" y="165" width="60" height="28" rx="4" fill="#f0f0f0" stroke="#ccc"/>
+                    <text x="420" y="183" text-anchor="middle" font-family="Georgia" font-size="10" fill="#999">H(D)</text>
+
+                    <line x1="110" y1="130" x2="80" y2="165" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+                    <line x1="170" y1="130" x2="160" y2="165" stroke="#5a8f5a" stroke-width="2"/>
+
+                    <!-- Target transaction -->
+                    <rect x="130" y="225" width="60" height="28" rx="4" fill="#e8f0ff" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="160" y="243" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Tx B</text>
+                    <text x="160" y="265" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">target</text>
+
+                    <line x1="160" y1="193" x2="160" y2="225" stroke="#5a8f5a" stroke-width="2"/>
+
+                    <!-- Legend -->
+                    <rect x="320" y="220" width="15" height="15" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="345" y="232" font-family="Georgia" font-size="9">Proof elements</text>
+
+                    <rect x="320" y="245" width="15" height="15" fill="#e8ffe8" stroke="#5a8f5a"/>
+                    <text x="345" y="257" font-family="Georgia" font-size="9">Computed path</text>
+                </svg>
+                <figcaption>Figure 12.3: To prove Tx B is included, we need only H(A) and H(CD)—just 2 hashes for 4 transactions.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 12.1 (Merkle Proof Size)</p>
+                <p>
+                    For a Merkle tree with <span class="math">n</span> leaves, a Merkle proof
+                    consists of exactly <span class="math">⌈log₂ n⌉</span> hashes.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    A balanced binary tree with <span class="math">n</span> leaves has height
+                    <span class="math">⌈log₂ n⌉</span>. The path from any leaf to the root
+                    traverses this many edges. At each level, we need the sibling hash to
+                    compute the parent. Therefore the proof requires exactly
+                    <span class="math">⌈log₂ n⌉</span> hashes. □
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 12.2 (Proof Size Scaling)</p>
+                <p>
+                    Consider proof sizes for various block sizes:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Transactions</th>
+                            <th>Proof Hashes</th>
+                            <th>Proof Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1,000</td>
+                            <td>10</td>
+                            <td>320 bytes</td>
+                        </tr>
+                        <tr>
+                            <td>10,000</td>
+                            <td>14</td>
+                            <td>448 bytes</td>
+                        </tr>
+                        <tr>
+                            <td>100,000</td>
+                            <td>17</td>
+                            <td>544 bytes</td>
+                        </tr>
+                        <tr>
+                            <td>1,000,000</td>
+                            <td>20</td>
+                            <td>640 bytes</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    Even for a million transactions, the proof fits in under 1 KB.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>12.4 Verifying Merkle Proofs</h2>
+
+            <p>
+                Given a transaction, a Merkle proof, and the expected root, verification
+                recomputes the root and checks equality.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 12.2 (Merkle Proof Verification)</p>
+                <p>
+                    Given transaction <span class="math">tx</span>, proof <span class="math">[(h₁, d₁), (h₂, d₂), ...]</span>
+                    where <span class="math">dᵢ</span> indicates direction (left/right), and expected root
+                    <span class="math">R</span>:
+                </p>
+                <ol>
+                    <li>Compute <span class="math">current = H(tx)</span></li>
+                    <li>For each <span class="math">(hᵢ, dᵢ)</span> in the proof:
+                        <ul>
+                            <li>If <span class="math">dᵢ = left</span>: <span class="math">current = H(hᵢ || current)</span></li>
+                            <li>If <span class="math">dᵢ = right</span>: <span class="math">current = H(current || hᵢ)</span></li>
+                        </ul>
+                    </li>
+                    <li>Return <span class="math">current = R</span></li>
+                </ol>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 12.2 (Merkle Proof Security)</p>
+                <p>
+                    If <span class="math">H</span> is a collision-resistant hash function, then it is
+                    computationally infeasible to produce a valid Merkle proof for a transaction
+                    that is not in the committed set.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof sketch.</p>
+                <p>
+                    To forge a proof for a non-existent transaction <span class="math">tx'</span>,
+                    the attacker must find hash values that combine to produce the correct root.
+                    This requires either finding a preimage (to make a valid leaf) or a collision
+                    (to substitute intermediate hashes). Both are infeasible under the assumption
+                    that <span class="math">H</span> is collision-resistant. □
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>12.5 Transaction Merkle Tree in Bitcoin</h2>
+
+            <p>
+                Every Bitcoin block contains a Merkle root that commits to all transactions
+                in the block.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 12.4 (Block Merkle Root)</p>
+                <p>
+                    The <strong>Merkle root</strong> in a Bitcoin block header is computed from
+                    the txids of all transactions in the block, with the coinbase transaction
+                    always at position 0.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
+                    <!-- Block header -->
+                    <rect x="20" y="20" width="440" height="50" rx="6" fill="#f5f5f5" stroke="#333" stroke-width="2"/>
+                    <text x="240" y="35" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Block Header (80 bytes)</text>
+
+                    <rect x="30" y="45" width="60" height="18" rx="2" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="60" y="57" text-anchor="middle" font-family="monospace" font-size="7">version</text>
+
+                    <rect x="95" y="45" width="80" height="18" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="135" y="57" text-anchor="middle" font-family="monospace" font-size="7">prev_block</text>
+
+                    <rect x="180" y="45" width="90" height="18" rx="2" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="225" y="57" text-anchor="middle" font-family="monospace" font-size="7" font-weight="bold">merkle_root</text>
+
+                    <rect x="275" y="45" width="60" height="18" rx="2" fill="#fff8e8" stroke="#d4a574"/>
+                    <text x="305" y="57" text-anchor="middle" font-family="monospace" font-size="7">timestamp</text>
+
+                    <rect x="340" y="45" width="50" height="18" rx="2" fill="#f5f0f8" stroke="#a574d4"/>
+                    <text x="365" y="57" text-anchor="middle" font-family="monospace" font-size="7">bits</text>
+
+                    <rect x="395" y="45" width="55" height="18" rx="2" fill="#f0f0f0" stroke="#999"/>
+                    <text x="422" y="57" text-anchor="middle" font-family="monospace" font-size="7">nonce</text>
+
+                    <!-- Arrow to merkle tree -->
+                    <path d="M 225 63 L 225 90" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed12)"/>
+
+                    <!-- Merkle tree representation -->
+                    <rect x="130" y="95" width="200" height="70" rx="6" fill="none" stroke="#666" stroke-width="1.5"/>
+                    <text x="230" y="110" text-anchor="middle" font-family="Georgia" font-size="10">Merkle Tree</text>
+
+                    <!-- Simple tree visualization -->
+                    <circle cx="230" cy="125" r="8" fill="#ffe8e8" stroke="#c44"/>
+                    <circle cx="190" cy="145" r="6" fill="#fff8e8" stroke="#d4a574"/>
+                    <circle cx="270" cy="145" r="6" fill="#fff8e8" stroke="#d4a574"/>
+                    <line x1="230" y1="133" x2="190" y2="139" stroke="#666"/>
+                    <line x1="230" y1="133" x2="270" y2="139" stroke="#666"/>
+
+                    <!-- Transactions -->
+                    <rect x="140" y="155" width="30" height="12" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <rect x="175" y="155" width="30" height="12" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <rect x="255" y="155" width="30" height="12" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <rect x="290" y="155" width="30" height="12" rx="2" fill="#f0f5f8" stroke="#4a90d9"/>
+
+                    <text x="155" y="180" text-anchor="middle" font-family="Georgia" font-size="8" fill="#4a90d9">coinbase</text>
+                    <text x="272" y="180" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">...transactions</text>
+
+                    <defs>
+                        <marker id="arrowRed12" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 12.4: The Merkle root in the block header commits to all transactions.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 12.2 (Txid Byte Order)</p>
+                <p>
+                    Bitcoin uses little-endian byte order for txids in Merkle tree construction.
+                    This means the internal representation differs from the "natural" display
+                    format shown in block explorers.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>12.6 Witness Commitment</h2>
+
+            <p>
+                SegWit introduced a second Merkle tree that commits to witness data.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 12.5 (Witness Commitment)</p>
+                <p>
+                    The <strong>witness commitment</strong> is computed as:
+                </p>
+                <p class="math-block">
+                    commitment = SHA256(SHA256(witness_root || witness_reserved))
+                </p>
+                <p>
+                    where <span class="math">witness_root</span> is the Merkle root of all wtxids
+                    (with the coinbase wtxid set to all zeros), and
+                    <span class="math">witness_reserved</span> is a 32-byte value in the coinbase witness.
+                </p>
+            </div>
+
+            <p>
+                The witness commitment is stored in an OP_RETURN output of the coinbase transaction,
+                allowing old nodes to validate blocks without understanding witness data.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="500" height="150" viewBox="0 0 500 150">
+                    <!-- Two trees -->
+                    <rect x="30" y="40" width="180" height="90" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="120" y="60" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Transaction Merkle</text>
+                    <text x="120" y="80" text-anchor="middle" font-family="Georgia" font-size="10">Root of txids</text>
+                    <text x="120" y="100" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">→ Block header</text>
+
+                    <rect x="290" y="40" width="180" height="90" rx="6" fill="#f5f0f8" stroke="#a574d4" stroke-width="1.5"/>
+                    <text x="380" y="60" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Witness Merkle</text>
+                    <text x="380" y="80" text-anchor="middle" font-family="Georgia" font-size="10">Root of wtxids</text>
+                    <text x="380" y="100" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">→ Coinbase OP_RETURN</text>
+
+                    <!-- Labels -->
+                    <text x="120" y="25" text-anchor="middle" font-family="Georgia" font-size="10" fill="#4a90d9">Commits to transaction structure</text>
+                    <text x="380" y="25" text-anchor="middle" font-family="Georgia" font-size="10" fill="#a574d4">Commits to witness data</text>
+                </svg>
+                <figcaption>Figure 12.5: SegWit blocks have two Merkle trees: one for transactions, one for witnesses.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>12.7 SPV and Merkle Proofs</h2>
+
+            <p>
+                Merkle proofs enable Simplified Payment Verification (SPV), where a lightweight
+                client can verify transaction inclusion without downloading full blocks.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 12.3 (SPV Verification)</p>
+                <p>
+                    Given:
+                </p>
+                <ul>
+                    <li>A transaction <span class="math">tx</span></li>
+                    <li>A Merkle proof <span class="math">π</span></li>
+                    <li>A block header <span class="math">H</span> (from the longest chain)</li>
+                </ul>
+                <p>
+                    An SPV client can verify that <span class="math">tx</span> is included in the
+                    block represented by <span class="math">H</span> by checking that
+                    <span class="math">π</span> is valid for the Merkle root in <span class="math">H</span>.
+                </p>
+            </div>
+
+            <p>
+                The SPV security model assumes the longest chain represents honest consensus.
+                We will examine this assumption critically in Volume III.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 12.3 (SPV Data Requirements)</p>
+                <p>
+                    To verify a transaction, an SPV client needs:
+                </p>
+                <ul>
+                    <li>Block headers (80 bytes each, ~4 MB per year)</li>
+                    <li>The transaction itself (~250 bytes typical)</li>
+                    <li>Merkle proof (~500 bytes for large blocks)</li>
+                </ul>
+                <p>
+                    Compare this to downloading the full block (1–2 MB) or the entire blockchain
+                    (500+ GB as of 2024). The efficiency gain is dramatic.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>12.8 Security Considerations</h2>
+
+            <h3>12.8.1 CVE-2012-2459: Merkle Tree Malleability</h3>
+
+            <p>
+                A vulnerability in Bitcoin's original implementation allowed malformed blocks
+                to appear valid.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 12.3 (Duplicate Transaction Attack)</p>
+                <p>
+                    Because odd-numbered transaction lists duplicate the last element, an attacker
+                    could construct blocks where duplicating certain transactions produced the
+                    same Merkle root. This was fixed by rejecting blocks with duplicate transactions.
+                </p>
+            </div>
+
+            <h3>12.8.2 Leaf vs. Internal Node Ambiguity</h3>
+
+            <p>
+                If an internal node hash happens to be a valid transaction hash, confusion
+                could arise. Bitcoin mitigates this by:
+            </p>
+
+            <ul>
+                <li>Using 32-byte hashes (collision probability negligible)</li>
+                <li>Transaction format constraints that make valid txids unlikely to occur as concatenated hashes</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>12.9 Generalized Merkle Trees</h2>
+
+            <p>
+                Several Bitcoin proposals extend the basic Merkle tree concept.
+            </p>
+
+            <h3>12.9.1 Merkle Mountain Ranges</h3>
+
+            <p>
+                Merkle Mountain Ranges (MMRs) allow efficient append-only commitment, useful
+                for UTXOs and chain state.
+            </p>
+
+            <h3>12.9.2 Merkle-ized Abstract Syntax Trees (MAST)</h3>
+
+            <p>
+                MAST (now realized through Taproot) allows committing to multiple spending
+                conditions while revealing only the executed path. This improves both
+                privacy and efficiency for complex scripts.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 12.6 (Taproot Script Tree)</p>
+                <p>
+                    Taproot encodes alternative spending scripts as leaves in a Merkle tree.
+                    The Merkle root is tweaked into the public key. When spending via script,
+                    only the executed script and its Merkle proof are revealed—other branches
+                    remain private.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 12.1</p>
+                <p>
+                    Construct a Merkle tree for the following txids (use first 8 characters
+                    to represent each hash):
+                </p>
+                <pre class="code-block">A: 1a2b3c4d
+B: 5e6f7a8b
+C: 9c0d1e2f
+D: 3a4b5c6d
+E: 7e8f9a0b</pre>
+                <p>
+                    What is the structure of the tree? How many hash computations are needed?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 12.2</p>
+                <p>
+                    A block contains 4,096 transactions. How many hashes are needed in a
+                    Merkle proof? If each hash is 32 bytes, what is the total proof size?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 12.3</p>
+                <p>
+                    Explain why the Merkle root changes completely if even a single bit
+                    of any transaction is modified. What property of hash functions
+                    guarantees this?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 12.4</p>
+                <p>
+                    In the witness commitment scheme, why is the coinbase wtxid defined
+                    as all zeros rather than the actual hash? What would go wrong otherwise?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 12.5</p>
+                <p>
+                    A Merkle tree has 1,000 leaves. Without knowing which leaf you'll need
+                    to prove, how much data must you store to be able to generate a proof
+                    for any leaf? (Consider storing the full tree vs. just the leaves.)
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="11-script.html" class="prev-chapter">← Chapter 11: Script</a>
+            <a href="13-blocks.html" class="next-chapter">Chapter 13: Blocks →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume II: Protocol Architecture</p>
+    </footer>
+</body>
+</html>

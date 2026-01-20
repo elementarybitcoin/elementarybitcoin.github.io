@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 20: Light Client Architectures | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .trust-model {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .trust-card {
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .trust-card h4 {
+            margin-top: 0;
+            border-bottom: 2px solid;
+            padding-bottom: 0.5rem;
+        }
+        .trust-full { border-color: #4caf50; }
+        .trust-full h4 { border-color: #4caf50; color: #2e7d32; }
+        .trust-medium { border-color: #ff9800; }
+        .trust-medium h4 { border-color: #ff9800; color: #e65100; }
+        .trust-high { border-color: #f44336; }
+        .trust-high h4 { border-color: #f44336; color: #c62828; }
+        .architecture-note {
+            background: #f5f5f5;
+            border-left: 4px solid #1976d2;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="19-compact-filters.html">← Chapter 19: Compact Block Filters</a>
+        <a href="../index.html">Index</a>
+        <a href="21-node-optimizations.html">Chapter 21: Node Optimizations →</a>
+    </nav>
+
+    <main class="chapter">
+        <header>
+            <p class="chapter-number">Chapter 20</p>
+            <h1>Light Client Architectures</h1>
+            <p class="chapter-subtitle">From Electrum to Modern Wallet Backends</p>
+        </header>
+
+        <section class="introduction">
+            <p>
+                Not every user can or wants to run a full Bitcoin node. Light clients provide
+                a spectrum of trade-offs between resource requirements and trust assumptions.
+                Understanding these trade-offs is essential for choosing—or building—appropriate
+                wallet infrastructure.
+            </p>
+            <p>
+                This chapter surveys the major light client architectures in use today, from
+                the Electrum client-server model to modern approaches combining multiple
+                techniques. We analyze each approach's trust model, privacy characteristics,
+                and suitability for different use cases.
+            </p>
+        </section>
+
+        <section>
+            <h2>20.1 The Light Client Spectrum</h2>
+
+            <p>
+                Light clients exist on a spectrum from "minimal trust, maximal resources" to
+                "maximal trust, minimal resources":
+            </p>
+
+            <div class="trust-model">
+                <div class="trust-card trust-full">
+                    <h4>Full Validation</h4>
+                    <p><strong>Trust:</strong> None (trustless)</p>
+                    <p><strong>Resources:</strong> ~550 GB storage, continuous bandwidth</p>
+                    <p><strong>Example:</strong> Bitcoin Core</p>
+                </div>
+
+                <div class="trust-card trust-medium">
+                    <h4>SPV / Light Node</h4>
+                    <p><strong>Trust:</strong> Miners (majority honest)</p>
+                    <p><strong>Resources:</strong> ~60 MB headers + filters</p>
+                    <p><strong>Example:</strong> Neutrino, BIP-157</p>
+                </div>
+
+                <div class="trust-card trust-high">
+                    <h4>Server-Dependent</h4>
+                    <p><strong>Trust:</strong> Server operator</p>
+                    <p><strong>Resources:</strong> Minimal</p>
+                    <p><strong>Example:</strong> Electrum (public servers)</p>
+                </div>
+            </div>
+
+            <div class="definition">
+                <p><strong>Definition 20.1</strong> (Light Client)</p>
+                <p>
+                    A <em>light client</em> is any Bitcoin client that does not independently
+                    validate all transactions and blocks. Light clients necessarily trust
+                    some external party—miners, servers, or peers—for certain guarantees
+                    that full nodes verify independently.
+                </p>
+            </div>
+
+            <h3>Trust Requirements by Architecture</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Architecture</th>
+                        <th>Transaction Validity</th>
+                        <th>Inclusion Proof</th>
+                        <th>Privacy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Full Node</td>
+                        <td>Self-verified</td>
+                        <td>Self-verified</td>
+                        <td>Perfect</td>
+                    </tr>
+                    <tr>
+                        <td>Pruned Node</td>
+                        <td>Self-verified</td>
+                        <td>Self-verified</td>
+                        <td>Perfect</td>
+                    </tr>
+                    <tr>
+                        <td>BIP-157/158</td>
+                        <td>Trust miners</td>
+                        <td>Merkle proof</td>
+                        <td>Good</td>
+                    </tr>
+                    <tr>
+                        <td>Electrum (personal)</td>
+                        <td>Trust miners</td>
+                        <td>Server provides</td>
+                        <td>Good</td>
+                    </tr>
+                    <tr>
+                        <td>Electrum (public)</td>
+                        <td>Trust server + miners</td>
+                        <td>Server provides</td>
+                        <td>Poor</td>
+                    </tr>
+                    <tr>
+                        <td>Centralized API</td>
+                        <td>Trust service</td>
+                        <td>Trust service</td>
+                        <td>None</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>20.2 The Electrum Protocol</h2>
+
+            <p>
+                Electrum, created in 2011, pioneered the client-server model for Bitcoin
+                wallets. The Electrum protocol (also called ElectrumX protocol) provides
+                a JSON-RPC interface for querying blockchain data.
+            </p>
+
+            <h3>Architecture Overview</h3>
+
+            <figure>
+                <svg viewBox="0 0 700 350" style="max-width: 700px; margin: 2rem auto; display: block;">
+                    <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Electrum Client-Server Architecture
+                    </text>
+
+                    <!-- Bitcoin Network -->
+                    <g transform="translate(500, 80)">
+                        <ellipse cx="100" cy="80" rx="90" ry="70" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+                        <text x="100" y="60" text-anchor="middle" font-size="11" font-weight="bold">Bitcoin</text>
+                        <text x="100" y="75" text-anchor="middle" font-size="11" font-weight="bold">P2P Network</text>
+
+                        <!-- Full nodes -->
+                        <circle cx="60" cy="100" r="15" fill="#4caf50"/>
+                        <text x="60" y="105" text-anchor="middle" font-size="8" fill="white">FN</text>
+                        <circle cx="100" cy="115" r="15" fill="#4caf50"/>
+                        <text x="100" y="120" text-anchor="middle" font-size="8" fill="white">FN</text>
+                        <circle cx="140" cy="100" r="15" fill="#4caf50"/>
+                        <text x="140" y="105" text-anchor="middle" font-size="8" fill="white">FN</text>
+                    </g>
+
+                    <!-- Electrum Server -->
+                    <g transform="translate(250, 100)">
+                        <rect x="0" y="0" width="150" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <text x="75" y="25" text-anchor="middle" font-size="11" font-weight="bold">Electrum Server</text>
+                        <text x="75" y="45" text-anchor="middle" font-size="9">(ElectrumX, Fulcrum)</text>
+
+                        <rect x="10" y="55" width="60" height="35" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <text x="40" y="72" text-anchor="middle" font-size="8">Full Node</text>
+                        <text x="40" y="82" text-anchor="middle" font-size="8">Backend</text>
+
+                        <rect x="80" y="55" width="60" height="35" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <text x="110" y="72" text-anchor="middle" font-size="8">Address</text>
+                        <text x="110" y="82" text-anchor="middle" font-size="8">Index</text>
+                    </g>
+
+                    <!-- Connection to network -->
+                    <line x1="400" y1="150" x2="500" y2="150" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-gr)"/>
+                    <text x="450" y="140" text-anchor="middle" font-size="9">P2P Protocol</text>
+
+                    <!-- Electrum Clients -->
+                    <g transform="translate(30, 80)">
+                        <rect x="0" y="0" width="100" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="50" y="20" text-anchor="middle" font-size="10">Electrum</text>
+                        <text x="50" y="35" text-anchor="middle" font-size="10">Wallet</text>
+                    </g>
+
+                    <g transform="translate(30, 150)">
+                        <rect x="0" y="0" width="100" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="50" y="20" text-anchor="middle" font-size="10">Mobile</text>
+                        <text x="50" y="35" text-anchor="middle" font-size="10">Wallet</text>
+                    </g>
+
+                    <g transform="translate(30, 220)">
+                        <rect x="0" y="0" width="100" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="50" y="20" text-anchor="middle" font-size="10">Web</text>
+                        <text x="50" y="35" text-anchor="middle" font-size="10">Application</text>
+                    </g>
+
+                    <!-- Connections to server -->
+                    <line x1="130" y1="105" x2="250" y2="130" stroke="#ff9800" stroke-width="2"/>
+                    <line x1="130" y1="175" x2="250" y2="155" stroke="#ff9800" stroke-width="2"/>
+                    <line x1="130" y1="245" x2="250" y2="180" stroke="#ff9800" stroke-width="2"/>
+
+                    <text x="175" y="120" font-size="9" fill="#e65100">JSON-RPC</text>
+
+                    <!-- Privacy leak indicator -->
+                    <g transform="translate(150, 280)">
+                        <rect x="0" y="0" width="400" height="50" fill="#ffebee" stroke="#c62828" rx="4"/>
+                        <text x="200" y="20" text-anchor="middle" font-size="10" fill="#c62828" font-weight="bold">Privacy Concern:</text>
+                        <text x="200" y="35" text-anchor="middle" font-size="9" fill="#c62828">Server learns all wallet addresses, balances, and transaction history</text>
+                    </g>
+
+                    <defs>
+                        <marker id="arrow-gr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>
+                    <strong>Figure 20.1</strong> — Electrum architecture: clients connect to
+                    servers that maintain an address-indexed database built from a full node.
+                    The server sees all client addresses and queries.
+                </figcaption>
+            </figure>
+
+            <h3>Protocol Methods</h3>
+
+            <div class="definition">
+                <p><strong>Definition 20.2</strong> (Core Electrum Methods)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Purpose</th>
+                            <th>Privacy Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>blockchain.scripthash.get_history</code></td>
+                            <td>Get transaction history for address</td>
+                            <td>Reveals address ownership</td>
+                        </tr>
+                        <tr>
+                            <td><code>blockchain.scripthash.get_balance</code></td>
+                            <td>Get address balance</td>
+                            <td>Reveals address ownership</td>
+                        </tr>
+                        <tr>
+                            <td><code>blockchain.scripthash.listunspent</code></td>
+                            <td>Get UTXOs for address</td>
+                            <td>Reveals spendable outputs</td>
+                        </tr>
+                        <tr>
+                            <td><code>blockchain.scripthash.subscribe</code></td>
+                            <td>Watch address for changes</td>
+                            <td>Reveals ongoing interest</td>
+                        </tr>
+                        <tr>
+                            <td><code>blockchain.transaction.broadcast</code></td>
+                            <td>Submit transaction</td>
+                            <td>Reveals spending intent</td>
+                        </tr>
+                        <tr>
+                            <td><code>blockchain.transaction.get</code></td>
+                            <td>Fetch raw transaction</td>
+                            <td>Reveals transaction interest</td>
+                        </tr>
+                        <tr>
+                            <td><code>blockchain.headers.subscribe</code></td>
+                            <td>Get new block notifications</td>
+                            <td>Minimal</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Script Hash Addressing</h3>
+
+            <p>
+                Electrum uses script hashes rather than addresses for efficient indexing:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 20.3</strong> (Electrum Script Hash)</p>
+                <p>
+                    For any scriptPubKey, the Electrum script hash is:
+                </p>
+                <div class="formula">
+                    script_hash = SHA256(scriptPubKey), reversed to little-endian hex
+                </div>
+                <p>
+                    This provides a uniform 32-byte identifier regardless of address type.
+                </p>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 20.1</strong> (Script Hash Computation)</p>
+                <p>For a P2WPKH address with scriptPubKey:</p>
+                <pre><code>scriptPubKey: OP_0 OP_PUSH_20 <20-byte-hash>
+              = 0x0014{hash160}
+
+SHA256(scriptPubKey) = abc123...def456
+
+script_hash (little-endian hex) = 56f4de...23c1ab</code></pre>
+            </div>
+
+            <h3>Server Implementations</h3>
+
+            <div class="definition">
+                <p><strong>Definition 20.4</strong> (Electrum Server Software)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Software</th>
+                            <th>Language</th>
+                            <th>Index Size</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ElectrumX</td>
+                            <td>Python</td>
+                            <td>~50 GB</td>
+                            <td>Reference implementation</td>
+                        </tr>
+                        <tr>
+                            <td>Fulcrum</td>
+                            <td>C++</td>
+                            <td>~100 GB</td>
+                            <td>Faster, more features</td>
+                        </tr>
+                        <tr>
+                            <td>electrs</td>
+                            <td>Rust</td>
+                            <td>~30 GB</td>
+                            <td>Efficient, minimal</td>
+                        </tr>
+                        <tr>
+                            <td>Electrum Personal Server</td>
+                            <td>Python</td>
+                            <td>~0 GB</td>
+                            <td>Single-wallet, no index</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>20.3 Privacy Analysis of Electrum</h2>
+
+            <h3>What the Server Learns</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 20.1</strong> (Electrum Privacy Leakage)</p>
+                <p>
+                    When a client connects to an Electrum server, the server learns:
+                </p>
+                <ol>
+                    <li>Every address the wallet has ever generated</li>
+                    <li>The complete transaction history for those addresses</li>
+                    <li>Current balances and unspent outputs</li>
+                    <li>Which addresses are monitored in real-time</li>
+                    <li>When and what transactions the user broadcasts</li>
+                    <li>Client IP address (without Tor)</li>
+                    <li>Wallet software and version (from protocol negotiation)</li>
+                </ol>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    The Electrum protocol requires the client to send scriptPubKey hashes
+                    to query address history. The server must store and respond to these
+                    queries, necessarily learning the queried addresses. Subscription
+                    requests explicitly reveal ongoing interest. Transaction broadcasts
+                    reveal spending before the transaction propagates through the P2P network. ∎
+                </p>
+            </div>
+
+            <h3>Timing Attacks</h3>
+
+            <p>
+                Even beyond direct address queries, timing patterns reveal information:
+            </p>
+
+            <ul>
+                <li><strong>Wallet creation:</strong> Sequential address queries reveal when the wallet was created</li>
+                <li><strong>HD derivation:</strong> Query patterns reveal BIP-32 derivation paths</li>
+                <li><strong>Change addresses:</strong> Immediate queries after broadcasts reveal change outputs</li>
+                <li><strong>Session correlation:</strong> Multiple sessions can be linked by query patterns</li>
+            </ul>
+
+            <h3>Mitigations</h3>
+
+            <div class="architecture-note">
+                <p><strong>Running Your Own Electrum Server</strong></p>
+                <p>
+                    The privacy concerns above apply to <em>public</em> Electrum servers.
+                    Running your own server (ElectrumX, Fulcrum, electrs) connected to your
+                    own full node eliminates third-party privacy leakage, though requires
+                    the resources to run both services.
+                </p>
+            </div>
+
+            <p>Other mitigations:</p>
+
+            <ul>
+                <li><strong>Tor:</strong> Hide IP address (but server still sees addresses)</li>
+                <li><strong>Multiple servers:</strong> Split queries across servers (partial mitigation)</li>
+                <li><strong>Electrum Personal Server:</strong> Minimal server for single wallet</li>
+                <li><strong>Gap limit increase:</strong> Query more addresses to add noise</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>20.4 Esplora and Block Explorer APIs</h2>
+
+            <p>
+                Many wallets use HTTP APIs provided by block explorers. While convenient,
+                these have significant trust and privacy implications.
+            </p>
+
+            <h3>Common API Patterns</h3>
+
+            <div class="definition">
+                <p><strong>Definition 20.5</strong> (Block Explorer API Endpoints)</p>
+                <p>Typical REST endpoints:</p>
+                <pre><code>GET /address/{address}              # Address info
+GET /address/{address}/txs          # Transaction history
+GET /address/{address}/utxo         # Unspent outputs
+GET /tx/{txid}                      # Transaction details
+POST /tx                            # Broadcast transaction
+GET /block/{hash}                   # Block data
+GET /blocks/tip/height              # Current height</code></pre>
+            </div>
+
+            <h3>Esplora</h3>
+
+            <p>
+                Esplora (by Blockstream) is an open-source block explorer with a well-defined
+                API. Many wallets support Esplora-compatible backends.
+            </p>
+
+            <div class="example">
+                <p><strong>Example 20.2</strong> (Esplora Query)</p>
+                <pre><code>// Get UTXOs for address
+GET https://blockstream.info/api/address/bc1q.../utxo
+
+Response:
+[
+  {
+    "txid": "abc123...",
+    "vout": 0,
+    "status": {"confirmed": true, "block_height": 800000},
+    "value": 10000
+  }
+]</code></pre>
+            </div>
+
+            <h3>Trust Model</h3>
+
+            <div class="theorem">
+                <p><strong>Theorem 20.2</strong> (API Trust Requirements)</p>
+                <p>
+                    When using a third-party API:
+                </p>
+                <ul>
+                    <li><strong>Availability:</strong> Service can deny access or go offline</li>
+                    <li><strong>Integrity:</strong> Service can return false data (balances, history)</li>
+                    <li><strong>Privacy:</strong> Service logs all queries with IP addresses</li>
+                    <li><strong>Censorship:</strong> Service can refuse to broadcast transactions</li>
+                </ul>
+                <p>
+                    Without independent verification (Merkle proofs, header validation), the
+                    client must trust the API operator completely.
+                </p>
+            </div>
+
+            <h3>Self-Hosted Esplora</h3>
+
+            <p>
+                Running your own Esplora instance provides:
+            </p>
+
+            <ul>
+                <li>Privacy: No third-party sees your queries</li>
+                <li>Availability: You control uptime</li>
+                <li>Integrity: Backed by your own full node</li>
+            </ul>
+
+            <p>
+                Requirements: Full node + Esplora indexer (~100 GB additional storage).
+            </p>
+        </section>
+
+        <section>
+            <h2>20.5 Hybrid Approaches</h2>
+
+            <p>
+                Modern wallets often combine multiple approaches to optimize for different
+                requirements.
+            </p>
+
+            <h3>Multi-Backend Wallets</h3>
+
+            <figure>
+                <svg viewBox="0 0 650 280" style="max-width: 650px; margin: 2rem auto; display: block;">
+                    <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
+                        Hybrid Light Client Architecture
+                    </text>
+
+                    <!-- Wallet -->
+                    <g transform="translate(250, 50)">
+                        <rect x="0" y="0" width="150" height="60" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="75" y="25" text-anchor="middle" font-size="11" font-weight="bold">Wallet Client</text>
+                        <text x="75" y="45" text-anchor="middle" font-size="9">Backend abstraction layer</text>
+                    </g>
+
+                    <!-- Backend options -->
+                    <g transform="translate(30, 150)">
+                        <rect x="0" y="0" width="120" height="70" fill="#e8f5e9" stroke="#4caf50" rx="4"/>
+                        <text x="60" y="25" text-anchor="middle" font-size="10" font-weight="bold">Full Node</text>
+                        <text x="60" y="45" text-anchor="middle" font-size="9">Bitcoin Core RPC</text>
+                        <text x="60" y="60" text-anchor="middle" font-size="8" fill="#666">Best security</text>
+                    </g>
+
+                    <g transform="translate(170, 150)">
+                        <rect x="0" y="0" width="120" height="70" fill="#e3f2fd" stroke="#1976d2" rx="4"/>
+                        <text x="60" y="25" text-anchor="middle" font-size="10" font-weight="bold">Electrum</text>
+                        <text x="60" y="45" text-anchor="middle" font-size="9">Personal server</text>
+                        <text x="60" y="60" text-anchor="middle" font-size="8" fill="#666">Good privacy</text>
+                    </g>
+
+                    <g transform="translate(310, 150)">
+                        <rect x="0" y="0" width="120" height="70" fill="#fff3e0" stroke="#ff9800" rx="4"/>
+                        <text x="60" y="25" text-anchor="middle" font-size="10" font-weight="bold">Neutrino</text>
+                        <text x="60" y="45" text-anchor="middle" font-size="9">BIP-157/158</text>
+                        <text x="60" y="60" text-anchor="middle" font-size="8" fill="#666">P2P privacy</text>
+                    </g>
+
+                    <g transform="translate(450, 150)">
+                        <rect x="0" y="0" width="120" height="70" fill="#ffebee" stroke="#c62828" rx="4"/>
+                        <text x="60" y="25" text-anchor="middle" font-size="10" font-weight="bold">Public API</text>
+                        <text x="60" y="45" text-anchor="middle" font-size="9">Esplora/Blockstream</text>
+                        <text x="60" y="60" text-anchor="middle" font-size="8" fill="#666">Fallback only</text>
+                    </g>
+
+                    <!-- Connections -->
+                    <line x1="325" y1="110" x2="90" y2="150" stroke="#666" stroke-width="1"/>
+                    <line x1="325" y1="110" x2="230" y2="150" stroke="#666" stroke-width="1"/>
+                    <line x1="325" y1="110" x2="370" y2="150" stroke="#666" stroke-width="1"/>
+                    <line x1="325" y1="110" x2="510" y2="150" stroke="#666" stroke-width="1" stroke-dasharray="4"/>
+
+                    <!-- Priority labels -->
+                    <text x="175" y="135" font-size="8" fill="#4caf50">Priority 1</text>
+                    <text x="265" y="135" font-size="8" fill="#1976d2">Priority 2</text>
+                    <text x="360" y="135" font-size="8" fill="#ff9800">Priority 3</text>
+                    <text x="460" y="135" font-size="8" fill="#c62828">Fallback</text>
+
+                    <!-- Note -->
+                    <text x="325" y="260" text-anchor="middle" font-size="10" fill="#666">
+                        Wallet tries backends in priority order, falling back as needed
+                    </text>
+                </svg>
+                <figcaption>
+                    <strong>Figure 20.2</strong> — Hybrid architecture: wallets can support multiple
+                    backends with configurable priority, optimizing for security when available
+                    and falling back to less private options when necessary.
+                </figcaption>
+            </figure>
+
+            <h3>Verification Layers</h3>
+
+            <p>
+                Even when using a server backend, clients can add verification:
+            </p>
+
+            <div class="definition">
+                <p><strong>Definition 20.6</strong> (Layered Verification)</p>
+                <table class="bitcoin-table">
+                    <thead>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Verification</th>
+                            <th>Protects Against</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Header chain</td>
+                            <td>Validate PoW chain</td>
+                            <td>Fake blocks with low work</td>
+                        </tr>
+                        <tr>
+                            <td>Merkle proofs</td>
+                            <td>Verify tx inclusion</td>
+                            <td>Fabricated transactions</td>
+                        </tr>
+                        <tr>
+                            <td>Filter headers</td>
+                            <td>Multi-peer consensus</td>
+                            <td>Transaction omission</td>
+                        </tr>
+                        <tr>
+                            <td>Multiple servers</td>
+                            <td>Cross-reference responses</td>
+                            <td>Single malicious server</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="example">
+                <p><strong>Example 20.3</strong> (Verification-Enhanced Electrum)</p>
+                <p>
+                    A wallet using Electrum can add security by:
+                </p>
+                <ol>
+                    <li>Requesting Merkle proofs for all transactions</li>
+                    <li>Maintaining a validated header chain locally</li>
+                    <li>Verifying transactions are included in headers</li>
+                    <li>Querying multiple Electrum servers for consensus</li>
+                </ol>
+                <p>
+                    This doesn't fix privacy (servers still see addresses) but prevents
+                    balance manipulation attacks.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>20.6 Wallet Architectures in Practice</h2>
+
+            <h3>Desktop Wallets</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Wallet</th>
+                        <th>Backend</th>
+                        <th>Privacy</th>
+                        <th>Verification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bitcoin Core</td>
+                        <td>Built-in full node</td>
+                        <td>Perfect</td>
+                        <td>Full</td>
+                    </tr>
+                    <tr>
+                        <td>Electrum</td>
+                        <td>Electrum servers</td>
+                        <td>Configurable</td>
+                        <td>Merkle proofs</td>
+                    </tr>
+                    <tr>
+                        <td>Sparrow</td>
+                        <td>Core/Electrum/Public</td>
+                        <td>Configurable</td>
+                        <td>Merkle proofs</td>
+                    </tr>
+                    <tr>
+                        <td>Wasabi</td>
+                        <td>BIP-157/158</td>
+                        <td>Good</td>
+                        <td>Filters + headers</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Mobile Wallets</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Wallet</th>
+                        <th>Backend</th>
+                        <th>Privacy</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BlueWallet</td>
+                        <td>Electrum/own server</td>
+                        <td>Configurable</td>
+                        <td>Can use own server</td>
+                    </tr>
+                    <tr>
+                        <td>Blockstream Green</td>
+                        <td>Blockstream servers</td>
+                        <td>Trust Blockstream</td>
+                        <td>Multisig option</td>
+                    </tr>
+                    <tr>
+                        <td>Phoenix (LN)</td>
+                        <td>ACINQ servers</td>
+                        <td>Trust ACINQ</td>
+                        <td>Lightning-focused</td>
+                    </tr>
+                    <tr>
+                        <td>Breez (LN)</td>
+                        <td>Neutrino</td>
+                        <td>Good</td>
+                        <td>BIP-157/158</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Hardware Wallet Integration</h3>
+
+            <p>
+                Hardware wallets (Ledger, Trezor, Coldcard) are <em>signing devices</em>,
+                not full wallets. They require a software companion for blockchain queries:
+            </p>
+
+            <ul>
+                <li><strong>Vendor software:</strong> Ledger Live, Trezor Suite (use vendor servers)</li>
+                <li><strong>Third-party wallets:</strong> Electrum, Sparrow (configurable backend)</li>
+                <li><strong>Best practice:</strong> Use hardware wallet with personal server backend</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>20.7 Choosing an Architecture</h2>
+
+            <h3>Decision Framework</h3>
+
+            <div class="definition">
+                <p><strong>Definition 20.7</strong> (Architecture Selection Criteria)</p>
+                <p>Consider these factors when choosing a light client architecture:</p>
+                <ol>
+                    <li><strong>Privacy requirements:</strong> Who can see your addresses?</li>
+                    <li><strong>Trust requirements:</strong> What can a malicious server do?</li>
+                    <li><strong>Resource constraints:</strong> Storage, bandwidth, always-online?</li>
+                    <li><strong>Use case:</strong> Savings, spending, Lightning, business?</li>
+                    <li><strong>Technical ability:</strong> Can you run your own infrastructure?</li>
+                </ol>
+            </div>
+
+            <h3>Recommendations by Use Case</h3>
+
+            <table class="bitcoin-table">
+                <thead>
+                    <tr>
+                        <th>Use Case</th>
+                        <th>Recommended</th>
+                        <th>Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Long-term savings</td>
+                        <td>Full node + hardware wallet</td>
+                        <td>Maximum security for large amounts</td>
+                    </tr>
+                    <tr>
+                        <td>Privacy-focused</td>
+                        <td>Full node or personal Electrum</td>
+                        <td>No third-party sees addresses</td>
+                    </tr>
+                    <tr>
+                        <td>Mobile spending</td>
+                        <td>Wallet with own server</td>
+                        <td>Balance convenience and privacy</td>
+                    </tr>
+                    <tr>
+                        <td>Lightning node</td>
+                        <td>Full node or Neutrino</td>
+                        <td>Need to monitor channels</td>
+                    </tr>
+                    <tr>
+                        <td>Casual/learning</td>
+                        <td>Any reputable wallet</td>
+                        <td>Convenience acceptable for small amounts</td>
+                    </tr>
+                    <tr>
+                        <td>Business/exchange</td>
+                        <td>Full node required</td>
+                        <td>Cannot trust third parties</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>The Path to Self-Sovereignty</h3>
+
+            <div class="architecture-note">
+                <p><strong>Progressive Decentralization</strong></p>
+                <p>
+                    Users often progress through trust levels as they gain experience:
+                </p>
+                <ol>
+                    <li>Start with convenient public server wallet</li>
+                    <li>Add Tor for IP privacy</li>
+                    <li>Run personal Electrum server</li>
+                    <li>Eventually run full Bitcoin Core node</li>
+                </ol>
+                <p>
+                    This progression reflects increasing value stored and deepening understanding.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p><strong>Exercise 20.1</strong></p>
+                <p>
+                    Set up electrs (Rust Electrum server) connected to Bitcoin Core in
+                    regtest mode. Query it using the Electrum protocol and observe the
+                    raw JSON-RPC messages.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 20.2</strong></p>
+                <p>
+                    Compare the bandwidth requirements for syncing a 100-address wallet
+                    from genesis using: (a) full node, (b) BIP-157/158, (c) Electrum
+                    server queries. Assume average block has 2500 transactions.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 20.3</strong></p>
+                <p>
+                    Design an attack where a malicious Electrum server profits by lying
+                    about transaction confirmations. What verification would detect this?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 20.4</strong></p>
+                <p>
+                    Explain why running an Electrum server over Tor still leaks privacy
+                    to the server operator, while BIP-157/158 over Tor provides meaningful
+                    privacy even against the peer.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 20.5</strong></p>
+                <p>
+                    A wallet queries three Electrum servers and receives conflicting
+                    balance information. Design a protocol to identify which server(s)
+                    are lying using Merkle proofs.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p><strong>Exercise 20.6</strong></p>
+                <p>
+                    Calculate the storage requirements to run: (a) Bitcoin Core, (b) pruned
+                    Bitcoin Core, (c) Bitcoin Core + ElectrumX, (d) Bitcoin Core + Fulcrum.
+                    Which setups can run on a Raspberry Pi with 1TB storage?
+                </p>
+            </div>
+        </section>
+
+        <section class="summary">
+            <h2>Chapter Summary</h2>
+
+            <ul>
+                <li>
+                    Light clients exist on a spectrum from trustless (full node) to fully
+                    trusted (centralized API), with various trade-offs in between.
+                </li>
+                <li>
+                    Electrum's client-server model provides efficient address queries but
+                    reveals all wallet addresses to the server.
+                </li>
+                <li>
+                    Running your own Electrum server eliminates third-party privacy leakage
+                    but requires additional infrastructure.
+                </li>
+                <li>
+                    Block explorer APIs are convenient but provide no verification and
+                    complete privacy loss to the operator.
+                </li>
+                <li>
+                    Hybrid approaches combine multiple backends with verification layers
+                    to optimize for different requirements.
+                </li>
+                <li>
+                    The best architecture depends on your specific privacy, security, and
+                    resource requirements—there is no one-size-fits-all solution.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="19-compact-filters.html">← Chapter 19: Compact Block Filters</a>
+            <a href="../index.html">Index</a>
+            <a href="21-node-optimizations.html">Chapter 21: Node Optimizations →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+    </footer>
+</body>
+</html>

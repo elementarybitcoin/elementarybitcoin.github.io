@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Elliptic Curves over the Real Numbers | Elementary Bitcoin</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Chapter Three</span>
+        <h1 class="chapter-title">Elliptic Curves over the Real Numbers</h1>
+        <p class="chapter-epigraph">
+            "The theory of elliptic curves is a showpiece of modern mathematics,
+            blending algebra, geometry, and analysis into a harmonious whole."
+            <br>&mdash; Joseph H. Silverman
+        </p>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                We now arrive at the central mathematical object of this treatise: the <em>elliptic curve</em>.
+                Despite the name, these curves have nothing to do with ellipses. The terminology is
+                historical, arising from 18th-century attempts to compute the arc length of an ellipse,
+                which led to certain integrals that are now called "elliptic integrals."
+            </p>
+            <p>
+                In this chapter, we study elliptic curves over the real numbers, where we can draw pictures
+                and develop geometric intuition. The visual approach will serve us well when we later
+                move to the more abstract setting of finite fields.
+            </p>
+        </section>
+
+        <section>
+            <h2>3.1 The Weierstrass Equation</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 3.1 (Elliptic Curve)</p>
+                <p>
+                    An <strong>elliptic curve</strong> over the real numbers is the set of points
+                    <span class="math">(x, y)</span> satisfying an equation of the form:
+                </p>
+                <p style="text-align: center; font-size: 1.2em;">
+                    <span class="math">y² = x³ + ax + b</span>
+                </p>
+                <p>
+                    where <span class="math">a, b ∈ ℝ</span> and the curve is <em>non-singular</em>,
+                    meaning it has no cusps or self-intersections. This is called the
+                    <strong>short Weierstrass form</strong>.
+                </p>
+            </div>
+
+            <p>
+                The condition for non-singularity is that the <em>discriminant</em> is nonzero:
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 3.2 (Discriminant)</p>
+                <p>
+                    The <strong>discriminant</strong> of the curve <span class="math">y² = x³ + ax + b</span> is:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">Δ = −16(4a³ + 27b²)</span>
+                </p>
+                <p>
+                    The curve is non-singular if and only if <span class="math">Δ ≠ 0</span>.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="600" height="300" viewBox="0 0 600 300">
+                    <!-- Curve 1: y² = x³ - x (a=-1, b=0) -->
+                    <g transform="translate(100, 150)">
+                        <text x="0" y="-120" text-anchor="middle" font-family="Georgia" font-size="12">y² = x³ − x</text>
+                        <!-- Axes -->
+                        <line x1="-80" y1="0" x2="80" y2="0" stroke="#ccc" stroke-width="1"/>
+                        <line x1="0" y1="-100" x2="0" y2="100" stroke="#ccc" stroke-width="1"/>
+                        <!-- Curve (approximated path) -->
+                        <path d="M -80 -56 Q -60 -70, -40 -50 Q -20 -25, 0 0 Q 20 25, 40 60 L 40 60
+                                 M -80 56 Q -60 70, -40 50 Q -20 25, 0 0 Q -15 -15, -35 -45
+                                 M 40 -60 Q 55 -80, 80 -95
+                                 M 40 60 Q 55 80, 80 95"
+                              fill="none" stroke="#4a90d9" stroke-width="2.5"/>
+                        <!-- Simplified curve representation -->
+                        <ellipse cx="-40" cy="0" rx="35" ry="55" fill="none" stroke="#4a90d9" stroke-width="2.5"/>
+                        <path d="M 5 10 Q 40 65, 75 98" fill="none" stroke="#4a90d9" stroke-width="2.5"/>
+                        <path d="M 5 -10 Q 40 -65, 75 -98" fill="none" stroke="#4a90d9" stroke-width="2.5"/>
+                    </g>
+
+                    <!-- Curve 2: y² = x³ - 3x + 3 -->
+                    <g transform="translate(300, 150)">
+                        <text x="0" y="-120" text-anchor="middle" font-family="Georgia" font-size="12">y² = x³ − 3x + 3</text>
+                        <line x1="-80" y1="0" x2="80" y2="0" stroke="#ccc" stroke-width="1"/>
+                        <line x1="0" y1="-100" x2="0" y2="100" stroke="#ccc" stroke-width="1"/>
+                        <!-- Single connected component -->
+                        <path d="M -60 95 Q -45 60, -30 40 Q 0 0, 30 -40 Q 50 -70, 70 -98
+                                 M -60 -95 Q -45 -60, -30 -40 Q 0 0, 30 40 Q 50 70, 70 98"
+                              fill="none" stroke="#8b4513" stroke-width="2.5"/>
+                    </g>
+
+                    <!-- Curve 3: y² = x³ + 7 (secp256k1!) -->
+                    <g transform="translate(500, 150)">
+                        <text x="0" y="-120" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">y² = x³ + 7</text>
+                        <text x="0" y="-105" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">(Bitcoin's curve)</text>
+                        <line x1="-80" y1="0" x2="80" y2="0" stroke="#ccc" stroke-width="1"/>
+                        <line x1="0" y1="-100" x2="0" y2="100" stroke="#ccc" stroke-width="1"/>
+                        <!-- Single component, starts at x ≈ -1.91 -->
+                        <path d="M -55 95 Q -40 50, -25 30 Q 10 0, 40 -50 Q 60 -80, 75 -98
+                                 M -55 -95 Q -40 -50, -25 -30 Q 10 0, 40 50 Q 60 80, 75 98"
+                              fill="none" stroke="#5a8f5a" stroke-width="2.5"/>
+                    </g>
+                </svg>
+                <figcaption>Figure 3.1: Three elliptic curves with different parameters. Bitcoin uses y² = x³ + 7.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 3.1 (Bitcoin's Curve: secp256k1)</p>
+                <p>
+                    The curve used in Bitcoin has <span class="math">a = 0</span> and <span class="math">b = 7</span>:
+                </p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">y² = x³ + 7</span>
+                </p>
+                <p>
+                    The discriminant is <span class="math">Δ = −16(4·0³ + 27·7²) = −16·1323 ≠ 0</span>,
+                    so this curve is indeed non-singular.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Observation.</p>
+                <p>
+                    Notice that every elliptic curve is symmetric about the x-axis. If
+                    <span class="math">(x, y)</span> is on the curve, then so is <span class="math">(x, −y)</span>,
+                    since <span class="math">(−y)² = y²</span>. This symmetry will be crucial for
+                    defining point addition.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>3.2 The Point at Infinity</h2>
+
+            <p>
+                Before defining addition on elliptic curves, we must extend our curve by adding
+                a special point that serves as the identity element.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 3.3 (Point at Infinity)</p>
+                <p>
+                    The <strong>point at infinity</strong>, denoted <span class="math">𝒪</span> (or sometimes
+                    <span class="math">∞</span>), is an abstract point added to every elliptic curve.
+                    Geometrically, it can be thought of as the point where all vertical lines meet
+                    "at infinity."
+                </p>
+                <p>
+                    The complete elliptic curve is thus:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">E = {(x, y) : y² = x³ + ax + b} ∪ {𝒪}</span>
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="400" height="350" viewBox="0 0 400 350">
+                    <!-- Vertical lines converging at infinity -->
+                    <g stroke="#ccc" stroke-width="1" stroke-dasharray="4,4">
+                        <line x1="100" y1="330" x2="200" y2="30"/>
+                        <line x1="150" y1="330" x2="200" y2="30"/>
+                        <line x1="200" y1="330" x2="200" y2="30"/>
+                        <line x1="250" y1="330" x2="200" y2="30"/>
+                        <line x1="300" y1="330" x2="200" y2="30"/>
+                    </g>
+
+                    <!-- The point at infinity -->
+                    <circle cx="200" cy="30" r="8" fill="#8b4513"/>
+                    <text x="220" y="35" font-family="Georgia" font-size="14" font-style="italic">𝒪</text>
+                    <text x="200" y="15" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">Point at infinity</text>
+
+                    <!-- A simple elliptic curve representation -->
+                    <g transform="translate(200, 200)">
+                        <!-- Axes -->
+                        <line x1="-120" y1="0" x2="120" y2="0" stroke="#999" stroke-width="1"/>
+                        <line x1="0" y1="-100" x2="0" y2="100" stroke="#999" stroke-width="1"/>
+
+                        <!-- The curve -->
+                        <path d="M -80 90 Q -55 45, -35 25 Q 0 0, 35 -30 Q 60 -55, 90 -85
+                                 M -80 -90 Q -55 -45, -35 -25 Q 0 0, 35 30 Q 60 55, 90 85"
+                              fill="none" stroke="#4a90d9" stroke-width="2.5"/>
+
+                        <!-- A point and its reflection -->
+                        <circle cx="40" cy="-45" r="5" fill="#4a90d9"/>
+                        <text x="55" y="-45" font-family="Georgia" font-size="12" font-style="italic">P</text>
+
+                        <circle cx="40" cy="45" r="5" fill="#4a90d9"/>
+                        <text x="55" y="50" font-family="Georgia" font-size="12" font-style="italic">−P</text>
+
+                        <!-- Vertical line through P -->
+                        <line x1="40" y1="-130" x2="40" y2="130" stroke="#8b4513" stroke-width="1.5"/>
+                    </g>
+
+                    <text x="200" y="340" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">
+                        The vertical line through P and −P meets 𝒪 at infinity
+                    </text>
+                </svg>
+                <figcaption>Figure 3.2: Vertical lines meet at the point at infinity 𝒪.</figcaption>
+            </figure>
+
+            <p>
+                The point at infinity may seem like a mathematical artifice, but it arises
+                naturally when we work in <em>projective coordinates</em>. For now, simply
+                accept it as the identity element for our group operation.
+            </p>
+        </section>
+
+        <section>
+            <h2>3.3 The Chord-and-Tangent Law: Geometric Point Addition</h2>
+
+            <p>
+                Here we define the group operation on elliptic curves. The construction is
+                beautifully geometric: it involves only drawing lines and finding intersections.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 3.4 (Point Addition)</p>
+                <p>
+                    Let <span class="math">P</span> and <span class="math">Q</span> be points on
+                    an elliptic curve <span class="math">E</span>. Their sum <span class="math">P + Q</span>
+                    is defined as follows:
+                </p>
+                <ol>
+                    <li><strong>Identity:</strong> <span class="math">P + 𝒪 = 𝒪 + P = P</span> for all points <span class="math">P</span>.</li>
+                    <li><strong>Inverse:</strong> If <span class="math">P = (x, y)</span>, then
+                        <span class="math">−P = (x, −y)</span>, and <span class="math">P + (−P) = 𝒪</span>.</li>
+                    <li><strong>General addition (P ≠ Q):</strong> Draw the line through <span class="math">P</span>
+                        and <span class="math">Q</span>. This line intersects <span class="math">E</span> at
+                        exactly one more point <span class="math">R</span>. Then <span class="math">P + Q = −R</span>.</li>
+                    <li><strong>Point doubling (P = Q):</strong> Draw the tangent line to <span class="math">E</span>
+                        at <span class="math">P</span>. This line intersects <span class="math">E</span> at
+                        one more point <span class="math">R</span>. Then <span class="math">P + P = 2P = −R</span>.</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="550" height="320" viewBox="0 0 550 320">
+                    <!-- Point Addition P + Q -->
+                    <g transform="translate(140, 160)">
+                        <text x="0" y="-140" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Point Addition: P + Q</text>
+
+                        <!-- Axes -->
+                        <line x1="-110" y1="0" x2="110" y2="0" stroke="#ccc" stroke-width="1"/>
+                        <line x1="0" y1="-120" x2="0" y2="120" stroke="#ccc" stroke-width="1"/>
+
+                        <!-- Curve -->
+                        <path d="M -90 115 Q -60 50, -35 30 Q 0 0, 35 -35 Q 65 -70, 95 -110
+                                 M -90 -115 Q -60 -50, -35 -30 Q 0 0, 35 35 Q 65 70, 95 110"
+                              fill="none" stroke="#4a90d9" stroke-width="2"/>
+
+                        <!-- Point P -->
+                        <circle cx="-50" cy="60" r="5" fill="#5a8f5a"/>
+                        <text x="-65" y="65" font-family="Georgia" font-size="13" fill="#5a8f5a" font-weight="bold">P</text>
+
+                        <!-- Point Q -->
+                        <circle cx="20" cy="-20" r="5" fill="#5a8f5a"/>
+                        <text x="30" y="-25" font-family="Georgia" font-size="13" fill="#5a8f5a" font-weight="bold">Q</text>
+
+                        <!-- Line through P and Q -->
+                        <line x1="-90" y1="92" x2="90" y2="-76" stroke="#8b4513" stroke-width="1.5"/>
+
+                        <!-- Intersection R -->
+                        <circle cx="65" cy="-55" r="5" fill="#c44"/>
+                        <text x="80" y="-55" font-family="Georgia" font-size="13" fill="#c44">R</text>
+
+                        <!-- -R = P + Q -->
+                        <circle cx="65" cy="55" r="6" fill="#8b4513"/>
+                        <text x="80" y="60" font-family="Georgia" font-size="13" fill="#8b4513" font-weight="bold">P + Q</text>
+
+                        <!-- Vertical line from R to P+Q -->
+                        <line x1="65" y1="-55" x2="65" y2="55" stroke="#666" stroke-width="1" stroke-dasharray="3,3"/>
+
+                        <!-- Reflect arrow -->
+                        <text x="85" y="0" font-family="Georgia" font-size="10" fill="#666">reflect</text>
+                    </g>
+
+                    <!-- Point Doubling 2P -->
+                    <g transform="translate(410, 160)">
+                        <text x="0" y="-140" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Point Doubling: 2P</text>
+
+                        <!-- Axes -->
+                        <line x1="-110" y1="0" x2="110" y2="0" stroke="#ccc" stroke-width="1"/>
+                        <line x1="0" y1="-120" x2="0" y2="120" stroke="#ccc" stroke-width="1"/>
+
+                        <!-- Curve -->
+                        <path d="M -90 115 Q -60 50, -35 30 Q 0 0, 35 -35 Q 65 -70, 95 -110
+                                 M -90 -115 Q -60 -50, -35 -30 Q 0 0, 35 35 Q 65 70, 95 110"
+                              fill="none" stroke="#4a90d9" stroke-width="2"/>
+
+                        <!-- Point P -->
+                        <circle cx="-40" cy="50" r="5" fill="#5a8f5a"/>
+                        <text x="-55" y="55" font-family="Georgia" font-size="13" fill="#5a8f5a" font-weight="bold">P</text>
+
+                        <!-- Tangent line at P -->
+                        <line x1="-100" y1="70" x2="100" y2="-80" stroke="#8b4513" stroke-width="1.5"/>
+                        <text x="-85" y="90" font-family="Georgia" font-size="10" fill="#8b4513">tangent</text>
+
+                        <!-- Intersection R -->
+                        <circle cx="55" cy="-48" r="5" fill="#c44"/>
+                        <text x="70" y="-48" font-family="Georgia" font-size="13" fill="#c44">R</text>
+
+                        <!-- -R = 2P -->
+                        <circle cx="55" cy="48" r="6" fill="#8b4513"/>
+                        <text x="70" y="53" font-family="Georgia" font-size="13" fill="#8b4513" font-weight="bold">2P</text>
+
+                        <!-- Vertical line from R to 2P -->
+                        <line x1="55" y1="-48" x2="55" y2="48" stroke="#666" stroke-width="1" stroke-dasharray="3,3"/>
+                    </g>
+                </svg>
+                <figcaption>Figure 3.3: The chord-and-tangent construction for point addition and doubling.</figcaption>
+            </figure>
+
+            <p>
+                The recipe can be summarized in three words: <strong>connect, intersect, reflect</strong>.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 3.1 (A Line Meets a Cubic in Three Points)</p>
+                <p>
+                    Any line that is not vertical intersects an elliptic curve in exactly three
+                    points (counting multiplicity and the point at infinity).
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    Consider a line <span class="math">y = mx + c</span>. Substituting into
+                    <span class="math">y² = x³ + ax + b</span>:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">(mx + c)² = x³ + ax + b</span>
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">x³ − m²x² + (a − 2mc)x + (b − c²) = 0</span>
+                </p>
+                <p>
+                    This is a cubic in <span class="math">x</span>, which has exactly three roots
+                    (counting multiplicity) in any algebraically closed field, and at least one
+                    real root. <span class="qed"></span>
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>3.4 The Addition Formulas</h2>
+
+            <p>
+                While the geometric definition is elegant, computation requires explicit formulas.
+                Let <span class="math">P = (x₁, y₁)</span> and <span class="math">Q = (x₂, y₂)</span>
+                be points on <span class="math">E: y² = x³ + ax + b</span>.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 3.2 (Point Addition Formulas)</p>
+                <p>
+                    If <span class="math">P ≠ ±Q</span> and neither is <span class="math">𝒪</span>,
+                    then <span class="math">P + Q = (x₃, y₃)</span> where:
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">λ = (y₂ − y₁) / (x₂ − x₁)</span>
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">x₃ = λ² − x₁ − x₂</span>
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">y₃ = λ(x₁ − x₃) − y₁</span>
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    The line through <span class="math">P</span> and <span class="math">Q</span>
+                    has slope <span class="math">λ = (y₂ − y₁)/(x₂ − x₁)</span> and equation
+                    <span class="math">y = λ(x − x₁) + y₁</span>.
+                </p>
+                <p>
+                    Substituting into the curve equation:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">[λ(x − x₁) + y₁]² = x³ + ax + b</span>
+                </p>
+                <p>
+                    Expanding and using Vieta's formulas, if <span class="math">x₁, x₂, x₃</span>
+                    are the three roots, then <span class="math">x₁ + x₂ + x₃ = λ²</span>.
+                    Thus <span class="math">x₃ = λ² − x₁ − x₂</span>.
+                </p>
+                <p>
+                    The y-coordinate <span class="math">y₃</span> follows from the line equation
+                    and reflection: <span class="math">y₃ = λ(x₁ − x₃) − y₁</span>.
+                    <span class="qed"></span>
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 3.3 (Point Doubling Formulas)</p>
+                <p>
+                    If <span class="math">P = (x₁, y₁)</span> with <span class="math">y₁ ≠ 0</span>,
+                    then <span class="math">2P = (x₃, y₃)</span> where:
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">λ = (3x₁² + a) / (2y₁)</span>
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">x₃ = λ² − 2x₁</span>
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">y₃ = λ(x₁ − x₃) − y₁</span>
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    The tangent slope at <span class="math">P</span> is found by implicit
+                    differentiation of <span class="math">y² = x³ + ax + b</span>:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">2y(dy/dx) = 3x² + a</span>
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">λ = dy/dx = (3x² + a)/(2y)</span>
+                </p>
+                <p>
+                    The rest follows as in the addition case. <span class="qed"></span>
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 3.2 (Point Addition on y² = x³ − 7x + 10)</p>
+                <p>
+                    Let <span class="math">P = (1, 2)</span> and <span class="math">Q = (3, 4)</span>.
+                    First verify these are on the curve:
+                </p>
+                <ul>
+                    <li><span class="math">P</span>: <span class="math">2² = 4</span> and <span class="math">1³ − 7·1 + 10 = 4</span>. ✓</li>
+                    <li><span class="math">Q</span>: <span class="math">4² = 16</span> and <span class="math">3³ − 7·3 + 10 = 27 − 21 + 10 = 16</span>. ✓</li>
+                </ul>
+                <p>Now compute <span class="math">P + Q</span>:</p>
+                <ul>
+                    <li><span class="math">λ = (4 − 2)/(3 − 1) = 2/2 = 1</span></li>
+                    <li><span class="math">x₃ = 1² − 1 − 3 = −3</span></li>
+                    <li><span class="math">y₃ = 1·(1 − (−3)) − 2 = 4 − 2 = 2</span></li>
+                </ul>
+                <p>
+                    Thus <span class="math">P + Q = (−3, 2)</span>.
+                </p>
+                <p>
+                    Verification: <span class="math">2² = 4</span> and
+                    <span class="math">(−3)³ − 7·(−3) + 10 = −27 + 21 + 10 = 4</span>. ✓
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>3.5 The Group Structure</h2>
+
+            <p>
+                We now verify that elliptic curve addition satisfies the group axioms.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 3.4 (Elliptic Curves Form an Abelian Group)</p>
+                <p>
+                    The set of points on an elliptic curve <span class="math">E</span>,
+                    together with point addition, forms an abelian group.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">(Sketch)</p>
+                <ol>
+                    <li><em>Closure:</em> The formulas produce points on the curve (verified algebraically).</li>
+                    <li><em>Identity:</em> <span class="math">𝒪</span> satisfies <span class="math">P + 𝒪 = P</span> by definition.</li>
+                    <li><em>Inverse:</em> <span class="math">−P = (x, −y)</span> satisfies <span class="math">P + (−P) = 𝒪</span>.</li>
+                    <li><em>Commutativity:</em> The line through <span class="math">P</span> and <span class="math">Q</span> is the same as through <span class="math">Q</span> and <span class="math">P</span>.</li>
+                    <li><em>Associativity:</em> This requires a lengthy algebraic verification or can be proven geometrically using properties of cubic curves. <span class="qed"></span></li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="16" font-weight="bold">Elliptic Curve Group Structure</text>
+
+                    <!-- Identity -->
+                    <rect x="30" y="50" width="130" height="60" rx="8" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="95" y="75" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Identity</text>
+                    <text x="95" y="95" text-anchor="middle" font-family="Georgia" font-size="13" font-style="italic">𝒪 (point at ∞)</text>
+
+                    <!-- Inverse -->
+                    <rect x="185" y="50" width="130" height="60" rx="8" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="250" y="75" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Inverse</text>
+                    <text x="250" y="95" text-anchor="middle" font-family="Georgia" font-size="13" font-style="italic">−(x,y) = (x,−y)</text>
+
+                    <!-- Abelian -->
+                    <rect x="340" y="50" width="130" height="60" rx="8" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="405" y="75" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Abelian</text>
+                    <text x="405" y="95" text-anchor="middle" font-family="Georgia" font-size="13" font-style="italic">P + Q = Q + P</text>
+
+                    <!-- Operation -->
+                    <rect x="130" y="130" width="240" height="50" rx="8" fill="#fff" stroke="#2f4f4f" stroke-width="2"/>
+                    <text x="250" y="155" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Operation: Chord-and-Tangent</text>
+                    <text x="250" y="170" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">connect → intersect → reflect</text>
+                </svg>
+                <figcaption>Figure 3.4: Summary of the elliptic curve group structure.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>3.6 Scalar Multiplication</h2>
+
+            <p>
+                Given a point <span class="math">P</span> and a positive integer <span class="math">n</span>,
+                we define <em>scalar multiplication</em> as repeated addition:
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 3.5 (Scalar Multiplication)</p>
+                <p style="text-align: center; font-size: 1.1em;">
+                    <span class="math">nP = P + P + ⋯ + P</span> &nbsp;(n times)
+                </p>
+                <p>
+                    We extend this to all integers by defining <span class="math">0P = 𝒪</span>
+                    and <span class="math">(−n)P = n(−P)</span>.
+                </p>
+            </div>
+
+            <p>
+                Scalar multiplication is the fundamental one-way operation in elliptic curve
+                cryptography. Computing <span class="math">nP</span> from <span class="math">n</span>
+                and <span class="math">P</span> can be done efficiently, but finding <span class="math">n</span>
+                given only <span class="math">P</span> and <span class="math">nP</span> is the
+                <em>Elliptic Curve Discrete Logarithm Problem (ECDLP)</em>.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 3.1 (Double-and-Add)</p>
+                <p>
+                    To compute <span class="math">nP</span> efficiently:
+                </p>
+                <pre>
+function scalar_multiply(n, P):
+    if n = 0:
+        return 𝒪
+    if n < 0:
+        return scalar_multiply(-n, -P)
+
+    result = 𝒪
+    addend = P
+
+    while n > 0:
+        if n is odd:
+            result = result + addend
+        addend = 2 × addend    // point doubling
+        n = n ÷ 2              // integer division
+
+    return result</pre>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 3.3 (Computing 151P)</p>
+                <p>
+                    The binary representation of 151 is <span class="math">10010111₂</span>.
+                    Using double-and-add:
+                </p>
+                <table>
+                    <tr>
+                        <th>Step</th><th>n</th><th>Binary</th><th>Action</th><th>Result</th>
+                    </tr>
+                    <tr><td>0</td><td>151</td><td>10010111</td><td>odd: add P</td><td>P</td></tr>
+                    <tr><td>1</td><td>75</td><td>1001011</td><td>odd: add 2P</td><td>P + 2P = 3P</td></tr>
+                    <tr><td>2</td><td>37</td><td>100101</td><td>odd: add 4P</td><td>3P + 4P = 7P</td></tr>
+                    <tr><td>3</td><td>18</td><td>10010</td><td>even: skip</td><td>7P</td></tr>
+                    <tr><td>4</td><td>9</td><td>1001</td><td>odd: add 16P</td><td>7P + 16P = 23P</td></tr>
+                    <tr><td>5</td><td>4</td><td>100</td><td>even: skip</td><td>23P</td></tr>
+                    <tr><td>6</td><td>2</td><td>10</td><td>even: skip</td><td>23P</td></tr>
+                    <tr><td>7</td><td>1</td><td>1</td><td>odd: add 128P</td><td>23P + 128P = 151P</td></tr>
+                </table>
+                <p style="margin-top: 1rem;">
+                    Total: 7 doublings and 4 additions, instead of 150 additions.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="450" height="200" viewBox="0 0 450 200">
+                    <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Scalar Multiplication: The Trapdoor</text>
+
+                    <!-- Forward: Easy -->
+                    <rect x="40" y="60" width="120" height="50" rx="5" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="100" y="85" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">n, P</text>
+                    <text x="100" y="100" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">(scalar, point)</text>
+
+                    <path d="M 165 85 L 245 85" stroke="#5a8f5a" stroke-width="2.5" marker-end="url(#arrowG)"/>
+                    <text x="205" y="75" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">Easy</text>
+                    <text x="205" y="105" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">O(log n) ops</text>
+
+                    <rect x="250" y="60" width="120" height="50" rx="5" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="310" y="85" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">Q = nP</text>
+                    <text x="310" y="100" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">(result point)</text>
+
+                    <!-- Backward: Hard -->
+                    <path d="M 245 145 L 165 145" stroke="#c44" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowR)"/>
+                    <text x="205" y="140" text-anchor="middle" font-family="Georgia" font-size="12" fill="#c44">Hard!</text>
+                    <text x="205" y="165" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">O(√n) ops (best known)</text>
+
+                    <text x="225" y="190" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">This asymmetry is the foundation of elliptic curve cryptography</text>
+
+                    <defs>
+                        <marker id="arrowG" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#5a8f5a"/>
+                        </marker>
+                        <marker id="arrowR" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 3.5: Scalar multiplication is a computational trapdoor.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>3.7 Why "Elliptic"?</h2>
+
+            <p>
+                The curious reader may wonder about the name. Elliptic curves are <em>not</em>
+                ellipses. The connection is historical and indirect.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Historical Note.</p>
+                <p>
+                    In the 18th century, mathematicians sought to compute the arc length of an
+                    ellipse. This led to integrals of the form:
+                </p>
+                <p style="text-align: center; font-size: 1.05em;">
+                    <span class="math">∫ R(x, √(p(x))) dx</span>
+                </p>
+                <p>
+                    where <span class="math">p(x)</span> is a polynomial of degree 3 or 4, and
+                    <span class="math">R</span> is a rational function. These are called
+                    <em>elliptic integrals</em>.
+                </p>
+                <p>
+                    The inverse functions of these integrals are called <em>elliptic functions</em>,
+                    and these functions satisfy polynomial relations that define what we now call
+                    elliptic curves. The name stuck, even though the connection to actual ellipses
+                    is rather tenuous.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h3>Exercises</h3>
+
+            <div class="exercise">
+                <span class="exercise-number">3.1.</span>
+                Verify that the curve <span class="math">y² = x³ − 3x + 2</span> is singular
+                (has <span class="math">Δ = 0</span>) and find the singular point.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">3.2.</span>
+                On the curve <span class="math">y² = x³ − 7x + 10</span>, compute
+                <span class="math">2P</span> where <span class="math">P = (1, 2)</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">3.3.</span>
+                Show that if <span class="math">P = (x, 0)</span> lies on an elliptic curve,
+                then <span class="math">2P = 𝒪</span>.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">3.4.</span>
+                On Bitcoin's curve <span class="math">y² = x³ + 7</span>, find a point
+                <span class="math">P</span> with integer coordinates.
+                <em>Hint: Try small negative values of x.</em>
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">3.5.</span>
+                Prove that the point addition formulas correctly produce points on the curve.
+                That is, if <span class="math">(x₁, y₁)</span> and <span class="math">(x₂, y₂)</span>
+                satisfy <span class="math">y² = x³ + ax + b</span>, show that <span class="math">(x₃, y₃)</span>
+                does too.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">3.6.</span>
+                How many point doublings and additions are needed to compute <span class="math">1000P</span>
+                using double-and-add? Compare to naive repeated addition.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">3.7.</span>
+                <em>(Computational)</em> Implement point addition and doubling for curves of
+                the form <span class="math">y² = x³ + ax + b</span> over the real numbers.
+                Test your implementation on the curve from Example 3.2.
+            </div>
+
+            <div class="exercise">
+                <span class="exercise-number">3.8.</span>
+                Consider the curve <span class="math">E: y² = x³ + 1</span>. Find all points
+                with integer coordinates satisfying <span class="math">|x|, |y| ≤ 10</span>.
+            </div>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="02-finite-fields.html">← Chapter 2: Finite Fields</a>
+            <a href="04-elliptic-curves-finite.html">Chapter 4: Elliptic Curves over Finite Fields →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>
