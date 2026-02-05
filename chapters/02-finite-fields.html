@@ -541,11 +541,52 @@ function extended_gcd(a, b):
                 </p>
             </div>
 
+            <p>
+                But how does one efficiently compute <span class="math">aᵖ⁻²</span> when
+                <span class="math">p</span> has 256 bits? Naively multiplying <span class="math">a</span>
+                by itself <span class="math">p − 2</span> times would require approximately
+                <span class="math">2²⁵⁶</span> multiplications&mdash;utterly infeasible. The key insight
+                is <em>repeated squaring</em>.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Algorithm 2.2 (Repeated Squaring)</p>
+                <p>
+                    To compute <span class="math">aᵏ mod n</span> in <span class="math">O(log k)</span>
+                    multiplications, express <span class="math">k</span> in binary and scan its bits:
+                </p>
+                <pre>
+function power_mod(a, k, n):
+    result = 1
+    base = a mod n
+    while k > 0:
+        if k is odd:
+            result = (result × base) mod n
+        k = k ÷ 2          (integer division)
+        base = (base × base) mod n
+    return result</pre>
+                <p>
+                    Each iteration squares the base and conditionally multiplies into the result,
+                    so the total work is proportional to the number of bits in <span class="math">k</span>.
+                    For a 256-bit exponent, this requires at most 512 modular multiplications.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Looking Ahead.</p>
+                <p>
+                    Repeated squaring is the multiplicative cousin of <em>double-and-add</em>, the
+                    algorithm used to compute scalar multiplication on elliptic curves (Chapter 5).
+                    The same principle applies: replace squaring with point doubling, and multiplication
+                    with point addition.
+                </p>
+            </div>
+
             <div class="example">
                 <p class="example-title">Example 2.5</p>
                 <p>
                     Find <span class="math">3⁻¹</span> in <span class="math">𝔽₇</span> using
-                    Fermat's theorem.
+                    Fermat's theorem and repeated squaring.
                 </p>
                 <p>
                     By the corollary: <span class="math">3⁻¹ ≡ 3⁷⁻² = 3⁵ (mod 7)</span>.
