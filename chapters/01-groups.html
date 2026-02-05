@@ -450,14 +450,30 @@
                 <p class="proof-title"></p>
                 <p>
                     (1) For any <span class="math">gᵃ, gᵇ ∈ G</span>, we have
-                    <span class="math">gᵃ ∗ gᵇ = gᵃ⁺ᵇ = gᵇ⁺ᵃ = gᵇ ∗ gᵃ</span>.
+                    <span class="math">gᵃ ∗ gᵇ = gᵃ⁺ᵇ = gᵇ⁺ᵃ = gᵇ ∗ gᵃ</span>,
+                    since integer addition is commutative.
                 </p>
                 <p>
-                    (2) The map <span class="math">φ: ℤₙ → G</span> defined by <span class="math">φ(k) = gᵏ</span>
-                    is a bijection preserving the group operation.
+                    (2) Define <span class="math">φ : ℤₙ → G</span> by <span class="math">φ(k) = gᵏ</span>.
+                    This map is <em>surjective</em> because every element of <span class="math">G</span>
+                    is <span class="math">gᵏ</span> for some <span class="math">k</span>, by definition
+                    of a cyclic group. It is <em>injective</em> because if
+                    <span class="math">gᵃ = gᵇ</span> with <span class="math">0 ≤ a, b &lt; n</span>,
+                    then <span class="math">gᵃ⁻ᵇ = e</span>; since <span class="math">n</span>
+                    is the smallest positive integer with <span class="math">gⁿ = e</span>,
+                    we must have <span class="math">n | (a − b)</span>, forcing
+                    <span class="math">a = b</span>. Finally, <span class="math">φ</span>
+                    preserves the operation: <span class="math">φ(j + k mod n) = gʲ⁺ᵏ = gʲ ∗ gᵏ = φ(j) ∗ φ(k)</span>.
                 </p>
                 <p>
-                    (3) The proof involves the Euclidean algorithm and is left as an exercise.
+                    (3) The order of <span class="math">gᵏ</span> is
+                    <span class="math">n / gcd(k, n)</span>, since the smallest
+                    <span class="math">m &gt; 0</span> with <span class="math">(gᵏ)ᵐ = e</span>
+                    requires <span class="math">n | km</span>, giving
+                    <span class="math">m = n / gcd(k, n)</span>.
+                    Thus <span class="math">gᵏ</span> generates all <span class="math">n</span> elements
+                    precisely when <span class="math">n / gcd(k, n) = n</span>, that is, when
+                    <span class="math">gcd(k, n) = 1</span>.
                     <span class="qed"></span>
                 </p>
             </div>
@@ -503,11 +519,53 @@
                 </ul>
             </div>
 
+            <div class="definition">
+                <p class="definition-title">Definition 1.8 (Coset)</p>
+                <p>
+                    Let <span class="math">H ≤ G</span> and let <span class="math">a ∈ G</span>.
+                    The <strong>left coset</strong> of <span class="math">H</span> by <span class="math">a</span> is the set
+                    <span class="math">aH = {a ∗ h : h ∈ H}</span>.
+                </p>
+            </div>
+
             <div class="theorem">
                 <p class="theorem-title">Theorem 1.3 (Lagrange's Theorem)</p>
                 <p>
                     If <span class="math">H</span> is a subgroup of a finite group <span class="math">G</span>,
                     then <span class="math">|H|</span> divides <span class="math">|G|</span>.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    We show that the left cosets of <span class="math">H</span> partition
+                    <span class="math">G</span> into subsets of equal size.
+                </p>
+                <p>
+                    First, every coset <span class="math">aH</span> has exactly
+                    <span class="math">|H|</span> elements, because the map
+                    <span class="math">h ↦ a ∗ h</span> is a bijection from
+                    <span class="math">H</span> to <span class="math">aH</span>
+                    (it is injective since <span class="math">a ∗ h₁ = a ∗ h₂</span>
+                    implies <span class="math">h₁ = h₂</span> by left cancellation).
+                </p>
+                <p>
+                    Second, any two cosets are either identical or disjoint. Suppose
+                    <span class="math">aH ∩ bH ≠ ∅</span>, so that
+                    <span class="math">a ∗ h₁ = b ∗ h₂</span> for some
+                    <span class="math">h₁, h₂ ∈ H</span>. Then
+                    <span class="math">a = b ∗ h₂ ∗ h₁⁻¹ ∈ bH</span>, and it follows
+                    that <span class="math">aH ⊆ bH</span>; by symmetry,
+                    <span class="math">bH ⊆ aH</span>, so <span class="math">aH = bH</span>.
+                </p>
+                <p>
+                    Since every element <span class="math">a ∈ G</span> lies in the coset
+                    <span class="math">aH</span>, the cosets partition <span class="math">G</span>.
+                    If there are <span class="math">k</span> distinct cosets, then
+                    <span class="math">|G| = k · |H|</span>, so
+                    <span class="math">|H|</span> divides <span class="math">|G|</span>.
+                    <span class="qed"></span>
                 </p>
             </div>
 
@@ -529,7 +587,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 1.8 (Discrete Logarithm)</p>
+                <p class="definition-title">Definition 1.9 (Discrete Logarithm)</p>
                 <p>
                     Let <span class="math">G = ⟨g⟩</span> be a cyclic group of order <span class="math">n</span>,
                     and let <span class="math">h ∈ G</span>. The <strong>discrete logarithm</strong> of
@@ -579,7 +637,7 @@
             </figure>
 
             <div class="definition">
-                <p class="definition-title">Definition 1.9 (Discrete Logarithm Problem)</p>
+                <p class="definition-title">Definition 1.10 (Discrete Logarithm Problem)</p>
                 <p>
                     The <strong>Discrete Logarithm Problem (DLP)</strong> is the computational problem
                     of finding <span class="math">k</span> given <span class="math">g</span> and
