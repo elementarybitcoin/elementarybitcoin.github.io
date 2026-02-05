@@ -248,6 +248,33 @@
                 <p>Therefore <span class="math">(ℤ, ×)</span> is <em>not</em> a group.</p>
             </div>
 
+            <div class="example">
+                <p class="example-title">Example 1.5 (The Trivial Group)</p>
+                <p>
+                    The set <span class="math">{e}</span> containing a single element, with the operation
+                    <span class="math">e ∗ e = e</span>, is a group. All four axioms are satisfied vacuously
+                    or immediately. This is the simplest possible group, and every group contains it as a subgroup.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 1.6 (Integers Modulo <span class="math">n</span>)</p>
+                <p>
+                    Consider <span class="math">ℤₙ = {0, 1, 2, ..., n−1}</span> with addition modulo
+                    <span class="math">n</span>. We verify:
+                </p>
+                <ol>
+                    <li><em>Closure:</em> The sum of two elements, reduced modulo <span class="math">n</span>, lies in <span class="math">{0, ..., n−1}</span>. ✓</li>
+                    <li><em>Associativity:</em> Inherited from integer addition. ✓</li>
+                    <li><em>Identity:</em> <span class="math">0</span> is the identity. ✓</li>
+                    <li><em>Inverse:</em> The inverse of <span class="math">a</span> is <span class="math">n − a</span>, since <span class="math">a + (n − a) = n ≡ 0 (mod n)</span>. ✓</li>
+                </ol>
+                <p>
+                    Thus <span class="math">(ℤₙ, +)</span> is a group for every positive integer
+                    <span class="math">n</span>. This family of groups will reappear throughout the text.
+                </p>
+            </div>
+
             <div class="remark">
                 <p class="remark-title">Remark.</p>
                 <p>
@@ -281,7 +308,7 @@
             </div>
 
             <div class="example">
-                <p class="example-title">Example 1.5</p>
+                <p class="example-title">Example 1.7</p>
                 <ul>
                     <li><span class="math">(ℤ, +)</span> is abelian, since <span class="math">a + b = b + a</span> for all integers.</li>
                     <li><span class="math">(ℝ \ {0}, ×)</span> is abelian, since <span class="math">a × b = b × a</span>.</li>
@@ -384,7 +411,7 @@
             </figure>
 
             <div class="example">
-                <p class="example-title">Example 1.6 (The Clock Group)</p>
+                <p class="example-title">Example 1.8 (The Clock Group)</p>
                 <p>
                     Consider <span class="math">ℤ₁₂ = {0, 1, 2, ..., 11}</span> with addition modulo 12.
                     This is the "clock arithmetic" familiar from daily life.
@@ -465,7 +492,7 @@
             </div>
 
             <div class="example">
-                <p class="example-title">Example 1.7</p>
+                <p class="example-title">Example 1.9</p>
                 <p>
                     In the group <span class="math">(ℤ, +)</span>:
                 </p>
@@ -568,7 +595,7 @@
             </p>
 
             <div class="example">
-                <p class="example-title">Example 1.8 (DLP in Small Groups)</p>
+                <p class="example-title">Example 1.10 (DLP in Small Groups)</p>
                 <p>
                     In <span class="math">ℤ₇*</span> (the nonzero integers modulo 7 under multiplication),
                     let <span class="math">g = 3</span>. We can tabulate powers:
