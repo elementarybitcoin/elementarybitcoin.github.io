@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appendix A: Mathematical Notation | Elementary Bitcoin</title>
+    <meta name="description" content="Appendix A: Mathematical Notation - Glossary of symbols, terms, and conventions used throughout Elementary Bitcoin">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Elementary Bitcoin">
+    <meta property="og:title" content="Appendix A: Mathematical Notation | Elementary Bitcoin">
+    <meta property="og:description" content="Glossary of symbols, terms, and conventions used throughout Elementary Bitcoin">
+    <meta property="og:url" content="https://elementarybitcoin.org/chapters/appendix-a-notation.html">
+    <meta property="og:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Appendix A: Mathematical Notation | Elementary Bitcoin">
+    <meta name="twitter:description" content="Glossary of symbols, terms, and conventions used throughout Elementary Bitcoin">
+    <meta name="twitter:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Appendix A</span>
+        <h1 class="chapter-title">Mathematical Notation</h1>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                This appendix collects the notation, conventions, and terminology used throughout
+                the text. Entries are organized by topic and listed in order of first appearance.
+            </p>
+        </section>
+
+        <section>
+            <h2>A.1 Sets and Common Number Systems</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">a ∈ S</span></td>
+                    <td><span class="math">a</span> is an element of the set <span class="math">S</span></td>
+                    <td>Def. 1.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">ℕ</span></td>
+                    <td>The natural numbers <span class="math">{0, 1, 2, ...}</span></td>
+                    <td>Ex. 1.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">ℤ</span></td>
+                    <td>The integers <span class="math">{..., −2, −1, 0, 1, 2, ...}</span></td>
+                    <td>Ex. 1.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">ℚ</span></td>
+                    <td>The rational numbers</td>
+                    <td>Ex. 1.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">ℝ</span></td>
+                    <td>The real numbers</td>
+                    <td>Ex. 1.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">𝔽ₚ</span></td>
+                    <td>The finite field of <span class="math">p</span> elements</td>
+                    <td>Ch. 2</td>
+                </tr>
+                <tr>
+                    <td><span class="math">ℤₙ</span></td>
+                    <td>The integers modulo <span class="math">n</span>, i.e. <span class="math">{0, 1, ..., n−1}</span></td>
+                    <td>Ex. 1.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">ℤₙ*</span></td>
+                    <td>The multiplicative group of integers modulo <span class="math">n</span> (elements coprime to <span class="math">n</span>)</td>
+                    <td>Ex. 1.8</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.2 Group Theory</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol / Term</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">(G, ∗)</span></td>
+                    <td>A group: a set <span class="math">G</span> with binary operation <span class="math">∗</span> satisfying closure, associativity, identity, and inverse</td>
+                    <td>Def. 1.3</td>
+                </tr>
+                <tr>
+                    <td><span class="math">e</span></td>
+                    <td>The identity element of a group</td>
+                    <td>Def. 1.3</td>
+                </tr>
+                <tr>
+                    <td><span class="math">a⁻¹</span></td>
+                    <td>The inverse of element <span class="math">a</span></td>
+                    <td>Def. 1.3</td>
+                </tr>
+                <tr>
+                    <td><strong>Abelian</strong></td>
+                    <td>A group whose operation is commutative: <span class="math">a ∗ b = b ∗ a</span></td>
+                    <td>Def. 1.4</td>
+                </tr>
+                <tr>
+                    <td><span class="math">|G|</span></td>
+                    <td>The order of a group (number of elements)</td>
+                    <td>Def. 1.5</td>
+                </tr>
+                <tr>
+                    <td><span class="math">⟨g⟩</span></td>
+                    <td>The cyclic group generated by <span class="math">g</span></td>
+                    <td>Def. 1.6</td>
+                </tr>
+                <tr>
+                    <td><span class="math">gⁿ</span></td>
+                    <td><span class="math">g ∗ g ∗ ⋯ ∗ g</span> (<span class="math">n</span> times); written <span class="math">ng</span> in additive notation</td>
+                    <td>Def. 1.6</td>
+                </tr>
+                <tr>
+                    <td><span class="math">H ≤ G</span></td>
+                    <td><span class="math">H</span> is a subgroup of <span class="math">G</span></td>
+                    <td>Def. 1.7</td>
+                </tr>
+                <tr>
+                    <td><strong>Isomorphic</strong></td>
+                    <td>Two groups are <em>isomorphic</em> if there exists a bijection between them that preserves the group operation. Informally, they are structurally identical as groups&mdash;they have the same algebraic structure, differing only in the names of their elements.</td>
+                    <td>Thm. 1.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">log_g(h)</span></td>
+                    <td>The discrete logarithm of <span class="math">h</span> to base <span class="math">g</span></td>
+                    <td>Def. 1.8</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.3 Elliptic Curves</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol / Term</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">y² = x³ + ax + b</span></td>
+                    <td>Short Weierstrass form of an elliptic curve</td>
+                    <td>Def. 3.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">𝒪</span></td>
+                    <td>The point at infinity (identity element of the curve group)</td>
+                    <td>Ch. 3</td>
+                </tr>
+                <tr>
+                    <td><strong>Affine coordinates</strong></td>
+                    <td>Representation of curve points as <span class="math">(x, y)</span> pairs, as opposed to projective or Jacobian coordinates</td>
+                    <td>Ch. 3</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.4 Conventions</h2>
+
+            <ul>
+                <li>
+                    <strong>Multiplicative vs. additive notation:</strong> When a group operation is written
+                    as <span class="math">∗</span> or <span class="math">×</span>, we use <span class="math">gⁿ</span>
+                    for repeated application. When written as <span class="math">+</span>, we use
+                    <span class="math">ng</span> instead. Elliptic curve groups use additive notation.
+                </li>
+                <li>
+                    <strong>Modular arithmetic:</strong> We write <span class="math">a ≡ b (mod n)</span>
+                    to mean <span class="math">n</span> divides <span class="math">a − b</span>.
+                </li>
+                <li>
+                    <strong>Hexadecimal:</strong> Prefixed with <span class="math">0x</span>, e.g.
+                    <span class="math">0xFF = 255</span>.
+                </li>
+            </ul>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="../index.html">← Table of Contents</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>
