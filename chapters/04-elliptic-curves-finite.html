@@ -88,7 +88,7 @@
                 </p>
                 <p>For <span class="math">x = 0</span>: <span class="math">0³ + 0 + 1 = 1 = 1²</span>. So <span class="math">(0, 1)</span> and <span class="math">(0, 22)</span> are on the curve.</p>
                 <p>For <span class="math">x = 1</span>: <span class="math">1³ + 1 + 1 = 3</span>. Is 3 a square mod 23? We need <span class="math">y² ≡ 3</span>. Testing: <span class="math">7² = 49 ≡ 3</span>. Yes! Points: <span class="math">(1, 7)</span> and <span class="math">(1, 16)</span>.</p>
-                <p>Continuing this process yields all 28 points (plus <span class="math">𝒪</span>).</p>
+                <p>Continuing this process yields all 27 affine points (plus <span class="math">𝒪</span>, for 28 total).</p>
             </div>
 
             <figure>
@@ -151,44 +151,41 @@
                     <text x="250" y="475" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">x</text>
                     <text x="30" y="250" text-anchor="middle" font-family="Georgia" font-size="12" font-style="italic">y</text>
 
-                    <!-- Scale: each unit = 17.4px, origin at (50, 250 - scaled) -->
-                    <!-- Points on the curve (sample points for y² = x³ + x + 1 mod 23) -->
-                    <!-- The actual points form a scattered pattern -->
+                    <!-- Scale: x_px = 50 + x·400/22, y_px = 250 + (11.5−y)·400/23 -->
+                    <!-- All 27 affine points on y² = x³ + x + 1 mod 23 -->
 
-                    <!-- Some representative points (scaled: x*17.4 + 50, 250 - y*8.7) -->
                     <g fill="#4a90d9">
-                        <circle cx="50" cy="163" r="5"/>   <!-- (0, 1) -->
-                        <circle cx="50" cy="337" r="5"/>   <!-- (0, 22) -->
-                        <circle cx="67" cy="189" r="5"/>   <!-- (1, 7) -->
-                        <circle cx="67" cy="311" r="5"/>   <!-- (1, 16) -->
-                        <circle cx="102" cy="172" r="5"/>  <!-- (3, 9) -->
-                        <circle cx="102" cy="328" r="5"/>  <!-- (3, 14) -->
-                        <circle cx="137" cy="163" r="5"/>  <!-- (5, 10) -->
-                        <circle cx="137" cy="337" r="5"/>  <!-- (5, 13) -->
-                        <circle cx="154" cy="198" r="5"/>  <!-- (6, 6) -->
-                        <circle cx="154" cy="302" r="5"/>  <!-- (6, 17) -->
-                        <circle cx="188" cy="180" r="5"/>  <!-- (8, 8) -->
-                        <circle cx="188" cy="320" r="5"/>  <!-- (8, 15) -->
-                        <circle cx="206" cy="163" r="5"/>  <!-- (9, 10) -->
-                        <circle cx="206" cy="337" r="5"/>  <!-- (9, 13) -->
-                        <circle cx="223" cy="206" r="5"/>  <!-- (10, 5) -->
-                        <circle cx="223" cy="294" r="5"/>  <!-- (10, 18) -->
-                        <circle cx="240" cy="172" r="5"/>  <!-- (11, 9) -->
-                        <circle cx="240" cy="328" r="5"/>  <!-- (11, 14) -->
-                        <circle cx="274" cy="215" r="5"/>  <!-- (13, 4) -->
-                        <circle cx="274" cy="285" r="5"/>  <!-- (13, 19) -->
-                        <circle cx="326" cy="198" r="5"/>  <!-- (16, 6) -->
-                        <circle cx="326" cy="302" r="5"/>  <!-- (16, 17) -->
-                        <circle cx="343" cy="189" r="5"/>  <!-- (17, 7) -->
-                        <circle cx="343" cy="311" r="5"/>  <!-- (17, 16) -->
-                        <circle cx="395" cy="206" r="5"/>  <!-- (20, 5) -->
-                        <circle cx="395" cy="294" r="5"/>  <!-- (20, 18) -->
-                        <circle cx="429" cy="180" r="5"/>  <!-- (22, 8) -->
-                        <circle cx="429" cy="320" r="5"/>  <!-- (22, 15) -->
+                        <circle cx="50"  cy="433" r="5"/>  <!-- (0, 1) -->
+                        <circle cx="50"  cy="67"  r="5"/>  <!-- (0, 22) -->
+                        <circle cx="68"  cy="328" r="5"/>  <!-- (1, 7) -->
+                        <circle cx="68"  cy="172" r="5"/>  <!-- (1, 16) -->
+                        <circle cx="105" cy="276" r="5"/>  <!-- (3, 10) -->
+                        <circle cx="105" cy="224" r="5"/>  <!-- (3, 13) -->
+                        <circle cx="123" cy="450" r="5"/>  <!-- (4, 0) -->
+                        <circle cx="141" cy="380" r="5"/>  <!-- (5, 4) -->
+                        <circle cx="141" cy="120" r="5"/>  <!-- (5, 19) -->
+                        <circle cx="159" cy="380" r="5"/>  <!-- (6, 4) -->
+                        <circle cx="159" cy="120" r="5"/>  <!-- (6, 19) -->
+                        <circle cx="177" cy="259" r="5"/>  <!-- (7, 11) -->
+                        <circle cx="177" cy="241" r="5"/>  <!-- (7, 12) -->
+                        <circle cx="214" cy="328" r="5"/>  <!-- (9, 7) -->
+                        <circle cx="214" cy="172" r="5"/>  <!-- (9, 16) -->
+                        <circle cx="250" cy="398" r="5"/>  <!-- (11, 3) -->
+                        <circle cx="250" cy="102" r="5"/>  <!-- (11, 20) -->
+                        <circle cx="268" cy="380" r="5"/>  <!-- (12, 4) -->
+                        <circle cx="268" cy="120" r="5"/>  <!-- (12, 19) -->
+                        <circle cx="286" cy="328" r="5"/>  <!-- (13, 7) -->
+                        <circle cx="286" cy="172" r="5"/>  <!-- (13, 16) -->
+                        <circle cx="359" cy="398" r="5"/>  <!-- (17, 3) -->
+                        <circle cx="359" cy="102" r="5"/>  <!-- (17, 20) -->
+                        <circle cx="377" cy="398" r="5"/>  <!-- (18, 3) -->
+                        <circle cx="377" cy="102" r="5"/>  <!-- (18, 20) -->
+                        <circle cx="395" cy="363" r="5"/>  <!-- (19, 5) -->
+                        <circle cx="395" cy="137" r="5"/>  <!-- (19, 18) -->
                     </g>
 
                     <!-- Note -->
-                    <text x="350" y="470" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">28 finite points + 𝒪 = 29 total</text>
+                    <text x="350" y="470" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">27 finite points + 𝒪 = 28 total</text>
 
                     <!-- Symmetry line -->
                     <text x="475" y="250" font-family="Georgia" font-size="10" fill="#8b4513">y = 11.5</text>
