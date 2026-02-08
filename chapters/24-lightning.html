@@ -205,7 +205,7 @@
                 <ul>
                     <li><strong>Complete success:</strong> All HTLCs settle, receiver gets paid, all routing nodes receive fees</li>
                     <li><strong>Complete failure:</strong> All HTLCs timeout, sender loses nothing</li>
-                    <li><strong>No partial state:</strong> Either all or nothing, never some HTLCs settled and others failed</li>
+                    <li><strong>Conditional atomicity:</strong> Assuming sufficient CLTV deltas and timely blockchain access, either all HTLCs settle or all fail. Partial failure <em>is</em> possible under adverse conditions (e.g., blockchain congestion preventing an intermediate node from claiming before its incoming HTLC times out), which is why sufficient timelock margins are critical.</li>
                 </ul>
             </div>
 
