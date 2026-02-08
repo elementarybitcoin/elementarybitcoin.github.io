@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 35: Great Consensus Cleanup | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 35: Great Consensus Cleanup - Fixing legacy bugs, timewarp attack, and consensus edge cases">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 35</p>
+        <h1>Great Consensus Cleanup</h1>
+        <p class="chapter-subtitle">Fixing Bitcoin's Legacy Edge Cases</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Bitcoin's consensus rules, largely unchanged since 2009, contain several
+                edge cases and vulnerabilities that could be exploited. The "Great Consensus
+                Cleanup" is a proposed soft fork to fix these issues: the timewarp attack,
+                the 64-byte transaction vulnerability, merkle tree weaknesses, and legacy
+                script quirks. This chapter examines each vulnerability and its proposed fix.
+            </p>
+        </section>
+
+        <section>
+            <h2>35.1 Overview of Consensus Bugs</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.1 (Consensus Bug)</p>
+                <p>
+                    A <strong>consensus bug</strong> is a flaw in the protocol rules that:
+                </p>
+                <ul>
+                    <li>Allows unexpected or unintended behavior</li>
+                    <li>Could be exploited by malicious actors</li>
+                    <li>Cannot be fixed without a fork (soft or hard)</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 35.1 (Why These Bugs Exist)</p>
+                <p>
+                    Many bugs stem from Bitcoin's early development:
+                </p>
+                <ul>
+                    <li>Satoshi worked alone with limited review</li>
+                    <li>Some edge cases weren't anticipated</li>
+                    <li>Fixing bugs post-launch risks breaking consensus</li>
+                    <li>Conservative approach: don't fix unless necessary</li>
+                </ul>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Bug</th>
+                        <th>Risk Level</th>
+                        <th>Exploited?</th>
+                        <th>Fix Complexity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Timewarp attack</td>
+                        <td>High</td>
+                        <td>No (testnet only)</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>64-byte transactions</td>
+                        <td>Medium</td>
+                        <td>No</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>Merkle tree CVE</td>
+                        <td>Medium</td>
+                        <td>Partially (2012)</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>Legacy script issues</td>
+                        <td>Low</td>
+                        <td>Various</td>
+                        <td>Medium</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>35.2 The Timewarp Attack</h2>
+
+            <p>
+                The most serious unfixed vulnerability in Bitcoin's consensus rules.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.2 (Difficulty Adjustment)</p>
+                <p>
+                    Bitcoin adjusts difficulty every 2016 blocks:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+new_target = old_target × (actual_time / expected_time)
+
+where:
+  expected_time = 2016 × 10 minutes = 2 weeks
+  actual_time = timestamp(block[2016]) - timestamp(block[0])</pre>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.3 (Timewarp Attack)</p>
+                <p>
+                    The <strong>timewarp attack</strong> exploits a bug in difficulty calculation:
+                </p>
+                <ul>
+                    <li>Difficulty compares block[2016] to block[0], not block[2015]</li>
+                    <li>Block[2016] is the <em>first</em> block of the new period</li>
+                    <li>Attacker can manipulate block[2016]'s timestamp</li>
+                    <li>Result: artificially reduce difficulty over time</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <!-- Difficulty period -->
+                    <rect x="30" y="50" width="200" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="130" y="75" text-anchor="middle" font-family="Georgia" font-size="9">Period N (blocks 0-2015)</text>
+
+                    <rect x="250" y="50" width="200" height="40" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="350" y="75" text-anchor="middle" font-family="Georgia" font-size="9">Period N+1 (blocks 2016-4031)</text>
+
+                    <!-- Block markers -->
+                    <circle cx="40" cy="70" r="6" fill="#5a8f5a"/>
+                    <text x="40" y="110" text-anchor="middle" font-family="Georgia" font-size="7">Block 0</text>
+
+                    <circle cx="220" cy="70" r="6" fill="#5a8f5a"/>
+                    <text x="220" y="110" text-anchor="middle" font-family="Georgia" font-size="7">Block 2015</text>
+
+                    <circle cx="260" cy="70" r="8" fill="#c44" stroke="#a33" stroke-width="2"/>
+                    <text x="260" y="115" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">Block 2016</text>
+                    <text x="260" y="128" text-anchor="middle" font-family="Georgia" font-size="6" fill="#c44">(manipulated)</text>
+
+                    <!-- Calculation -->
+                    <path d="M 40 70 Q 150 20 260 70" stroke="#c44" stroke-width="2" stroke-dasharray="4,2" fill="none"/>
+                    <text x="150" y="35" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Difficulty compares these</text>
+
+                    <!-- Correct comparison -->
+                    <text x="400" y="140" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Should compare: block[0] to block[2015]</text>
+                    <text x="400" y="155" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Actually compares: block[0] to block[2016]</text>
+                </svg>
+                <figcaption>Figure 35.1: The off-by-one error in difficulty calculation.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 35.1 (Timewarp Exploitation)</p>
+                <p>
+                    With >50% hashrate, an attacker can perform a two-phase timestamp
+                    manipulation each retarget period:
+                </p>
+                <ol>
+                    <li><strong>Phase 1:</strong> Set the <em>last</em> block of the current
+                        period (block[2015]) to a timestamp far in the <em>future</em></li>
+                    <li><strong>Phase 2:</strong> Set the <em>first</em> block of the next period
+                        (block[2016]) to a timestamp far in the <em>past</em></li>
+                    <li>The difficulty formula sees a large
+                        <span class="math">actual_time</span> (future minus past), causing
+                        difficulty to decrease (subject to the 4× clamp per period)</li>
+                    <li>Repeat: each period reduces difficulty by up to 4×</li>
+                    <li>After ~16 periods, difficulty approaches zero</li>
+                </ol>
+                <p>
+                    Theoretical outcome: Mine all remaining Bitcoin in weeks.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.4 (Proposed Fix)</p>
+                <p>
+                    The cleanup proposes constraining the first block of each
+                    <em>retarget period</em> specifically (not all blocks, since MTP rules
+                    already constrain non-boundary blocks):
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+// New rule for retarget boundary: block at height h where h % 2016 == 0:
+timestamp(block[h]) >= timestamp(block[h-1]) - 2 hours</pre>
+                <p>
+                    This prevents the timestamp manipulation needed for the attack.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>35.3 The 64-Byte Transaction Vulnerability</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.5 (64-Byte Transaction)</p>
+                <p>
+                    A transaction serializes to exactly 64 bytes when:
+                </p>
+                <ul>
+                    <li>1 input with minimal scriptSig</li>
+                    <li>1 output with empty scriptPubKey</li>
+                    <li>Specifically crafted values</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 35.2 (Merkle Tree Ambiguity)</p>
+                <p>
+                    64-byte transactions create ambiguity because:
+                </p>
+                <ul>
+                    <li>SHA256 operates on 64-byte blocks</li>
+                    <li>A 64-byte tx looks identical to a Merkle node (two 32-byte hashes)</li>
+                    <li>Attacker could construct "inner node" that's also valid tx</li>
+                    <li>Creates potential for SPV proof attacks</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <!-- Merkle tree -->
+                    <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Merkle Tree Ambiguity</text>
+
+                    <!-- Root -->
+                    <rect x="200" y="40" width="100" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="250" y="60" text-anchor="middle" font-family="Georgia" font-size="8">Root</text>
+
+                    <!-- Level 1 -->
+                    <rect x="100" y="90" width="100" height="30" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="150" y="110" text-anchor="middle" font-family="Georgia" font-size="8">H(A||B) = 64 bytes</text>
+
+                    <rect x="300" y="90" width="100" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="350" y="110" text-anchor="middle" font-family="Georgia" font-size="8">H(C||D)</text>
+
+                    <!-- Level 2 -->
+                    <rect x="50" y="140" width="50" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="75" y="157" text-anchor="middle" font-family="Georgia" font-size="7">TxA</text>
+
+                    <rect x="120" y="140" width="50" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="145" y="157" text-anchor="middle" font-family="Georgia" font-size="7">TxB</text>
+
+                    <!-- Connections -->
+                    <line x1="230" y1="70" x2="180" y2="90" stroke="#5a8f5a"/>
+                    <line x1="270" y1="70" x2="320" y2="90" stroke="#5a8f5a"/>
+                    <line x1="130" y1="120" x2="90" y2="140" stroke="#f39c12"/>
+                    <line x1="170" y1="120" x2="150" y2="140" stroke="#f39c12"/>
+
+                    <!-- Note -->
+                    <text x="350" y="155" font-family="Georgia" font-size="8" fill="#c44">If H(A||B) is valid 64-byte tx,</text>
+                    <text x="350" y="168" font-family="Georgia" font-size="8" fill="#c44">tree becomes ambiguous</text>
+                </svg>
+                <figcaption>Figure 35.2: 64-byte transaction creates merkle tree ambiguity.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.6 (Proposed Fix)</p>
+                <p>
+                    Ban transactions that serialize to exactly 64 bytes:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+// New consensus rule:
+if (tx.GetSerializeSize() == 64)
+    return Invalid("64-byte-tx")</pre>
+                <p>
+                    Such transactions have no legitimate use case.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>35.4 Merkle Tree CVE-2012-2459</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.7 (Duplicate Txid Vulnerability)</p>
+                <p>
+                    Bitcoin's merkle tree construction has a flaw:
+                </p>
+                <ul>
+                    <li>Odd number of transactions → last tx duplicated</li>
+                    <li>This duplication affects the merkle root</li>
+                    <li>Two different tx lists can produce same root</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 35.1 (CVE-2012-2459)</p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+Block with txs: [A, B, C]
+Merkle construction:
+  Level 0: [H(A), H(B), H(C), H(C)]  // C duplicated
+  Level 1: [H(H(A)||H(B)), H(H(C)||H(C))]
+  Root: H(...)
+
+Block with txs: [A, B, C, C]  // Duplicate C
+Merkle construction:
+  Level 0: [H(A), H(B), H(C), H(C)]
+  Level 1: [H(H(A)||H(B)), H(H(C)||H(C))]
+  Root: H(...)  // SAME ROOT!
+
+Different blocks, same merkle root → attack vector</pre>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.8 (Fix Status)</p>
+                <p>
+                    Partial fix applied (BIP-30, BIP-34):
+                </p>
+                <ul>
+                    <li>BIP-30: No duplicate txids in UTXO set</li>
+                    <li>BIP-34: Coinbase must include block height (unique)</li>
+                    <li>Remaining issue: Interior node duplication still possible</li>
+                </ul>
+                <p>
+                    Great Consensus Cleanup proposes additional restrictions.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>35.5 Legacy Script Validation Issues</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.9 (FindAndDelete)</p>
+                <p>
+                    <code>FindAndDelete</code> is a legacy operation that removes signature
+                    data from scripts during verification. It has unexpected edge cases:
+                </p>
+                <ul>
+                    <li>Can remove data from unexpected locations</li>
+                    <li>Behavior differs between script types</li>
+                    <li>Source of subtle validation bugs</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.10 (OP_CODESEPARATOR)</p>
+                <p>
+                    <code>OP_CODESEPARATOR</code> marks where signed portion of script begins.
+                    In legacy scripts, it has confusing semantics and is rarely used legitimately.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 35.2 (Cleanup Proposals)</p>
+                <p>
+                    The Great Consensus Cleanup proposes:
+                </p>
+                <ul>
+                    <li>Limit <code>OP_CODESEPARATOR</code> in legacy scripts</li>
+                    <li>Restrict <code>FindAndDelete</code> behavior</li>
+                    <li>Cap maximum validation time</li>
+                    <li>Remove other legacy quirks</li>
+                </ul>
+                <p>
+                    Note: Tapscript already fixes many of these for new scripts.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>35.6 Validation Time Limits</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.11 (Quadratic Hashing)</p>
+                <p>
+                    Some operations in legacy Bitcoin have O(n²) complexity:
+                </p>
+                <ul>
+                    <li>Signature hashing for large transactions</li>
+                    <li>Certain script constructions</li>
+                    <li>Can be used to create "poison blocks"</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 35.3 (Block Validation Attack)</p>
+                <p>
+                    An attacker with sufficient hashrate could:
+                </p>
+                <ol>
+                    <li>Create a block with pathological transactions</li>
+                    <li>Block takes very long to validate (~minutes to hours)</li>
+                    <li>Nodes fall behind, potential network split</li>
+                    <li>Attack window for double-spends</li>
+                </ol>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 35.12 (Proposed Time Limits)</p>
+                <p>
+                    Proposed fixes:
+                </p>
+                <ul>
+                    <li>Maximum script validation time per input</li>
+                    <li>Maximum total block validation time</li>
+                    <li>Limits on signature operations in legacy scripts</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>35.7 Activation and Status</h2>
+
+            <div class="remark">
+                <p class="remark-title">Remark 35.3 (Current Status)</p>
+                <p>
+                    As of 2024:
+                </p>
+                <ul>
+                    <li>Proposal documented (by Matt Corallo and others)</li>
+                    <li>Technical review ongoing</li>
+                    <li>Generally less controversial than feature additions</li>
+                    <li>No activation attempt yet</li>
+                    <li>May be bundled with other soft forks</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 35.4 (Soft Fork Compatibility)</p>
+                <p>
+                    All proposed fixes are soft forks because they:
+                </p>
+                <ul>
+                    <li>Make previously valid blocks invalid</li>
+                    <li>Do not make previously invalid blocks valid</li>
+                    <li>Old nodes accept new-rules chain</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 35.1</p>
+                <p>
+                    Demonstrate the timewarp attack on a simplified model. If difficulty
+                    adjusts every 10 blocks and timestamps can be up to 2 hours in the past,
+                    how many periods before difficulty reaches minimum?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 35.2</p>
+                <p>
+                    Construct an example of a 64-byte transaction. What constraints must
+                    the inputs and outputs satisfy?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 35.3</p>
+                <p>
+                    Explain how the merkle tree vulnerability (CVE-2012-2459) could be
+                    exploited against an SPV client. What assumptions does the attack require?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 35.4</p>
+                <p>
+                    Design a transaction that maximizes validation time under current rules.
+                    What is the theoretical worst-case validation time for a 4MB block?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="34-drivechains.html" class="prev-chapter">← Chapter 34: Drivechains</a>
+            <a href="36-security-threats.html" class="next-chapter">Chapter 36: Security Threats →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>
