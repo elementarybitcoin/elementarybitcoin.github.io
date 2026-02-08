@@ -282,8 +282,8 @@
                 <p><strong>Theorem 19.2</strong> (Golomb-Rice Optimality)</p>
                 <p>
                     For a geometric distribution with parameter p, Golomb coding with
-                    M = ⌈-log(2-p) / log(1-p)⌉ achieves expected code length within
-                    1 + log₂(e) ≈ 2.44 bits of the entropy bound.
+                    optimal parameter M achieves expected code length within
+                    at most 1 bit of the entropy bound.
                 </p>
             </div>
 
@@ -299,10 +299,10 @@
                 <p><strong>Definition 19.3</strong> (Golomb-Coded Set)</p>
                 <p>
                     A <em>Golomb-Coded Set</em> represents a set S of N elements with target
-                    false positive rate 1/M (where M = 2<sup>P</sup>):
+                    false positive rate 1/F:
                 </p>
                 <ol>
-                    <li>Hash each element to the range [0, N·M) using a keyed hash function</li>
+                    <li>Hash each element to the range [0, N·F) using a keyed hash function</li>
                     <li>Sort the resulting hash values</li>
                     <li>Compute successive differences (deltas)</li>
                     <li>Encode deltas using Golomb-Rice with parameter P</li>
@@ -465,12 +465,12 @@
                         <tr>
                             <td>P</td>
                             <td>19</td>
-                            <td>Golomb-Rice parameter (M = 2¹⁹)</td>
+                            <td>Golomb-Rice coding parameter (remainder is P bits)</td>
                         </tr>
                         <tr>
-                            <td>M</td>
+                            <td>F</td>
                             <td>784931</td>
-                            <td>Modulus for false positive rate (≈ 1/784931)</td>
+                            <td>False positive rate parameter (target rate ≈ 1/F)</td>
                         </tr>
                         <tr>
                             <td>Hash function</td>
