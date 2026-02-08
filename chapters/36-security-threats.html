@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 36: Security Threats | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 36: Security Threats - 51% attacks, chain reorganizations, selfish mining, and eclipse attacks">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume V: The Path to Sustainability</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 36</p>
+        <h1>Security Threats</h1>
+        <p class="chapter-subtitle">51% Attacks, Reorgs, and Network Vulnerabilities</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Bitcoin's security rests on economic and cryptographic foundations. This chapter
+                examines the attacks that could threaten these foundations: 51% attacks that
+                enable double-spending, chain reorganizations that reverse confirmed transactions,
+                selfish mining that distorts incentives, and network-level attacks that isolate
+                nodes. Understanding these threats is essential for evaluating Bitcoin's resilience.
+            </p>
+        </section>
+
+        <section>
+            <h2>36.1 The 51% Attack</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.1 (51% Attack)</p>
+                <p>
+                    A <strong>51% attack</strong> (majority attack) occurs when an entity
+                    controls more than half of the network's mining power, enabling:
+                </p>
+                <ul>
+                    <li>Double-spending confirmed transactions</li>
+                    <li>Preventing transactions from confirming</li>
+                    <li>Preventing other miners from finding blocks</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.2 (Double-Spend Attack)</p>
+                <p>
+                    A <strong>double-spend</strong> uses the same coins twice:
+                </p>
+                <ol>
+                    <li>Attacker sends coins to victim (Transaction A)</li>
+                    <li>Victim sees confirmations, delivers goods/services</li>
+                    <li>Attacker mines secret chain spending same coins to self (Transaction B)</li>
+                    <li>Attacker releases longer secret chain</li>
+                    <li>Network reorganizes; Transaction A is reversed</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="220" viewBox="0 0 520 220">
+                    <!-- Public chain -->
+                    <text x="80" y="30" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Public Chain</text>
+
+                    <rect x="30" y="40" width="50" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="55" y="62" text-anchor="middle" font-family="Georgia" font-size="8">n</text>
+
+                    <rect x="90" y="40" width="50" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="115" y="55" text-anchor="middle" font-family="Georgia" font-size="7">n+1</text>
+                    <text x="115" y="68" text-anchor="middle" font-family="Georgia" font-size="6" fill="#28a745">Tx A</text>
+
+                    <rect x="150" y="40" width="50" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="175" y="62" text-anchor="middle" font-family="Georgia" font-size="8">n+2</text>
+
+                    <rect x="210" y="40" width="50" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="235" y="62" text-anchor="middle" font-family="Georgia" font-size="8">n+3</text>
+
+                    <line x1="80" y1="57" x2="90" y2="57" stroke="#5a8f5a"/>
+                    <line x1="140" y1="57" x2="150" y2="57" stroke="#5a8f5a"/>
+                    <line x1="200" y1="57" x2="210" y2="57" stroke="#5a8f5a"/>
+
+                    <!-- Secret chain -->
+                    <text x="80" y="105" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Secret Chain (attacker)</text>
+
+                    <rect x="30" y="115" width="50" height="35" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="55" y="137" text-anchor="middle" font-family="Georgia" font-size="8">n</text>
+
+                    <rect x="90" y="115" width="50" height="35" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="115" y="130" text-anchor="middle" font-family="Georgia" font-size="7">n+1</text>
+                    <text x="115" y="143" text-anchor="middle" font-family="Georgia" font-size="6" fill="#c44">Tx B</text>
+
+                    <rect x="150" y="115" width="50" height="35" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="175" y="137" text-anchor="middle" font-family="Georgia" font-size="8">n+2</text>
+
+                    <rect x="210" y="115" width="50" height="35" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="235" y="137" text-anchor="middle" font-family="Georgia" font-size="8">n+3</text>
+
+                    <rect x="270" y="115" width="50" height="35" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="295" y="137" text-anchor="middle" font-family="Georgia" font-size="8">n+4</text>
+
+                    <line x1="80" y1="132" x2="90" y2="132" stroke="#c44"/>
+                    <line x1="140" y1="132" x2="150" y2="132" stroke="#c44"/>
+                    <line x1="200" y1="132" x2="210" y2="132" stroke="#c44"/>
+                    <line x1="260" y1="132" x2="270" y2="132" stroke="#c44"/>
+
+                    <!-- Reorg arrow -->
+                    <path d="M 320 132 L 380 90" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed36)"/>
+                    <text x="365" y="105" font-family="Georgia" font-size="8" fill="#c44">Reorg!</text>
+
+                    <!-- Result -->
+                    <rect x="380" y="40" width="120" height="50" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="440" y="60" text-anchor="middle" font-family="Georgia" font-size="8">Secret chain wins</text>
+                    <text x="440" y="75" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">Tx A reversed</text>
+
+                    <!-- Timeline -->
+                    <text x="260" y="190" text-anchor="middle" font-family="Georgia" font-size="9">Victim delivered goods after seeing 3 confirmations</text>
+                    <text x="260" y="205" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Attacker reverses payment, keeps goods</text>
+
+                    <defs>
+                        <marker id="arrowRed36" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 36.1: Double-spend attack via majority hashrate.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 36.1 (Attack Success Probability)</p>
+                <p>
+                    Let q be attacker hashrate fraction, p = 1-q honest hashrate, and k
+                    the number of confirmations. The exact probability of a successful
+                    double-spend (Nakamoto, 2008) is:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    P(success) = 1 if q ≥ 0.5<br>
+                    P(success) = 1 − Σ<sub>m=0</sub><sup>k</sup>
+                    [λ<sup>m</sup>e<sup>−λ</sup>/m! · (1 − (q/p)<sup>k−m</sup>)]
+                    if q &lt; 0.5
+                </p>
+                <p>
+                    where λ = k · (q/p). The simplified approximation (q/p)<sup>k</sup>
+                    overestimates the probability for small k and underestimates the
+                    catch-up component; the table below uses the exact Poisson formula.
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Attacker Hashrate</th>
+                        <th>1 conf</th>
+                        <th>3 conf</th>
+                        <th>6 conf</th>
+                        <th>12 conf</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10%</td>
+                        <td>20%</td>
+                        <td>1.2%</td>
+                        <td>0.02%</td>
+                        <td>~0%</td>
+                    </tr>
+                    <tr>
+                        <td>25%</td>
+                        <td>43%</td>
+                        <td>13%</td>
+                        <td>2.4%</td>
+                        <td>0.06%</td>
+                    </tr>
+                    <tr>
+                        <td>40%</td>
+                        <td>67%</td>
+                        <td>40%</td>
+                        <td>20%</td>
+                        <td>4%</td>
+                    </tr>
+                    <tr>
+                        <td>50%</td>
+                        <td>100%</td>
+                        <td>100%</td>
+                        <td>100%</td>
+                        <td>100%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>36.2 Chain Reorganizations</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.3 (Chain Reorganization)</p>
+                <p>
+                    A <strong>reorg</strong> occurs when a node switches to a different chain
+                    with more cumulative proof-of-work:
+                </p>
+                <ul>
+                    <li><strong>Depth:</strong> Number of blocks replaced</li>
+                    <li><strong>Natural reorg:</strong> Competing blocks found simultaneously (1-2 blocks)</li>
+                    <li><strong>Attack reorg:</strong> Intentional, deeper reorganization</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 36.1 (Historical Reorgs)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Depth</th>
+                            <th>Cause</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>March 2013</td>
+                            <td>24 blocks</td>
+                            <td>Version 0.8 bug (accidental fork)</td>
+                        </tr>
+                        <tr>
+                            <td>August 2010</td>
+                            <td>53 blocks</td>
+                            <td>Value overflow bug (184B BTC created)</td>
+                        </tr>
+                        <tr>
+                            <td>Normal</td>
+                            <td>1 block</td>
+                            <td>~0.5% of blocks (stale blocks)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 36.2 (Reorg Probability)</p>
+                <p>
+                    Under honest mining with network delay δ and block time T:
+                </p>
+                <ul>
+                    <li>P(1-block reorg) ≈ δ/T ≈ 0.5-1%</li>
+                    <li>P(2-block reorg) ≈ (δ/T)² ≈ 0.01%</li>
+                    <li>P(k-block reorg) ≈ (δ/T)<sup>k</sup> (approximately)</li>
+                </ul>
+                <p>
+                    Deep reorgs under honest mining are astronomically unlikely.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>36.3 Selfish Mining</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.4 (Selfish Mining)</p>
+                <p>
+                    <strong>Selfish mining</strong> is a strategy where miners withhold blocks:
+                </p>
+                <ol>
+                    <li>Find block, don't broadcast immediately</li>
+                    <li>Continue mining on secret chain</li>
+                    <li>When honest miners find block, release secret chain</li>
+                    <li>Goal: Waste honest miners' work, gain unfair advantage</li>
+                </ol>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 36.3 (Selfish Mining Threshold)</p>
+                <p>
+                    Selfish mining is profitable when attacker hashrate q satisfies:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    q > (1 - γ) / (3 - 2γ)
+                </p>
+                <p>
+                    where γ is the fraction of honest miners who mine on attacker's block
+                    during a race. With γ = 0: q > 1/3 ≈ 33%. With γ = 1: q > 0 (any hashrate suffices).
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <!-- Profitability threshold -->
+                    <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Selfish Mining Profitability</text>
+
+                    <!-- Axis -->
+                    <line x1="80" y1="140" x2="420" y2="140" stroke="#666" stroke-width="1"/>
+                    <line x1="80" y1="140" x2="80" y2="40" stroke="#666" stroke-width="1"/>
+
+                    <text x="250" y="165" text-anchor="middle" font-family="Georgia" font-size="8">Attacker hashrate (q)</text>
+                    <text x="50" y="90" text-anchor="middle" font-family="Georgia" font-size="8" transform="rotate(-90, 50, 90)">Revenue share</text>
+
+                    <!-- Honest mining line -->
+                    <line x1="80" y1="140" x2="420" y2="40" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="430" y="35" font-family="Georgia" font-size="7" fill="#5a8f5a">Honest</text>
+
+                    <!-- Selfish mining curve (simplified) -->
+                    <path d="M 80 140 Q 200 130 250 100 T 420 30" stroke="#c44" stroke-width="2" fill="none"/>
+                    <text x="430" y="55" font-family="Georgia" font-size="7" fill="#c44">Selfish</text>
+
+                    <!-- Threshold marker -->
+                    <line x1="193" y1="40" x2="193" y2="140" stroke="#f39c12" stroke-width="1" stroke-dasharray="4,2"/>
+                    <text x="193" y="155" text-anchor="middle" font-family="Georgia" font-size="7" fill="#f39c12">33%</text>
+
+                    <!-- Labels -->
+                    <text x="100" y="155" font-family="Georgia" font-size="7">0%</text>
+                    <text x="420" y="155" font-family="Georgia" font-size="7">100%</text>
+                </svg>
+                <figcaption>Figure 36.2: Selfish mining becomes profitable above ~33% hashrate.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 36.1 (Selfish Mining in Practice)</p>
+                <p>
+                    Selfish mining has not been observed on Bitcoin mainnet because:
+                </p>
+                <ul>
+                    <li>Requires sustained >25-33% hashrate</li>
+                    <li>Detectable through orphan rate analysis</li>
+                    <li>Risk of losing secret chain to honest miners</li>
+                    <li>Damages network, potentially harming attacker's investment</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>36.4 Eclipse Attacks</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.5 (Eclipse Attack)</p>
+                <p>
+                    An <strong>eclipse attack</strong> isolates a node from the honest network:
+                </p>
+                <ol>
+                    <li>Attacker floods victim's peer table with attacker-controlled IPs</li>
+                    <li>Victim restarts or all connections drop</li>
+                    <li>Victim connects only to attacker nodes</li>
+                    <li>Attacker controls victim's view of blockchain</li>
+                </ol>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 36.4 (Eclipse Attack Consequences)</p>
+                <p>
+                    An eclipsed node can be:
+                </p>
+                <ul>
+                    <li><strong>Double-spent against:</strong> Fed fake confirmations</li>
+                    <li><strong>Censored:</strong> Transactions not propagated</li>
+                    <li><strong>Delayed:</strong> Kept on stale chain</li>
+                    <li><strong>Exploited:</strong> For N-confirmation attacks with 0 hashrate</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 36.2 (Eclipse Mitigations)</p>
+                <p>
+                    Bitcoin Core includes mitigations:
+                </p>
+                <ul>
+                    <li>Outbound connection diversity (different /16 networks)</li>
+                    <li>Anchor connections (persist across restarts)</li>
+                    <li>Peer rotation limits</li>
+                    <li>Feeler connections to discover new peers</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>36.5 Other Attack Vectors</h2>
+
+            <h3>36.5.1 Transaction Censorship</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.6 (Transaction Censorship)</p>
+                <p>
+                    Miners can refuse to include specific transactions:
+                </p>
+                <ul>
+                    <li><strong>Soft censorship:</strong> Some miners refuse; tx eventually confirms</li>
+                    <li><strong>Hard censorship:</strong> >50% refuse; tx never confirms normally</li>
+                </ul>
+            </div>
+
+            <h3>36.5.2 Block Withholding</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.7 (Block Withholding Attack)</p>
+                <p>
+                    In pool mining, a malicious miner:
+                </p>
+                <ul>
+                    <li>Submits partial proofs of work (shares)</li>
+                    <li>Withholds full solutions (valid blocks)</li>
+                    <li>Receives pool payments without contributing blocks</li>
+                    <li>Damages pool profitability</li>
+                </ul>
+            </div>
+
+            <h3>36.5.3 Time-Dilation Attack</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 36.8 (Time-Dilation Attack)</p>
+                <p>
+                    Against Lightning Network nodes:
+                </p>
+                <ul>
+                    <li>Eclipse the victim</li>
+                    <li>Slowly feed them blocks (delayed)</li>
+                    <li>HTLCs time out on victim's view before actual expiry</li>
+                    <li>Steal funds from payment channels</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>36.6 Attack Economics</h2>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 36.5 (51% Attack Cost)</p>
+                <p>
+                    The cost of a 51% attack includes:
+                </p>
+                <ul>
+                    <li><strong>Hardware:</strong> ASICs to achieve majority hashrate</li>
+                    <li><strong>Electricity:</strong> Ongoing operational cost</li>
+                    <li><strong>Opportunity cost:</strong> Could mine honestly instead</li>
+                    <li><strong>Market impact:</strong> Attack discovery crashes BTC price</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 36.2 (Attack Cost Estimation)</p>
+                <p>
+                    Rough 51% attack cost for Bitcoin (2024):
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Hardware (>300 EH/s)</td>
+                            <td>$10-20 billion</td>
+                        </tr>
+                        <tr>
+                            <td>Electricity (per day)</td>
+                            <td>$20-50 million</td>
+                        </tr>
+                        <tr>
+                            <td>Rental attack (if possible)</td>
+                            <td>$1-5 million/hour</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    Note: Hardware for rent doesn't exist at this scale for Bitcoin.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 36.1</p>
+                <p>
+                    Calculate the probability of a successful double-spend with 30% hashrate
+                    after 6 confirmations. How many confirmations would reduce this to <0.1%?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 36.2</p>
+                <p>
+                    Model a selfish mining attack with 35% hashrate and γ=0.5. What is the
+                    expected revenue advantage over honest mining?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 36.3</p>
+                <p>
+                    Design an eclipse attack against a Lightning node. What information
+                    would you need? How would you exploit the time-dilation?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 36.4</p>
+                <p>
+                    Research the Bitcoin Gold 51% attacks. How much was stolen? What was
+                    the estimated attack cost? Why was BTG more vulnerable than BTC?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="35-consensus-cleanup.html" class="prev-chapter">← Chapter 35: Great Consensus Cleanup</a>
+            <a href="37-defense-mechanisms.html" class="next-chapter">Chapter 37: Defense Mechanisms →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume V: The Path to Sustainability (Draft)</p>
+    </footer>
+</body>
+</html>
