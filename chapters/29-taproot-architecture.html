@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 29: Taproot Architecture | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 29: Taproot Architecture - Schnorr signatures, MAST, key tweaking, and Tapscript">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 29</p>
+        <h1>Taproot Architecture</h1>
+        <p class="chapter-subtitle">Schnorr, MAST, and Bitcoin's Privacy Upgrade</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Taproot, activated in November 2021, represents Bitcoin's most elegant upgrade—a
+                fusion of Schnorr signatures, Merkleized Alternative Script Trees (MAST), and
+                clever cryptographic tweaking. The result: complex spending conditions that
+                look identical to simple payments, dramatically improving privacy and efficiency.
+                This chapter dissects Taproot's architecture, from BIP-340 Schnorr signatures
+                through BIP-341 output construction to BIP-342 Tapscript execution.
+            </p>
+        </section>
+
+        <section>
+            <h2>29.1 Schnorr Signatures (BIP-340)</h2>
+
+            <p>
+                Taproot begins with a new signature scheme: Schnorr signatures, superior to
+                ECDSA in multiple dimensions.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.1 (BIP-340 Schnorr Signature)</p>
+                <p>
+                    Given private key d, public key P = d·G, and message m:
+                </p>
+                <ol>
+                    <li>Choose random nonce k, compute R = k·G</li>
+                    <li>Compute challenge e = H<sub>BIP340/challenge</sub>(R || P || m)</li>
+                    <li>Compute s = k + e·d (mod n)</li>
+                    <li>Signature is (R, s), serialized as 64 bytes</li>
+                </ol>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.2 (Schnorr Verification)</p>
+                <p>
+                    To verify signature (R, s) on message m with public key P:
+                </p>
+                <ol>
+                    <li>Compute e = H<sub>BIP340/challenge</sub>(R || P || m)</li>
+                    <li>Check that s·G = R + e·P</li>
+                </ol>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Correctness.</p>
+                <p>
+                    If the signature is valid:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    s·G = (k + e·d)·G = k·G + e·d·G = R + e·P ✓
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- ECDSA -->
+                    <rect x="30" y="40" width="180" height="120" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="120" y="60" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">ECDSA</text>
+
+                    <text x="45" y="85" font-family="Georgia" font-size="9">• 72-byte signatures (DER)</text>
+                    <text x="45" y="100" font-family="Georgia" font-size="9">• Non-linear equation</text>
+                    <text x="45" y="115" font-family="Georgia" font-size="9">• No native batch verify</text>
+                    <text x="45" y="130" font-family="Georgia" font-size="9">• Complex key aggregation</text>
+                    <text x="45" y="145" font-family="Georgia" font-size="9">• No adaptor signatures</text>
+
+                    <!-- Schnorr -->
+                    <rect x="290" y="40" width="180" height="120" rx="6" fill="#d4edda" stroke="#28a745" stroke-width="1.5"/>
+                    <text x="380" y="60" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Schnorr (BIP-340)</text>
+
+                    <text x="305" y="85" font-family="Georgia" font-size="9">• 64-byte signatures</text>
+                    <text x="305" y="100" font-family="Georgia" font-size="9">• Linear: s·G = R + e·P</text>
+                    <text x="305" y="115" font-family="Georgia" font-size="9">• Efficient batch verify</text>
+                    <text x="305" y="130" font-family="Georgia" font-size="9">• Simple MuSig</text>
+                    <text x="305" y="145" font-family="Georgia" font-size="9">• Adaptor signatures</text>
+
+                    <!-- Arrow -->
+                    <path d="M 210 100 L 290 100" stroke="#666" stroke-width="2" marker-end="url(#arrow29)"/>
+                    <text x="250" y="90" text-anchor="middle" font-family="Georgia" font-size="8">Upgrade</text>
+
+                    <defs>
+                        <marker id="arrow29" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 29.1: ECDSA vs Schnorr signature comparison.</figcaption>
+            </figure>
+
+            <h3>29.1.1 X-Only Public Keys</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.3 (X-Only Public Key)</p>
+                <p>
+                    BIP-340 uses <strong>x-only public keys</strong>: only the x-coordinate
+                    is stored (32 bytes instead of 33). The y-coordinate is implicitly even:
+                </p>
+                <ul>
+                    <li>If P has odd y, negate it: use -P (which has even y)</li>
+                    <li>Adjust private key accordingly: if P has odd y, use n - d</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 29.1 (X-Only Savings)</p>
+                <p>
+                    X-only keys save 1 byte per public key. For a Taproot output:
+                </p>
+                <ul>
+                    <li>scriptPubKey: OP_1 &lt;32 bytes&gt; = 34 bytes</li>
+                    <li>vs P2WPKH: OP_0 &lt;20 bytes&gt; = 22 bytes (but less flexible)</li>
+                </ul>
+            </div>
+
+            <h3>29.1.2 Batch Verification</h3>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 29.2 (Schnorr Batch Verification)</p>
+                <p>
+                    Given n signatures (R<sub>i</sub>, s<sub>i</sub>) on messages m<sub>i</sub>
+                    with public keys P<sub>i</sub>, batch verify by checking:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    (Σ a<sub>i</sub>·s<sub>i</sub>)·G = Σ a<sub>i</sub>·R<sub>i</sub> + Σ a<sub>i</sub>·e<sub>i</sub>·P<sub>i</sub>
+                </p>
+                <p>
+                    where a<sub>i</sub> are random weights. Cost: O(n) point additions, one
+                    multi-scalar multiplication, vs O(n) full verifications individually.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 29.1 (Batch Verification Speedup)</p>
+                <p>
+                    Batch verification is approximately 2-3× faster than individual verification
+                    for typical block sizes. This significantly reduces block validation time.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>29.2 Key Tweaking and Taproot Outputs</h2>
+
+            <p>
+                Taproot's magic lies in <em>key tweaking</em>: encoding spending conditions
+                into the public key itself.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.4 (Tweak)</p>
+                <p>
+                    A <strong>tweaked public key</strong> Q is computed from internal key P
+                    and tweak t:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    Q = P + t·G
+                </p>
+                <p>
+                    The corresponding tweaked private key (if P = d·G):
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    q = d + t (mod n)
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.5 (Taproot Tweak)</p>
+                <p>
+                    For Taproot, the tweak encodes the script tree:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    t = H<sub>TapTweak</sub>(P || script_root)
+                </p>
+                <p>
+                    If no scripts: t = H<sub>TapTweak</sub>(P)
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- Internal key -->
+                    <ellipse cx="100" cy="60" rx="60" ry="35" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="100" y="55" text-anchor="middle" font-family="Georgia" font-size="10">Internal Key</text>
+                    <text x="100" y="70" text-anchor="middle" font-family="Georgia" font-size="9" font-style="italic">P</text>
+
+                    <!-- Script tree -->
+                    <rect x="200" y="30" width="100" height="60" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="250" y="55" text-anchor="middle" font-family="Georgia" font-size="9">Script Tree</text>
+                    <text x="250" y="70" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(optional)</text>
+
+                    <!-- Tweak computation -->
+                    <rect x="130" y="120" width="140" height="40" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <text x="200" y="140" text-anchor="middle" font-family="Georgia" font-size="9">t = H(P || root)</text>
+                    <text x="200" y="155" text-anchor="middle" font-family="monospace" font-size="7">TapTweak</text>
+
+                    <line x1="100" y1="95" x2="170" y2="120" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <line x1="250" y1="90" x2="230" y2="120" stroke="#f39c12" stroke-width="1.5"/>
+
+                    <!-- Output key -->
+                    <ellipse cx="380" cy="140" rx="70" ry="40" fill="#d4edda" stroke="#28a745" stroke-width="2"/>
+                    <text x="380" y="130" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Output Key</text>
+                    <text x="380" y="150" text-anchor="middle" font-family="Georgia" font-size="10">Q = P + t·G</text>
+
+                    <line x1="270" y1="140" x2="310" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow29b)"/>
+
+                    <!-- On-chain appearance -->
+                    <rect x="310" y="190" width="140" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="380" y="207" text-anchor="middle" font-family="monospace" font-size="8">OP_1 &lt;Q&gt;</text>
+
+                    <line x1="380" y1="180" x2="380" y2="190" stroke="#5a8f5a" stroke-width="1"/>
+
+                    <defs>
+                        <marker id="arrow29b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 29.2: Taproot key tweaking combines internal key and script tree into output key.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 29.3 (Taproot Spending Paths)</p>
+                <p>
+                    A Taproot output (OP_1 &lt;Q&gt;) can be spent two ways:
+                </p>
+                <ol>
+                    <li><strong>Key path:</strong> Provide signature for Q (single 64-byte witness)</li>
+                    <li><strong>Script path:</strong> Reveal script, provide Merkle proof, satisfy script</li>
+                </ol>
+            </div>
+        </section>
+
+        <section>
+            <h2>29.3 Script Trees (MAST)</h2>
+
+            <p>
+                Taproot implements Merkleized Alternative Script Trees, allowing multiple
+                spending conditions with compact proofs.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.6 (TapTree)</p>
+                <p>
+                    A <strong>TapTree</strong> is a Merkle tree of scripts:
+                </p>
+                <ul>
+                    <li>Leaves: H<sub>TapLeaf</sub>(leaf_version || script)</li>
+                    <li>Branches: H<sub>TapBranch</sub>(left || right) where left ≤ right lexicographically</li>
+                    <li>Root: becomes part of the tweak</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- Root -->
+                    <circle cx="250" cy="40" r="20" fill="#28a745" stroke="#1e7b34" stroke-width="2"/>
+                    <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">root</text>
+
+                    <!-- Level 1 -->
+                    <circle cx="150" cy="100" r="18" fill="#5a8f5a" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <text x="150" y="105" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">H₁</text>
+
+                    <circle cx="350" cy="100" r="18" fill="#5a8f5a" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <text x="350" y="105" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">H₂</text>
+
+                    <!-- Level 2 -->
+                    <rect x="60" y="160" width="80" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="100" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script A</text>
+                    <text x="100" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">2-of-3 multisig</text>
+
+                    <rect x="160" y="160" width="80" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="200" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script B</text>
+                    <text x="200" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Timelock + key</text>
+
+                    <rect x="270" y="160" width="80" height="35" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
+                    <text x="310" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script C</text>
+                    <text x="310" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Recovery key</text>
+
+                    <rect x="370" y="160" width="80" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="410" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script D</text>
+                    <text x="410" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Hashlock</text>
+
+                    <!-- Connections -->
+                    <line x1="235" y1="55" x2="165" y2="85" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <line x1="265" y1="55" x2="335" y2="85" stroke="#3a6f3a" stroke-width="1.5"/>
+
+                    <line x1="140" y1="115" x2="110" y2="160" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <line x1="160" y1="115" x2="190" y2="160" stroke="#3a6f3a" stroke-width="1.5"/>
+
+                    <line x1="340" y1="115" x2="310" y2="160" stroke="#c44" stroke-width="2"/>
+                    <line x1="360" y1="115" x2="400" y2="160" stroke="#3a6f3a" stroke-width="1.5"/>
+
+                    <!-- Proof path highlight -->
+                    <text x="310" y="215" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">To spend via Script C:</text>
+                    <text x="310" y="228" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Reveal C, prove with H(D) and H₁</text>
+                </svg>
+                <figcaption>Figure 29.3: TapTree with four scripts; spending Script C requires proving inclusion.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.7 (Control Block)</p>
+                <p>
+                    To spend via script path, the witness includes a <strong>control block</strong>:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+control_block = leaf_version | parity_bit || internal_pubkey || merkle_path
+
+where:
+  leaf_version: 0xc0 (Tapscript v0)
+  parity_bit:   output key Y parity (0 or 1)
+  merkle_path:  sibling hashes for Merkle proof</pre>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 29.4 (MAST Privacy)</p>
+                <p>
+                    When spending via script path:
+                </p>
+                <ul>
+                    <li>Only the executed script is revealed</li>
+                    <li>Other scripts remain hidden (only hashes in proof)</li>
+                    <li>Number of alternative scripts is hidden (proof length varies)</li>
+                </ul>
+                <p>
+                    When spending via key path:
+                </p>
+                <ul>
+                    <li>No scripts are revealed</li>
+                    <li>Indistinguishable from simple single-key spend</li>
+                    <li>Observer cannot tell if scripts even exist</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 29.1 (Lightning Channel Close)</p>
+                <p>
+                    A Lightning channel with Taproot might have:
+                </p>
+                <ul>
+                    <li><strong>Key path:</strong> Aggregated key of both parties (cooperative close)</li>
+                    <li><strong>Script A:</strong> Alice after timelock (force close by Alice)</li>
+                    <li><strong>Script B:</strong> Bob after timelock (force close by Bob)</li>
+                </ul>
+                <p>
+                    Cooperative closes (vast majority) look like single-sig payments on-chain.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>29.4 Tapscript (BIP-342)</h2>
+
+            <p>
+                Tapscript is the script system for Taproot script path spends, with
+                significant improvements over legacy Script.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.8 (Tapscript Changes)</p>
+                <p>
+                    Tapscript modifies Script semantics:
+                </p>
+                <ul>
+                    <li><strong>OP_CHECKSIG(VERIFY):</strong> Uses Schnorr instead of ECDSA</li>
+                    <li><strong>OP_CHECKMULTISIG(VERIFY):</strong> Disabled (use CHECKSIGADD)</li>
+                    <li><strong>OP_CHECKSIGADD:</strong> New opcode for efficient multisig</li>
+                    <li><strong>Signature validation:</strong> Empty sig = OP_FALSE (no exception)</li>
+                    <li><strong>OP_SUCCESSx:</strong> Reserved for future upgrades</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.9 (OP_CHECKSIGADD)</p>
+                <p>
+                    <strong>OP_CHECKSIGADD</strong> enables efficient threshold signatures:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+Stack before (top → bottom): [pubkey] [n] [signature]
+Operation:    if sig valid for pubkey: n = n + 1
+Stack after:  [n] (or [n+1] if valid)
+
+2-of-3 Tapscript:
+  <sig_C> <sig_B> <sig_A>
+  <pk_A> OP_CHECKSIG
+  <pk_B> OP_CHECKSIGADD
+  <pk_C> OP_CHECKSIGADD
+  2 OP_NUMEQUAL</pre>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 29.5 (Tapscript Multisig Efficiency)</p>
+                <p>
+                    CHECKSIGADD is more efficient than OP_CHECKMULTISIG:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Scheme</th>
+                            <th>k-of-n Script Size</th>
+                            <th>Witness Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>OP_CHECKMULTISIG</td>
+                            <td>O(n) pubkeys</td>
+                            <td>k sigs + dummy</td>
+                        </tr>
+                        <tr>
+                            <td>CHECKSIGADD</td>
+                            <td>O(n) pubkeys</td>
+                            <td>n sigs (empty for non-signers)</td>
+                        </tr>
+                        <tr>
+                            <td>MuSig + key path</td>
+                            <td>0 (in tweak)</td>
+                            <td>1 aggregated sig</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 29.2 (OP_SUCCESS for Upgrades)</p>
+                <p>
+                    OP_SUCCESSx opcodes (80 of them) make scripts immediately succeed.
+                    Future soft forks can redefine them to have new meaning:
+                </p>
+                <ul>
+                    <li>Old nodes: script succeeds (anyone can spend)</li>
+                    <li>New nodes: interpret new semantics</li>
+                    <li>Same soft fork pattern as SegWit</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>29.5 Key Aggregation: MuSig2</h2>
+
+            <p>
+                Schnorr's linearity enables elegant multi-party signatures where the
+                aggregate key and signature are indistinguishable from single-party.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.10 (MuSig2 Key Aggregation)</p>
+                <p>
+                    Given n public keys P<sub>1</sub>, ..., P<sub>n</sub>:
+                </p>
+                <ol>
+                    <li>Compute key aggregation coefficient: a<sub>i</sub> = H<sub>agg</sub>(L || P<sub>i</sub>)</li>
+                    <li>where L = H(P<sub>1</sub> || ... || P<sub>n</sub>)</li>
+                    <li>Aggregate key: P = Σ a<sub>i</sub>·P<sub>i</sub></li>
+                </ol>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.11 (MuSig2 Signing)</p>
+                <p>
+                    Two-round signing protocol:
+                </p>
+                <p><strong>Round 1:</strong></p>
+                <ol>
+                    <li>Each signer generates two nonces: R<sub>i,1</sub>, R<sub>i,2</sub></li>
+                    <li>Broadcast nonces</li>
+                </ol>
+                <p><strong>Round 2:</strong></p>
+                <ol>
+                    <li>Compute R = Σ R<sub>i,1</sub> + b·Σ R<sub>i,2</sub> where b = H(agg_nonces || agg_key || msg)</li>
+                    <li>Each signer computes partial: s<sub>i</sub> = k<sub>i,1</sub> + b·k<sub>i,2</sub> + e·a<sub>i</sub>·d<sub>i</sub></li>
+                    <li>Aggregate: s = Σ s<sub>i</sub></li>
+                    <li>Final signature: (R, s)</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Participants -->
+                    <rect x="30" y="40" width="80" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="70" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Alice</text>
+                    <text x="70" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P<tspan baseline-shift="sub" font-size="6">A</tspan>, d<tspan baseline-shift="sub" font-size="6">A</tspan></text>
+
+                    <rect x="130" y="40" width="80" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="170" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Bob</text>
+                    <text x="170" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P<tspan baseline-shift="sub" font-size="6">B</tspan>, d<tspan baseline-shift="sub" font-size="6">B</tspan></text>
+
+                    <rect x="230" y="40" width="80" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="270" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Carol</text>
+                    <text x="270" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P<tspan baseline-shift="sub" font-size="6">C</tspan>, d<tspan baseline-shift="sub" font-size="6">C</tspan></text>
+
+                    <!-- Aggregation -->
+                    <rect x="350" y="40" width="120" height="50" rx="4" fill="#d4edda" stroke="#28a745" stroke-width="2"/>
+                    <text x="410" y="60" text-anchor="middle" font-family="Georgia" font-size="9" font-weight="bold">Aggregate</text>
+                    <text x="410" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P = Σ a<tspan baseline-shift="sub" font-size="6">i</tspan>P<tspan baseline-shift="sub" font-size="6">i</tspan></text>
+
+                    <!-- Arrows -->
+                    <path d="M 110 65 L 350 65" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,2"/>
+                    <path d="M 210 65 L 350 65" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,2"/>
+                    <path d="M 310 65 L 350 65" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+                    <!-- On-chain appearance -->
+                    <rect x="150" y="130" width="200" height="50" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="250" y="150" text-anchor="middle" font-family="Georgia" font-size="9">On-chain: bc1p...</text>
+                    <text x="250" y="168" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Looks like single-key output!</text>
+
+                    <line x1="410" y1="90" x2="300" y2="130" stroke="#f39c12" stroke-width="1.5"/>
+                </svg>
+                <figcaption>Figure 29.4: MuSig2 aggregates n keys into one indistinguishable key.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 29.6 (MuSig2 Privacy)</p>
+                <p>
+                    A MuSig2 aggregate key and signature are computationally indistinguishable
+                    from a single-party key and signature. An observer cannot determine:
+                </p>
+                <ul>
+                    <li>How many parties participated</li>
+                    <li>Which parties signed</li>
+                    <li>The threshold (if any)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>29.6 Adaptor Signatures</h2>
+
+            <p>
+                Schnorr enables a powerful primitive for atomic protocols: adaptor signatures.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 29.12 (Adaptor Signature)</p>
+                <p>
+                    An <strong>adaptor signature</strong> σ' is a "partial" signature that becomes
+                    valid when combined with a secret scalar t:
+                </p>
+                <ul>
+                    <li>Adaptor point: T = t·G (public)</li>
+                    <li>Adaptor signature: σ' = (R + T, s')</li>
+                    <li>When t is revealed: σ = (R, s' + t) is valid</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 29.7 (Adaptor Atomicity)</p>
+                <p>
+                    Adaptor signatures enable atomic swaps without hash preimages:
+                </p>
+                <ol>
+                    <li>Alice gives Bob adaptor σ' (valid when combined with secret t)</li>
+                    <li>Bob broadcasts transaction with σ = (R, s' + t)</li>
+                    <li>Alice learns t from the broadcast signature: t = s - s'</li>
+                    <li>Alice uses t to complete her side of the swap</li>
+                </ol>
+                <p>
+                    Either both transactions happen, or neither does.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 29.3 (Adaptor vs HTLC)</p>
+                <p>
+                    Adaptor signatures vs hash time-locked contracts:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>HTLC</th>
+                            <th>Adaptor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>On-chain footprint</td>
+                            <td>Script visible</td>
+                            <td>Just a signature</td>
+                        </tr>
+                        <tr>
+                            <td>Linkability</td>
+                            <td>Same hash links txs</td>
+                            <td>No linkable data</td>
+                        </tr>
+                        <tr>
+                            <td>Script complexity</td>
+                            <td>Moderate</td>
+                            <td>None (key path)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>29.7 Taproot Adoption and Use Cases</h2>
+
+            <div class="example">
+                <p class="example-title">Example 29.2 (Adoption Metrics)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>P2TR Outputs %</th>
+                            <th>Primary Drivers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nov 2021</td>
+                            <td>&lt;1%</td>
+                            <td>Activation, testing</td>
+                        </tr>
+                        <tr>
+                            <td>2022</td>
+                            <td>~1-2%</td>
+                            <td>Early adopters</td>
+                        </tr>
+                        <tr>
+                            <td>Early 2023</td>
+                            <td>~3-5%</td>
+                            <td>Ordinals/Inscriptions</td>
+                        </tr>
+                        <tr>
+                            <td>Late 2023</td>
+                            <td>~15-30%</td>
+                            <td>Wallet adoption</td>
+                        </tr>
+                        <tr>
+                            <td>2024</td>
+                            <td>~30-40%</td>
+                            <td>Broad adoption</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 29.4 (Taproot Use Cases)</p>
+                <p>
+                    Taproot enables or improves:
+                </p>
+                <ul>
+                    <li><strong>Lightning:</strong> Cooperative closes are indistinguishable</li>
+                    <li><strong>Multisig:</strong> MuSig makes n-of-n look like 1-of-1</li>
+                    <li><strong>DLCs:</strong> Discreet log contracts with privacy</li>
+                    <li><strong>Vaults:</strong> Complex custody with fallback options</li>
+                    <li><strong>Inscriptions:</strong> Data embedding via witness</li>
+                    <li><strong>Atomic Swaps:</strong> Adaptor signature swaps</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 29.1</p>
+                <p>
+                    Prove that Schnorr batch verification is sound: if the batch check passes
+                    but one signature is invalid, derive a contradiction (with high probability
+                    over random a<sub>i</sub>).
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 29.2</p>
+                <p>
+                    Construct a TapTree for a 2-of-3 multisig with the following policy:
+                    Any 2 of {Alice, Bob, Carol} can spend immediately, OR Carol alone can
+                    spend after 1 year. Optimize tree depth for the expected common case.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 29.3</p>
+                <p>
+                    Explain why MuSig requires two rounds (or pre-committed nonces). What
+                    attack does the original one-round MuSig1 suffer from?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 29.4</p>
+                <p>
+                    Design an adaptor-signature-based atomic swap between Bitcoin (Taproot)
+                    and a hypothetical chain with Schnorr support. Write out the protocol steps.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 29.5</p>
+                <p>
+                    Calculate the vbytes savings of a 3-of-5 multisig using MuSig + key path
+                    vs legacy P2SH multisig vs Tapscript with CHECKSIGADD.
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="28-segwit-deep-dive.html" class="prev-chapter">← Chapter 28: SegWit Deep Dive</a>
+            <a href="30-covenants.html" class="next-chapter">Chapter 30: Covenant Proposals →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>
