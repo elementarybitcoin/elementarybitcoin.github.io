@@ -594,10 +594,56 @@ function extended_gcd(a, b):
                 </p>
             </div>
 
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    We must show that <span class="math">𝔽ₚ*</span> contains an element of order
+                    <span class="math">p − 1</span>. The proof relies on a key property of fields:
+                    a polynomial of degree <span class="math">d</span> over a field has at most
+                    <span class="math">d</span> roots.
+                </p>
+                <p>
+                    For each divisor <span class="math">d</span> of <span class="math">p − 1</span>,
+                    let <span class="math">ψ(d)</span> denote the number of elements of order
+                    <span class="math">d</span> in <span class="math">𝔽ₚ*</span>.
+                    Every element has some order dividing <span class="math">p − 1</span>
+                    (by Lagrange's theorem), so:
+                </p>
+                <p style="text-align: center;">
+                    <span class="math">∑ ψ(d) = p − 1</span>
+                </p>
+                <p>
+                    where the sum is over all divisors <span class="math">d</span> of <span class="math">p − 1</span>.
+                </p>
+                <p>
+                    Now suppose <span class="math">ψ(d) &gt; 0</span>, so there exists an element
+                    <span class="math">a</span> of order <span class="math">d</span>. The
+                    <span class="math">d</span> elements <span class="math">a, a², ..., aᵈ = 1</span>
+                    are all roots of <span class="math">xᵈ − 1 = 0</span>. Since this polynomial
+                    has degree <span class="math">d</span>, these are <em>all</em> its roots. So
+                    every element of order dividing <span class="math">d</span> must be a power of
+                    <span class="math">a</span>. Among <span class="math">a, a², ..., aᵈ</span>,
+                    exactly <span class="math">φ(d)</span> have order precisely <span class="math">d</span>
+                    (those <span class="math">aᵏ</span> with <span class="math">gcd(k, d) = 1</span>,
+                    by Theorem 1.1). Therefore <span class="math">ψ(d) = φ(d)</span>.
+                </p>
+                <p>
+                    We have shown: for each divisor <span class="math">d</span>,
+                    either <span class="math">ψ(d) = 0</span> or <span class="math">ψ(d) = φ(d)</span>.
+                    Since <span class="math">∑ ψ(d) = p − 1 = ∑ φ(d)</span>
+                    (the latter being a well-known identity), we must have
+                    <span class="math">ψ(d) = φ(d)</span> for every divisor <span class="math">d</span>.
+                    In particular, <span class="math">ψ(p − 1) = φ(p − 1) ≥ 1</span>,
+                    so an element of order <span class="math">p − 1</span> exists.
+                    <span class="qed"></span>
+                </p>
+            </div>
+
             <p>
-                This fundamental result means there exists a generator <span class="math">g</span>
+                This result means there exists a generator <span class="math">g</span>
                 such that every nonzero element can be written as a power of <span class="math">g</span>.
                 Such a generator is called a <strong>primitive root</strong> modulo <span class="math">p</span>.
+                Moreover, the proof shows there are exactly <span class="math">φ(p − 1)</span> primitive roots.
             </p>
 
             <div class="example">
