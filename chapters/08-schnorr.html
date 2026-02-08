@@ -475,18 +475,46 @@ Verify(p, m, sig):
             </p>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 8.2 (Signature Linearity)</p>
+                <p class="theorem-title">Theorem 8.2 (Linearity of the Schnorr Equation)</p>
                 <p>
-                    Given two Schnorr signatures <span class="math">(R₁, s₁)</span> and
-                    <span class="math">(R₂, s₂)</span> for the same message with keys
-                    <span class="math">P₁ = d₁G</span> and <span class="math">P₂ = d₂G</span>,
-                    we have:
+                    The Schnorr verification equation <span class="math">sG = R + eP</span>
+                    is <em>linear in scalars</em>. Suppose two signers with key pairs
+                    <span class="math">(d₁, P₁)</span> and <span class="math">(d₂, P₂)</span>
+                    choose nonces <span class="math">k₁, k₂</span> and compute a
+                    <em>shared</em> challenge
+                    <span class="math">e = H(R ∥ P ∥ m)</span> against the aggregated
+                    nonce <span class="math">R = k₁G + k₂G</span> and aggregated key
+                    <span class="math">P = P₁ + P₂</span>. If each signer computes
+                    a partial signature <span class="math">sᵢ = kᵢ + e · dᵢ</span>, then:
                 </p>
                 <p style="text-align: center; font-size: 1.1em;">
-                    <span class="math">(s₁ + s₂)G = (R₁ + R₂) + e(P₁ + P₂)</span>
+                    <span class="math">(s₁ + s₂)G = R + e · P</span>
                 </p>
                 <p>
-                    where <span class="math">e</span> is the appropriate challenge for the aggregated key.
+                    That is, <span class="math">(R, s₁ + s₂)</span> is a valid Schnorr
+                    signature on <span class="math">m</span> under the aggregated key
+                    <span class="math">P</span>.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title"></p>
+                <p>
+                    <span class="math">(s₁ + s₂)G = (k₁ + ed₁)G + (k₂ + ed₂)G
+                    = (k₁ + k₂)G + e(d₁ + d₂)G = R + eP</span>
+                    <span class="qed"></span>
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Why a shared challenge is essential.</p>
+                <p>
+                    If each signer independently produces a signature <span class="math">(Rᵢ, sᵢ)</span>
+                    with their own challenge <span class="math">eᵢ = H(Rᵢ ∥ Pᵢ ∥ m)</span>,
+                    summing yields <span class="math">(s₁ + s₂)G = (R₁ + R₂) + e₁P₁ + e₂P₂</span>.
+                    Since <span class="math">e₁ ≠ e₂</span> in general, this is <em>not</em> a valid
+                    Schnorr signature. Coordinating a shared challenge&mdash;without revealing private keys
+                    or enabling rogue-key attacks&mdash;is precisely the problem that MuSig solves (§8.8).
                 </p>
             </div>
 
