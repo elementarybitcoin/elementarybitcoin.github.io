@@ -260,6 +260,17 @@
                 </p>
             </div>
 
+            <div class="remark">
+                <p class="remark-title">Off-by-one error.</p>
+                <p>
+                    Bitcoin Core's implementation measures
+                    <span class="math">actual_time = timestamp(block[h]) − timestamp(block[h − 2016])</span>,
+                    which spans 2015 inter-block intervals rather than 2016. This makes
+                    difficulty systematically ~0.05% too low. The bug has been preserved
+                    for consensus compatibility.
+                </p>
+            </div>
+
             <div class="theorem">
                 <p class="theorem-title">Theorem 14.2 (Adjustment Bounds)</p>
                 <p>
