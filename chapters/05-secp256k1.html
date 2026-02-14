@@ -76,7 +76,7 @@
 
                     <path d="M 255 45 L 255 55 L 285 55 L 285 45" fill="none" stroke="#c44" stroke-width="1.5"/>
                     <text x="270" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">k</text>
-                    <text x="270" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Koblitz curve</text>
+                    <text x="270" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">"Koblitz" type</text>
 
                     <path d="M 290 45 L 290 55 L 320 55 L 320 45" fill="none" stroke="#666" stroke-width="1.5"/>
                     <text x="305" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">1</text>
@@ -87,13 +87,18 @@
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Koblitz Curves.</p>
+                <p class="remark-title">On the "k" in secp256k1.</p>
                 <p>
-                    The "k" indicates this is a <em>Koblitz curve</em>, named after Neal Koblitz,
-                    one of the inventors of elliptic curve cryptography. Koblitz curves have
-                    coefficients chosen for computational efficiency rather than from seemingly
-                    random seeds. The simplicity of these parameters (in secp256k1: <span class="math">a = 0, b = 7</span>)
-                    means there is no suspicion of hidden backdoors.
+                    The SEC naming convention uses "k" for curves with efficiently computable
+                    endomorphisms (enabling the GLV optimization for scalar multiplication).
+                    While this is often called a "Koblitz curve" in informal usage, the term
+                    has a different, more specific meaning in the mathematical literature:
+                    Koblitz curves are defined over <em>binary fields</em>
+                    <span class="math">𝔽₂ₘ</span> (Koblitz, 1991; Hankerson/Menezes/Vanstone, Def.&nbsp;3.85).
+                    secp256k1, defined over a prime field, is not a Koblitz curve in this
+                    formal sense. The simplicity of its parameters
+                    (<span class="math">a = 0, b = 7</span>) means there is no suspicion
+                    of hidden backdoors.
                 </p>
             </div>
         </section>
