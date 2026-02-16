@@ -502,7 +502,16 @@
                     <li><em>Identity:</em> <span class="math">𝒪</span> satisfies <span class="math">P + 𝒪 = P</span> by definition.</li>
                     <li><em>Inverse:</em> <span class="math">−P = (x, −y)</span> satisfies <span class="math">P + (−P) = 𝒪</span>.</li>
                     <li><em>Commutativity:</em> The line through <span class="math">P</span> and <span class="math">Q</span> is the same as through <span class="math">Q</span> and <span class="math">P</span>.</li>
-                    <li><em>Associativity:</em> This requires a lengthy algebraic verification or can be proven geometrically using properties of cubic curves. <span class="qed"></span></li>
+                    <li><em>Associativity:</em> This is the most substantial axiom to verify.
+                        One approach is direct algebraic computation: substitute the addition formulas
+                        into <span class="math">(P + Q) + R</span> and <span class="math">P + (Q + R)</span>
+                        and verify equality in all cases. A more elegant proof uses the
+                        <em>Cayley–Bacharach theorem</em> from projective geometry: if two cubics
+                        in the projective plane intersect in 9 points and a third cubic passes through
+                        8 of them, it must also pass through the 9th. Applying this to carefully
+                        chosen configurations of lines (which are degenerate cubics) yields associativity.
+                        See Silverman, <em>The Arithmetic of Elliptic Curves</em>, Chapter III,
+                        Proposition 2.2 for the complete proof. <span class="qed"></span></li>
                 </ol>
             </div>
 
