@@ -468,7 +468,11 @@
                     confirmations decreases exponentially with <span class="math">k</span>:
                 </p>
                 <p class="math-block">
-                    P(reversal) ≈ (q/p)^k where p = 1 - q
+                    P(reversal) = 1 − Σₘ₌₀ᵏ [λᵐe^(−λ)/m! × (1 − (q/p)^(k−m))]
+                </p>
+                <p>
+                    where <span class="math">λ = k(q/p)</span> and <span class="math">p = 1 − q</span>
+                    (the Nakamoto formula from Section 11 of the Bitcoin whitepaper).
                 </p>
             </div>
 
@@ -484,27 +488,27 @@
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>20.4%</td>
-                        <td>43.7%</td>
-                        <td>66.7%</td>
+                        <td>20.5%</td>
+                        <td>52.2%</td>
+                        <td>82.9%</td>
                     </tr>
                     <tr>
                         <td>3</td>
                         <td>1.3%</td>
-                        <td>12.9%</td>
-                        <td>35.6%</td>
+                        <td>19.6%</td>
+                        <td>66.4%</td>
                     </tr>
                     <tr>
                         <td>6</td>
                         <td>0.02%</td>
-                        <td>2.4%</td>
-                        <td>15.4%</td>
+                        <td>5.0%</td>
+                        <td>50.4%</td>
                     </tr>
                     <tr>
                         <td>12</td>
                         <td>~0%</td>
-                        <td>0.08%</td>
-                        <td>3.0%</td>
+                        <td>0.4%</td>
+                        <td>30.6%</td>
                     </tr>
                 </tbody>
             </table>
