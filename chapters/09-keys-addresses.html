@@ -265,12 +265,12 @@
                 </p>
                 <p><strong>Uncompressed (65 bytes):</strong></p>
                 <pre class="code-block">04
-339dcdb23a4e82c904f6da32b42dbda63e3646e6e6e6b0a9b13e7a3d7e8b2c1a
-7f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5</pre>
+39a36013301597daef41fbe593a02cc513d0b55527ec2df1050e2e8ff49c85c2
+3cbe7ded0e7ce6a594896b8f62888fdbc5c8821305e2ea42bf01e37300116281</pre>
                 <p><strong>Compressed (33 bytes):</strong></p>
-                <pre class="code-block">02339dcdb23a4e82c904f6da32b42dbda63e3646e6e6e6b0a9b13e7a3d7e8b2c1a</pre>
+                <pre class="code-block">0339a36013301597daef41fbe593a02cc513d0b55527ec2df1050e2e8ff49c85c2</pre>
                 <p>
-                    The prefix <code>02</code> indicates that the <span class="math">y</span>-coordinate is even.
+                    The prefix <code>03</code> indicates that the <span class="math">y</span>-coordinate is odd.
                 </p>
             </div>
 
@@ -526,7 +526,7 @@
                 <pre class="code-block">0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798</pre>
 
                 <p><strong>Step 1:</strong> Compute SHA-256:</p>
-                <pre class="code-block">0b7c28c9b7290c98d7438e70b3d3f7c848fbd7d1dc194ff83f4f7cc9b1378e98</pre>
+                <pre class="code-block">0f715baf5d4c2ed329785cef29e562f73488c8a2bb9dbc5700b361d54b9b0554</pre>
 
                 <p><strong>Step 2:</strong> Compute RIPEMD-160 of the above:</p>
                 <pre class="code-block">751e76e8199196d454941c45d1b3a323f1433bd6</pre>
@@ -535,10 +535,10 @@
                 <pre class="code-block">00751e76e8199196d454941c45d1b3a323f1433bd6</pre>
 
                 <p><strong>Step 4:</strong> Compute double SHA-256 for checksum:</p>
-                <pre class="code-block">c7f18fe8fcbed6396741e58ad259b5cb16b7fd7f041904147ba1dcffabf747fd</pre>
+                <pre class="code-block">510d1634d943109b69da527ef5948106f22b655fb5193b4e9ef7e4dcd342d245</pre>
 
                 <p><strong>Step 5:</strong> Take first 4 bytes as checksum:</p>
-                <pre class="code-block">c7f18fe8</pre>
+                <pre class="code-block">510d1634</pre>
 
                 <p><strong>Step 6:</strong> Append checksum and Base58 encode:</p>
                 <pre class="code-block">1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH</pre>
@@ -820,7 +820,7 @@
                 <p>
                     The private key from Example 9.1 in WIF format (compressed):
                 </p>
-                <pre class="code-block">L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1</pre>
+                <pre class="code-block">L52XzL2cMkHxqxBXRyEpnPQZGUs3uKiL3R11XbAdHigRzDozKZeW</pre>
                 <p>
                     The <code>L</code> prefix indicates a mainnet compressed key.
                 </p>
