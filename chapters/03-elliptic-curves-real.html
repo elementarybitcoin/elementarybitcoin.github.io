@@ -454,6 +454,18 @@
                 </p>
             </div>
 
+            <div class="remark">
+                <p class="remark-title">The case y₁ = 0.</p>
+                <p>
+                    When <span class="math">y₁ = 0</span>, the point <span class="math">P = (x₁, 0)</span>
+                    lies on the x-axis and satisfies <span class="math">P = −P</span>. The tangent to
+                    the curve at such a point is vertical (since <span class="math">2y·(dy/dx) = 3x² + a</span>
+                    gives <span class="math">dy/dx → ∞</span>), so by convention the tangent meets the
+                    curve at <span class="math">𝒪</span>. Thus <span class="math">2P = 𝒪</span>:
+                    every point on the x-axis has order 2 in the group.
+                </p>
+            </div>
+
             <div class="example">
                 <p class="example-title">Example 3.2 (Point Addition on y² = x³ − 7x + 10)</p>
                 <p>
@@ -476,6 +488,32 @@
                 <p>
                     Verification: <span class="math">2² = 4</span> and
                     <span class="math">(−3)³ − 7·(−3) + 10 = −27 + 21 + 10 = 4</span>. ✓
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 3.3 (Point Doubling on y² = x³ − 7x + 10)</p>
+                <p>
+                    On the same curve, compute <span class="math">2P</span> where
+                    <span class="math">P = (1, 2)</span>.
+                </p>
+                <p>
+                    The tangent slope at <span class="math">P</span> is:
+                </p>
+                <ul>
+                    <li><span class="math">λ = (3·1² + (−7)) / (2·2) = (3 − 7)/4 = −4/4 = −1</span></li>
+                </ul>
+                <p>Now compute:</p>
+                <ul>
+                    <li><span class="math">x₃ = (−1)² − 2·1 = 1 − 2 = −1</span></li>
+                    <li><span class="math">y₃ = (−1)·(1 − (−1)) − 2 = (−1)·2 − 2 = −4</span></li>
+                </ul>
+                <p>
+                    Thus <span class="math">2P = (−1, −4)</span>.
+                </p>
+                <p>
+                    Verification: <span class="math">(−4)² = 16</span> and
+                    <span class="math">(−1)³ − 7·(−1) + 10 = −1 + 7 + 10 = 16</span>. ✓
                 </p>
             </div>
         </section>
@@ -586,7 +624,7 @@ function scalar_multiply(n, P):
             </div>
 
             <div class="example">
-                <p class="example-title">Example 3.3 (Computing 151P)</p>
+                <p class="example-title">Example 3.4 (Computing 151P)</p>
                 <p>
                     The binary representation of 151 is <span class="math">10010111₂</span>.
                     Using double-and-add:
