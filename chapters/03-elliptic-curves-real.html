@@ -344,8 +344,11 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 3.1 (A Line Meets a Cubic in Three Points)</p>
                 <p>
-                    Any line that is not vertical intersects an elliptic curve in exactly three
-                    points (counting multiplicity and the point at infinity).
+                    Any non-vertical line intersects an elliptic curve in exactly three
+                    points over <span class="math">ℂ</span> (counting multiplicity). Over
+                    <span class="math">ℝ</span>, there are either one or three real intersection
+                    points. In the case relevant to point addition—when two of the
+                    intersection points are known to be real—the third is guaranteed real as well.
                 </p>
             </div>
 
@@ -409,9 +412,13 @@
                     <span class="math">[λ(x − x₁) + y₁]² = x³ + ax + b</span>
                 </p>
                 <p>
-                    Expanding and using Vieta's formulas, if <span class="math">x₁, x₂, x₃</span>
-                    are the three roots, then <span class="math">x₁ + x₂ + x₃ = λ²</span>.
-                    Thus <span class="math">x₃ = λ² − x₁ − x₂</span>.
+                    Expanding yields a cubic <span class="math">x³ − λ²x² + ⋯ = 0</span>.
+                    By <em>Vieta's formulas</em>—which relate a polynomial's coefficients to
+                    sums and products of its roots—the sum of the three roots equals the
+                    negation of the coefficient of <span class="math">x²</span> divided by the
+                    leading coefficient. Here <span class="math">x₁ + x₂ + x₃ = λ²</span>.
+                    Since <span class="math">x₁</span> and <span class="math">x₂</span> are known,
+                    we obtain <span class="math">x₃ = λ² − x₁ − x₂</span>.
                 </p>
                 <p>
                     The y-coordinate <span class="math">y₃</span> follows from the line equation
