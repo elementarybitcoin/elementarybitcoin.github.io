@@ -571,7 +571,8 @@
                 </ol>
                 <p>
                     Expected false positive rate: 1/784931 per scriptPubKey per block.
-                    With 50 addresses: ~1/15698 per block ≈ one false positive every ~2.3 days.
+                    With 50 addresses: ~50/784931 ≈ 1/15699 per block ≈ one false positive every ~109 days
+                    (at 144 blocks/day).
                 </p>
             </div>
         </section>
@@ -814,10 +815,10 @@
                     of at least one false positive is:
                 </p>
                 <div class="formula">
-                    P(false positive) = 1 - (1 - 1/M)<sup>Q</sup> ≈ Q/M
+                    P(false positive) = 1 - (1 - 1/F)<sup>Q</sup> ≈ Q/F
                 </div>
                 <p>
-                    With M = 784931, a wallet with 100 addresses has approximately 1/7849
+                    With F = 784931, a wallet with 100 addresses has approximately 1/7849
                     chance of false positive per block.
                 </p>
             </div>
