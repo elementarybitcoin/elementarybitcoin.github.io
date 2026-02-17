@@ -249,19 +249,19 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     <text x="80" y="145" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Generator</text>
                     <text x="80" y="157" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">(fixed, public)</text>
 
-                    <!-- Arrow: × k -->
+                    <!-- Arrow: × d -->
                     <path d="M 110 100 L 200 100" stroke="#8b4513" stroke-width="2" marker-end="url(#arrowMult)"/>
-                    <text x="155" y="90" text-anchor="middle" font-family="Georgia" font-size="13" fill="#8b4513">× k</text>
+                    <text x="155" y="90" text-anchor="middle" font-family="Georgia" font-size="13" fill="#8b4513">× d</text>
                     <text x="155" y="120" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">scalar mult</text>
 
-                    <!-- k (private key) above -->
+                    <!-- d (private key) above -->
                     <rect x="130" y="50" width="50" height="25" rx="4" fill="#fff8f0" stroke="#c44" stroke-width="1"/>
-                    <text x="155" y="67" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">k</text>
+                    <text x="155" y="67" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">d</text>
                     <path d="M 155 75 L 155 87" stroke="#c44" stroke-width="1" marker-end="url(#arrowRed2)"/>
 
-                    <!-- P = kG -->
+                    <!-- P = dG -->
                     <circle cx="240" cy="100" r="25" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
-                    <text x="240" y="105" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold" fill="#8b4513">kG</text>
+                    <text x="240" y="105" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold" fill="#8b4513">dG</text>
                     <text x="240" y="145" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Public Key</text>
 
                     <!-- Equals sign -->
@@ -274,7 +274,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
 
                     <!-- Summary -->
                     <rect x="300" y="165" width="140" height="25" rx="4" fill="#fff" stroke="#666" stroke-width="1"/>
-                    <text x="370" y="182" text-anchor="middle" font-family="Georgia" font-size="10">Private key k → Public key P</text>
+                    <text x="370" y="182" text-anchor="middle" font-family="Georgia" font-size="10">Private key d → Public key P</text>
 
                     <defs>
                         <marker id="arrowMult" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -285,7 +285,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 5.3: A private key k multiplied by G produces the public key P = kG.</figcaption>
+                <figcaption>Figure 5.3: A private key d multiplied by G produces the public key P = dG.</figcaption>
             </figure>
         </section>
 
@@ -416,10 +416,10 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             <div class="definition">
                 <p class="definition-title">Definition 5.5 (Private Key)</p>
                 <p>
-                    A <strong>private key</strong> is an integer <span class="math">k</span> satisfying:
+                    A <strong>private key</strong> is an integer <span class="math">d</span> satisfying:
                 </p>
                 <p style="text-align: center; font-size: 1.1em;">
-                    <span class="math">1 ≤ k ≤ n − 1</span>
+                    <span class="math">1 ≤ d ≤ n − 1</span>
                 </p>
                 <p>
                     In Bitcoin, this is typically a 256-bit random number. The private key must
@@ -430,15 +430,15 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             <div class="definition">
                 <p class="definition-title">Definition 5.6 (Public Key)</p>
                 <p>
-                    Given a private key <span class="math">k</span>, the <strong>public key</strong>
+                    Given a private key <span class="math">d</span>, the <strong>public key</strong>
                     is the point:
                 </p>
                 <p style="text-align: center; font-size: 1.1em;">
-                    <span class="math">P = kG = (x, y)</span>
+                    <span class="math">P = dG = (x, y)</span>
                 </p>
                 <p>
                     This point can be shared publicly. The security of the system relies on
-                    the infeasibility of computing <span class="math">k</span> from <span class="math">P</span>
+                    the infeasibility of computing <span class="math">d</span> from <span class="math">P</span>
                     and <span class="math">G</span>.
                 </p>
             </div>
@@ -446,7 +446,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             <div class="example">
                 <p class="example-title">Example 5.2 (A Simple Private Key)</p>
                 <p>
-                    Let the private key be <span class="math">k = 1</span>. Then the public key is:
+                    Let the private key be <span class="math">d = 1</span>. Then the public key is:
                 </p>
                 <p style="text-align: center;">
                     <span class="math">P = 1 × G = G</span>
@@ -456,7 +456,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     mathematically valid, it would be a catastrophically weak key in practice!
                 </p>
                 <p>
-                    For <span class="math">k = 2</span>, the public key is <span class="math">P = 2G</span>,
+                    For <span class="math">d = 2</span>, the public key is <span class="math">P = 2G</span>,
                     computed via point doubling.
                 </p>
             </div>
