@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 28: SegWit Deep Dive | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 28: SegWit Deep Dive - Transaction malleability, witness structure, weight units, and the soft fork mechanism">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 28</p>
+        <h1>Segregated Witness Deep Dive</h1>
+        <p class="chapter-subtitle">Anatomy of Bitcoin's Largest Soft Fork</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Segregated Witness (SegWit), activated in August 2017, represents the most
+                significant upgrade in Bitcoin's history. It fixed the long-standing transaction
+                malleability bug, increased effective block capacity, enabled second-layer
+                protocols, and established a framework for future upgrades. This chapter provides
+                a comprehensive technical analysis of SegWit's design, implementation, and
+                implications.
+            </p>
+        </section>
+
+        <section>
+            <h2>28.1 The Malleability Problem</h2>
+
+            <p>
+                To understand SegWit, we must first understand the problem it solved:
+                transaction malleability.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.1 (Transaction Malleability)</p>
+                <p>
+                    <strong>Transaction malleability</strong> is the ability to modify a
+                    transaction's identifier (txid) without invalidating it. A transaction
+                    T' is a <strong>malleated version</strong> of T if:
+                </p>
+                <ul>
+                    <li>T and T' spend the same inputs</li>
+                    <li>T and T' create the same outputs</li>
+                    <li>Both are valid according to consensus rules</li>
+                    <li>txid(T) ≠ txid(T')</li>
+                </ul>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 28.1 (Pre-SegWit Malleability Sources)</p>
+                <p>
+                    In pre-SegWit Bitcoin, the txid was computed over the entire transaction
+                    including signatures. Several malleability vectors existed:
+                </p>
+                <ol>
+                    <li><strong>ECDSA signature malleability:</strong> (r, s) and (r, n-s) are both valid</li>
+                    <li><strong>Script push opcodes:</strong> Multiple ways to push same data</li>
+                    <li><strong>Extra data in scriptSig:</strong> Additional stack elements</li>
+                    <li><strong>SIGHASH_SINGLE bug:</strong> Edge case producing predictable signatures</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Original transaction -->
+                    <rect x="30" y="30" width="180" height="70" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="120" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Original TX</text>
+                    <text x="120" y="70" text-anchor="middle" font-family="monospace" font-size="8">txid: abc123...</text>
+                    <text x="120" y="85" text-anchor="middle" font-family="Georgia" font-size="8">sig: (r, s)</text>
+
+                    <!-- Malleated transaction -->
+                    <rect x="290" y="30" width="180" height="70" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="380" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Malleated TX</text>
+                    <text x="380" y="70" text-anchor="middle" font-family="monospace" font-size="8">txid: def456...</text>
+                    <text x="380" y="85" text-anchor="middle" font-family="Georgia" font-size="8">sig: (r, n-s)</text>
+
+                    <!-- Arrow -->
+                    <path d="M 210 65 L 290 65" stroke="#666" stroke-width="1.5" marker-end="url(#arrow28)"/>
+                    <text x="250" y="55" text-anchor="middle" font-family="Georgia" font-size="8">Malleable</text>
+
+                    <!-- Same effect -->
+                    <text x="250" y="130" text-anchor="middle" font-family="Georgia" font-size="10">Both valid, same effect</text>
+                    <text x="250" y="145" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Different txid → breaks dependent transactions</text>
+
+                    <!-- Child transaction problem -->
+                    <rect x="100" y="160" width="100" height="30" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="150" y="180" text-anchor="middle" font-family="Georgia" font-size="8">Child TX (broken)</text>
+                    <text x="150" y="195" text-anchor="middle" font-family="monospace" font-size="7">input: abc123...</text>
+
+                    <path d="M 120 100 L 130 160" stroke="#f39c12" stroke-width="1" stroke-dasharray="3,2"/>
+
+                    <defs>
+                        <marker id="arrow28" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 28.1: Transaction malleability changes the txid, breaking dependent transactions.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 28.1 (ECDSA Signature Malleability)</p>
+                <p>
+                    An ECDSA signature is a pair (r, s) where s can be replaced with n - s
+                    (mod n) to produce an equivalent valid signature:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+Original:  sig = (r, s)       where s < n/2
+Malleated: sig = (r, n − s)   where n − s > n/2
+
+Verification computes: R = (z·s⁻¹)·G + (r·s⁻¹)·Q
+With s' = n − s:        R' = (z·s'⁻¹)·G + (r·s'⁻¹)·Q = −R
+Since R'.x = R.x (negation preserves x), both pass.</pre>
+                <p>
+                    BIP-146 (low-S requirement) fixed this by requiring s ≤ n/2.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 28.1 (Impact of Malleability)</p>
+                <p>
+                    Malleability caused real problems:
+                </p>
+                <ul>
+                    <li><strong>Mt. Gox claims:</strong> Blamed malleability for losses (disputed)</li>
+                    <li><strong>Lightning Network:</strong> Impossible without txid stability</li>
+                    <li><strong>Atomic swaps:</strong> Broken by malleated refund transactions</li>
+                    <li><strong>Blockchain analysis:</strong> Complicated transaction tracking</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.2 The SegWit Solution</h2>
+
+            <p>
+                SegWit's key insight: remove signature data from the txid computation by
+                segregating it into a separate structure.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.2 (Witness)</p>
+                <p>
+                    The <strong>witness</strong> is a new transaction component containing
+                    signature and script data. For each input i:
+                </p>
+                <ul>
+                    <li><strong>Legacy:</strong> Signature in scriptSig</li>
+                    <li><strong>SegWit:</strong> Signature in witness[i], scriptSig empty</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.3 (SegWit Transaction Structure)</p>
+                <p>
+                    A SegWit transaction has the following serialization:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+[version]     4 bytes
+[marker]      1 byte  (0x00) - indicates SegWit
+[flag]        1 byte  (0x01)
+[input count] varint
+[inputs]      variable
+[output count] varint
+[outputs]     variable
+[witness]     variable (one stack per input)
+[locktime]    4 bytes</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="280" viewBox="0 0 520 280">
+                    <!-- Legacy Transaction -->
+                    <text x="130" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Legacy Transaction</text>
+
+                    <rect x="30" y="30" width="200" height="110" rx="4" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+
+                    <rect x="40" y="40" width="80" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="80" y="54" text-anchor="middle" font-family="Georgia" font-size="8">version</text>
+
+                    <rect x="130" y="40" width="90" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="175" y="54" text-anchor="middle" font-family="Georgia" font-size="8">inputs</text>
+
+                    <rect x="40" y="70" width="90" height="30" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="85" y="85" text-anchor="middle" font-family="Georgia" font-size="8">scriptSig</text>
+                    <text x="85" y="95" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">(includes sig)</text>
+
+                    <rect x="140" y="70" width="80" height="30" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="180" y="90" text-anchor="middle" font-family="Georgia" font-size="8">outputs</text>
+
+                    <rect x="40" y="110" width="180" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="130" y="124" text-anchor="middle" font-family="Georgia" font-size="8">locktime</text>
+
+                    <!-- txid computation -->
+                    <text x="130" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">txid = hash(all of above)</text>
+
+                    <!-- SegWit Transaction -->
+                    <text x="390" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">SegWit Transaction</text>
+
+                    <rect x="290" y="30" width="200" height="180" rx="4" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+
+                    <rect x="300" y="40" width="60" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="330" y="54" text-anchor="middle" font-family="Georgia" font-size="8">version</text>
+
+                    <rect x="370" y="40" width="50" height="20" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="395" y="54" text-anchor="middle" font-family="Georgia" font-size="7">marker/flag</text>
+
+                    <rect x="430" y="40" width="50" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="455" y="54" text-anchor="middle" font-family="Georgia" font-size="8">inputs</text>
+
+                    <rect x="300" y="70" width="90" height="25" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="345" y="85" text-anchor="middle" font-family="Georgia" font-size="7">scriptSig (empty)</text>
+
+                    <rect x="400" y="70" width="80" height="25" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="440" y="87" text-anchor="middle" font-family="Georgia" font-size="8">outputs</text>
+
+                    <!-- Witness section -->
+                    <rect x="300" y="105" width="180" height="50" fill="#d4edda" stroke="#28a745" stroke-width="2"/>
+                    <text x="390" y="125" text-anchor="middle" font-family="Georgia" font-size="9" fill="#28a745" font-weight="bold">WITNESS</text>
+                    <text x="390" y="145" text-anchor="middle" font-family="Georgia" font-size="8">(signatures here)</text>
+
+                    <rect x="300" y="165" width="180" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="390" y="179" text-anchor="middle" font-family="Georgia" font-size="8">locktime</text>
+
+                    <!-- txid computation -->
+                    <text x="390" y="210" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">txid = hash(non-witness data)</text>
+                    <text x="390" y="225" text-anchor="middle" font-family="Georgia" font-size="9" fill="#28a745">wtxid = hash(everything)</text>
+
+                    <!-- Arrow showing segregation -->
+                    <path d="M 240 90 L 290 130" stroke="#28a745" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrowGreen28)"/>
+                    <text x="245" y="120" font-family="Georgia" font-size="7" fill="#28a745">segregate</text>
+
+                    <defs>
+                        <marker id="arrowGreen28" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#28a745"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 28.2: SegWit segregates witness data, making txid independent of signatures.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 28.2 (SegWit Malleability Fix)</p>
+                <p>
+                    For SegWit transactions, the txid is computed excluding witness data:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    txid = SHA256d(version || inputs || outputs || locktime)
+                </p>
+                <p>
+                    Since signatures are in the witness (not included), third-party
+                    malleability is impossible. The transaction creator can still
+                    change their own signatures, but this is by design.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.3 Witness Programs and Script Versioning</h2>
+
+            <p>
+                SegWit introduced a new output type identified by a specific pattern.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.4 (Witness Program)</p>
+                <p>
+                    A <strong>witness program</strong> is a scriptPubKey of the form:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+OP_n <data>
+
+where:
+  OP_n = witness version (OP_0 through OP_16)
+  data = 2-40 byte push</pre>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.5 (Native SegWit Output Types)</p>
+                <p>
+                    <strong>Version 0</strong> (BIP-141) defines two program types:
+                </p>
+                <ul>
+                    <li><strong>P2WPKH:</strong> OP_0 &lt;20-byte-key-hash&gt;</li>
+                    <li><strong>P2WSH:</strong> OP_0 &lt;32-byte-script-hash&gt;</li>
+                </ul>
+                <p>
+                    <strong>Version 1</strong> (BIP-341, Taproot) defines:
+                </p>
+                <ul>
+                    <li><strong>P2TR:</strong> OP_1 &lt;32-byte-x-only-pubkey&gt;</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <!-- P2WPKH -->
+                    <rect x="30" y="30" width="200" height="60" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="130" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">P2WPKH</text>
+                    <text x="130" y="70" text-anchor="middle" font-family="monospace" font-size="8">OP_0 &lt;20 bytes&gt;</text>
+                    <text x="130" y="85" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= HASH160(pubkey)</text>
+
+                    <!-- P2WSH -->
+                    <rect x="270" y="30" width="200" height="60" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="370" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">P2WSH</text>
+                    <text x="370" y="70" text-anchor="middle" font-family="monospace" font-size="8">OP_0 &lt;32 bytes&gt;</text>
+                    <text x="370" y="85" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= SHA256(witnessScript)</text>
+
+                    <!-- P2TR -->
+                    <rect x="150" y="110" width="200" height="60" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="250" y="130" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">P2TR (Taproot)</text>
+                    <text x="250" y="150" text-anchor="middle" font-family="monospace" font-size="8">OP_1 &lt;32 bytes&gt;</text>
+                    <text x="250" y="165" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= x-only tweaked pubkey</text>
+
+                    <!-- Version labels -->
+                    <text x="130" y="20" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">v0</text>
+                    <text x="370" y="20" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">v0</text>
+                    <text x="250" y="100" text-anchor="middle" font-family="Georgia" font-size="8" fill="#f39c12">v1</text>
+                </svg>
+                <figcaption>Figure 28.3: SegWit witness program types by version.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 28.3 (Script Versioning Benefit)</p>
+                <p>
+                    Witness versions enable future soft forks:
+                </p>
+                <ol>
+                    <li>Old nodes see "OP_n &lt;data&gt;" as anyone-can-spend (but don't relay)</li>
+                    <li>New nodes interpret based on version number</li>
+                    <li>No consensus rules need changing for new versions</li>
+                </ol>
+                <p>
+                    Versions 2-16 are reserved for future upgrades without requiring
+                    new soft fork activation mechanisms.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.4 Block Weight and Capacity</h2>
+
+            <p>
+                SegWit replaced the block size limit with a more nuanced "weight" system.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.6 (Block Weight)</p>
+                <p>
+                    <strong>Block weight</strong> is calculated as:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    weight = 3 × base_size + total_size
+                </p>
+                <p>
+                    Equivalently:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    weight = base_size × 4 + witness_size × 1
+                </p>
+                <p>
+                    Maximum block weight: 4,000,000 weight units (WU).
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.7 (Virtual Bytes)</p>
+                <p>
+                    <strong>Virtual bytes</strong> (vbytes) convert weight to a size metric:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    vbytes = ⌈weight / 4⌉
+                </p>
+                <p>
+                    Maximum block: 4,000,000 / 4 = 1,000,000 vbytes.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 28.2 (Weight Calculation)</p>
+                <p>
+                    Consider a SegWit transaction:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Size (bytes)</th>
+                            <th>Weight Factor</th>
+                            <th>Weight (WU)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Version</td>
+                            <td>4</td>
+                            <td>×4</td>
+                            <td>16</td>
+                        </tr>
+                        <tr>
+                            <td>Marker + Flag</td>
+                            <td>2</td>
+                            <td>×1</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Inputs (no scriptSig)</td>
+                            <td>41</td>
+                            <td>×4</td>
+                            <td>164</td>
+                        </tr>
+                        <tr>
+                            <td>Outputs</td>
+                            <td>34</td>
+                            <td>×4</td>
+                            <td>136</td>
+                        </tr>
+                        <tr>
+                            <td>Witness</td>
+                            <td>107</td>
+                            <td>×1</td>
+                            <td>107</td>
+                        </tr>
+                        <tr>
+                            <td>Locktime</td>
+                            <td>4</td>
+                            <td>×4</td>
+                            <td>16</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td>192</td>
+                            <td></td>
+                            <td><strong>441</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    vbytes = ⌈441/4⌉ = 111 vbytes (vs 192 actual bytes).
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 28.4 (SegWit Capacity Increase)</p>
+                <p>
+                    SegWit increases effective block capacity:
+                </p>
+                <ul>
+                    <li><strong>All legacy:</strong> ~1 MB (1,000,000 bytes = 4,000,000 WU)</li>
+                    <li><strong>All P2WPKH:</strong> ~2.1 MB (~1,600 transactions)</li>
+                    <li><strong>All P2WSH multisig:</strong> ~3.7 MB</li>
+                    <li><strong>Theoretical max:</strong> ~4 MB (all witness data)</li>
+                </ul>
+                <p>
+                    Real-world blocks average 1.5-2 MB with current usage patterns.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 28.2 (Discount Rationale)</p>
+                <p>
+                    The 75% witness discount serves multiple purposes:
+                </p>
+                <ul>
+                    <li><strong>UTXO efficiency:</strong> Witness data isn't stored in UTXO set</li>
+                    <li><strong>Verification efficiency:</strong> Witness data only validated once</li>
+                    <li><strong>Adoption incentive:</strong> SegWit transactions are cheaper</li>
+                    <li><strong>Backward compatibility:</strong> Old nodes see ~1 MB base size</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.5 The Witness Commitment</h2>
+
+            <p>
+                Witness data must be committed to in blocks for validation, but the existing
+                Merkle tree computes txids (which exclude witness).
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.8 (Witness Root)</p>
+                <p>
+                    The <strong>witness root</strong> is a Merkle root computed from wtxids
+                    (witness transaction IDs), which include witness data:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    wtxid = SHA256d(serialized tx with witness)
+                </p>
+                <p>
+                    For the coinbase: wtxid = 0x00...00 (32 zero bytes).
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.9 (Witness Commitment)</p>
+                <p>
+                    The <strong>witness commitment</strong> is placed in an OP_RETURN output
+                    of the coinbase transaction:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+OP_RETURN &lt;commitment&gt;
+
+commitment = SHA256(SHA256(witness_root || witness_nonce))
+            |
+            0x6a24aa21a9ed  (commitment header)</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- Transaction Merkle Tree -->
+                    <text x="130" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Transaction Merkle Tree</text>
+
+                    <rect x="100" y="30" width="60" height="25" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="130" y="47" text-anchor="middle" font-family="Georgia" font-size="8">Root</text>
+
+                    <line x1="115" y1="55" x2="85" y2="70" stroke="#5a8f5a"/>
+                    <line x1="145" y1="55" x2="175" y2="70" stroke="#5a8f5a"/>
+
+                    <rect x="55" y="70" width="50" height="20" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="80" y="84" text-anchor="middle" font-family="Georgia" font-size="7">txid₁</text>
+
+                    <rect x="155" y="70" width="50" height="20" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="180" y="84" text-anchor="middle" font-family="Georgia" font-size="7">txid₂</text>
+
+                    <text x="130" y="115" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(in block header)</text>
+
+                    <!-- Witness Merkle Tree -->
+                    <text x="370" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Witness Merkle Tree</text>
+
+                    <rect x="340" y="30" width="60" height="25" rx="3" fill="#d4edda" stroke="#28a745"/>
+                    <text x="370" y="42" text-anchor="middle" font-family="Georgia" font-size="7">Witness</text>
+                    <text x="370" y="52" text-anchor="middle" font-family="Georgia" font-size="7">Root</text>
+
+                    <line x1="355" y1="55" x2="325" y2="70" stroke="#28a745"/>
+                    <line x1="385" y1="55" x2="415" y2="70" stroke="#28a745"/>
+
+                    <rect x="295" y="70" width="50" height="20" rx="3" fill="#d4edda" stroke="#28a745"/>
+                    <text x="320" y="84" text-anchor="middle" font-family="Georgia" font-size="7">wtxid₁</text>
+
+                    <rect x="395" y="70" width="50" height="20" rx="3" fill="#d4edda" stroke="#28a745"/>
+                    <text x="420" y="84" text-anchor="middle" font-family="Georgia" font-size="7">wtxid₂</text>
+
+                    <!-- Commitment -->
+                    <rect x="290" y="120" width="160" height="40" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="370" y="140" text-anchor="middle" font-family="Georgia" font-size="8">SHA256(witness_root || nonce)</text>
+                    <text x="370" y="155" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= witness commitment</text>
+
+                    <line x1="370" y1="55" x2="370" y2="120" stroke="#f39c12" stroke-width="1.5"/>
+
+                    <!-- Coinbase -->
+                    <rect x="290" y="175" width="160" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="370" y="190" text-anchor="middle" font-family="Georgia" font-size="8">Coinbase OP_RETURN</text>
+                    <text x="370" y="203" text-anchor="middle" font-family="monospace" font-size="7">6a24aa21a9ed...</text>
+
+                    <line x1="370" y1="160" x2="370" y2="175" stroke="#5a8f5a" stroke-width="1.5"/>
+                </svg>
+                <figcaption>Figure 28.4: Witness commitment in coinbase links witness tree to block.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>28.6 The Soft Fork Mechanism</h2>
+
+            <p>
+                SegWit was deployed as a soft fork through careful design that made
+                SegWit outputs appear spendable to old nodes.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 28.5 (SegWit as Soft Fork)</p>
+                <p>
+                    SegWit outputs (OP_0 &lt;data&gt;) are valid under old rules because:
+                </p>
+                <ol>
+                    <li>Old nodes parse this as: push version, push data</li>
+                    <li>Script evaluates to: two items on stack</li>
+                    <li>Non-zero top element → script succeeds</li>
+                    <li>Result: "anyone can spend" to old nodes</li>
+                </ol>
+                <p>
+                    However, miners (with majority hash power) enforce new rules,
+                    rejecting invalid SegWit spends. Old nodes accept the resulting
+                    chain since all blocks are technically valid.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 28.3 (Policy Protection)</p>
+                <p>
+                    Before SegWit activation, Bitcoin Core made SegWit outputs non-standard
+                    as <em>policy</em>. This prevented anyone from claiming "anyone can spend"
+                    outputs before new consensus rules were enforced.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 28.3 (SegWit Activation Timeline)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Event</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>December 2015</td>
+                            <td>BIP-141/143/144 proposed</td>
+                        </tr>
+                        <tr>
+                            <td>October 2016</td>
+                            <td>Bitcoin Core 0.13.1 released (SegWit ready)</td>
+                        </tr>
+                        <tr>
+                            <td>November 2016</td>
+                            <td>BIP-9 signaling begins</td>
+                        </tr>
+                        <tr>
+                            <td>March 2017</td>
+                            <td>Signaling stalls at ~30%</td>
+                        </tr>
+                        <tr>
+                            <td>May 2017</td>
+                            <td>UASF (BIP-148) announced</td>
+                        </tr>
+                        <tr>
+                            <td>July 2017</td>
+                            <td>Signaling rapidly reaches 95%</td>
+                        </tr>
+                        <tr>
+                            <td>August 8, 2017</td>
+                            <td>SegWit locks in (block 479,808)</td>
+                        </tr>
+                        <tr>
+                            <td>August 24, 2017</td>
+                            <td>SegWit activates (block 481,824)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.7 Sighash Changes (BIP-143)</h2>
+
+            <p>
+                SegWit introduced an improved signature hash algorithm addressing
+                several issues.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.10 (BIP-143 Sighash)</p>
+                <p>
+                    For SegWit inputs, the sighash is computed as:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+SHA256d(
+    nVersion           ||
+    hashPrevouts       ||  ← SHA256d of all input outpoints
+    hashSequence       ||  ← SHA256d of all input sequences
+    outpoint           ||  ← this input's outpoint
+    scriptCode         ||  ← spending script
+    amount             ||  ← value being spent (NEW!)
+    nSequence          ||  ← this input's sequence
+    hashOutputs        ||  ← SHA256d of all outputs
+    nLocktime          ||
+    sighashType
+)</pre>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 28.6 (BIP-143 Improvements)</p>
+                <p>
+                    BIP-143 sighash fixes multiple issues:
+                </p>
+                <ol>
+                    <li><strong>O(n²) hashing eliminated:</strong> Pre-computed hashes reused</li>
+                    <li><strong>Amount committed:</strong> Prevents value manipulation attacks</li>
+                    <li><strong>Script committed:</strong> Prevents scriptPubKey substitution</li>
+                    <li><strong>Consistent algorithm:</strong> Same process for all input types</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 28.4 (O(n²) Attack Prevention)</p>
+                <p>
+                    In legacy sighash, each signature hashes the entire transaction.
+                    A transaction with n inputs requires n signatures, each hashing
+                    O(n) data → O(n²) total hashing.
+                </p>
+                <p>
+                    An attacker could create transactions with many inputs to DoS nodes.
+                    BIP-143 pre-computes hashPrevouts and hashOutputs once, making
+                    the cost O(n).
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.8 Wrapped SegWit (P2SH-P2WPKH/WSH)</h2>
+
+            <p>
+                For backward compatibility with wallets that couldn't generate bech32
+                addresses, SegWit can be wrapped in P2SH.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 28.11 (P2SH-Wrapped SegWit)</p>
+                <p>
+                    <strong>P2SH-P2WPKH</strong> wraps a SegWit program in P2SH:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+scriptPubKey: OP_HASH160 <hash> OP_EQUAL
+redeemScript: OP_0 <20-byte-key-hash>
+witness:      <sig> <pubkey></pre>
+                <p>
+                    Address format: starts with '3' (vs 'bc1' for native).
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 28.4 (Wrapped vs Native Efficiency)</p>
+                <p>
+                    Wrapped SegWit is less efficient than native:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>vbytes (1-in-2-out)</th>
+                            <th>Address Format</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>P2PKH (legacy)</td>
+                            <td>~226</td>
+                            <td>1...</td>
+                        </tr>
+                        <tr>
+                            <td>P2SH-P2WPKH</td>
+                            <td>~167</td>
+                            <td>3...</td>
+                        </tr>
+                        <tr>
+                            <td>P2WPKH (native)</td>
+                            <td>~141</td>
+                            <td>bc1q...</td>
+                        </tr>
+                        <tr>
+                            <td>P2TR (Taproot)</td>
+                            <td>~111</td>
+                            <td>bc1p...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.9 SegWit Adoption</h2>
+
+            <p>
+                SegWit adoption has been gradual but substantial.
+            </p>
+
+            <div class="example">
+                <p class="example-title">Example 28.5 (Adoption Metrics)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>SegWit TX %</th>
+                            <th>SegWit Spend %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>August 2017</td>
+                            <td>0%</td>
+                            <td>0%</td>
+                        </tr>
+                        <tr>
+                            <td>January 2018</td>
+                            <td>~15%</td>
+                            <td>~10%</td>
+                        </tr>
+                        <tr>
+                            <td>January 2020</td>
+                            <td>~50%</td>
+                            <td>~60%</td>
+                        </tr>
+                        <tr>
+                            <td>January 2024</td>
+                            <td>~85%</td>
+                            <td>~90%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 28.5 (Adoption Drivers)</p>
+                <p>
+                    SegWit adoption accelerated due to:
+                </p>
+                <ul>
+                    <li><strong>Fee savings:</strong> 40-70% reduction in fees</li>
+                    <li><strong>Exchange adoption:</strong> Major exchanges added bech32</li>
+                    <li><strong>Wallet updates:</strong> Most wallets now default to SegWit</li>
+                    <li><strong>Lightning requirement:</strong> LN channels require SegWit</li>
+                    <li><strong>Taproot momentum:</strong> Taproot requires SegWit foundation</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>28.10 Enabling Layer 2</h2>
+
+            <p>
+                Beyond malleability fixes, SegWit was essential for second-layer protocols.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 28.7 (Lightning Network Prerequisite)</p>
+                <p>
+                    Lightning Network channels require non-malleable transaction IDs because:
+                </p>
+                <ol>
+                    <li>Funding transaction creates 2-of-2 multisig output</li>
+                    <li>Commitment transactions spend this output (reference funding txid)</li>
+                    <li>If funding txid could be malleated, commitments become invalid</li>
+                    <li>Both parties would lose funds locked in channel</li>
+                </ol>
+                <p>
+                    SegWit's fixed txid makes channels safe to open before funding confirms.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 28.6 (Other Layer 2 Benefits)</p>
+                <p>
+                    SegWit enables multiple second-layer constructions:
+                </p>
+                <ul>
+                    <li><strong>Lightning Network:</strong> Payment channels</li>
+                    <li><strong>Statechains:</strong> UTXO ownership transfer</li>
+                    <li><strong>DLCs:</strong> Discreet Log Contracts</li>
+                    <li><strong>Submarine Swaps:</strong> On/off-chain atomic swaps</li>
+                    <li><strong>Channel Factories:</strong> Multi-party channels</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 28.1</p>
+                <p>
+                    Calculate the weight and vbytes for a transaction with 2 P2WPKH inputs
+                    and 2 P2WPKH outputs. Assume standard sizes: 32-byte txid, 4-byte vout,
+                    4-byte sequence, 71-byte signature, 33-byte pubkey.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 28.2</p>
+                <p>
+                    Explain why P2WSH uses SHA256 (32 bytes) while P2WPKH uses HASH160
+                    (20 bytes). What security consideration drives this difference?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 28.3</p>
+                <p>
+                    Show that the pre-SegWit sighash algorithm has O(n²) complexity for
+                    n inputs. Then show how BIP-143 achieves O(n).
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 28.4</p>
+                <p>
+                    Design an attack that would have been possible against Lightning
+                    without SegWit. How much could an attacker steal?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 28.5</p>
+                <p>
+                    If the witness discount were 90% instead of 75% (i.e., witness weight
+                    factor of 0.4 instead of 1), what would be the maximum possible block
+                    size? What are the tradeoffs?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="27-historical-forks.html" class="prev-chapter">← Chapter 27: Historical Hard Forks</a>
+            <a href="29-taproot-architecture.html" class="next-chapter">Chapter 29: Taproot Architecture →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>
