@@ -560,7 +560,7 @@ Stack after:  [n] (or [n+1] if valid)
                 <ul>
                     <li>Adaptor point: T = t·G (public)</li>
                     <li>Adaptor signature: σ' = (R + T, s')</li>
-                    <li>When t is revealed: σ = (R, s' + t) is valid</li>
+                    <li>When t is revealed: σ = (R + T, s' + t) is valid</li>
                 </ul>
             </div>
 
@@ -571,7 +571,7 @@ Stack after:  [n] (or [n+1] if valid)
                 </p>
                 <ol>
                     <li>Alice gives Bob adaptor σ' (valid when combined with secret t)</li>
-                    <li>Bob broadcasts transaction with σ = (R, s' + t)</li>
+                    <li>Bob broadcasts transaction with σ = (R + T, s' + t)</li>
                     <li>Alice learns t from the broadcast signature: t = s - s'</li>
                     <li>Alice uses t to complete her side of the swap</li>
                 </ol>
