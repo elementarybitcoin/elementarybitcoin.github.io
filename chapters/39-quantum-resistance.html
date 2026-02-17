@@ -197,8 +197,8 @@ Resource Requirements (256-bit ECDSA):
                     </tr>
                     <tr>
                         <td>P2TR (Taproot)</td>
-                        <td>Key path: in witness</td>
-                        <td>Yes - after spending</td>
+                        <td>Always (tweaked key in output)</td>
+                        <td>Yes - immediately</td>
                     </tr>
                     <tr>
                         <td>Fresh addresses</td>
@@ -767,7 +767,7 @@ Controversial Question:
 
             <ol>
                 <li><strong>Never reuse addresses:</strong> Fresh addresses hide public keys</li>
-                <li><strong>Use Taproot (P2TR):</strong> Key-path spends reveal keys, but script-path doesn't</li>
+                <li><strong>Prefer P2WPKH over P2TR:</strong> P2TR exposes the tweaked public key in the output; P2WPKH hides the key behind a hash until spending</li>
                 <li><strong>Monitor quantum progress:</strong> Be ready to migrate when solutions deploy</li>
                 <li><strong>Support PQ research:</strong> Encourage wallet/protocol development</li>
             </ol>
