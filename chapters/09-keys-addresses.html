@@ -64,8 +64,8 @@
             <div class="definition">
                 <p class="definition-title">Definition 9.1 (Private Key)</p>
                 <p>
-                    A <strong>private key</strong> is an integer <span class="math">k</span> satisfying
-                    <span class="math">1 ≤ k < n</span>, where <span class="math">n</span> is the order
+                    A <strong>private key</strong> is an integer <span class="math">d</span> satisfying
+                    <span class="math">1 ≤ d < n</span>, where <span class="math">n</span> is the order
                     of the secp256k1 curve:
                 </p>
                 <p class="math-block">
@@ -77,9 +77,9 @@
             </div>
 
             <p>
-                The requirement that <span class="math">k < n</span> ensures that scalar multiplication
-                <span class="math">k · G</span> produces a valid curve point. The requirement that
-                <span class="math">k ≥ 1</span> excludes the trivial case where the public key would
+                The requirement that <span class="math">d < n</span> ensures that scalar multiplication
+                <span class="math">d · G</span> produces a valid curve point. The requirement that
+                <span class="math">d ≥ 1</span> excludes the trivial case where the public key would
                 be the point at infinity.
             </p>
 
@@ -151,18 +151,18 @@
             <h2>9.2 Public Keys</h2>
 
             <p>
-                Given a private key <span class="math">k</span>, the corresponding public key is
+                Given a private key <span class="math">d</span>, the corresponding public key is
                 computed via elliptic curve scalar multiplication.
             </p>
 
             <div class="definition">
                 <p class="definition-title">Definition 9.2 (Public Key)</p>
                 <p>
-                    The <strong>public key</strong> corresponding to private key <span class="math">k</span>
+                    The <strong>public key</strong> corresponding to private key <span class="math">d</span>
                     is the elliptic curve point:
                 </p>
                 <p class="math-block">
-                    K = k · G
+                    K = d · G
                 </p>
                 <p>
                     where <span class="math">G</span> is the generator point of secp256k1.
@@ -171,9 +171,9 @@
 
             <p>
                 This computation is the "easy direction" of the trapdoor function we studied
-                in Chapter 1. Given <span class="math">k</span>, computing <span class="math">K</span>
-                requires only <span class="math">O(log k)</span> group operations via the
-                double-and-add algorithm. The reverse—finding <span class="math">k</span> given
+                in Chapter 1. Given <span class="math">d</span>, computing <span class="math">K</span>
+                requires only <span class="math">O(log d)</span> group operations via the
+                double-and-add algorithm. The reverse—finding <span class="math">d</span> given
                 <span class="math">K</span>—is the elliptic curve discrete logarithm problem (ECDLP),
                 believed to be computationally infeasible.
             </p>
@@ -182,7 +182,7 @@
                 <svg class="diagram" width="450" height="140" viewBox="0 0 450 140">
                     <!-- Private key box -->
                     <rect x="20" y="45" width="100" height="50" rx="8" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2"/>
-                    <text x="70" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-style="italic">k</text>
+                    <text x="70" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-style="italic">d</text>
                     <text x="70" y="87" text-anchor="middle" font-family="Georgia" font-size="11">(private key)</text>
 
                     <!-- Arrow with operation -->
@@ -766,10 +766,10 @@
             <div class="definition">
                 <p class="definition-title">Definition 9.13 (WIF Encoding)</p>
                 <p>
-                    The <strong>Wallet Import Format</strong> of a private key <span class="math">k</span> is:
+                    The <strong>Wallet Import Format</strong> of a private key <span class="math">d</span> is:
                 </p>
                 <p class="math-block">
-                    Base58Check(version || k || [suffix])
+                    Base58Check(version || d || [suffix])
                 </p>
                 <p>
                     where:
