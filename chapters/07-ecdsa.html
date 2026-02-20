@@ -199,14 +199,14 @@
                 <pre>
 KeyGen():
     1. Select a random integer d such that 1 ≤ d ≤ n - 1
-    2. Compute Q = dG
-    3. Return (d, Q)
+    2. Compute P = dG
+    3. Return (d, P)
        where d is the private key
-       and Q is the public key</pre>
+       and P is the public key</pre>
             </div>
 
             <p>
-                The security rests entirely on the ECDLP: given <span class="math">Q</span> and
+                The security rests entirely on the ECDLP: given <span class="math">P</span> and
                 <span class="math">G</span>, finding <span class="math">d</span> is computationally
                 infeasible.
             </p>
@@ -232,9 +232,9 @@ KeyGen():
                     <path d="M 195 70 L 260 70" stroke="#666" stroke-width="1.5" marker-end="url(#arr71)"/>
                     <text x="227" y="62" text-anchor="middle" font-family="Georgia" font-size="10">= dG</text>
 
-                    <!-- Q -->
+                    <!-- P -->
                     <circle cx="290" cy="70" r="20" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
-                    <text x="290" y="75" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">Q</text>
+                    <text x="290" y="75" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">P</text>
                     <text x="290" y="105" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">public key</text>
 
                     <defs>
@@ -372,14 +372,14 @@ Sign(d, m):
             <div class="definition">
                 <p class="definition-title">Algorithm 7.3 (ECDSA Verification)</p>
                 <pre>
-Verify(Q, m, (r, s)):
+Verify(P, m, (r, s)):
     1. Check that r and s are integers in [1, n-1]
        If not, return false
     2. Compute z = H(m)
     3. Compute w = s⁻¹ mod n
     4. Compute u₁ = zw mod n
     5. Compute u₂ = rw mod n
-    6. Compute (x₁, y₁) = u₁G + u₂Q
+    6. Compute (x₁, y₁) = u₁G + u₂P
        If (x₁, y₁) = 𝒪, return false
     7. Return true if r ≡ x₁ (mod n), false otherwise</pre>
             </div>
@@ -390,7 +390,7 @@ Verify(Q, m, (r, s)):
 
                     <!-- The verification equation -->
                     <rect x="60" y="50" width="400" height="60" fill="#f8f5f0" stroke="#8b4513" stroke-width="2" rx="5"/>
-                    <text x="260" y="85" text-anchor="middle" font-family="Georgia" font-size="16" font-style="italic">u₁G + u₂Q = (x₁, y₁)</text>
+                    <text x="260" y="85" text-anchor="middle" font-family="Georgia" font-size="16" font-style="italic">u₁G + u₂P = (x₁, y₁)</text>
                     <text x="260" y="100" text-anchor="middle" font-family="Georgia" font-size="11" fill="#666">where u₁ = zs⁻¹, u₂ = rs⁻¹</text>
 
                     <!-- Check -->
@@ -424,7 +424,7 @@ Verify(Q, m, (r, s)):
                 <p>
                     If <span class="math">(r, s)</span> is a valid signature on message
                     <span class="math">m</span> created with private key <span class="math">d</span>,
-                    then verification with public key <span class="math">Q = dG</span> returns true.
+                    then verification with public key <span class="math">P = dG</span> returns true.
                 </p>
             </div>
 
@@ -447,12 +447,12 @@ Verify(Q, m, (r, s)):
                     Multiplying both sides by <span class="math">G</span>:
                 </p>
                 <p style="text-align: center;">
-                    <span class="math">kG = u₁G + u₂(dG) = u₁G + u₂Q</span>
+                    <span class="math">kG = u₁G + u₂(dG) = u₁G + u₂P</span>
                 </p>
                 <p>
                     Since <span class="math">r</span> was defined as the x-coordinate of
                     <span class="math">kG</span> modulo <span class="math">n</span>, and
-                    verification computes the x-coordinate of <span class="math">u₁G + u₂Q</span>,
+                    verification computes the x-coordinate of <span class="math">u₁G + u₂P</span>,
                     they must match.
                     <span class="qed"></span>
                 </p>
@@ -602,7 +602,7 @@ Verify(Q, m, (r, s)):
             <div class="proof">
                 <p class="proof-title"></p>
                 <p>
-                    Verification computes <span class="math">u₁G + u₂Q</span> where
+                    Verification computes <span class="math">u₁G + u₂P</span> where
                     <span class="math">u₁ = zs⁻¹</span> and <span class="math">u₂ = rs⁻¹</span>.
                 </p>
                 <p>
@@ -611,7 +611,7 @@ Verify(Q, m, (r, s)):
                 </p>
                 <p>
                     Thus <span class="math">u₁' = -u₁</span> and <span class="math">u₂' = -u₂</span>,
-                    giving <span class="math">u₁'G + u₂'Q = -(u₁G + u₂Q)</span>.
+                    giving <span class="math">u₁'G + u₂'P = -(u₁G + u₂P)</span>.
                 </p>
                 <p>
                     Since negating a point only changes the y-coordinate, the x-coordinate
