@@ -571,10 +571,12 @@ Verify(Q, m, (r, s)):
                     and message:
                 </p>
                 <p style="text-align: center;">
-                    <span class="math">k = HMAC(d, H(m))</span>
+                    <span class="math">k = HMAC-DRBG(d, H(m))</span>
                 </p>
                 <p>
-                    This ensures the same message always produces the same signature (eliminating
+                    The actual derivation uses an HMAC-based deterministic random bit generator
+                    with multiple rounds; see RFC 6979 for the full specification. The key
+                    property: the same message always produces the same signature (eliminating
                     randomness errors) while different messages produce different nonces.
                 </p>
             </div>
