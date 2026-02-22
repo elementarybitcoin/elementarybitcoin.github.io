@@ -260,6 +260,12 @@ pre {
     line-height: 1.4;
 }
 
+pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+}
+
 /* Mathematical expressions - inline */
 .math {
     font-family: 'Times New Roman', Times, serif;
