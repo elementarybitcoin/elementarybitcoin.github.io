@@ -580,13 +580,17 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">NIST vs. Koblitz Curves.</p>
+                <p class="remark-title">NIST vs. "Koblitz-type" Curves.</p>
                 <p>
                     The NIST curves (P-256, P-384, P-521) were selected with opaque "random" seeds,
                     leading to suspicion that they might contain hidden weaknesses. In contrast,
-                    Koblitz curves like secp256k1 have simple, verifiable parameters
+                    secp256k1 has simple, verifiable parameters
                     (<span class="math">a = 0, b = 7</span>) that leave no room for hidden trapdoors.
                     This transparency was one reason Satoshi Nakamoto chose secp256k1 for Bitcoin.
+                    Note: the SEC naming convention uses "k" for curves with efficiently computable
+                    endomorphisms, informally called "Koblitz curves." Strictly, Koblitz curves are defined
+                    over binary fields <span class="math">𝔽₂ₘ</span> (Koblitz, 1991), so secp256k1 is
+                    "Koblitz-type" in the loose sense only.
                 </p>
             </div>
         </section>
