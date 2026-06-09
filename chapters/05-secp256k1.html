@@ -28,7 +28,7 @@
         <h1 class="chapter-title">The secp256k1 Curve</h1>
         <p class="chapter-epigraph">
             "Simplicity is the ultimate sophistication."
-            <br>&mdash; Leonardo da Vinci
+            <br>&mdash; Attributed to Leonardo da Vinci
         </p>
     </header>
 
@@ -625,8 +625,11 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                         so the MOV attack doesn't apply.
                     </li>
                     <li>
-                        <strong>Twist security:</strong> The quadratic twist of secp256k1 also
-                        has near-prime order, providing resistance to twist attacks.
+                        <strong>Twist security:</strong> The quadratic twist of secp256k1 has
+                        a large prime-order subgroup (its order is
+                        <span class="math">3&#178; &#183; 13&#178; &#183; 3319 &#183; 22639</span> times a 220-bit prime),
+                        so an attack via the twist still costs about <span class="math">2&#185;&#185;&#8304;</span>
+                        operations, providing resistance to twist attacks.
                     </li>
                 </ul>
             </div>
@@ -711,7 +714,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             <div class="exercise">
                 <span class="exercise-number">5.8.</span>
                 <em>(Research)</em> What is the "twist" of an elliptic curve? Why is it
-                important for security that the twist of secp256k1 also has near-prime order?
+                important for security that the twist of secp256k1 has a large prime-order subgroup?
             </div>
         </section>
 
