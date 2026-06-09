@@ -501,7 +501,7 @@ Verify(P, m, (r, s)):
                     Once <span class="math">k</span> is known, the private key follows:
                 </p>
                 <p style="text-align: center;">
-                    <span class="math">d = r⁻¹(sk - z) mod n</span>
+                    <span class="math">d = r⁻¹(s₁k - z₁) mod n</span>
                     <span class="qed"></span>
                 </p>
             </div>
@@ -623,9 +623,11 @@ Verify(P, m, (r, s)):
             <div class="remark">
                 <p class="remark-title">Bitcoin's Low-S Rule.</p>
                 <p>
-                    To mitigate malleability, Bitcoin enforces that <span class="math">s ≤ n/2</span>.
-                    If a signature has <span class="math">s > n/2</span>, nodes reject it. This
-                    makes each valid signature unique.
+                    To mitigate malleability, Bitcoin requires that <span class="math">s ≤ n/2</span>
+                    as a standardness (relay) policy: nodes will not relay transactions whose
+                    signatures have <span class="math">s > n/2</span>. This makes each relayed
+                    signature unique, though high-<span class="math">s</span> signatures remain
+                    valid by consensus in legacy scripts.
                 </p>
             </div>
         </section>
