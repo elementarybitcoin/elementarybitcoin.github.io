@@ -656,7 +656,7 @@
                     filter_header<sub>N</sub> = SHA256d(SHA256d(filter<sub>N</sub>) || filter_header<sub>N-1</sub>)
                 </div>
                 <p>
-                    Where SHA256d(x) = SHA256(SHA256(x)), filter<sub>N</sub> is the raw filter bytes, and filter_header<sub>-1</sub> = 0x00...00 (32 zero bytes).
+                    Where SHA256d(x) = SHA256(SHA256(x)) (the HASH256 function of Chapter 6), filter<sub>N</sub> is the raw filter bytes, and filter_header<sub>-1</sub> = 0x00...00 (32 zero bytes).
                 </p>
             </div>
 

@@ -94,7 +94,7 @@
                     IBD is the process of bootstrapping a new node by:
                 </p>
                 <ol>
-                    <li>Downloading all block headers (~60 MB)</li>
+                    <li>Downloading all block headers (~65 MB)</li>
                     <li>Downloading all block data (~550 GB)</li>
                     <li>Validating every transaction in every block</li>
                     <li>Building the UTXO set from genesis</li>
@@ -152,7 +152,7 @@
                         <rect x="0" y="0" width="140" height="80" fill="#e3f2fd" stroke="#1976d2" rx="5"/>
                         <text x="70" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 1</text>
                         <text x="70" y="45" text-anchor="middle" font-size="9">Header Download</text>
-                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~60 MB</text>
+                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~65 MB</text>
                         <text x="70" y="73" text-anchor="middle" font-size="8" fill="#666">~minutes</text>
                     </g>
 
@@ -579,8 +579,8 @@ bitcoin-cli loadtxoutset /path/to/utxo.dat
                 <tbody>
                     <tr>
                         <td>Block headers</td>
-                        <td>All (~60 MB)</td>
-                        <td>All (~60 MB)</td>
+                        <td>All (~65 MB)</td>
+                        <td>All (~65 MB)</td>
                     </tr>
                     <tr>
                         <td>Block data</td>
@@ -847,13 +847,13 @@ prune=550</code></pre>
                     <tr>
                         <td>Full validation</td>
                         <td>~Days</td>
-                        <td>~560 GB</td>
+                        <td>~550 GB</td>
                         <td>None</td>
                     </tr>
                     <tr>
                         <td>+ AssumeValid</td>
                         <td>~Hours</td>
-                        <td>~560 GB</td>
+                        <td>~550 GB</td>
                         <td>Minimal*</td>
                     </tr>
                     <tr>
@@ -865,7 +865,7 @@ prune=550</code></pre>
                     <tr>
                         <td>AssumeUTXO</td>
                         <td>~Minutes†</td>
-                        <td>~560 GB</td>
+                        <td>~550 GB</td>
                         <td>Temporary‡</td>
                     </tr>
                     <tr>
