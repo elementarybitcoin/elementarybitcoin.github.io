@@ -471,7 +471,9 @@ Verify(P, m, (r, s)):
                 <p class="theorem-title">Theorem 7.2 (Nonce Reuse Attack)</p>
                 <p>
                     If the same nonce <span class="math">k</span> is used to sign two different
-                    messages <span class="math">m₁</span> and <span class="math">m₂</span>,
+                    messages <span class="math">m₁</span> and <span class="math">m₂</span>
+                    with <span class="math">z₁ ≢ z₂ (mod n)</span> (which holds for distinct
+                    messages except with negligible probability),
                     the private key can be recovered.
                 </p>
             </div>
@@ -493,7 +495,9 @@ Verify(P, m, (r, s)):
                 <p style="text-align: center;">
                     <span class="math">s₁ - s₂ = k⁻¹(z₁ - z₂) mod n</span>
                 </p>
-                <p>Solving for k:</p>
+                <p>Solving for <span class="math">k</span> (the hypothesis
+                    <span class="math">z₁ ≢ z₂</span> guarantees
+                    <span class="math">s₁ − s₂ ≠ 0</span>, so the inverse exists):</p>
                 <p style="text-align: center;">
                     <span class="math">k = (z₁ - z₂)(s₁ - s₂)⁻¹ mod n</span>
                 </p>

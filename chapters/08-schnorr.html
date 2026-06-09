@@ -442,7 +442,7 @@ Verify(pk, m, sig):
                 <p>
                     If <span class="math">(r, s)</span> is a valid BIP-340 signature on
                     <span class="math">m</span> with key <span class="math">d</span>, then
-                    verification with <span class="math">p = x(dG)</span> returns true.
+                    verification with <span class="math">pk = x(dG)</span> returns true.
                 </p>
             </div>
 
@@ -450,7 +450,7 @@ Verify(pk, m, sig):
                 <p class="proof-title"></p>
                 <p>
                     From signing: <span class="math">s = k + ed mod n</span>, where
-                    <span class="math">R = kG</span> and <span class="math">e = H(r||p||m)</span>.
+                    <span class="math">R = kG</span> and <span class="math">e = H(r||pk||m)</span>.
                 </p>
                 <p>
                     Verification computes <span class="math">sG - eP</span>:
@@ -635,13 +635,17 @@ Verify(pk, m, sig):
                     we can verify all simultaneously:
                 </p>
                 <ol>
-                    <li>Generate random weights <span class="math">cᵢ</span></li>
-                    <li>Check: <span class="math">(Σ cᵢsᵢ)G = Σ cᵢRᵢ + Σ cᵢeᵢPᵢ</span></li>
+                    <li>Generate random weights <span class="math">cᵢ</span> uniformly from <span class="math">[1, 2¹²⁸]</span></li>
+                    <li>Check: <span class="math">(Σ cᵢsᵢ)G = Σ cᵢRᵢ + Σ cᵢeᵢPᵢ</span>,
+                        where <span class="math">Rᵢ = lift_x(rᵢ)</span> and
+                        <span class="math">eᵢ</span> is signature <span class="math">i</span>'s challenge</li>
                 </ol>
                 <p>
-                    This requires only one expensive multi-scalar multiplication instead of
-                    <span class="math">n</span> separate verifications, yielding approximately
-                    2× speedup for large batches.
+                    If every signature is valid, the check always passes; if any signature is
+                    invalid, a random choice of weights passes with probability at most
+                    <span class="math">2⁻¹²⁸</span>. This requires only one expensive
+                    multi-scalar multiplication instead of <span class="math">n</span> separate
+                    verifications, yielding approximately 2× speedup for large batches.
                 </p>
             </div>
 

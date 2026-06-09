@@ -159,7 +159,8 @@
                 <p>
                     The set <span class="math">ℤₙ = {0, 1, 2, ..., n−1}</span> denotes the
                     <strong>residue classes modulo n</strong>, also called the
-                    <strong>integers modulo n</strong>.
+                    <strong>integers modulo n</strong>; we identify each class with its
+                    smallest nonnegative representative.
                 </p>
             </div>
 
@@ -282,11 +283,15 @@
             <div class="proof">
                 <p class="proof-title"></p>
                 <p>
-                    <em>(⇒)</em> Suppose <span class="math">n</span> is not prime. Then
+                    <em>(⇒)</em> Suppose <span class="math">n</span> is not prime. If
+                    <span class="math">n = 1</span>, then <span class="math">ℤ₁ = {0}</span> has
+                    <span class="math">1 = 0</span>, so it is not a field. Otherwise
                     <span class="math">n = ab</span> for some <span class="math">1 < a, b < n</span>.
                     In <span class="math">ℤₙ</span>, we have <span class="math">a × b = n ≡ 0</span>,
                     so <span class="math">a</span> and <span class="math">b</span> are zero divisors.
-                    But a field cannot have zero divisors.
+                    But a field cannot have zero divisors: if <span class="math">ab = 0</span> with
+                    <span class="math">a ≠ 0</span>, then
+                    <span class="math">b = a⁻¹ab = a⁻¹ · 0 = 0</span>.
                 </p>
                 <p>
                     <em>(⇐)</em> Suppose <span class="math">n = p</span> is prime. For any
