@@ -91,7 +91,7 @@
                         <td>2024</td>
                         <td>3.125 BTC</td>
                         <td>450 BTC</td>
-                        <td>~0.85%</td>
+                        <td>~0.83%</td>
                     </tr>
                     <tr>
                         <td>5th</td>
@@ -197,13 +197,13 @@
                         <td>2021</td>
                         <td>0.00022</td>
                         <td>~21,000</td>
-                        <td>6.1%</td>
+                        <td>6.0%</td>
                     </tr>
                     <tr>
                         <td>2023 (Ordinals)</td>
                         <td>0.00015</td>
                         <td>~23,000</td>
-                        <td>6.7%</td>
+                        <td>6.5%</td>
                     </tr>
                     <tr>
                         <td>2024 (Runes, halving)</td>
@@ -325,9 +325,9 @@ Fee Determination:
                     </tr>
                     <tr>
                         <td>2018</td>
-                        <td>$70B</td>
+                        <td>$130B (avg)</td>
                         <td>$5.5B</td>
-                        <td>7.9%</td>
+                        <td>~4.0%</td>
                     </tr>
                     <tr>
                         <td>2021</td>
@@ -385,8 +385,8 @@ Fee-Only Mining Game Theory:
 
             <div class="formula-block">
                 <p><strong>Fee Sniping Condition:</strong></p>
-                <code>Attack profitable when: Fees_block_n > Subsidy + Expected_Fees_block_n+1</code>
-                <p>In a mature fee market with minimal subsidy, blocks with unusually high fees become attack targets.</p>
+                <code>Sniping attractive when: Fees_block_n − E[Fees] ≫ expected race-loss cost (∝ subsidy + E[Fees])</code>
+                <p>The sniper also collects the subsidy on the re-mined block, so the subsidy enters only through the cost of losing the race. In a mature fee market with minimal subsidy, blocks with unusually high fees become attack targets.</p>
             </div>
 
             <h3>Mitigation: Anti-Fee-Sniping Locktime</h3>
@@ -424,7 +424,7 @@ if (GetRandInt(10) == 0)
 
             <div class="info-box">
                 <h4>The "It Will Work Out" Argument</h4>
-                <p>Bitcoin has survived every challenge so far. The fee market, while imperfect, has functioned for 15 years. As Bitcoin becomes more valuable, rational users will pay appropriate fees for the security they require.</p>
+                <p>Bitcoin has survived every challenge so far. The fee market, while imperfect, has functioned for more than fifteen years. As Bitcoin becomes more valuable, rational users will pay appropriate fees for the security they require.</p>
             </div>
 
             <h3>Solution 2: Increase Block Size</h3>
@@ -527,7 +527,7 @@ Layer 2 Fee Model:
 
             <h3>Defining "Sufficient" Security</h3>
 
-            <p>Security requirements depend on the threat model:</p>
+            <p>Security requirements depend on the threat model (defense levels assume the attacker must sustain a multi-week 51% attack to profit):</p>
 
             <table class="data-table">
                 <thead>
@@ -655,7 +655,7 @@ Security Budget Timeline:
 │
 ├── 2032-2040: Subsidy < 1 BTC
 │   ├── Fees must dominate revenue
-│   ├── $100K+ BTC price helps
+│   ├── Sustained six-figure BTC prices help
 │   └── Fee sniping becomes real concern
 │
 └── 2040+: Subsidy negligible
