@@ -240,6 +240,13 @@
                     <li><strong>Hard fork:</strong> R<sub>old</sub> ⊂ R<sub>new</sub> (new rules are looser)</li>
                     <li><strong>Bilateral fork:</strong> R<sub>old</sub> ∩ R<sub>new</sub> = ∅ (each rule set rejects the other's blocks)</li>
                 </ul>
+                <p>
+                    In practice, "hard forks" generally satisfy the weaker condition
+                    R<sub>new</sub> ⊄ R<sub>old</sub> and may simultaneously tighten other
+                    rules. Strong replay protection (such as Bitcoin Cash's mandatory
+                    SIGHASH_FORKID) deliberately converts an expanding hard fork into a
+                    bilateral one.
+                </p>
             </div>
 
             <figure>
@@ -289,19 +296,25 @@
                 <p>
                     Blocks valid under R<sub>new</sub> are valid under R<sub>old</sub> by definition.
                     Thus, the chain built by the majority (enforcing R<sub>new</sub>) is accepted
-                    by all nodes. Any competing chain violating R<sub>new</sub> will be shorter
-                    in expectation (built by minority hash power) and rejected by upgraded nodes.
-                    Old nodes might temporarily follow the invalid chain during propagation delays,
-                    but will converge once they see the longer valid chain. □
+                    by all nodes. Any competing chain violating R<sub>new</sub> will have less cumulative
+                    work in expectation (built by minority hash power) and be rejected by upgraded
+                    nodes. Old nodes might temporarily follow the invalid chain during propagation
+                    delays, but will converge once they see the valid chain with more work. □
                 </p>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 26.3 (Hard Fork Necessity)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 26.2 (Hard Fork Splits).</p>
                 <p>
-                    A hard fork causes a permanent chain split unless 100% of nodes upgrade.
-                    Old nodes will reject blocks valid only under R<sub>new</sub>, following
-                    their own (potentially stagnant) chain.
+                    A hard fork produces a permanent chain split when the new-rules side
+                    persistently holds the most-work chain <em>and</em> some hash power keeps
+                    extending an old-rules-only chain. Old nodes reject blocks valid only
+                    under R<sub>new</sub> and follow their own chain. If instead old-rules
+                    miners retain the majority, upgraded nodes (which still accept old-rules
+                    blocks when R<sub>old</sub> ⊂ R<sub>new</sub>) reorg back to the old
+                    chain and the fork simply dies&mdash;which is why expanding hard forks in
+                    practice pair with majority hash power, a fork-point checkpoint, or
+                    bilateral replay protection.
                 </p>
             </div>
         </section>
@@ -330,7 +343,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.2 (Network Effect Dominance)</p>
+                <p class="remark-title">Remark 26.3 (Network Effect Dominance)</p>
                 <p>
                     In fork adoption games with strong network effects, equilibria tend toward:
                 </p>
@@ -376,7 +389,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.3 (Incumbent Advantage)</p>
+                <p class="remark-title">Remark 26.4 (Incumbent Advantage)</p>
                 <p>
                     The status quo chain has inherent advantages:
                 </p>
@@ -478,7 +491,7 @@
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.4 (Bitcoin Cash Replay Protection)</p>
+                <p class="remark-title">Remark 26.5 (Bitcoin Cash Replay Protection)</p>
                 <p>
                     Bitcoin Cash (BCH) implemented strong replay protection via a new sighash
                     flag (SIGHASH_FORKID). Transactions include a fork identifier, making them
@@ -514,12 +527,12 @@
                     FCR<sub>Nakamoto</sub>(C) = argmax<sub>c∈C</sub> Σ<sub>b∈c</sub> work(b)
                 </p>
                 <p>
-                    where work(b) = 2<sup>256</sup> / target(b) for block b.
+                    where work(b) = 2<sup>256</sup> / target(b) for block b (approximately; Bitcoin Core uses 2<sup>256</sup> / (target + 1)).
                 </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.5 (Work vs. Length)</p>
+                <p class="remark-title">Remark 26.6 (Work vs. Length)</p>
                 <p>
                     The "longest chain" description is imprecise. The correct rule is "most
                     cumulative work." These differ when difficulty changes:
@@ -534,7 +547,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.6 (Alternative Fork Choice Rules)</p>
+                <p class="remark-title">Remark 26.7 (Alternative Fork Choice Rules)</p>
                 <p>
                     Other blockchain systems use different rules:
                 </p>
@@ -567,7 +580,7 @@
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 26.4 (Double-Spend Probability)</p>
+                <p class="theorem-title">Theorem 26.3 (Double-Spend Probability)</p>
                 <p>
                     Let q be the fraction of hash power controlled by an attacker, p = 1 − q
                     with q &lt; p, and k be the number of confirmations. The probability that
@@ -621,7 +634,7 @@
             </table>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.7 (Deep Reorgs)</p>
+                <p class="remark-title">Remark 26.8 (Deep Reorgs)</p>
                 <p>
                     The deepest reorg in Bitcoin mainnet history was 53 blocks (2010), caused
                     by a bug. Since protocol stabilization, reorgs deeper than 1-2 blocks
@@ -656,7 +669,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.8 (Difficulty Death Spiral)</p>
+                <p class="remark-title">Remark 26.9 (Difficulty Death Spiral)</p>
                 <p>
                     A minority fork sharing Bitcoin's difficulty adjustment algorithm faces a
                     potential "death spiral":
@@ -708,7 +721,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.9 (Contentious Fork Outcomes)</p>
+                <p class="remark-title">Remark 26.10 (Contentious Fork Outcomes)</p>
                 <p>
                     Historical patterns for contentious forks:
                 </p>
@@ -736,7 +749,7 @@
                         </tr>
                         <tr>
                             <td>Bitcoin Unlimited</td>
-                            <td>2016</td>
+                            <td>2015-16</td>
                             <td>High</td>
                             <td>Marginal</td>
                         </tr>
@@ -769,7 +782,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.10 (Schelling Point Preservation)</p>
+                <p class="remark-title">Remark 26.11 (Schelling Point Preservation)</p>
                 <p>
                     Non-contentious soft forks preserve the Schelling point (focal point for
                     coordination) because:
