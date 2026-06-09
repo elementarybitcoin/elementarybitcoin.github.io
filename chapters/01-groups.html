@@ -454,7 +454,12 @@
                     since integer addition is commutative.
                 </p>
                 <p>
-                    (2) Define <span class="math">φ : ℤₙ → G</span> by <span class="math">φ(k) = gᵏ</span>.
+                    (2) First note that the order of <span class="math">g</span> equals
+                    <span class="math">n</span>: the elements
+                    <span class="math">e, g, g², ..., g^(m−1)</span> with
+                    <span class="math">m = ord(g)</span> are distinct and exhaust
+                    <span class="math">⟨g⟩ = G</span>, so <span class="math">m = |G| = n</span>.
+                    Define <span class="math">φ : ℤₙ → G</span> by <span class="math">φ(k) = gᵏ</span>.
                     This map is <em>surjective</em> because every element of <span class="math">G</span>
                     is <span class="math">gᵏ</span> for some <span class="math">k</span>, by definition
                     of a cyclic group. It is <em>injective</em> because if
@@ -555,8 +560,11 @@
                     <span class="math">aH ∩ bH ≠ ∅</span>, so that
                     <span class="math">a ∗ h₁ = b ∗ h₂</span> for some
                     <span class="math">h₁, h₂ ∈ H</span>. Then
-                    <span class="math">a = b ∗ h₂ ∗ h₁⁻¹ ∈ bH</span>, and it follows
-                    that <span class="math">aH ⊆ bH</span>; by symmetry,
+                    <span class="math">a = b ∗ h₂ ∗ h₁⁻¹ ∈ bH</span>; writing
+                    <span class="math">a = b ∗ h₃</span> with <span class="math">h₃ = h₂ ∗ h₁⁻¹ ∈ H</span>,
+                    we get <span class="math">aH = b ∗ (h₃H) = bH</span> since
+                    <span class="math">h₃H = H</span> for any <span class="math">h₃ ∈ H</span>.
+                    Thus <span class="math">aH ⊆ bH</span>; by symmetry,
                     <span class="math">bH ⊆ aH</span>, so <span class="math">aH = bH</span>.
                 </p>
                 <p>

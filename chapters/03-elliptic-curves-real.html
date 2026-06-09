@@ -252,9 +252,12 @@
                     <li><strong>Identity:</strong> <span class="math">P + 𝒪 = 𝒪 + P = P</span> for all points <span class="math">P</span>.</li>
                     <li><strong>Inverse:</strong> If <span class="math">P = (x, y)</span>, then
                         <span class="math">−P = (x, −y)</span>, and <span class="math">P + (−P) = 𝒪</span>.</li>
-                    <li><strong>General addition (P ≠ Q):</strong> Draw the line through <span class="math">P</span>
+                    <li><strong>General addition (P ≠ ±Q):</strong> Draw the line through <span class="math">P</span>
                         and <span class="math">Q</span>. This line intersects <span class="math">E</span> at
-                        exactly one more point <span class="math">R</span>. Then <span class="math">P + Q = −R</span>.</li>
+                        exactly one more point <span class="math">R</span> (if the line is tangent
+                        at <span class="math">P</span> or <span class="math">Q</span>, that point
+                        counts twice and is itself <span class="math">R</span>).
+                        Then <span class="math">P + Q = −R</span>.</li>
                     <li><strong>Point doubling (P = Q):</strong> Draw the tangent line to <span class="math">E</span>
                         at <span class="math">P</span>. This line intersects <span class="math">E</span> at
                         one more point <span class="math">R</span>. Then <span class="math">P + P = 2P = −R</span>.</li>
@@ -346,9 +349,10 @@
                 <p>
                     Any non-vertical line intersects an elliptic curve in exactly three
                     points over <span class="math">ℂ</span> (counting multiplicity). Over
-                    <span class="math">ℝ</span>, there are either one or three real intersection
-                    points. In the case relevant to point addition—when two of the
-                    intersection points are known to be real—the third is guaranteed real as well.
+                    <span class="math">ℝ</span>, counting multiplicity, there are either one
+                    or three real intersection points. In the case relevant to point
+                    addition—when two of the intersection points (with multiplicity) are
+                    known to be real—the third is guaranteed real as well.
                 </p>
             </div>
 
@@ -366,8 +370,12 @@
                 </p>
                 <p>
                     This is a cubic in <span class="math">x</span>, which has exactly three roots
-                    (counting multiplicity) in any algebraically closed field, and at least one
-                    real root. <span class="qed"></span>
+                    (counting multiplicity) over <span class="math">ℂ</span>. Because the
+                    coefficients are real, non-real roots occur in conjugate pairs, so the
+                    number of real roots (with multiplicity) is one or three. In particular,
+                    if two roots are real, the conjugate-pair constraint forces the third to
+                    be real as well&mdash;explicitly, <span class="math">x₃ = m² − x₁ − x₂</span>
+                    is real. <span class="qed"></span>
                 </p>
             </div>
         </section>

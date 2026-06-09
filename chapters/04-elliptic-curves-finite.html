@@ -216,11 +216,11 @@
                     be points on <span class="math">E(𝔽ₚ)</span>. Then <span class="math">P + Q = (x₃, y₃)</span>
                     where:
                 </p>
-                <p><strong>If P ≠ Q:</strong></p>
+                <p><strong>If P ≠ ±Q:</strong></p>
                 <p style="text-align: center;">
                     <span class="math">λ = (y₂ − y₁) · (x₂ − x₁)⁻¹ mod p</span>
                 </p>
-                <p><strong>If P = Q:</strong></p>
+                <p><strong>If P = Q and y₁ ≠ 0:</strong></p>
                 <p style="text-align: center;">
                     <span class="math">λ = (3x₁² + a) · (2y₁)⁻¹ mod p</span>
                 </p>
@@ -230,6 +230,11 @@
                 </p>
                 <p style="text-align: center;">
                     <span class="math">y₃ = λ(x₁ − x₃) − y₁ mod p</span>
+                </p>
+                <p>
+                    The remaining cases are: <span class="math">P + (−P) = 𝒪</span>,
+                    <span class="math">P + 𝒪 = P</span>, and
+                    <span class="math">2(x, 0) = 𝒪</span>.
                 </p>
             </div>
 

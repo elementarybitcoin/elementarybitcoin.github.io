@@ -307,8 +307,10 @@
                 <p>
                     Satoshi Nakamoto implemented double hashing as a defense against <em>length
                     extension attacks</em>. For Merkle-Damgård constructions like SHA-256, if you
-                    know <span class="math">H(m)</span>, you can compute <span class="math">H(m || padding || m')</span>
-                    without knowing <span class="math">m</span>. Double hashing prevents this.
+                    know <span class="math">H(m)</span> and the <em>length</em> of
+                    <span class="math">m</span>, you can compute
+                    <span class="math">H(m || padding || m')</span>
+                    without knowing <span class="math">m</span> itself. Double hashing prevents this.
                 </p>
                 <p>
                     Modern cryptographers debate whether this precaution was necessary, but
