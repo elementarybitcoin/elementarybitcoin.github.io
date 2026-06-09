@@ -229,7 +229,7 @@
                 </p>
                 <ul>
                     <li>UTXO is locked to a 2-of-2: user key + statechain entity (SE) key</li>
-                    <li>Transfer: user sends their key share to recipient, SE updates co-signer</li>
+                    <li>Transfer: user sends their key share to recipient, and the SE atomically re-randomizes the shares so the old owner's copy becomes useless</li>
                     <li>SE cannot steal (doesn't know full key) but can censor</li>
                     <li>Backup transaction allows unilateral on-chain claim</li>
                 </ul>
@@ -349,7 +349,7 @@
             <div class="remark">
                 <p class="remark-title">Remark 32.4 (Factory Scaling)</p>
                 <p>
-                    For a factory with n participants and m internal channels:
+                    For a factory with n participants:
                 </p>
                 <ul>
                     <li><strong>On-chain cost:</strong> 1 UTXO (amortized over n users)</li>

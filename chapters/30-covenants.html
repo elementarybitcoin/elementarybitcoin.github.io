@@ -187,7 +187,7 @@ DefaultCheckTemplateVerifyHash(tx, input_index):
 
                     <!-- Note -->
                     <text x="250" y="195" font-family="Georgia" font-size="8" fill="#666">CTV constrains outputs but NOT which inputs fund the tx</text>
-                    <text x="250" y="210" font-family="Georgia" font-size="8" fill="#666">→ Enables fee bumping via additional inputs</text>
+                    <text x="250" y="210" font-family="Georgia" font-size="8" fill="#666">→ Input count IS committed; fee bumping uses CPFP or a pre-committed input slot</text>
 
                     <defs>
                         <marker id="arrow30b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
@@ -262,16 +262,19 @@ DefaultCheckTemplateVerifyHash(tx, input_index):
                     A basic vault with CTV:
                 </p>
                 <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
-Vault Script:
+Vault Output (CTV-only; no key can spend it directly):
+  &lt;ctv_hash&gt; CTV               // Can only go to the staged withdrawal
+
+Staged Withdrawal Output:
   IF
-    &lt;hot_key&gt; CHECKSIG         // Immediate spend (compromised!)
+    &lt;delay&gt; CSV DROP
+    &lt;hot_key&gt; CHECKSIG         // Withdrawal: hot key, after the delay
   ELSE
-    &lt;ctv_hash&gt; CTV             // Must go to staged withdrawal
+    &lt;ctv_to_cold_hash&gt; CTV     // Clawback to cold storage: immediate
   ENDIF
 
-Staged Withdrawal (CTV-enforced):
-  - Output 1: Time-locked return to vault (clawback)
-  - Output 2: Time-locked to destination (actual withdrawal)</pre>
+A thief who steals the hot key must wait out the CSV delay,
+during which the owner claws the funds back to cold storage.</pre>
             </div>
 
             <h3>30.2.2 CTV Controversy</h3>
@@ -313,16 +316,20 @@ Stack after:  [x || y]</pre>
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 30.1 (CAT Enables Covenants)</p>
+                <p class="theorem-title">Proposition 30.1 (CAT Enables Covenants)</p>
                 <p>
                     OP_CAT combined with Schnorr signatures enables introspection through
-                    signature reconstruction:
+                    on-stack sighash construction (the "Schnorr trick"):
                 </p>
                 <ol>
-                    <li>Schnorr signature: (R, s) where s = k + H(R||P||m)·d</li>
-                    <li>Script reconstructs m (the sighash) using CAT</li>
-                    <li>Script verifies the signature against reconstructed message</li>
-                    <li>If valid, script has verified properties of m (the transaction)</li>
+                    <li>Schnorr signature: (R, s) where s = k + H(R||P||m)·d, with the
+                        nonce fixed to R = G so s is predictable from m</li>
+                    <li>Script assembles the claimed sighash components from witness data
+                        using CAT</li>
+                    <li>The assembled signature is passed to CHECKSIG, which only succeeds
+                        if the claimed message equals the transaction's true sighash</li>
+                    <li>Equality forces the witness-supplied components to describe the real
+                        transaction&mdash;so the script has verified properties of it</li>
                 </ol>
             </div>
 
@@ -527,37 +534,37 @@ Stack: [1 if valid]</pre>
                         <td>CTV (BIP-119)</td>
                         <td>Low</td>
                         <td>Limited covenants</td>
-                        <td>Proposed, stalled</td>
+                        <td>Draft, stalled</td>
                     </tr>
                     <tr>
                         <td>CAT (BIP-347)</td>
                         <td>Low opcode, high usage</td>
                         <td>General covenants</td>
-                        <td>Proposed</td>
+                        <td>Complete (spec)</td>
                     </tr>
                     <tr>
                         <td>VAULT (BIP-345)</td>
                         <td>Medium</td>
                         <td>Custody-specific</td>
-                        <td>Proposed</td>
+                        <td>Closed (no longer pursued)</td>
                     </tr>
                     <tr>
                         <td>APO (BIP-118)</td>
                         <td>Low</td>
                         <td>LN-Symmetry</td>
-                        <td>Proposed</td>
+                        <td>Draft</td>
                     </tr>
                     <tr>
-                        <td>TXHASH</td>
+                        <td>TXHASH (BIP-346)</td>
                         <td>Medium</td>
                         <td>Flexible covenants</td>
                         <td>Draft</td>
                     </tr>
                     <tr>
-                        <td>CSFS</td>
+                        <td>CSFS (BIP-348)</td>
                         <td>Low</td>
                         <td>Oracles, delegation</td>
-                        <td>Discussion</td>
+                        <td>Draft</td>
                     </tr>
                 </tbody>
             </table>
