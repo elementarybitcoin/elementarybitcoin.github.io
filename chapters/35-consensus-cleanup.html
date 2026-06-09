@@ -114,7 +114,8 @@ new_target = old_target × (actual_time / expected_time)
 
 where:
   expected_time = 2016 × 10 minutes = 2 weeks
-  actual_time = timestamp(block[2016]) - timestamp(block[0])</pre>
+  actual_time = timestamp(block[2015]) - timestamp(block[0])
+  (the first and last blocks of the same 2016-block period)</pre>
             </div>
 
             <div class="definition">
@@ -123,9 +124,9 @@ where:
                     The <strong>timewarp attack</strong> exploits a bug in difficulty calculation:
                 </p>
                 <ul>
-                    <li>Difficulty compares block[2016] to block[0], not block[2015]</li>
-                    <li>Block[2016] is the <em>first</em> block of the new period</li>
-                    <li>Attacker can manipulate block[2016]'s timestamp</li>
+                    <li>The retarget measures block[0] to block[2015] of the <em>same</em> period&mdash;the gap between block[2015] and block[2016] is never measured</li>
+                    <li>Attacker future-dates block[2015] to inflate the measured timespan</li>
+                    <li>Block[2016] starts the next window with no constraint relative to block[2015], so its timestamp can snap back to real time</li>
                     <li>Result: artificially reduce difficulty over time</li>
                 </ul>
             </div>
@@ -143,22 +144,23 @@ where:
                     <circle cx="40" cy="70" r="6" fill="#5a8f5a"/>
                     <text x="40" y="110" text-anchor="middle" font-family="Georgia" font-size="7">Block 0</text>
 
-                    <circle cx="220" cy="70" r="6" fill="#5a8f5a"/>
-                    <text x="220" y="110" text-anchor="middle" font-family="Georgia" font-size="7">Block 2015</text>
+                    <circle cx="220" cy="70" r="8" fill="#c44" stroke="#a33" stroke-width="2"/>
+                    <text x="220" y="110" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">Block 2015</text>
+                    <text x="220" y="123" text-anchor="middle" font-family="Georgia" font-size="6" fill="#c44">(future-dated)</text>
 
-                    <circle cx="260" cy="70" r="8" fill="#c44" stroke="#a33" stroke-width="2"/>
-                    <text x="260" y="115" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">Block 2016</text>
-                    <text x="260" y="128" text-anchor="middle" font-family="Georgia" font-size="6" fill="#c44">(manipulated)</text>
+                    <circle cx="260" cy="70" r="6" fill="#5a8f5a"/>
+                    <text x="265" y="135" text-anchor="middle" font-family="Georgia" font-size="7">Block 2016</text>
+                    <text x="265" y="148" text-anchor="middle" font-family="Georgia" font-size="6" fill="#666">(snaps back)</text>
 
                     <!-- Calculation -->
-                    <path d="M 40 70 Q 150 20 260 70" stroke="#c44" stroke-width="2" stroke-dasharray="4,2" fill="none"/>
-                    <text x="150" y="35" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Difficulty compares these</text>
+                    <path d="M 40 70 Q 130 20 220 70" stroke="#c44" stroke-width="2" stroke-dasharray="4,2" fill="none"/>
+                    <text x="130" y="35" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Retarget measures only this span</text>
 
                     <!-- Correct comparison -->
-                    <text x="400" y="140" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Should compare: block[0] to block[2015]</text>
-                    <text x="400" y="155" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Actually compares: block[0] to block[2016]</text>
+                    <text x="400" y="165" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Measured: block[0] to block[2015] (2015 intervals)</text>
+                    <text x="400" y="178" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Never measured: block[2015] → block[2016] gap</text>
                 </svg>
-                <figcaption>Figure 35.1: The off-by-one error in difficulty calculation.</figcaption>
+                <figcaption>Figure 35.1: The retarget window never measures the gap between periods, enabling the timewarp attack.</figcaption>
             </figure>
 
             <div class="theorem">
@@ -314,12 +316,12 @@ Different blocks, same merkle root → attack vector</pre>
             <div class="definition">
                 <p class="definition-title">Definition 35.8 (Fix Status)</p>
                 <p>
-                    Partial fix applied (BIP-30, BIP-34):
+                    Mitigations:
                 </p>
                 <ul>
-                    <li>BIP-30: No duplicate txids in UTXO set</li>
-                    <li>BIP-34: Coinbase must include block height (unique)</li>
-                    <li>Remaining issue: Interior node duplication still possible</li>
+                    <li>Bitcoin Core detects mutated blocks (duplicated merkle branches) during validation and does not mark the block hash as permanently invalid</li>
+                    <li>Separately, BIP-30/BIP-34 address duplicate <em>txids</em> (CVE-2012-1909), a different bug</li>
+                    <li>Remaining issue: the merkle construction itself still permits interior-node duplication</li>
                 </ul>
                 <p>
                     Great Consensus Cleanup proposes additional restrictions.
@@ -446,7 +448,7 @@ Different blocks, same merkle root → attack vector</pre>
                 <p class="exercise-title">Exercise 35.1</p>
                 <p>
                     Demonstrate the timewarp attack on a simplified model. If difficulty
-                    adjusts every 10 blocks and timestamps can be up to 2 hours in the past,
+                    adjusts every 10 blocks and timestamps can be up to 2 hours in the future,
                     how many periods before difficulty reaches minimum?
                 </p>
             </div>
