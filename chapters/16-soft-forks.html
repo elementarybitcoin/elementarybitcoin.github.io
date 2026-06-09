@@ -217,7 +217,8 @@
                 <ul>
                     <li>Upgraded nodes enforce new stricter rules</li>
                     <li>Non-upgraded nodes see a valid (if possibly confusing) chain</li>
-                    <li>The network remains unified on one chain</li>
+                    <li>The network converges on one chain (transient divergence is possible:
+                        in 2015 a 6-block invalid chain briefly formed after BIP-66 activation)</li>
                 </ul>
             </div>
 
@@ -227,7 +228,9 @@
                     New rules are a subset of old rules. Any block valid under new rules is
                     therefore valid under old rules. Old nodes accept the chain built by
                     upgraded miners. Since upgraded miners have majority hash power, their
-                    chain will be longest/heaviest, and all nodes follow it. □
+                    chain accumulates the most work <em>in expectation</em>, and all nodes
+                    eventually follow it&mdash;though non-enforcing miners can briefly extend
+                    an invalid chain, as in the 2015 BIP-66 incident. □
                 </p>
             </div>
         </section>

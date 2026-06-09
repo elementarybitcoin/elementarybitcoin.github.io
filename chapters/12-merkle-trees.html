@@ -421,7 +421,9 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
             <div class="theorem">
                 <p class="theorem-title">Theorem 12.2 (Merkle Proof Security)</p>
                 <p>
-                    If <span class="math">H</span> is a collision-resistant hash function, then it is
+                    If <span class="math">H</span> is a collision-resistant hash function <em>and</em>
+                    the verifier knows the tree depth (or leaves are domain-separated from
+                    interior nodes, or 64-byte transactions are excluded), then it is
                     computationally infeasible to produce a valid Merkle proof for a transaction
                     that is not in the committed set.
                 </p>
@@ -432,9 +434,15 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
                 <p>
                     To forge a proof for a non-existent transaction <span class="math">tx'</span>,
                     the attacker must find hash values that combine to produce the correct root.
-                    This requires either finding a preimage (to make a valid leaf) or a collision
-                    (to substitute intermediate hashes). Both are infeasible under the assumption
-                    that <span class="math">H</span> is collision-resistant. □
+                    With the leaf/interior distinction enforced, this requires either finding a
+                    preimage (to make a valid leaf) or a collision (to substitute intermediate
+                    hashes), both infeasible under collision resistance. The extra hypothesis is
+                    necessary: Bitcoin's tree has no domain separation, so a 64-byte string that
+                    parses as a valid transaction can equal the concatenation
+                    <span class="math">left || right</span> of an interior node, yielding a
+                    "proof" for a transaction never in the block at roughly
+                    <span class="math">2⁷⁰</span>&ndash;<span class="math">2⁷⁵</span> work&mdash;far
+                    below the <span class="math">2¹²⁸</span> collision bound. □
                 </p>
             </div>
         </section>
@@ -639,13 +647,17 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
             <h3>12.8.2 Leaf vs. Internal Node Ambiguity</h3>
 
             <p>
-                If an internal node hash happens to be a valid transaction hash, confusion
-                could arise. Bitcoin mitigates this by:
+                Bitcoin's Merkle tree does not distinguish leaves from internal nodes: an
+                interior node is the hash of a 64-byte string (two concatenated hashes), and
+                a 64-byte <em>transaction</em> that parses validly could occupy the same
+                position&mdash;enabling fake inclusion proofs at an estimated
+                2⁷⁰&ndash;2⁷⁵ work. Mitigations:
             </p>
 
             <ul>
-                <li>Using 32-byte hashes (collision probability negligible)</li>
-                <li>Transaction format constraints that make valid txids unlikely to occur as concatenated hashes</li>
+                <li>Verifiers can check the proof's depth against the block's transaction count</li>
+                <li>Relay policy rejects 64-byte transactions, and the Great Consensus Cleanup
+                    proposes making them consensus-invalid</li>
             </ul>
         </section>
 

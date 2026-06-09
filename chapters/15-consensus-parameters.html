@@ -659,15 +659,18 @@ Time between halvings: 210,000 × 10 min = 2,100,000 min
             <div class="theorem">
                 <p class="theorem-title">Theorem 15.4 (Consensus Incompatibility)</p>
                 <p>
-                    If any consensus parameter changes:
+                    If a consensus parameter change <em>expands</em> the set of valid
+                    blocks (for example, raising the block weight limit or altering the
+                    supply schedule):
                 </p>
                 <ul>
-                    <li>Nodes running old software reject new blocks</li>
-                    <li>Nodes running new software may reject old blocks</li>
-                    <li>The network splits into incompatible chains</li>
+                    <li>Nodes running old software reject the new blocks</li>
+                    <li>The network can split into incompatible chains</li>
                 </ul>
                 <p>
-                    This is a <strong>hard fork</strong>, creating a new currency.
+                    This is a <strong>hard fork</strong>, potentially creating a new
+                    currency. By contrast, <em>tightening</em> a parameter is a soft fork:
+                    old nodes still accept the new, stricter blocks (Chapter 16).
                 </p>
             </div>
 

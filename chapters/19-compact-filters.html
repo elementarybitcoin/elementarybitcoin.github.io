@@ -194,7 +194,8 @@
             <div class="theorem">
                 <p><strong>Theorem 19.1</strong> (Privacy Guarantee)</p>
                 <p>
-                    In the BIP-157/158 model, a server cannot distinguish between:
+                    In the BIP-157/158 model, <em>during the filter-download phase</em> a server
+                    cannot distinguish between:
                 </p>
                 <ol>
                     <li>A client interested in address A</li>
@@ -213,9 +214,10 @@
                     Every client receives the identical filter. The client's query (getcfilters)
                     specifies only the block height range, which is identical regardless of
                     what addresses the client cares about. The filtering operation happens
-                    entirely on the client side. The only information leaked is when a client
-                    requests a full block, which reveals "I care about something in this
-                    block" but not what. ∎
+                    entirely on the client side. The guarantee is scoped to this phase: once a
+                    client requests full blocks, the <em>pattern</em> of those requests leaks
+                    information (Theorem 19.6), which is why the claim does not extend to the
+                    protocol as a whole. ∎
                 </p>
             </div>
         </section>
@@ -401,9 +403,11 @@
                 <p>
                     Each delta has expected value F (since N elements are spread over range N·F).
                     Golomb-Rice with P = log₂(F) (so that the divisor M = 2^P ≈ F) encodes
-                    values near F optimally. The expected code length per delta is
-                    approximately 1 + P = 1 + log₂(F) bits.
-                    With N deltas, total size ≈ N · (1 + log₂(F)) bits. ∎
+                    values near F optimally. Each code is a unary quotient (expected
+                    E[q] + 1 ≈ 2 bits when M ≈ F, since E[q] = e^(−M/F)/(1−e^(−M/F)) ≈ 1)
+                    followed by P remainder bits, so the expected length per delta is
+                    approximately P + 2 bits.
+                    With N deltas, total size ≈ N · (log₂(F) + 2) bits. ∎
                 </p>
             </div>
 
@@ -415,7 +419,7 @@
                     For a block with N = 2000 scriptPubKeys:
                 </p>
                 <ul>
-                    <li>Filter size ≈ 2000 × (1 + 19) = 40,000 bits = 5,000 bytes</li>
+                    <li>Filter size ≈ 2000 × (19 + 2) = 42,000 bits ≈ 5,250 bytes</li>
                     <li>Compared to full block: ~1-2 MB</li>
                     <li>Ratio: ~1/200 to 1/400 for this N; real blocks contain
                     more filter elements (~5,000&ndash;10,000), giving the
@@ -851,8 +855,10 @@
                     <li>Verifying received filter hashes to filter_header<sub>N</sub></li>
                 </ol>
                 <p>
-                    If k honest peers exist among n queried, detection probability approaches
-                    1 as k increases.
+                    If at least one honest peer is among those queried, the manipulation is
+                    detected with certainty&mdash;the client observes conflicting headers.
+                    (More honest peers help <em>resolve</em> which chain is correct, not
+                    detect the conflict.)
                 </p>
             </div>
 
@@ -871,8 +877,10 @@
                 </p>
                 <ul>
                     <li><strong>Filter download:</strong> Zero bits (all clients download same filter)</li>
-                    <li><strong>Full block request after match:</strong> log₂(N) bits where N is
-                        number of scriptPubKeys in block (server learns "client cares about one of N scripts")</li>
+                    <li><strong>Full block request after match:</strong> the server learns
+                        "the client cares about one of this block's N scriptPubKeys"&mdash;an
+                        anonymity set of size N, so a <em>larger</em> block leaks
+                        <em>less</em> about the client</li>
                 </ul>
             </div>
 
@@ -881,10 +889,11 @@
             </p>
 
             <ul>
-                <li>Average block has ~2000-3000 unique scriptPubKeys</li>
-                <li>Information leaked: ~11-12 bits per matched block</li>
-                <li>With multiple matches per block: even less specific</li>
+                <li>Average block has ~2000-3000 unique scriptPubKeys, a sizable anonymity set</li>
                 <li>False positives provide additional cover</li>
+                <li>The real deanonymization vector is <em>intersection</em>: the pattern of
+                    full-block requests across many blocks can be intersected to isolate the
+                    client's addresses, so block requests should be batched or padded</li>
             </ul>
         </section>
 

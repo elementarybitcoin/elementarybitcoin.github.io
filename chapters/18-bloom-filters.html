@@ -251,7 +251,13 @@
                 <p>
                     Thus the probability a specific bit is 1 is approximately (1 - e<sup>-kn/m</sup>).
                     A false positive occurs when all <var>k</var> bits checked for a non-member
-                    happen to be 1, giving probability (1 - e<sup>-kn/m</sup>)<sup>k</sup>. ∎
+                    happen to be 1, giving probability (1 - e<sup>-kn/m</sup>)<sup>k</sup>.
+                    Two approximations are hidden here: the <var>k</var> probed bits are treated
+                    as independent (they are not), and the random set-bit fraction is replaced
+                    by its expectation. The classical formula is in fact a slight
+                    <em>under</em>estimate of the true rate (Bose et al., 2008)&mdash;about 30%
+                    low at the parameters of Example 18.1&mdash;which is why the theorem says
+                    "approximately." ∎
                 </p>
             </div>
 
@@ -653,14 +659,13 @@
 
             <h3>Quantifying the Privacy Loss</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 18.4</strong> (Practical Privacy Bound)</p>
+            <div class="remark">
+                <p><strong>Remark 18.1</strong> (Practical Privacy Bound)</p>
                 <p>
-                    Under realistic conditions (persistent connections, repeated queries, filter
-                    updates), the expected number of address queries before a malicious node
-                    identifies all wallet addresses is O(n), where n is the wallet size.
-                    In practice, studies have shown identification within minutes for typical
-                    wallets.
+                    Empirically, under realistic conditions (persistent connections, repeated
+                    queries, filter updates), a malicious node identifies all wallet addresses
+                    after a number of queries roughly linear in the wallet size&mdash;within
+                    minutes for typical wallets (Gervais et al., 2014).
                 </p>
             </div>
 
@@ -688,7 +693,7 @@
             <h3>Computational Asymmetry</h3>
 
             <div class="theorem">
-                <p><strong>Theorem 18.5</strong> (DoS Amplification)</p>
+                <p><strong>Theorem 18.4</strong> (DoS Amplification)</p>
                 <p>
                     Processing a Bloom filter request against a block requires:
                 </p>
