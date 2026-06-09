@@ -586,7 +586,7 @@ Proposed P2QRH (Quantum Resistant Hash):
 
 Implementation:
 witness_v2 = OP_2 <32-byte PQ key hash>
-spending = <PQ signature> <PQ public key>
+spending = &lt;PQ signature&gt; &lt;PQ public key&gt;
 </pre>
             </div>
 
@@ -784,7 +784,7 @@ DIY Quantum Protection (Advanced):
    └── One-time use hash-based signature
 
 2. Create P2SH address
-   ├── Script: IF <lamport verify> ELSE <ECDSA> ENDIF
+   ├── Script: IF &lt;lamport verify&gt; ELSE &lt;ECDSA&gt; ENDIF
    └── Hidden until spending
 
 3. When quantum threat arrives

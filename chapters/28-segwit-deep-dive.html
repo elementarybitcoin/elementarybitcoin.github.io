@@ -278,7 +278,7 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
                     A <strong>witness program</strong> is a scriptPubKey of the form:
                 </p>
                 <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
-OP_n <data>
+OP_n &lt;data&gt;
 
 where:
   OP_n = witness version (OP_0 through OP_16)
@@ -723,9 +723,9 @@ SHA256d(
                     <strong>P2SH-P2WPKH</strong> wraps a SegWit program in P2SH:
                 </p>
                 <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
-scriptPubKey: OP_HASH160 <hash> OP_EQUAL
+scriptPubKey: OP_HASH160 &lt;hash&gt; OP_EQUAL
 redeemScript: OP_0 <20-byte-key-hash>
-witness:      <sig> <pubkey></pre>
+witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
                 <p>
                     Address format: starts with '3' (vs 'bc1' for native).
                 </p>
