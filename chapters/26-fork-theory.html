@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 26: Fork Theory | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 26: Fork Theory - Mathematical foundations of chain divergence, split dynamics, and consensus stability">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 26</p>
+        <h1>Fork Theory</h1>
+        <p class="chapter-subtitle">The Mathematics of Chain Divergence</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                When nodes disagree about which blocks are valid, the network faces a fundamental
+                crisis: a <em>fork</em>. This chapter develops the mathematical theory of chain
+                divergence—temporary forks that resolve naturally, intentional hard forks that
+                create new currencies, and soft forks that tighten rules while maintaining
+                compatibility. We analyze fork dynamics through game theory, information theory,
+                and network economics.
+            </p>
+        </section>
+
+        <section>
+            <h2>26.1 Defining Forks Formally</h2>
+
+            <p>
+                The term "fork" is overloaded in Bitcoin discourse. We begin with precise definitions.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.1 (Blockchain Fork)</p>
+                <p>
+                    A <strong>fork</strong> occurs when two or more valid blocks share the same
+                    parent block, creating divergent chain histories. Let B<sub>p</sub> be a block
+                    and B<sub>1</sub>, B<sub>2</sub> be distinct blocks such that:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    prev_hash(B<sub>1</sub>) = prev_hash(B<sub>2</sub>) = hash(B<sub>p</sub>)
+                </p>
+                <p>
+                    Then blocks B<sub>1</sub> and B<sub>2</sub> constitute a fork at height h(B<sub>p</sub>) + 1.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.2 (Fork Types by Cause)</p>
+                <p>
+                    Forks are classified by their origin:
+                </p>
+                <ul>
+                    <li><strong>Natural fork:</strong> Two miners find valid blocks nearly simultaneously</li>
+                    <li><strong>Intentional fork:</strong> Deliberate protocol change creates incompatible rules</li>
+                    <li><strong>Attack fork:</strong> Malicious attempt to reverse transactions</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="220" viewBox="0 0 520 220">
+                    <!-- Main chain -->
+                    <rect x="30" y="90" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="60" y="115" text-anchor="middle" font-family="Georgia" font-size="10">B<tspan baseline-shift="sub" font-size="8">n-1</tspan></text>
+
+                    <rect x="110" y="90" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="140" y="115" text-anchor="middle" font-family="Georgia" font-size="10">B<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+
+                    <!-- Fork point -->
+                    <line x1="90" y1="110" x2="110" y2="110" stroke="#5a8f5a" stroke-width="1.5"/>
+
+                    <!-- Upper branch -->
+                    <rect x="200" y="40" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="230" y="65" text-anchor="middle" font-family="Georgia" font-size="10">B<tspan baseline-shift="sub" font-size="8">n+1</tspan></text>
+
+                    <rect x="280" y="40" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="310" y="65" text-anchor="middle" font-family="Georgia" font-size="10">B<tspan baseline-shift="sub" font-size="8">n+2</tspan></text>
+
+                    <rect x="360" y="40" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="390" y="65" text-anchor="middle" font-family="Georgia" font-size="10">B<tspan baseline-shift="sub" font-size="8">n+3</tspan></text>
+
+                    <!-- Lower branch (orphaned) -->
+                    <rect x="200" y="140" width="60" height="40" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1.5" stroke-dasharray="4,2"/>
+                    <text x="230" y="165" text-anchor="middle" font-family="Georgia" font-size="10">B'<tspan baseline-shift="sub" font-size="8">n+1</tspan></text>
+
+                    <!-- Connections -->
+                    <path d="M 170 100 Q 185 70 200 60" stroke="#5a8f5a" stroke-width="1.5" fill="none"/>
+                    <path d="M 170 120 Q 185 150 200 160" stroke="#c44" stroke-width="1.5" stroke-dasharray="4,2" fill="none"/>
+
+                    <line x1="260" y1="60" x2="280" y2="60" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <line x1="340" y1="60" x2="360" y2="60" stroke="#5a8f5a" stroke-width="1.5"/>
+
+                    <!-- Labels -->
+                    <text x="440" y="65" font-family="Georgia" font-size="10" fill="#5a8f5a">Winner</text>
+                    <text x="280" y="185" font-family="Georgia" font-size="10" fill="#c44">Orphaned (stale)</text>
+
+                    <!-- Fork point marker -->
+                    <circle cx="170" cy="110" r="8" fill="#f39c12" stroke="#c87f0a" stroke-width="1.5"/>
+                    <text x="170" y="200" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c87f0a">Fork Point</text>
+                </svg>
+                <figcaption>Figure 26.1: A natural fork resolves when one branch gains more cumulative work.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.3 (Fork Resolution)</p>
+                <p>
+                    A fork is <strong>resolved</strong> when all honest nodes converge on the same
+                    chain tip. For natural forks, this occurs when one branch accumulates strictly
+                    more work:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    W(chain<sub>1</sub>) > W(chain<sub>2</sub>) ⟹ nodes adopt chain<sub>1</sub>
+                </p>
+                <p>
+                    where W(·) denotes cumulative proof-of-work.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.2 Natural Fork Probability</h2>
+
+            <p>
+                Natural forks occur when network latency allows multiple miners to find blocks
+                before hearing about each other's discoveries.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 26.1 (Fork Probability Bound)</p>
+                <p>
+                    Let λ be the block arrival rate (blocks per second) and δ be the network
+                    propagation delay. The probability of a natural fork is approximately:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    P(fork) ≈ 1 - e<sup>-λδ</sup> ≈ λδ for small λδ
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof sketch.</p>
+                <p>
+                    After a block is found, another block might be found before propagation
+                    completes. The inter-arrival time follows an exponential distribution with
+                    rate λ. The probability that another block arrives within time δ is:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    P(T ≤ δ) = 1 - e<sup>-λδ</sup>
+                </p>
+                <p>
+                    For Bitcoin, λ ≈ 1/600 blocks/second and δ ≈ 1-10 seconds, giving
+                    P(fork) ≈ 0.2% - 1.7%. □
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 26.1 (Observed Fork Rates)</p>
+                <p>
+                    Historical data from Bitcoin's mainnet shows:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Blocks</th>
+                            <th>Observed Stales</th>
+                            <th>Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2013 (measured sample)</td>
+                            <td>~10,000</td>
+                            <td>169</td>
+                            <td>~1.7%</td>
+                        </tr>
+                        <tr>
+                            <td>2015</td>
+                            <td>~54,000</td>
+                            <td>~200</td>
+                            <td>~0.4%</td>
+                        </tr>
+                        <tr>
+                            <td>2023</td>
+                            <td>~53,000</td>
+                            <td>&lt;10</td>
+                            <td>&lt;0.02%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    The 2013 figure is from the Decker–Wattenhofer measurement study. The
+                    subsequent decrease reflects improved block propagation (compact blocks,
+                    FIBRE network); by the 2020s, stale blocks had become rare events observed
+                    only a few times per year.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.4 (Stale Block / Orphan)</p>
+                <p>
+                    A <strong>stale block</strong> (historically called "orphan") is a valid block
+                    that is not part of the best chain. The miner who found it receives no reward.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.1 (Terminology Clarification)</p>
+                <p>
+                    "Orphan block" technically means a block whose parent is unknown (not yet
+                    received). "Stale block" means a valid block not on the best chain. The
+                    community often conflates these terms.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.3 The Rule Compatibility Hierarchy</h2>
+
+            <p>
+                Protocol changes are classified by their compatibility properties with existing nodes.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.5 (Rule Sets)</p>
+                <p>
+                    Let R<sub>old</sub> and R<sub>new</sub> be sets of blocks considered valid
+                    under old and new rules respectively:
+                </p>
+                <ul>
+                    <li><strong>Soft fork:</strong> R<sub>new</sub> ⊂ R<sub>old</sub> (new rules are stricter)</li>
+                    <li><strong>Hard fork:</strong> R<sub>old</sub> ⊂ R<sub>new</sub> (new rules are looser)</li>
+                    <li><strong>Bilateral fork:</strong> R<sub>old</sub> ∩ R<sub>new</sub> = ∅ (each rule set rejects the other's blocks)</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="200" viewBox="0 0 520 200">
+                    <!-- Soft Fork -->
+                    <text x="90" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Soft Fork</text>
+                    <ellipse cx="90" cy="100" rx="70" ry="60" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <ellipse cx="90" cy="95" rx="45" ry="35" fill="#d4ecd4" stroke="#3a6f3a" stroke-width="2"/>
+                    <text x="90" y="100" text-anchor="middle" font-family="Georgia" font-size="9">R<tspan baseline-shift="sub" font-size="7">new</tspan></text>
+                    <text x="90" y="145" text-anchor="middle" font-family="Georgia" font-size="9">R<tspan baseline-shift="sub" font-size="7">old</tspan></text>
+                    <text x="90" y="180" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">R<tspan baseline-shift="sub" font-size="6">new</tspan> ⊂ R<tspan baseline-shift="sub" font-size="6">old</tspan></text>
+
+                    <!-- Hard Fork -->
+                    <text x="260" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Hard Fork</text>
+                    <ellipse cx="260" cy="100" rx="70" ry="60" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <ellipse cx="260" cy="105" rx="45" ry="35" fill="#ffcccc" stroke="#a33" stroke-width="2"/>
+                    <text x="260" y="60" text-anchor="middle" font-family="Georgia" font-size="9">R<tspan baseline-shift="sub" font-size="7">new</tspan></text>
+                    <text x="260" y="110" text-anchor="middle" font-family="Georgia" font-size="9">R<tspan baseline-shift="sub" font-size="7">old</tspan></text>
+                    <text x="260" y="180" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">R<tspan baseline-shift="sub" font-size="6">old</tspan> ⊂ R<tspan baseline-shift="sub" font-size="6">new</tspan></text>
+
+                    <!-- Bilateral Fork -->
+                    <text x="430" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Bilateral Fork</text>
+                    <ellipse cx="375" cy="100" rx="45" ry="50" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <ellipse cx="475" cy="100" rx="45" ry="50" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="375" y="100" text-anchor="middle" font-family="Georgia" font-size="9">R<tspan baseline-shift="sub" font-size="7">old</tspan></text>
+                    <text x="475" y="100" text-anchor="middle" font-family="Georgia" font-size="9">R<tspan baseline-shift="sub" font-size="7">new</tspan></text>
+                    <text x="430" y="180" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Incompatible</text>
+                </svg>
+                <figcaption>Figure 26.2: Venn diagrams of rule set relationships for different fork types.</figcaption>
+            </figure>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 26.2 (Soft Fork Safety)</p>
+                <p>
+                    If a soft fork activates with fraction f > 0.5 of hash power enforcing
+                    new rules R<sub>new</sub>, then:
+                </p>
+                <ol>
+                    <li>The longest chain follows R<sub>new</sub> rules with high probability</li>
+                    <li>Nodes following R<sub>old</sub> remain on this chain (since R<sub>new</sub> ⊂ R<sub>old</sub>)</li>
+                    <li>No permanent chain split occurs</li>
+                </ol>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    Blocks valid under R<sub>new</sub> are valid under R<sub>old</sub> by definition.
+                    Thus, the chain built by the majority (enforcing R<sub>new</sub>) is accepted
+                    by all nodes. Any competing chain violating R<sub>new</sub> will be shorter
+                    in expectation (built by minority hash power) and rejected by upgraded nodes.
+                    Old nodes might temporarily follow the invalid chain during propagation delays,
+                    but will converge once they see the longer valid chain. □
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 26.3 (Hard Fork Necessity)</p>
+                <p>
+                    A hard fork causes a permanent chain split unless 100% of nodes upgrade.
+                    Old nodes will reject blocks valid only under R<sub>new</sub>, following
+                    their own (potentially stagnant) chain.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.4 Game Theory of Fork Adoption</h2>
+
+            <p>
+                Fork adoption decisions can be modeled as coordination games with network effects.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.6 (Fork Adoption Game)</p>
+                <p>
+                    Consider n players who must choose between chains A and B. Let v<sub>A</sub>(k)
+                    and v<sub>B</sub>(n-k) be the value of holding coins on chain A (with k adopters)
+                    and chain B (with n-k adopters) respectively. The payoff exhibits network effects:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    v<sub>A</sub>(k) = f(k) · m<sub>A</sub>
+                </p>
+                <p>
+                    where f(k) is an increasing function of adopters and m<sub>A</sub> is the
+                    intrinsic merit of chain A's properties.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.2 (Network Effect Dominance)</p>
+                <p>
+                    In fork adoption games with strong network effects, equilibria tend toward:
+                </p>
+                <ol>
+                    <li><strong>Winner-take-all:</strong> One chain dominates completely</li>
+                    <li><strong>Tipping point:</strong> Small initial advantages amplify</li>
+                    <li><strong>Path dependence:</strong> Early coordination determines outcome</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 26.2 (Schelling Point Analysis)</p>
+                <p>
+                    Consider a hard fork creating chains A (status quo) and B (new features).
+                    Each has intrinsic value but network effects dominate:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Others choose A</th>
+                            <th>Others choose B</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Choose A</strong></td>
+                            <td>High (majority network)</td>
+                            <td>Low (isolated)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Choose B</strong></td>
+                            <td>Low (isolated)</td>
+                            <td>High (majority network)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    Both "all choose A" and "all choose B" are Nash equilibria. The Schelling
+                    point—the natural focal point—typically favors the status quo (chain A)
+                    due to coordination costs.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.3 (Incumbent Advantage)</p>
+                <p>
+                    The status quo chain has inherent advantages:
+                </p>
+                <ul>
+                    <li>Existing liquidity and exchange infrastructure</li>
+                    <li>Brand recognition ("Bitcoin" vs "Bitcoin [Fork]")</li>
+                    <li>Coordination cost borne by challengers</li>
+                    <li>Conservative user preference for stability</li>
+                </ul>
+                <p>
+                    This creates asymmetric costs: forking away requires compelling justification.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.5 Replay Protection</h2>
+
+            <p>
+                When chains diverge, transactions valid on one chain may be valid on both—a
+                dangerous property called <em>replay vulnerability</em>.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.7 (Replay Attack)</p>
+                <p>
+                    A <strong>replay attack</strong> occurs when a transaction broadcast on
+                    chain A is also valid on chain B, allowing an attacker to "replay" the
+                    transaction without the original sender's consent.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 26.3 (Replay Scenario)</p>
+                <p>
+                    Alice holds 1 BTC before a hard fork creating BTC and BTX. She wants to
+                    sell BTX while keeping BTC. She sends BTX to an exchange:
+                </p>
+                <ol>
+                    <li>Alice signs a transaction spending her output on BTX chain</li>
+                    <li>The exchange broadcasts this transaction on BTX</li>
+                    <li>Without replay protection, the same transaction is valid on BTC</li>
+                    <li>An attacker broadcasts it on BTC, stealing Alice's BTC</li>
+                </ol>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.8 (Replay Protection Mechanisms)</p>
+                <p>
+                    Replay protection makes transactions chain-specific:
+                </p>
+                <ul>
+                    <li><strong>Strong replay protection:</strong> Transaction format changed (e.g., different sighash flag)</li>
+                    <li><strong>Opt-in replay protection:</strong> New script opcodes for chain identification</li>
+                    <li><strong>UTXO taint:</strong> Spend fork-specific coinbase outputs first</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <!-- Fork point -->
+                    <rect x="50" y="70" width="60" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="80" y="95" text-anchor="middle" font-family="Georgia" font-size="9">Pre-fork</text>
+
+                    <!-- Chain A -->
+                    <rect x="160" y="30" width="80" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="200" y="52" text-anchor="middle" font-family="Georgia" font-size="9">Chain A</text>
+
+                    <!-- Chain B -->
+                    <rect x="160" y="115" width="80" height="35" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="200" y="137" text-anchor="middle" font-family="Georgia" font-size="9">Chain B</text>
+
+                    <!-- Fork lines -->
+                    <path d="M 110 80 L 160 47" stroke="#5a8f5a" stroke-width="1.5" fill="none"/>
+                    <path d="M 110 100 L 160 132" stroke="#c44" stroke-width="1.5" fill="none"/>
+
+                    <!-- Transaction -->
+                    <rect x="280" y="30" width="60" height="35" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="310" y="52" text-anchor="middle" font-family="Georgia" font-size="9">TX</text>
+
+                    <!-- Replay arrow -->
+                    <path d="M 310 65 L 310 115" stroke="#c44" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrowRed26)"/>
+                    <text x="330" y="95" font-family="Georgia" font-size="8" fill="#c44">Replay!</text>
+
+                    <!-- Protection -->
+                    <rect x="400" y="70" width="80" height="40" rx="4" fill="#d4edda" stroke="#28a745" stroke-width="1.5"/>
+                    <text x="440" y="85" text-anchor="middle" font-family="Georgia" font-size="8">Replay</text>
+                    <text x="440" y="100" text-anchor="middle" font-family="Georgia" font-size="8">Protection</text>
+
+                    <line x1="340" y1="47" x2="400" y2="80" stroke="#28a745" stroke-width="1.5"/>
+
+                    <defs>
+                        <marker id="arrowRed26" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 26.3: Without replay protection, transactions can be replayed across chains.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.4 (Bitcoin Cash Replay Protection)</p>
+                <p>
+                    Bitcoin Cash (BCH) implemented strong replay protection via a new sighash
+                    flag (SIGHASH_FORKID). Transactions include a fork identifier, making them
+                    invalid on the original Bitcoin chain.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.6 Fork Choice Rules</h2>
+
+            <p>
+                Different protocols use different rules to select between competing chains.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.9 (Fork Choice Rule)</p>
+                <p>
+                    A <strong>fork choice rule</strong> is a function that selects the "best"
+                    chain from a set of valid chains:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    FCR: 𝒫(Chains) → Chain
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.10 (Nakamoto Fork Choice)</p>
+                <p>
+                    Bitcoin's fork choice rule selects the chain with most cumulative work:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    FCR<sub>Nakamoto</sub>(C) = argmax<sub>c∈C</sub> Σ<sub>b∈c</sub> work(b)
+                </p>
+                <p>
+                    where work(b) = 2<sup>256</sup> / target(b) for block b.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.5 (Work vs. Length)</p>
+                <p>
+                    The "longest chain" description is imprecise. The correct rule is "most
+                    cumulative work." These differ when difficulty changes:
+                </p>
+                <ul>
+                    <li>Chain A: 10 blocks at difficulty 1 → work = 10</li>
+                    <li>Chain B: 5 blocks at difficulty 3 → work = 15</li>
+                </ul>
+                <p>
+                    Chain B wins despite being shorter.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.6 (Alternative Fork Choice Rules)</p>
+                <p>
+                    Other blockchain systems use different rules:
+                </p>
+                <ul>
+                    <li><strong>GHOST:</strong> Counts subtree weight, not just chain length</li>
+                    <li><strong>LMD-GHOST:</strong> Latest message driven, used in Ethereum PoS</li>
+                    <li><strong>Casper FFG:</strong> Finality gadget with economic guarantees</li>
+                </ul>
+                <p>
+                    Bitcoin's simplicity (pure cumulative work) provides strong security guarantees.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.7 Finality and Reorg Depth</h2>
+
+            <p>
+                Unlike some consensus systems, Bitcoin has probabilistic rather than
+                absolute finality.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.11 (k-Confirmation Security)</p>
+                <p>
+                    A transaction is <strong>k-confirmed</strong> when it is included in a block
+                    with k-1 blocks built on top of it. The probability of reversal decreases
+                    exponentially with k.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 26.4 (Double-Spend Probability)</p>
+                <p>
+                    Let q be the fraction of hash power controlled by an attacker, p = 1 − q
+                    with q &lt; p, and k be the number of confirmations. The probability that
+                    the attacker, once k blocks behind, ever catches up is (q/p)<sup>k</sup>.
+                    Accounting also for blocks the attacker mines during the confirmation
+                    period (Theorem 14.4), the probability of a successful double-spend is:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    P(double-spend) = 1 − Σ<sub>m=0</sub><sup>k</sup> [λ<sup>m</sup>e<sup>−λ</sup>/m! × (1 − (q/p)<sup>k−m</sup>)],&nbsp;&nbsp;λ = k(q/p)
+                </p>
+                <p>
+                    For q = 0.1 (10% attacker) and k = 6: P ≈ 0.02%
+                </p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Attacker Hash Rate</th>
+                        <th>1 conf</th>
+                        <th>3 conf</th>
+                        <th>6 conf</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10%</td>
+                        <td>20.5%</td>
+                        <td>1.3%</td>
+                        <td>0.02%</td>
+                    </tr>
+                    <tr>
+                        <td>25%</td>
+                        <td>52.2%</td>
+                        <td>19.6%</td>
+                        <td>5.0%</td>
+                    </tr>
+                    <tr>
+                        <td>33%</td>
+                        <td>69.0%</td>
+                        <td>41.7%</td>
+                        <td>21.3%</td>
+                    </tr>
+                    <tr>
+                        <td>45%</td>
+                        <td>92.0%</td>
+                        <td>84.4%</td>
+                        <td>76.6%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.7 (Deep Reorgs)</p>
+                <p>
+                    The deepest reorg in Bitcoin mainnet history was 53 blocks (2010), caused
+                    by a bug. Since protocol stabilization, reorgs deeper than 1-2 blocks
+                    are exceptionally rare. A deep reorg today would indicate either:
+                </p>
+                <ul>
+                    <li>A catastrophic bug</li>
+                    <li>A 51% attack</li>
+                    <li>An intentional rollback by social consensus (unprecedented)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.8 The Economics of Fork Creation</h2>
+
+            <p>
+                Creating a successful fork requires overcoming significant economic barriers.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.12 (Fork Viability Criteria)</p>
+                <p>
+                    A fork becomes economically viable when:
+                </p>
+                <ol>
+                    <li><strong>Hash power:</strong> Sufficient mining to maintain security</li>
+                    <li><strong>Liquidity:</strong> Exchange listings and trading pairs</li>
+                    <li><strong>Utility:</strong> Merchants, services, and use cases</li>
+                    <li><strong>Community:</strong> Developers, advocates, and users</li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.8 (Difficulty Death Spiral)</p>
+                <p>
+                    A minority fork sharing Bitcoin's difficulty adjustment algorithm faces a
+                    potential "death spiral":
+                </p>
+                <ol>
+                    <li>Fork starts with minority hash power (e.g., 10%)</li>
+                    <li>Block times increase ~10x (100 minutes vs 10 minutes)</li>
+                    <li>2016 blocks take ~20 weeks instead of 2 weeks</li>
+                    <li>Slow blocks reduce usability, driving away users</li>
+                    <li>Reduced value makes mining unprofitable</li>
+                    <li>Miners leave, exacerbating the problem</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 26.4 (Bitcoin Cash EDA)</p>
+                <p>
+                    Bitcoin Cash (2017) anticipated this problem by implementing an Emergency
+                    Difficulty Adjustment (EDA). When blocks were slow, difficulty dropped
+                    rapidly. This prevented the death spiral but created oscillations:
+                </p>
+                <ul>
+                    <li>Difficulty drops → miners switch from BTC to BCH</li>
+                    <li>Fast blocks → difficulty rises</li>
+                    <li>Miners switch back to BTC</li>
+                    <li>Slow blocks → difficulty drops again</li>
+                </ul>
+                <p>
+                    BCH later replaced EDA with a smoother algorithm (DAA).
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>26.9 Contentious vs. Non-Contentious Forks</h2>
+
+            <p>
+                The social dynamics of forks depend critically on whether the change is
+                controversial.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 26.13 (Fork Contention Spectrum)</p>
+                <ul>
+                    <li><strong>Non-contentious:</strong> Near-universal agreement (e.g., Taproot)</li>
+                    <li><strong>Mildly contentious:</strong> Disagreement on timing/details (e.g., SegWit activation)</li>
+                    <li><strong>Highly contentious:</strong> Fundamental disagreement (e.g., block size debate)</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.9 (Contentious Fork Outcomes)</p>
+                <p>
+                    Historical patterns for contentious forks:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fork</th>
+                            <th>Year</th>
+                            <th>Contention</th>
+                            <th>Outcome (2024)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Bitcoin XT</td>
+                            <td>2015</td>
+                            <td>High</td>
+                            <td>Abandoned</td>
+                        </tr>
+                        <tr>
+                            <td>Bitcoin Classic</td>
+                            <td>2016</td>
+                            <td>High</td>
+                            <td>Abandoned</td>
+                        </tr>
+                        <tr>
+                            <td>Bitcoin Unlimited</td>
+                            <td>2016</td>
+                            <td>High</td>
+                            <td>Marginal</td>
+                        </tr>
+                        <tr>
+                            <td>Bitcoin Cash</td>
+                            <td>2017</td>
+                            <td>High</td>
+                            <td>~0.5% BTC value</td>
+                        </tr>
+                        <tr>
+                            <td>Bitcoin SV</td>
+                            <td>2018</td>
+                            <td>High</td>
+                            <td>~0.1% BTC value</td>
+                        </tr>
+                        <tr>
+                            <td>SegWit (soft)</td>
+                            <td>2017</td>
+                            <td>Mild</td>
+                            <td>Universal adoption</td>
+                        </tr>
+                        <tr>
+                            <td>Taproot (soft)</td>
+                            <td>2021</td>
+                            <td>None</td>
+                            <td>Universal adoption</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 26.10 (Schelling Point Preservation)</p>
+                <p>
+                    Non-contentious soft forks preserve the Schelling point (focal point for
+                    coordination) because:
+                </p>
+                <ol>
+                    <li>Old nodes accept new-rules blocks</li>
+                    <li>No chain split forces choice</li>
+                    <li>The "default" remains unchanged</li>
+                </ol>
+                <p>
+                    Contentious hard forks challenge the Schelling point, requiring massive
+                    coordination to shift focal point to the new chain.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 26.1</p>
+                <p>
+                    Prove that if hash power is distributed such that no miner has more than
+                    1/n of the total, the expected time to natural fork resolution is bounded
+                    by 2·T<sub>block</sub> with high probability. What assumptions are needed?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 26.2</p>
+                <p>
+                    A proposed change would require all transactions to be at least 100 bytes.
+                    Is this a soft fork or hard fork? What about requiring transactions to be
+                    at most 100 bytes?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 26.3</p>
+                <p>
+                    Model the fork adoption game as a two-player game with payoff matrix.
+                    Find the Nash equilibria and determine conditions under which a challenger
+                    chain can succeed.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 26.4</p>
+                <p>
+                    Design a replay protection mechanism using only existing Script opcodes
+                    (no protocol changes). What are its limitations?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 26.5</p>
+                <p>
+                    Calculate the expected time for a 20% hash power minority fork to reach
+                    its first difficulty adjustment, assuming Bitcoin's 2016-block adjustment
+                    period. How does the EDA (Emergency Difficulty Adjustment) change this?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="25-debunking-myths.html" class="prev-chapter">← Chapter 25: Debunking Myths</a>
+            <a href="27-historical-forks.html" class="next-chapter">Chapter 27: Historical Hard Forks →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>

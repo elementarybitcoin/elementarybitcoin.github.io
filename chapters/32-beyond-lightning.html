@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 32: Beyond Lightning | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 32: Beyond Lightning - Ark, Statechains, Channel Factories, and next-generation Layer 2">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 32</p>
+        <h1>Beyond Lightning</h1>
+        <p class="chapter-subtitle">Next-Generation Layer 2 Protocols</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Lightning Network solved the payment channel problem, but its complexity and
+                liquidity requirements have spurred research into alternative Layer 2 designs.
+                This chapter examines emerging protocols—Ark, Statechains, Channel Factories,
+                and others—that offer different tradeoffs in interactivity, liquidity, and
+                on-chain footprint.
+            </p>
+        </section>
+
+        <section>
+            <h2>32.1 Lightning's Limitations</h2>
+
+            <p>
+                Understanding new L2 proposals requires understanding Lightning's constraints.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 32.1 (Lightning Limitations)</p>
+                <p>
+                    Lightning Network faces several challenges:
+                </p>
+                <ul>
+                    <li><strong>Inbound liquidity:</strong> Receivers need channel capacity toward them</li>
+                    <li><strong>Online requirement:</strong> Must be online to receive payments</li>
+                    <li><strong>Channel management:</strong> Opening/closing requires on-chain txs</li>
+                    <li><strong>Routing complexity:</strong> Finding paths is non-trivial</li>
+                    <li><strong>Capital efficiency:</strong> Liquidity locked in channels</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="150" viewBox="0 0 500 150">
+                    <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">L2 Design Space</text>
+
+                    <!-- Axes -->
+                    <line x1="50" y1="120" x2="450" y2="120" stroke="#666" stroke-width="1"/>
+                    <line x1="50" y1="120" x2="50" y2="40" stroke="#666" stroke-width="1"/>
+
+                    <text x="250" y="140" text-anchor="middle" font-family="Georgia" font-size="8">Trust / Interactivity →</text>
+                    <text x="25" y="80" text-anchor="middle" font-family="Georgia" font-size="8" transform="rotate(-90, 25, 80)">Capital Efficiency →</text>
+
+                    <!-- Protocols -->
+                    <circle cx="100" cy="100" r="15" fill="#f39c12" stroke="#c87f0a"/>
+                    <text x="100" y="105" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">LN</text>
+
+                    <circle cx="200" cy="70" r="15" fill="#3498db" stroke="#2980b9"/>
+                    <text x="200" y="75" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">Ark</text>
+
+                    <circle cx="300" cy="90" r="15" fill="#28a745" stroke="#1e7b34"/>
+                    <text x="300" y="95" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">State</text>
+
+                    <circle cx="380" cy="60" r="15" fill="#9b59b6" stroke="#7d3c98"/>
+                    <text x="380" y="65" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">Factory</text>
+                </svg>
+                <figcaption>Figure 32.1: Different L2 protocols make different tradeoffs.</figcaption>
+            </figure>
+        </section>
+
+        <section>
+            <h2>32.2 Ark Protocol</h2>
+
+            <p>
+                Ark is a new L2 design that trades interactivity for simplicity.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 32.2 (Ark)</p>
+                <p>
+                    <strong>Ark</strong> is an off-chain payment protocol where:
+                </p>
+                <ul>
+                    <li>An <strong>Ark Service Provider (ASP)</strong> facilitates payments</li>
+                    <li>Users hold <strong>virtual UTXOs (vTXOs)</strong> in shared outputs</li>
+                    <li>Payments happen by exchanging vTXOs</li>
+                    <li>No inbound liquidity needed</li>
+                    <li>Can receive while offline</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 32.3 (Ark Round)</p>
+                <p>
+                    Every few seconds, the ASP creates a <strong>round</strong>:
+                </p>
+                <ol>
+                    <li>Collects payment intents from users</li>
+                    <li>Creates new shared UTXO containing all recipients' vTXOs</li>
+                    <li>Creates transaction tree allowing unilateral exit</li>
+                    <li>Publishes round transaction</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- ASP -->
+                    <rect x="200" y="20" width="100" height="40" rx="4" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+                    <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="10" fill="white" font-weight="bold">ASP</text>
+
+                    <!-- Round UTXO -->
+                    <rect x="150" y="90" width="200" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="250" y="110" text-anchor="middle" font-family="Georgia" font-size="9" font-weight="bold">Shared UTXO (Round)</text>
+                    <text x="250" y="128" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Contains multiple vTXOs</text>
+
+                    <line x1="250" y1="60" x2="250" y2="90" stroke="#3498db" stroke-width="1.5"/>
+
+                    <!-- vTXOs -->
+                    <rect x="50" y="170" width="70" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="85" y="192" text-anchor="middle" font-family="Georgia" font-size="8">Alice vTXO</text>
+
+                    <rect x="140" y="170" width="70" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="175" y="192" text-anchor="middle" font-family="Georgia" font-size="8">Bob vTXO</text>
+
+                    <rect x="230" y="170" width="70" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="265" y="192" text-anchor="middle" font-family="Georgia" font-size="8">Carol vTXO</text>
+
+                    <rect x="320" y="170" width="70" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <text x="355" y="192" text-anchor="middle" font-family="Georgia" font-size="8">Dave vTXO</text>
+
+                    <!-- Connections -->
+                    <line x1="175" y1="140" x2="95" y2="170" stroke="#5a8f5a" stroke-width="1"/>
+                    <line x1="210" y1="140" x2="175" y2="170" stroke="#5a8f5a" stroke-width="1"/>
+                    <line x1="290" y1="140" x2="265" y2="170" stroke="#5a8f5a" stroke-width="1"/>
+                    <line x1="325" y1="140" x2="345" y2="170" stroke="#5a8f5a" stroke-width="1"/>
+
+                    <!-- Exit note -->
+                    <text x="440" y="190" font-family="Georgia" font-size="7" fill="#666">Each can exit</text>
+                    <text x="440" y="202" font-family="Georgia" font-size="7" fill="#666">unilaterally</text>
+                </svg>
+                <figcaption>Figure 32.2: Ark round structure with virtual UTXOs.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 32.1 (Ark Properties)</p>
+                <p>
+                    Ark provides:
+                </p>
+                <ul>
+                    <li><strong>Non-interactive receiving:</strong> Recipient doesn't need to be online</li>
+                    <li><strong>No inbound liquidity:</strong> ASP provides liquidity for everyone</li>
+                    <li><strong>Unilateral exit:</strong> Users can always claim on-chain</li>
+                    <li><strong>Privacy:</strong> Payments within rounds are unlinkable</li>
+                </ul>
+                <p>
+                    Tradeoffs:
+                </p>
+                <ul>
+                    <li><strong>ASP trust:</strong> Must trust ASP for liveness (not safety)</li>
+                    <li><strong>Expiring vTXOs:</strong> Must refresh before timeout</li>
+                    <li><strong>ASP capital:</strong> ASP must lock significant BTC</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 32.2 (Ark vs Lightning)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Lightning</th>
+                            <th>Ark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Receive offline</td>
+                            <td>No</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Inbound liquidity</td>
+                            <td>Required</td>
+                            <td>Not needed</td>
+                        </tr>
+                        <tr>
+                            <td>Payment latency</td>
+                            <td>Instant</td>
+                            <td>Round time (~5s)</td>
+                        </tr>
+                        <tr>
+                            <td>Channel management</td>
+                            <td>Complex</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Requires covenants</td>
+                            <td>No</td>
+                            <td>Optimal with CTV</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>32.3 Statechains</h2>
+
+            <p>
+                Statechains enable off-chain UTXO transfer without channels.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 32.4 (Statechain)</p>
+                <p>
+                    A <strong>statechain</strong> transfers UTXO ownership off-chain:
+                </p>
+                <ul>
+                    <li>UTXO is locked to a 2-of-2: user key + statechain entity (SE) key</li>
+                    <li>Transfer: user sends their key share to recipient, SE updates co-signer</li>
+                    <li>SE cannot steal (doesn't know full key) but can censor</li>
+                    <li>Backup transaction allows unilateral on-chain claim</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <!-- UTXO -->
+                    <rect x="30" y="70" width="100" height="50" rx="4" fill="#f39c12" stroke="#c87f0a" stroke-width="2"/>
+                    <text x="80" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="white" font-weight="bold">UTXO</text>
+                    <text x="80" y="108" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">2-of-2: Alice + SE</text>
+
+                    <!-- Transfer 1 -->
+                    <path d="M 130 95 L 180 95" stroke="#28a745" stroke-width="2" marker-end="url(#arrowGreen32)"/>
+                    <text x="155" y="85" font-family="Georgia" font-size="7" fill="#28a745">transfer</text>
+
+                    <rect x="180" y="70" width="100" height="50" rx="4" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+                    <text x="230" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="white" font-weight="bold">UTXO</text>
+                    <text x="230" y="108" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">2-of-2: Bob + SE</text>
+
+                    <!-- Transfer 2 -->
+                    <path d="M 280 95 L 330 95" stroke="#28a745" stroke-width="2" marker-end="url(#arrowGreen32)"/>
+                    <text x="305" y="85" font-family="Georgia" font-size="7" fill="#28a745">transfer</text>
+
+                    <rect x="330" y="70" width="100" height="50" rx="4" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+                    <text x="380" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="white" font-weight="bold">UTXO</text>
+                    <text x="380" y="108" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">2-of-2: Carol + SE</text>
+
+                    <!-- Note -->
+                    <text x="250" y="150" text-anchor="middle" font-family="Georgia" font-size="8">Same on-chain UTXO, ownership transferred off-chain</text>
+                    <text x="250" y="165" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">SE deletes old key shares after each transfer</text>
+
+                    <defs>
+                        <marker id="arrowGreen32" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#28a745"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 32.3: Statechain transfers UTXO ownership without on-chain transaction.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 32.5 (Mercury Layer)</p>
+                <p>
+                    <strong>Mercury Layer</strong> is a statechain implementation using:
+                </p>
+                <ul>
+                    <li>Blind signing by the SE (doesn't learn transaction details)</li>
+                    <li>Atomic swaps between statechains</li>
+                    <li>Fixed denominations for privacy</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 32.3 (Statechain Trust Model)</p>
+                <p>
+                    Statechain security properties:
+                </p>
+                <ul>
+                    <li><strong>SE cannot steal:</strong> Only has partial key</li>
+                    <li><strong>SE can censor:</strong> Can refuse to co-sign</li>
+                    <li><strong>SE can collude:</strong> With previous owner to double-spend</li>
+                    <li><strong>Backup tx:</strong> Allows on-chain exit if SE disappears</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>32.4 Channel Factories</h2>
+
+            <p>
+                Channel factories amortize on-chain costs across multiple channels.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 32.6 (Channel Factory)</p>
+                <p>
+                    A <strong>channel factory</strong> is a multi-party channel that can create
+                    and modify internal channels without on-chain transactions:
+                </p>
+                <ol>
+                    <li>N parties create a single on-chain funding output</li>
+                    <li>Off-chain, they create internal Lightning channels</li>
+                    <li>Channels can be rebalanced without on-chain txs</li>
+                    <li>Only factory open/close needs on-chain presence</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Factory funding -->
+                    <rect x="180" y="20" width="140" height="40" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="2"/>
+                    <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="9" fill="white" font-weight="bold">Factory UTXO (on-chain)</text>
+
+                    <!-- Internal channels -->
+                    <rect x="50" y="100" width="400" height="80" rx="4" fill="#f5f5f5" stroke="#999" stroke-dasharray="4,2"/>
+                    <text x="250" y="120" text-anchor="middle" font-family="Georgia" font-size="9">Off-chain Layer</text>
+
+                    <rect x="70" y="135" width="80" height="35" rx="4" fill="#3498db" stroke="#2980b9"/>
+                    <text x="110" y="157" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">A ↔ B</text>
+
+                    <rect x="170" y="135" width="80" height="35" rx="4" fill="#3498db" stroke="#2980b9"/>
+                    <text x="210" y="157" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">B ↔ C</text>
+
+                    <rect x="270" y="135" width="80" height="35" rx="4" fill="#3498db" stroke="#2980b9"/>
+                    <text x="310" y="157" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">C ↔ D</text>
+
+                    <rect x="370" y="135" width="70" height="35" rx="4" fill="#3498db" stroke="#2980b9"/>
+                    <text x="405" y="157" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">A ↔ D</text>
+
+                    <!-- Connection -->
+                    <line x1="250" y1="60" x2="250" y2="100" stroke="#28a745" stroke-width="1.5" stroke-dasharray="4,2"/>
+                </svg>
+                <figcaption>Figure 32.4: Channel factory with multiple internal channels.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 32.4 (Factory Scaling)</p>
+                <p>
+                    For a factory with n participants and m internal channels:
+                </p>
+                <ul>
+                    <li><strong>On-chain cost:</strong> 1 UTXO (amortized over n users)</li>
+                    <li><strong>Channel creation:</strong> O(n) signatures, no on-chain tx</li>
+                    <li><strong>Complexity:</strong> All n must sign for factory updates</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 32.5 (Factory Challenges)</p>
+                <p>
+                    Channel factories face practical issues:
+                </p>
+                <ul>
+                    <li><strong>Coordination:</strong> All parties must be online to update factory</li>
+                    <li><strong>One bad actor:</strong> Can force expensive on-chain closure</li>
+                    <li><strong>Complexity:</strong> State management is complex</li>
+                    <li><strong>Covenants would help:</strong> CTV could simplify coordination</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>32.5 LN-Symmetry (Eltoo)</h2>
+
+            <p>
+                A cleaner channel design that requires SIGHASH_ANYPREVOUT.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 32.7 (LN-Symmetry)</p>
+                <p>
+                    <strong>LN-Symmetry</strong> (formerly Eltoo) simplifies Lightning channels:
+                </p>
+                <ul>
+                    <li>No asymmetric states—both parties have same commitment tx</li>
+                    <li>No penalty mechanism needed</li>
+                    <li>State updates can be "rebased" on any prior state</li>
+                    <li>Requires ANYPREVOUT (BIP-118)</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 32.6 (Eltoo Advantages)</p>
+                <p>
+                    LN-Symmetry improves on LN-Penalty:
+                </p>
+                <ul>
+                    <li><strong>No toxic waste:</strong> Old states don't risk fund loss</li>
+                    <li><strong>Simpler watchtowers:</strong> Only need latest state</li>
+                    <li><strong>Multi-party channels:</strong> Much easier to implement</li>
+                    <li><strong>Smaller closure:</strong> Fewer transactions needed</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>32.6 Comparison Summary</h2>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Protocol</th>
+                        <th>Requires</th>
+                        <th>Best For</th>
+                        <th>Tradeoff</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Lightning</td>
+                        <td>Current Bitcoin</td>
+                        <td>Payments</td>
+                        <td>Liquidity, online</td>
+                    </tr>
+                    <tr>
+                        <td>Ark</td>
+                        <td>CTV (optimal)</td>
+                        <td>Easy onboarding</td>
+                        <td>ASP availability</td>
+                    </tr>
+                    <tr>
+                        <td>Statechains</td>
+                        <td>Current Bitcoin</td>
+                        <td>UTXO transfer</td>
+                        <td>Fixed amounts</td>
+                    </tr>
+                    <tr>
+                        <td>Factories</td>
+                        <td>CTV (optimal)</td>
+                        <td>LN scaling</td>
+                        <td>Coordination</td>
+                    </tr>
+                    <tr>
+                        <td>LN-Symmetry</td>
+                        <td>ANYPREVOUT</td>
+                        <td>Cleaner LN</td>
+                        <td>Soft fork needed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 32.1</p>
+                <p>
+                    Calculate the capital efficiency of an Ark Service Provider. If the ASP
+                    has 100 BTC locked and processes 1000 payments/day of average 0.01 BTC,
+                    what's the capital turnover rate?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 32.2</p>
+                <p>
+                    Design a hybrid protocol combining Lightning and Ark. How would you
+                    handle payments between users on different systems?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 32.3</p>
+                <p>
+                    Analyze the statechain double-spend attack. What makes it possible,
+                    and what mechanisms could reduce the risk?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 32.4</p>
+                <p>
+                    Model a channel factory with 10 participants. What's the probability
+                    that at least one goes offline during a factory update, assuming 95%
+                    individual uptime?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="31-sidechains.html" class="prev-chapter">← Chapter 31: Sidechains</a>
+            <a href="33-governance.html" class="next-chapter">Chapter 33: Bitcoin Governance →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>
