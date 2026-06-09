@@ -523,7 +523,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
                     Large payments can be split across multiple routes:
                 </p>
                 <ul>
-                    <li>Same payment_hash, different payment_secret per shard</li>
+                    <li>Same payment_hash and same payment_secret (from the invoice) across all shards; total_msat tells the receiver the full amount</li>
                     <li>Receiver waits for all shards before revealing preimage</li>
                     <li>Enables payments larger than any single channel capacity</li>
                     <li>Improves privacy by obscuring payment amounts</li>
@@ -556,7 +556,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
 
                     <!-- Receiver -->
                     <circle cx="500" cy="100" r="25" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
-                    <text x="500" y="105" text-anchor="middle" font-size="10" fill="white">Dave</text>
+                    <text x="500" y="105" text-anchor="middle" font-size="10" fill="white">Zoe</text>
 
                     <!-- Path 1 arrows -->
                     <path d="M 75 85 L 175 55" stroke="#4caf50" stroke-width="2" marker-end="url(#arr-g)"/>
@@ -820,8 +820,9 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
             <div class="exercise">
                 <p><strong>Exercise 24.6</strong></p>
                 <p>
-                    Explain why multi-path payments must use the same payment_hash but
-                    different payment_secrets. What attack would be possible otherwise?
+                    Explain why multi-path payments include a payment_secret (identical
+                    across shards) in the final-hop payload. What probing or
+                    fee-stealing attack does this prevent?
                 </p>
             </div>
         </section>

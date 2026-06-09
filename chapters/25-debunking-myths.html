@@ -332,15 +332,16 @@
                     With an LN-Penalty channel:
                 </p>
                 <ul>
-                    <li><strong>Minimum:</strong> Check blockchain once per CLTV delta (typically 1-2 weeks)</li>
+                    <li><strong>Minimum:</strong> Check the blockchain once per to_self_delay (the CSV delay on revoked commitments, commonly 144&ndash;2016 blocks: 1 day to 2 weeks)</li>
                     <li><strong>With watchtower:</strong> Watchtower monitors on your behalf</li>
                     <li><strong>eltoo channels:</strong> No punishment needed, just supersede old states</li>
                 </ul>
             </div>
 
             <p>
-                The risk is real but manageable. Checking once per week is sufficient for
-                typical 2016-block (2 week) timelocks. Watchtowers (Chapter 23) eliminate
+                The risk is real but manageable. Checking more often than the negotiated
+                to_self_delay is sufficient&mdash;once per week comfortably covers a
+                2016-block (2 week) delay. Watchtowers (Chapter 23) eliminate
                 even this requirement for most users.
             </p>
         </section>
@@ -547,8 +548,12 @@
                     Security budget sustainability requires:
                 </p>
                 <div class="formula">
-                    Total Fees ≥ Cost of Attack × Acceptable Attack Probability
+                    Cost of Attack ≥ Value Extractable by an Attack
                 </div>
+                <p>
+                    where the cost of attack is determined by the hashrate that fee
+                    revenue (plus subsidy) can sustain.
+                </p>
                 <p>
                     This depends on:
                 </p>
@@ -566,8 +571,8 @@
                     Historical fee revenue during high demand:
                 </p>
                 <ul>
-                    <li>2017 peak: ~30 BTC/block in fees</li>
-                    <li>2021 peak: ~10-15 BTC/block in fees</li>
+                    <li>2017 peak: ~10 BTC/block in fees (daily average, Dec 2017)</li>
+                    <li>2021 peak: ~2 BTC/block in fees (daily average, Apr 2021)</li>
                     <li>Regularly exceeds 1 BTC/block during congestion</li>
                 </ul>
                 <p>
