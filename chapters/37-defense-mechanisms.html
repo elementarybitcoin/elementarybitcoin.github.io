@@ -49,7 +49,10 @@
                 </p>
                 <ul>
                     <li>More confirmations = exponentially lower reversal probability</li>
-                    <li>Against attacker with hashrate q < 50%, k confirmations gives security ≈ (q/(1-q))<sup>k</sup></li>
+                    <li>Against an attacker with hashrate q &lt; 50%, the reversal probability is
+                    given by Nakamoto's formula (Theorem 36.1); it decays roughly geometrically
+                    in k, but the naive catch-up bound (q/(1-q))<sup>k</sup> understates it
+                    (q = 10%, k = 6: about 0.02%, not 0.0002%)</li>
                     <li>6 confirmations (~1 hour): Standard for large transactions</li>
                     <li>1 confirmation (~10 min): Often sufficient for small amounts</li>
                 </ul>
@@ -103,11 +106,11 @@
                     <text x="60" y="85" text-anchor="middle" font-family="Georgia" font-size="8" transform="rotate(-90, 60, 85)">P(reversal)</text>
 
                     <!-- Curve for q=25% -->
-                    <path d="M 80 60 Q 120 80 160 100 T 280 120 T 400 128" stroke="#c44" stroke-width="2" fill="none"/>
+                    <path d="M 80 50 Q 120 80 160 100 T 280 120 T 400 128" stroke="#c44" stroke-width="2" fill="none"/>
                     <text x="420" y="125" font-family="Georgia" font-size="7" fill="#c44">q=25%</text>
 
                     <!-- Curve for q=10% -->
-                    <path d="M 80 50 Q 100 90 130 115 T 200 128" stroke="#f39c12" stroke-width="2" fill="none"/>
+                    <path d="M 80 50 Q 100 100 130 122 T 200 130" stroke="#f39c12" stroke-width="2" fill="none"/>
                     <text x="220" y="125" font-family="Georgia" font-size="7" fill="#f39c12">q=10%</text>
 
                     <!-- Markers -->
