@@ -384,6 +384,81 @@ footer {
     margin: 0 auto;
 }
 
+/* Late-volume chapter layout (Ch 37-40 skeleton) */
+.volume-title, .part-title {
+    font-variant: small-caps;
+    color: var(--secondary-color);
+    margin: 0.2rem 0;
+}
+
+.part-title {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.chapter-header .subtitle {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--secondary-color);
+    margin: 0.5rem 0;
+}
+
+.chapter-quote {
+    font-style: italic;
+    text-align: center;
+    color: #555;
+    max-width: 600px;
+    margin: 1.5rem auto;
+    border: none;
+}
+
+.chapter-quote cite {
+    display: block;
+    margin-top: 0.5rem;
+    font-style: normal;
+    font-size: 0.9rem;
+}
+
+.key-concept, .info-box {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--definition-bg);
+    border-left: 4px solid #4a90d9;
+}
+
+.warning-box {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--exercise-bg);
+    border-left: 4px solid #c44;
+}
+
+.key-takeaways {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--theorem-bg);
+    border-left: 4px solid var(--accent-color);
+}
+
+.key-concept h3, .info-box h3, .warning-box h3, .key-takeaways h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    font-style: normal;
+    font-variant: small-caps;
+}
+
+.formula-block {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--theorem-bg);
+    text-align: center;
+    font-style: italic;
+}
+
+.formula-block code {
+    font-style: normal;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     body {
