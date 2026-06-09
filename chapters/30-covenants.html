@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 30: Covenant Proposals | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 30: Covenant Proposals - CTV, OP_CAT, OP_VAULT, and programmable spending restrictions">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 30</p>
+        <h1>Covenant Proposals</h1>
+        <p class="chapter-subtitle">Programmable Spending Restrictions</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                A <em>covenant</em> is a spending condition that restricts not just <em>who</em>
+                can spend, but <em>how</em> the funds can be spent—constraining future transactions.
+                This chapter examines the major covenant proposals under discussion: OP_CHECKTEMPLATEVERIFY
+                (CTV), OP_CAT, OP_VAULT, and others. We analyze their technical mechanisms,
+                use cases, and the tradeoffs that make covenant design contentious.
+            </p>
+        </section>
+
+        <section>
+            <h2>30.1 What Are Covenants?</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.1 (Covenant)</p>
+                <p>
+                    A <strong>covenant</strong> is a script mechanism that constrains how an
+                    output can be spent beyond simple authorization. Specifically, it can
+                    restrict:
+                </p>
+                <ul>
+                    <li>What outputs the spending transaction must create</li>
+                    <li>What other inputs must be included</li>
+                    <li>Transaction-level properties (locktime, version, etc.)</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.2 (Introspection)</p>
+                <p>
+                    <strong>Introspection</strong> is the ability of a script to examine
+                    properties of its containing transaction. Covenants require some form
+                    of introspection to constrain spending.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Traditional Script -->
+                    <rect x="30" y="40" width="180" height="70" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="120" y="60" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Traditional Script</text>
+                    <text x="120" y="80" text-anchor="middle" font-family="Georgia" font-size="9">Constrains: WHO can spend</text>
+                    <text x="120" y="95" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(signature check)</text>
+
+                    <!-- Covenant Script -->
+                    <rect x="290" y="40" width="180" height="70" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="380" y="60" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Covenant Script</text>
+                    <text x="380" y="80" text-anchor="middle" font-family="Georgia" font-size="9">Constrains: WHO + HOW</text>
+                    <text x="380" y="95" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(spending conditions)</text>
+
+                    <!-- Examples -->
+                    <text x="120" y="135" text-anchor="middle" font-family="Georgia" font-size="8">"Alice can spend"</text>
+                    <text x="380" y="130" text-anchor="middle" font-family="Georgia" font-size="8">"Alice can spend,</text>
+                    <text x="380" y="142" text-anchor="middle" font-family="Georgia" font-size="8">but only to Bob or Carol"</text>
+
+                    <!-- Arrow -->
+                    <path d="M 210 75 L 290 75" stroke="#666" stroke-width="2" marker-end="url(#arrow30)"/>
+                    <text x="250" y="65" text-anchor="middle" font-family="Georgia" font-size="8">+Covenant</text>
+
+                    <defs>
+                        <marker id="arrow30" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 30.1: Covenants add HOW constraints to the traditional WHO authorization.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 30.1 (Why Bitcoin Lacks Covenants)</p>
+                <p>
+                    Bitcoin Script currently has no introspection opcodes. A script cannot
+                    examine:
+                </p>
+                <ul>
+                    <li>The outputs of the spending transaction</li>
+                    <li>Other inputs being spent</li>
+                    <li>Transaction metadata beyond the current input</li>
+                </ul>
+                <p>
+                    This was a deliberate design choice—simplicity and security over
+                    programmability.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>30.2 OP_CHECKTEMPLATEVERIFY (CTV)</h2>
+
+            <p>
+                CTV (BIP-119) is the simplest and most conservative covenant proposal.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.3 (OP_CHECKTEMPLATEVERIFY)</p>
+                <p>
+                    <strong>OP_CTV</strong> takes a 32-byte hash from the stack and verifies
+                    that it matches a commitment to the spending transaction's:
+                </p>
+                <ul>
+                    <li>nVersion</li>
+                    <li>nLockTime</li>
+                    <li>scriptSig hash (if any scriptSig is non-empty)</li>
+                    <li>Number of inputs</li>
+                    <li>Sequences hash</li>
+                    <li>Number of outputs</li>
+                    <li>Outputs hash</li>
+                    <li>Input index (which input is being spent)</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.4 (CTV Template Hash)</p>
+                <p>
+                    The template hash is computed as:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+DefaultCheckTemplateVerifyHash(tx, input_index):
+    return SHA256(
+        nVersion ||
+        nLockTime ||
+        SHA256(scriptSigs) ||      // if any
+        input_count ||
+        SHA256(sequences) ||
+        output_count ||
+        SHA256(outputs) ||
+        input_index
+    )</pre>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- CTV Output -->
+                    <rect x="30" y="30" width="150" height="60" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="105" y="50" text-anchor="middle" font-family="Georgia" font-size="9" font-weight="bold">CTV Output</text>
+                    <text x="105" y="70" text-anchor="middle" font-family="monospace" font-size="7">&lt;hash&gt; OP_CTV</text>
+
+                    <!-- Arrow -->
+                    <path d="M 180 60 L 230 60" stroke="#666" stroke-width="1.5" marker-end="url(#arrow30b)"/>
+                    <text x="205" y="50" text-anchor="middle" font-family="Georgia" font-size="8">spend</text>
+
+                    <!-- Spending TX -->
+                    <rect x="230" y="20" width="240" height="150" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <text x="350" y="40" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Spending Transaction</text>
+
+                    <!-- TX fields that are committed -->
+                    <rect x="245" y="55" width="100" height="20" fill="#d4edda" stroke="#28a745"/>
+                    <text x="295" y="69" text-anchor="middle" font-family="Georgia" font-size="7">nVersion ✓</text>
+
+                    <rect x="355" y="55" width="100" height="20" fill="#d4edda" stroke="#28a745"/>
+                    <text x="405" y="69" text-anchor="middle" font-family="Georgia" font-size="7">nLockTime ✓</text>
+
+                    <rect x="245" y="80" width="210" height="25" fill="#d4edda" stroke="#28a745"/>
+                    <text x="350" y="97" text-anchor="middle" font-family="Georgia" font-size="8">Outputs (hash committed) ✓</text>
+
+                    <rect x="245" y="110" width="100" height="20" fill="#d4edda" stroke="#28a745"/>
+                    <text x="295" y="124" text-anchor="middle" font-family="Georgia" font-size="7">Input count ✓</text>
+
+                    <rect x="355" y="110" width="100" height="20" fill="#d4edda" stroke="#28a745"/>
+                    <text x="405" y="124" text-anchor="middle" font-family="Georgia" font-size="7">Sequences ✓</text>
+
+                    <rect x="245" y="135" width="100" height="20" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="295" y="149" text-anchor="middle" font-family="Georgia" font-size="7">Inputs (NOT)</text>
+
+                    <!-- Note -->
+                    <text x="250" y="195" font-family="Georgia" font-size="8" fill="#666">CTV constrains outputs but NOT which inputs fund the tx</text>
+                    <text x="250" y="210" font-family="Georgia" font-size="8" fill="#666">→ Enables fee bumping via additional inputs</text>
+
+                    <defs>
+                        <marker id="arrow30b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 30.2: CTV commits to most transaction fields except which inputs fund it.</figcaption>
+            </figure>
+
+            <h3>30.2.1 CTV Use Cases</h3>
+
+            <div class="example">
+                <p class="example-title">Example 30.1 (Congestion Control / Payment Batching)</p>
+                <p>
+                    An exchange wants to batch withdrawals but fees spike. With CTV:
+                </p>
+                <ol>
+                    <li>Create single output: CTV(hash of batch expansion)</li>
+                    <li>Commit to a tree of future transactions</li>
+                    <li>Users can later expand their branch when fees drop</li>
+                    <li>Exchange's commitment is on-chain immediately</li>
+                </ol>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Root CTV -->
+                    <rect x="200" y="20" width="100" height="40" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="2"/>
+                    <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">CTV Root</text>
+
+                    <!-- Level 1 -->
+                    <rect x="100" y="90" width="80" height="35" rx="4" fill="#5a8f5a" stroke="#3a6f3a"/>
+                    <text x="140" y="112" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">CTV</text>
+
+                    <rect x="320" y="90" width="80" height="35" rx="4" fill="#5a8f5a" stroke="#3a6f3a"/>
+                    <text x="360" y="112" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">CTV</text>
+
+                    <!-- Level 2 -->
+                    <rect x="30" y="150" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="60" y="169" text-anchor="middle" font-family="Georgia" font-size="7">Alice</text>
+
+                    <rect x="110" y="150" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="140" y="169" text-anchor="middle" font-family="Georgia" font-size="7">Bob</text>
+
+                    <rect x="250" y="150" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="280" y="169" text-anchor="middle" font-family="Georgia" font-size="7">Carol</text>
+
+                    <rect x="330" y="150" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="360" y="169" text-anchor="middle" font-family="Georgia" font-size="7">Dave</text>
+
+                    <rect x="410" y="150" width="60" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <text x="440" y="169" text-anchor="middle" font-family="Georgia" font-size="7">Eve</text>
+
+                    <!-- Connections -->
+                    <line x1="230" y1="60" x2="150" y2="90" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <line x1="270" y1="60" x2="350" y2="90" stroke="#3a6f3a" stroke-width="1.5"/>
+
+                    <line x1="125" y1="125" x2="70" y2="150" stroke="#5a8f5a"/>
+                    <line x1="155" y1="125" x2="150" y2="150" stroke="#5a8f5a"/>
+
+                    <line x1="340" y1="125" x2="290" y2="150" stroke="#5a8f5a"/>
+                    <line x1="360" y1="125" x2="360" y2="150" stroke="#5a8f5a"/>
+                    <line x1="380" y1="125" x2="430" y2="150" stroke="#5a8f5a"/>
+                </svg>
+                <figcaption>Figure 30.3: CTV enables tree-structured withdrawal batching.</figcaption>
+            </figure>
+
+            <div class="example">
+                <p class="example-title">Example 30.2 (Simple Vault)</p>
+                <p>
+                    A basic vault with CTV:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+Vault Script:
+  IF
+    &lt;hot_key&gt; CHECKSIG         // Immediate spend (compromised!)
+  ELSE
+    &lt;ctv_hash&gt; CTV             // Must go to staged withdrawal
+  ENDIF
+
+Staged Withdrawal (CTV-enforced):
+  - Output 1: Time-locked return to vault (clawback)
+  - Output 2: Time-locked to destination (actual withdrawal)</pre>
+            </div>
+
+            <h3>30.2.2 CTV Controversy</h3>
+
+            <div class="remark">
+                <p class="remark-title">Remark 30.2 (CTV Debate)</p>
+                <p>
+                    CTV has been controversial despite its simplicity:
+                </p>
+                <ul>
+                    <li><strong>Proponents:</strong> Minimal, well-analyzed, enables useful patterns</li>
+                    <li><strong>Opponents:</strong> Too limited, may need replacement soon</li>
+                    <li><strong>Concerns:</strong> Could enable new MEV-like extraction</li>
+                    <li><strong>Process:</strong> Activation attempts have stalled multiple times</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>30.3 OP_CAT</h2>
+
+            <p>
+                OP_CAT (concatenation) was disabled in 2010 but proposals to re-enable it
+                have gained traction.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.5 (OP_CAT)</p>
+                <p>
+                    <strong>OP_CAT</strong> concatenates two stack elements:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+Stack before: [x] [y]
+OP_CAT
+Stack after:  [x || y]</pre>
+                <p>
+                    BIP-347 proposes re-enabling CAT in Tapscript with a 520-byte limit.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Theorem 30.1 (CAT Enables Covenants)</p>
+                <p>
+                    OP_CAT combined with Schnorr signatures enables introspection through
+                    signature reconstruction:
+                </p>
+                <ol>
+                    <li>Schnorr signature: (R, s) where s = k + H(R||P||m)·d</li>
+                    <li>Script reconstructs m (the sighash) using CAT</li>
+                    <li>Script verifies the signature against reconstructed message</li>
+                    <li>If valid, script has verified properties of m (the transaction)</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 30.3 (CAT-based Vault)</p>
+                <p>
+                    Using CAT to verify transaction outputs:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+// Conceptual (simplified)
+&lt;expected_output_script&gt;
+&lt;actual_output_from_witness&gt;
+OP_EQUAL                        // Verify output matches
+OP_VERIFY
+
+// Then verify the sighash includes this output
+&lt;sig_components...&gt;
+OP_CAT OP_CAT ...               // Reconstruct sighash
+&lt;signature&gt;
+&lt;pubkey&gt;
+OP_CHECKSIG</pre>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 30.3 (CAT Power and Concerns)</p>
+                <p>
+                    OP_CAT is surprisingly powerful:
+                </p>
+                <ul>
+                    <li><strong>Enables:</strong> Covenants, validity proofs, Lamport signatures</li>
+                    <li><strong>Recursive covenants:</strong> Potentially possible with CAT</li>
+                    <li><strong>Script complexity:</strong> CAT-based covenants are complex</li>
+                    <li><strong>Audit difficulty:</strong> Harder to reason about than CTV</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>30.4 OP_VAULT (BIP-345)</h2>
+
+            <p>
+                OP_VAULT is a purpose-built opcode specifically for secure custody.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.6 (OP_VAULT)</p>
+                <p>
+                    <strong>OP_VAULT</strong> (BIP-345) creates a two-stage withdrawal process:
+                </p>
+                <ul>
+                    <li><strong>Trigger:</strong> Initiates withdrawal, starts timelock</li>
+                    <li><strong>Recovery:</strong> Can cancel during timelock period</li>
+                    <li><strong>Complete:</strong> After timelock, funds go to destination</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                    <!-- Vault UTXO -->
+                    <rect x="30" y="80" width="80" height="50" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="2"/>
+                    <text x="70" y="100" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">Vault</text>
+                    <text x="70" y="115" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">UTXO</text>
+
+                    <!-- Trigger path -->
+                    <path d="M 110 95 L 160 60" stroke="#f39c12" stroke-width="2" marker-end="url(#arrowOrange30)"/>
+                    <text x="135" y="65" font-family="Georgia" font-size="7" fill="#f39c12">trigger</text>
+
+                    <!-- Triggered state -->
+                    <rect x="160" y="35" width="100" height="50" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="210" y="55" text-anchor="middle" font-family="Georgia" font-size="8">Triggered</text>
+                    <text x="210" y="70" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">timelock: 24h</text>
+
+                    <!-- Recovery path -->
+                    <path d="M 185 85 L 160 120" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed30)"/>
+                    <text x="145" y="110" font-family="Georgia" font-size="7" fill="#c44">recover</text>
+
+                    <!-- Back to vault -->
+                    <rect x="130" y="130" width="80" height="40" rx="4" fill="#28a745" stroke="#1e7b34"/>
+                    <text x="170" y="155" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">Back to Vault</text>
+
+                    <!-- Complete path -->
+                    <path d="M 260 60 L 320 60" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrowGreen30)"/>
+                    <text x="290" y="50" font-family="Georgia" font-size="7" fill="#5a8f5a">complete</text>
+
+                    <!-- Final destination -->
+                    <rect x="320" y="35" width="100" height="50" rx="4" fill="#d4edda" stroke="#28a745"/>
+                    <text x="370" y="55" text-anchor="middle" font-family="Georgia" font-size="8">Destination</text>
+                    <text x="370" y="70" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">(withdrawal)</text>
+
+                    <!-- Direct recovery -->
+                    <path d="M 110 115 L 130 140" stroke="#c44" stroke-width="1.5" marker-end="url(#arrowRed30)"/>
+                    <text x="85" y="135" font-family="Georgia" font-size="7" fill="#c44">emergency</text>
+
+                    <!-- Timeline -->
+                    <line x1="160" y1="190" x2="420" y2="190" stroke="#666" stroke-width="1"/>
+                    <text x="160" y="205" font-family="Georgia" font-size="7">t=0</text>
+                    <text x="290" y="205" font-family="Georgia" font-size="7">timelock</text>
+                    <text x="420" y="205" font-family="Georgia" font-size="7">complete</text>
+
+                    <defs>
+                        <marker id="arrowOrange30" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#f39c12"/>
+                        </marker>
+                        <marker id="arrowRed30" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#c44"/>
+                        </marker>
+                        <marker id="arrowGreen30" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 30.4: OP_VAULT lifecycle with trigger, recovery, and completion paths.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.7 (OP_VAULT Opcodes)</p>
+                <p>
+                    BIP-345 introduces two new opcodes:
+                </p>
+                <ul>
+                    <li><strong>OP_VAULT:</strong> Creates vault with recovery and trigger paths</li>
+                    <li><strong>OP_VAULT_RECOVER:</strong> Specialized for recovery spending</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 30.4 (Vault Security Properties)</p>
+                <p>
+                    OP_VAULT provides security guarantees:
+                </p>
+                <ol>
+                    <li><strong>Theft prevention:</strong> Attacker with trigger key cannot steal immediately</li>
+                    <li><strong>Recovery window:</strong> Owner has timelock period to react</li>
+                    <li><strong>Emergency recovery:</strong> Recovery key bypasses normal flow</li>
+                    <li><strong>No key rotation:</strong> Recovery works even if trigger key compromised</li>
+                </ol>
+            </div>
+        </section>
+
+        <section>
+            <h2>30.5 Other Covenant Proposals</h2>
+
+            <h3>30.5.1 SIGHASH_ANYPREVOUT (BIP-118)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.8 (ANYPREVOUT)</p>
+                <p>
+                    <strong>SIGHASH_ANYPREVOUT</strong> creates signatures that don't commit
+                    to specific inputs:
+                </p>
+                <ul>
+                    <li>Signature valid for any UTXO with matching script</li>
+                    <li>Enables "floating" transactions</li>
+                    <li>Primary use: LN-Symmetry (Eltoo) protocol</li>
+                </ul>
+            </div>
+
+            <h3>30.5.2 OP_TXHASH / OP_CHECKTXHASHVERIFY</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.9 (TXHASH)</p>
+                <p>
+                    <strong>OP_TXHASH</strong> provides flexible transaction introspection:
+                </p>
+                <ul>
+                    <li>Field selector specifies which parts to hash</li>
+                    <li>More flexible than CTV's fixed commitment</li>
+                    <li>Can commit to outputs only, inputs only, or various combinations</li>
+                </ul>
+            </div>
+
+            <h3>30.5.3 OP_CHECKSIGFROMSTACK</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.10 (CSFS)</p>
+                <p>
+                    <strong>OP_CHECKSIGFROMSTACK</strong> verifies a signature against arbitrary
+                    data (not the transaction sighash):
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+Stack: [signature] [message] [pubkey]
+OP_CHECKSIGFROMSTACK
+Stack: [1 if valid]</pre>
+                <p>
+                    Enables oracles, delegation, and complex covenant constructions.
+                </p>
+            </div>
+
+            <h3>30.5.4 Comparison Table</h3>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Proposal</th>
+                        <th>Complexity</th>
+                        <th>Power</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CTV (BIP-119)</td>
+                        <td>Low</td>
+                        <td>Limited covenants</td>
+                        <td>Proposed, stalled</td>
+                    </tr>
+                    <tr>
+                        <td>CAT (BIP-347)</td>
+                        <td>Low opcode, high usage</td>
+                        <td>General covenants</td>
+                        <td>Proposed</td>
+                    </tr>
+                    <tr>
+                        <td>VAULT (BIP-345)</td>
+                        <td>Medium</td>
+                        <td>Custody-specific</td>
+                        <td>Proposed</td>
+                    </tr>
+                    <tr>
+                        <td>APO (BIP-118)</td>
+                        <td>Low</td>
+                        <td>LN-Symmetry</td>
+                        <td>Proposed</td>
+                    </tr>
+                    <tr>
+                        <td>TXHASH</td>
+                        <td>Medium</td>
+                        <td>Flexible covenants</td>
+                        <td>Draft</td>
+                    </tr>
+                    <tr>
+                        <td>CSFS</td>
+                        <td>Low</td>
+                        <td>Oracles, delegation</td>
+                        <td>Discussion</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>30.6 Recursive Covenants and Concerns</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 30.11 (Recursive Covenant)</p>
+                <p>
+                    A <strong>recursive covenant</strong> can enforce that outputs must
+                    themselves be encumbered by the same (or similar) covenant:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    spend(covenant) → outputs must have covenant
+                </p>
+                <p>
+                    This creates perpetual spending restrictions.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 30.5 (Recursive Covenant Implications)</p>
+                <p>
+                    Recursive covenants enable:
+                </p>
+                <ul>
+                    <li><strong>Positive:</strong> Perpetual vaults, on-chain governance, colored coins</li>
+                    <li><strong>Concerning:</strong> "Tainted" coins, censorship infrastructure</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 30.6 (The Fungibility Debate)</p>
+                <p>
+                    A key concern about recursive covenants:
+                </p>
+                <ul>
+                    <li>Could governments mandate covenants on regulated coins?</li>
+                    <li>Would "covenant-free" coins trade at premium?</li>
+                    <li>Does this threaten Bitcoin's fungibility?</li>
+                </ul>
+                <p>
+                    Counter-arguments:
+                </p>
+                <ul>
+                    <li>Coerced covenant adoption already possible via regulation</li>
+                    <li>Covenants are opt-in; users choose to use them</li>
+                    <li>Benefits (vaults, scaling) may outweigh risks</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>30.7 Covenant Applications</h2>
+
+            <div class="example">
+                <p class="example-title">Example 30.4 (Summary of Applications)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Application</th>
+                            <th>Minimum Requirement</th>
+                            <th>Benefit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Vaults</td>
+                            <td>CTV or VAULT</td>
+                            <td>Custody security</td>
+                        </tr>
+                        <tr>
+                            <td>Congestion control</td>
+                            <td>CTV</td>
+                            <td>Fee smoothing</td>
+                        </tr>
+                        <tr>
+                            <td>Channel factories</td>
+                            <td>CTV + APO</td>
+                            <td>LN scaling</td>
+                        </tr>
+                        <tr>
+                            <td>LN-Symmetry</td>
+                            <td>APO</td>
+                            <td>Simpler channels</td>
+                        </tr>
+                        <tr>
+                            <td>DLCs</td>
+                            <td>CTV or CSFS</td>
+                            <td>Efficient oracles</td>
+                        </tr>
+                        <tr>
+                            <td>Validity rollups</td>
+                            <td>CAT + more</td>
+                            <td>L2 scaling</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 30.1</p>
+                <p>
+                    Design a CTV-based "dead man's switch" that automatically sends funds
+                    to heirs if not renewed annually. What are the limitations?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 30.2</p>
+                <p>
+                    Explain how OP_CAT + CHECKSIG can verify that a spending transaction
+                    has specific outputs. What stack manipulations are required?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 30.3</p>
+                <p>
+                    Compare the on-chain footprint of a 3-of-5 multisig vault using:
+                    (a) Current Taproot/MuSig, (b) OP_VAULT, (c) CTV-based vault.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 30.4</p>
+                <p>
+                    Analyze the fungibility implications of recursive covenants. Could a
+                    government effectively "mark" Bitcoin with spending restrictions?
+                    What would users do in response?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 30.5</p>
+                <p>
+                    SIGHASH_ANYPREVOUT enables "floating" transactions. Design an attack
+                    scenario where this could be dangerous, and explain how the proposed
+                    restrictions in BIP-118 mitigate it.
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="29-taproot-architecture.html" class="prev-chapter">← Chapter 29: Taproot Architecture</a>
+            <a href="31-sidechains.html" class="next-chapter">Chapter 31: Sidechains →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>

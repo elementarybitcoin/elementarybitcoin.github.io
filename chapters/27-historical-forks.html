@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 27: Historical Hard Forks | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 27: Historical Hard Forks - Analysis of Bitcoin Cash, Bitcoin SV, Bitcoin Gold, and other chain splits">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 27</p>
+        <h1>Historical Hard Forks</h1>
+        <p class="chapter-subtitle">A Post-Mortem Analysis</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Bitcoin's history is marked by several contentious hard forks, each representing
+                a fundamental disagreement about the protocol's direction. This chapter provides
+                a rigorous analysis of major chain splits—their technical motivations, implementation
+                details, economic outcomes, and lessons learned. We examine these forks not to
+                judge their merits but to understand the dynamics of decentralized protocol evolution.
+            </p>
+        </section>
+
+        <section>
+            <h2>27.1 The Block Size Debate: Background</h2>
+
+            <p>
+                To understand Bitcoin's hard forks, we must first understand the conflict that
+                produced them: the block size debate.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.1 (Block Size Limit)</p>
+                <p>
+                    Bitcoin's consensus rules include a maximum block size, originally bounded
+                    only by the 32 MB network message limit, then set to 1 MB in 2010
+                    (commit 172f006):
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.9rem; overflow-x: auto;">
+if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
+    return error("CheckBlock(): size limits failed");</pre>
+                <p>
+                    This limit was later redefined as 4 million weight units (SegWit, 2017),
+                    allowing blocks up to ~4 MB with witness data.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.1 (The Scaling Trilemma Applied)</p>
+                <p>
+                    The block size debate represents a manifestation of the scaling trilemma:
+                </p>
+                <ul>
+                    <li><strong>Throughput:</strong> Larger blocks → more transactions per second</li>
+                    <li><strong>Decentralization:</strong> Larger blocks → higher node costs → fewer nodes</li>
+                    <li><strong>Security:</strong> Fewer nodes → increased centralization risk</li>
+                </ul>
+                <p>
+                    The debate centered on where to position this tradeoff.
+                </p>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Timeline -->
+                    <line x1="50" y1="100" x2="450" y2="100" stroke="#666" stroke-width="2"/>
+
+                    <!-- Events -->
+                    <circle cx="80" cy="100" r="5" fill="#5a8f5a"/>
+                    <text x="80" y="85" text-anchor="middle" font-family="Georgia" font-size="8">2010</text>
+                    <text x="80" y="130" text-anchor="middle" font-family="Georgia" font-size="7">1MB limit</text>
+                    <text x="80" y="142" text-anchor="middle" font-family="Georgia" font-size="7">added</text>
+
+                    <circle cx="150" cy="100" r="5" fill="#f39c12"/>
+                    <text x="150" y="85" text-anchor="middle" font-family="Georgia" font-size="8">2015</text>
+                    <text x="150" y="130" text-anchor="middle" font-family="Georgia" font-size="7">Bitcoin XT</text>
+
+                    <circle cx="200" cy="100" r="5" fill="#f39c12"/>
+                    <text x="200" y="85" text-anchor="middle" font-family="Georgia" font-size="8">2016</text>
+                    <text x="200" y="130" text-anchor="middle" font-family="Georgia" font-size="7">Classic/</text>
+                    <text x="200" y="142" text-anchor="middle" font-family="Georgia" font-size="7">Unlimited</text>
+
+                    <circle cx="270" cy="100" r="5" fill="#c44"/>
+                    <text x="270" y="85" text-anchor="middle" font-family="Georgia" font-size="8">Aug 2017</text>
+                    <text x="270" y="130" text-anchor="middle" font-family="Georgia" font-size="7">Bitcoin</text>
+                    <text x="270" y="142" text-anchor="middle" font-family="Georgia" font-size="7">Cash</text>
+
+                    <circle cx="330" cy="100" r="5" fill="#5a8f5a"/>
+                    <text x="330" y="85" text-anchor="middle" font-family="Georgia" font-size="8">Aug 2017</text>
+                    <text x="330" y="130" text-anchor="middle" font-family="Georgia" font-size="7">SegWit</text>
+                    <text x="330" y="142" text-anchor="middle" font-family="Georgia" font-size="7">activates</text>
+
+                    <circle cx="390" cy="100" r="5" fill="#c44"/>
+                    <text x="390" y="85" text-anchor="middle" font-family="Georgia" font-size="8">Nov 2018</text>
+                    <text x="390" y="130" text-anchor="middle" font-family="Georgia" font-size="7">BCH/BSV</text>
+                    <text x="390" y="142" text-anchor="middle" font-family="Georgia" font-size="7">split</text>
+
+                    <!-- Legend -->
+                    <circle cx="100" cy="175" r="4" fill="#5a8f5a"/>
+                    <text x="115" y="178" font-family="Georgia" font-size="8">Soft fork</text>
+                    <circle cx="180" cy="175" r="4" fill="#f39c12"/>
+                    <text x="195" y="178" font-family="Georgia" font-size="8">Proposal</text>
+                    <circle cx="260" cy="175" r="4" fill="#c44"/>
+                    <text x="275" y="178" font-family="Georgia" font-size="8">Hard fork</text>
+                </svg>
+                <figcaption>Figure 27.1: Timeline of the block size debate and resulting forks.</figcaption>
+            </figure>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.2 (The Two Scaling Philosophies)</p>
+                <p>
+                    <strong>On-chain scaling:</strong> Increase block size to accommodate more
+                    transactions directly on the base layer. Advocates argued this was Satoshi's
+                    original vision and necessary for mainstream adoption.
+                </p>
+                <p>
+                    <strong>Layer-2 scaling:</strong> Keep base layer small and secure; scale
+                    via payment channels (Lightning), sidechains, and other off-chain solutions.
+                    Advocates argued this preserves decentralization and enables novel use cases.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>27.2 Failed Fork Attempts (2015-2017)</h2>
+
+            <p>
+                Before Bitcoin Cash, several attempts to increase the block size failed to
+                gain sufficient support.
+            </p>
+
+            <h3>27.2.1 Bitcoin XT (August 2015)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.3 (Bitcoin XT)</p>
+                <p>
+                    <strong>Bitcoin XT</strong> was a fork of Bitcoin Core by Mike Hearn and
+                    Gavin Andresen implementing BIP-101:
+                </p>
+                <ul>
+                    <li>Initial 8 MB block size</li>
+                    <li>Doubling every 2 years until 8 GB</li>
+                    <li>Activation at 75% miner support</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.2 (XT Failure Analysis)</p>
+                <p>
+                    Bitcoin XT failed due to:
+                </p>
+                <ol>
+                    <li><strong>Insufficient miner signaling:</strong> Never approached 75% threshold</li>
+                    <li><strong>Community opposition:</strong> Perceived as hostile takeover</li>
+                    <li><strong>Technical concerns:</strong> Exponential growth criticized as reckless</li>
+                    <li><strong>DDoS attacks:</strong> XT nodes were targeted (controversial)</li>
+                </ol>
+                <p>
+                    Peak XT node share: ~12% (late 2015), then rapid decline.
+                </p>
+            </div>
+
+            <h3>27.2.2 Bitcoin Classic (February 2016)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.4 (Bitcoin Classic)</p>
+                <p>
+                    <strong>Bitcoin Classic</strong> proposed a more conservative increase:
+                </p>
+                <ul>
+                    <li>2 MB block size (one-time increase)</li>
+                    <li>Activation at 75% miner support over 28 days</li>
+                    <li>Positioned as compromise solution</li>
+                </ul>
+            </div>
+
+            <h3>27.2.3 Bitcoin Unlimited (December 2015)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.5 (Bitcoin Unlimited)</p>
+                <p>
+                    <strong>Bitcoin Unlimited</strong> took a radical approach: no hard-coded
+                    limit. Instead:
+                </p>
+                <ul>
+                    <li>Miners set their own limits ("Emergent Consensus")</li>
+                    <li>Market forces determine equilibrium block size</li>
+                    <li>Users configure acceptance depth for larger blocks</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.3 (Emergent Consensus Critique)</p>
+                <p>
+                    The "Emergent Consensus" model has a game-theoretic flaw: without a
+                    Schelling point (hard limit), miners have incentive to produce maximum-size
+                    blocks to:
+                </p>
+                <ol>
+                    <li>Collect more fees (more transactions)</li>
+                    <li>Disadvantage smaller competitors (propagation delay)</li>
+                </ol>
+                <p>
+                    This could lead to unbounded growth and centralization.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>27.3 Bitcoin Cash (BCH)</h2>
+
+            <p>
+                Bitcoin Cash represents the most successful Bitcoin hard fork, creating a
+                persistent alternative chain.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.6 (Bitcoin Cash Fork)</p>
+                <p>
+                    <strong>Bitcoin Cash</strong> forked at block 478,558 (August 1, 2017):
+                </p>
+                <ul>
+                    <li><strong>Block size:</strong> 8 MB (later 32 MB)</li>
+                    <li><strong>Replay protection:</strong> SIGHASH_FORKID (new sighash type)</li>
+                    <li><strong>Difficulty:</strong> Emergency Difficulty Adjustment (EDA)</li>
+                    <li><strong>SegWit:</strong> Not included (philosophical rejection)</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
+                    <!-- Main Bitcoin chain -->
+                    <rect x="30" y="80" width="70" height="40" rx="4" fill="#f39c12" stroke="#c87f0a" stroke-width="1.5"/>
+                    <text x="65" y="105" text-anchor="middle" font-family="Georgia" font-size="9">Block</text>
+                    <text x="65" y="117" text-anchor="middle" font-family="Georgia" font-size="8">478,558</text>
+
+                    <!-- Fork point -->
+                    <circle cx="130" cy="100" r="10" fill="#c44" stroke="#a33" stroke-width="2"/>
+                    <text x="130" y="145" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Fork Point</text>
+                    <text x="130" y="157" text-anchor="middle" font-family="Georgia" font-size="7">Aug 1, 2017</text>
+
+                    <!-- BTC branch -->
+                    <path d="M 140 95 L 180 60" stroke="#f39c12" stroke-width="2" fill="none"/>
+                    <rect x="180" y="40" width="70" height="35" rx="4" fill="#f39c12" stroke="#c87f0a" stroke-width="1.5"/>
+                    <text x="215" y="60" text-anchor="middle" font-family="Georgia" font-size="9">BTC</text>
+                    <rect x="270" y="40" width="70" height="35" rx="4" fill="#f39c12" stroke="#c87f0a" stroke-width="1.5"/>
+                    <text x="305" y="55" text-anchor="middle" font-family="Georgia" font-size="8">1MB + SegWit</text>
+                    <text x="305" y="68" text-anchor="middle" font-family="Georgia" font-size="7">(~4MB weight)</text>
+
+                    <line x1="250" y1="57" x2="270" y2="57" stroke="#f39c12" stroke-width="1.5"/>
+                    <line x1="340" y1="57" x2="360" y2="57" stroke="#f39c12" stroke-width="1.5"/>
+                    <text x="380" y="62" font-family="Georgia" font-size="8" fill="#f39c12">→ continues</text>
+
+                    <!-- BCH branch -->
+                    <path d="M 140 105 L 180 140" stroke="#28a745" stroke-width="2" fill="none"/>
+                    <rect x="180" y="125" width="70" height="35" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="1.5"/>
+                    <text x="215" y="145" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">BCH</text>
+                    <rect x="270" y="125" width="70" height="35" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="1.5"/>
+                    <text x="305" y="140" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">8MB blocks</text>
+                    <text x="305" y="153" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">(no SegWit)</text>
+
+                    <line x1="250" y1="142" x2="270" y2="142" stroke="#28a745" stroke-width="1.5"/>
+                    <line x1="340" y1="142" x2="360" y2="142" stroke="#28a745" stroke-width="1.5"/>
+                    <text x="380" y="147" font-family="Georgia" font-size="8" fill="#28a745">→ continues</text>
+                </svg>
+                <figcaption>Figure 27.2: Bitcoin Cash fork from block 478,558.</figcaption>
+            </figure>
+
+            <h3>27.3.1 Emergency Difficulty Adjustment</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.7 (EDA Algorithm)</p>
+                <p>
+                    The <strong>Emergency Difficulty Adjustment</strong> reduced difficulty by
+                    20% if fewer than 6 blocks were mined in 12 hours:
+                </p>
+                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+if (timeSince6Blocks > 12 hours):
+    difficulty = difficulty * 0.8</pre>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.4 (EDA Instability)</p>
+                <p>
+                    The EDA created oscillating dynamics:
+                </p>
+                <ol>
+                    <li>Low BCH price → miners leave → slow blocks → EDA triggers</li>
+                    <li>Difficulty drops → BCH more profitable than BTC</li>
+                    <li>Miners switch to BCH → fast blocks → difficulty rises</li>
+                    <li>BCH less profitable → miners return to BTC → cycle repeats</li>
+                </ol>
+                <p>
+                    Result: 92,000 "extra" BCH mined in first months due to fast blocks.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 27.1 (DAA Replacement)</p>
+                <p>
+                    Bitcoin Cash replaced EDA with the DAA (Difficulty Adjustment Algorithm)
+                    in November 2017:
+                </p>
+                <ul>
+                    <li>Adjusts difficulty every block</li>
+                    <li>Uses 144-block rolling window</li>
+                    <li>Targets 600 seconds per block</li>
+                    <li>Smooths oscillations</li>
+                </ul>
+            </div>
+
+            <h3>27.3.2 BCH Economic Performance</h3>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>At Fork (2017)</th>
+                        <th>Peak (2017)</th>
+                        <th>2024</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Price (USD)</td>
+                        <td>~$300</td>
+                        <td>~$4,000</td>
+                        <td>~$250</td>
+                    </tr>
+                    <tr>
+                        <td>% of BTC price</td>
+                        <td>10%</td>
+                        <td>25%</td>
+                        <td>0.5%</td>
+                    </tr>
+                    <tr>
+                        <td>Hash rate (% of BTC)</td>
+                        <td>~5%</td>
+                        <td>~20%</td>
+                        <td>~1%</td>
+                    </tr>
+                    <tr>
+                        <td>Daily transactions</td>
+                        <td>~10,000</td>
+                        <td>~50,000</td>
+                        <td>~30,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>27.4 Bitcoin SV (BSV)</h2>
+
+            <p>
+                Bitcoin SV emerged from a schism within the Bitcoin Cash community.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.8 (Bitcoin SV Fork)</p>
+                <p>
+                    <strong>Bitcoin SV</strong> ("Satoshi Vision") forked from BCH at block
+                    556,766 (November 15, 2018):
+                </p>
+                <ul>
+                    <li><strong>Block size:</strong> 128 MB (later removed entirely)</li>
+                    <li><strong>Philosophy:</strong> Return to "original" Bitcoin protocol</li>
+                    <li><strong>Restoration:</strong> Re-enabled some disabled opcodes</li>
+                    <li><strong>Leader:</strong> Craig Wright / Calvin Ayre</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.5 (The Hash War)</p>
+                <p>
+                    The BCH/BSV split involved an unusual "hash war" where both sides
+                    threatened to attack each other's chain:
+                </p>
+                <ul>
+                    <li>Both chains mined at a loss to accumulate work</li>
+                    <li>BSV side threatened 51% attacks</li>
+                    <li>Exchanges suspended trading during uncertainty</li>
+                    <li>Eventually, both chains coexisted with replay protection</li>
+                </ul>
+            </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                    <!-- BCH chain -->
+                    <rect x="30" y="70" width="70" height="40" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="1.5"/>
+                    <text x="65" y="95" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">BCH</text>
+
+                    <!-- Fork point -->
+                    <circle cx="130" cy="90" r="8" fill="#c44"/>
+                    <text x="130" y="130" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">Nov 15, 2018</text>
+
+                    <!-- BCH-ABC branch -->
+                    <path d="M 138 85 L 170 55" stroke="#28a745" stroke-width="2"/>
+                    <rect x="170" y="35" width="80" height="35" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="1.5"/>
+                    <text x="210" y="50" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">BCH (ABC)</text>
+                    <text x="210" y="63" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">32MB blocks</text>
+
+                    <!-- BSV branch -->
+                    <path d="M 138 95 L 170 125" stroke="#9b59b6" stroke-width="2"/>
+                    <rect x="170" y="110" width="80" height="35" rx="4" fill="#9b59b6" stroke="#7d3c98" stroke-width="1.5"/>
+                    <text x="210" y="125" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">BSV</text>
+                    <text x="210" y="138" text-anchor="middle" font-family="Georgia" font-size="7" fill="white">128MB+ blocks</text>
+
+                    <!-- Continuation -->
+                    <line x1="250" y1="52" x2="280" y2="52" stroke="#28a745" stroke-width="1.5"/>
+                    <rect x="280" y="35" width="70" height="35" rx="4" fill="#28a745" stroke="#1e7b34" stroke-width="1.5"/>
+                    <text x="315" y="57" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">→ BCH</text>
+
+                    <line x1="250" y1="127" x2="280" y2="127" stroke="#9b59b6" stroke-width="1.5"/>
+                    <rect x="280" y="110" width="70" height="35" rx="4" fill="#9b59b6" stroke="#7d3c98" stroke-width="1.5"/>
+                    <text x="315" y="132" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">→ BSV</text>
+
+                    <!-- 2020 split -->
+                    <text x="420" y="52" font-family="Georgia" font-size="7" fill="#666">2020: eCash fork</text>
+                    <text x="420" y="127" font-family="Georgia" font-size="7" fill="#666">Delisted from</text>
+                    <text x="420" y="140" font-family="Georgia" font-size="7" fill="#666">major exchanges</text>
+                </svg>
+                <figcaption>Figure 27.3: BCH → BSV fork and subsequent developments.</figcaption>
+            </figure>
+
+            <h3>27.4.1 Technical Differences</h3>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>BCH</th>
+                        <th>BSV</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Block size</td>
+                        <td>32 MB</td>
+                        <td>Unlimited (4GB tested)</td>
+                    </tr>
+                    <tr>
+                        <td>OP_RETURN limit</td>
+                        <td>220 bytes</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td>Script opcodes</td>
+                        <td>Some re-enabled</td>
+                        <td>More re-enabled</td>
+                    </tr>
+                    <tr>
+                        <td>Development model</td>
+                        <td>Multiple implementations</td>
+                        <td>nChain-led</td>
+                    </tr>
+                    <tr>
+                        <td>Major exchanges (2024)</td>
+                        <td>Listed</td>
+                        <td>Largely delisted</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.6 (BSV Controversies)</p>
+                <p>
+                    BSV faced unique challenges:
+                </p>
+                <ul>
+                    <li>Association with Craig Wright's disputed Satoshi claims</li>
+                    <li>Legal threats against critics</li>
+                    <li>Delisting from Binance, Kraken, ShapeShift</li>
+                    <li>Multiple 51% attacks (2021)</li>
+                    <li>Centralization concerns (few large miners)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>27.5 Bitcoin Gold (BTG)</h2>
+
+            <p>
+                Bitcoin Gold represents a different type of fork: changing the mining algorithm.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.9 (Bitcoin Gold Fork)</p>
+                <p>
+                    <strong>Bitcoin Gold</strong> forked at block 491,407 (October 24, 2017):
+                </p>
+                <ul>
+                    <li><strong>Algorithm:</strong> Equihash (ASIC-resistant) instead of SHA-256d</li>
+                    <li><strong>Goal:</strong> Democratize mining (GPU-friendly)</li>
+                    <li><strong>Block size:</strong> 1 MB (unchanged)</li>
+                    <li><strong>Premine:</strong> 100,000 BTG for development</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.7 (ASIC Resistance Futility)</p>
+                <p>
+                    Changing proof-of-work algorithm to be "ASIC-resistant" provides only
+                    temporary protection:
+                </p>
+                <ol>
+                    <li>Any fixed algorithm can eventually have ASICs designed for it</li>
+                    <li>GPU mining leads to botnet participation (stolen compute)</li>
+                    <li>Algorithm changes cause disruptive hard forks</li>
+                    <li>Smaller hash rate increases 51% attack vulnerability</li>
+                </ol>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 27.2 (BTG 51% Attacks)</p>
+                <p>
+                    Bitcoin Gold suffered multiple 51% attacks:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Double-Spend</th>
+                            <th>Reorg Depth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>May 2018</td>
+                            <td>~$18 million</td>
+                            <td>22 blocks</td>
+                        </tr>
+                        <tr>
+                            <td>January 2020</td>
+                            <td>~$72,000</td>
+                            <td>14 blocks</td>
+                        </tr>
+                        <tr>
+                            <td>July 2020</td>
+                            <td>~$10,000</td>
+                            <td>10 blocks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    These attacks demonstrated the security cost of low hash rate.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>27.6 Other Notable Forks</h2>
+
+            <h3>27.6.1 Bitcoin Diamond (BCD)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.10 (Bitcoin Diamond)</p>
+                <p>
+                    Forked November 2017 with:
+                </p>
+                <ul>
+                    <li>10× coin supply (210 million)</li>
+                    <li>8 MB blocks</li>
+                    <li>X13 proof-of-work algorithm</li>
+                    <li>Encrypted transaction amounts (claimed)</li>
+                </ul>
+                <p>
+                    Largely considered a "fork for profit" with minimal development.
+                </p>
+            </div>
+
+            <h3>27.6.2 Bitcoin Private (BTCP)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.11 (Bitcoin Private)</p>
+                <p>
+                    A fork-merge combining Bitcoin and Zclassic (February 2018):
+                </p>
+                <ul>
+                    <li>zk-SNARK privacy features from Zcash</li>
+                    <li>Combined UTXO sets of BTC and ZCL</li>
+                    <li>Equihash algorithm</li>
+                </ul>
+                <p>
+                    Investigation later revealed 2.04 million secretly premined coins.
+                </p>
+            </div>
+
+            <h3>27.6.3 eCash (XEC)</h3>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.12 (eCash)</p>
+                <p>
+                    Forked from Bitcoin Cash in November 2020:
+                </p>
+                <ul>
+                    <li>Avalanche consensus layer (post-consensus)</li>
+                    <li>Redenomination (1 BCH = 1,000,000 XEC)</li>
+                    <li>Development funded by block reward</li>
+                    <li>Led by Bitcoin ABC team</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.8 (The Long Tail of Forks)</p>
+                <p>
+                    Dozens of Bitcoin forks have been created. Most share characteristics:
+                </p>
+                <ul>
+                    <li>Minimal development post-fork</li>
+                    <li>Value decay relative to BTC</li>
+                    <li>Low liquidity and exchange support</li>
+                    <li>Security vulnerabilities from small hash rate</li>
+                </ul>
+                <p>
+                    The "free coins" distribution model proved insufficient for building
+                    sustainable networks.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>27.7 The 2017 SegWit2x Attempt</h2>
+
+            <p>
+                The most dramatic fork attempt that <em>didn't</em> happen: SegWit2x.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 27.13 (New York Agreement / SegWit2x)</p>
+                <p>
+                    The <strong>New York Agreement</strong> (May 2017) was a compromise signed
+                    by major companies and miners:
+                </p>
+                <ol>
+                    <li>Activate SegWit (soft fork) - achieved August 2017</li>
+                    <li>2 MB base block size hard fork within 6 months</li>
+                </ol>
+                <p>
+                    The second part (SegWit2x) was abandoned days before activation.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.9 (SegWit2x Failure Factors)</p>
+                <p>
+                    SegWit2x failed despite ~90% miner signaling because:
+                </p>
+                <ol>
+                    <li><strong>No replay protection:</strong> Intentionally omitted, seen as aggressive</li>
+                    <li><strong>Core developer opposition:</strong> None of Bitcoin Core signed NYA</li>
+                    <li><strong>User opposition:</strong> Futures markets showed BTC premium over B2X</li>
+                    <li><strong>Business defections:</strong> Key signatories withdrew support</li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.10 (Lessons from SegWit2x)</p>
+                <p>
+                    SegWit2x demonstrated that:
+                </p>
+                <ul>
+                    <li>Miner signaling is necessary but not sufficient</li>
+                    <li>Users (economic nodes) have effective veto power</li>
+                    <li>Futures markets can reveal true preferences</li>
+                    <li>Hard forks require broader social consensus than soft forks</li>
+                </ul>
+                <p>
+                    The episode strengthened the "User Activated" model of consensus.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>27.8 Comparative Analysis</h2>
+
+            <p>
+                A systematic comparison reveals patterns in fork outcomes.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fork</th>
+                        <th>Type</th>
+                        <th>% BTC Value (Peak)</th>
+                        <th>% BTC Value (2024)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bitcoin Cash</td>
+                        <td>Ideological</td>
+                        <td>~25%</td>
+                        <td>~0.5%</td>
+                        <td>Active</td>
+                    </tr>
+                    <tr>
+                        <td>Bitcoin SV</td>
+                        <td>Ideological</td>
+                        <td>~10%</td>
+                        <td>~0.1%</td>
+                        <td>Marginal</td>
+                    </tr>
+                    <tr>
+                        <td>Bitcoin Gold</td>
+                        <td>Technical</td>
+                        <td>~5%</td>
+                        <td>~0.02%</td>
+                        <td>Marginal</td>
+                    </tr>
+                    <tr>
+                        <td>Bitcoin Diamond</td>
+                        <td>Commercial</td>
+                        <td>~1%</td>
+                        <td>~0.001%</td>
+                        <td>Zombie</td>
+                    </tr>
+                    <tr>
+                        <td>Bitcoin Private</td>
+                        <td>Commercial</td>
+                        <td>~1%</td>
+                        <td>N/A</td>
+                        <td>Dead</td>
+                    </tr>
+                    <tr>
+                        <td>SegWit2x</td>
+                        <td>Political</td>
+                        <td>N/A</td>
+                        <td>N/A</td>
+                        <td>Never launched</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.11 (Fork Value Decay)</p>
+                <p>
+                    Empirically, Bitcoin forks exhibit value decay relative to BTC following
+                    a pattern consistent with:
+                </p>
+                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                    V<sub>fork</sub>(t) / V<sub>BTC</sub>(t) ∝ e<sup>-λt</sup>
+                </p>
+                <p>
+                    where λ varies by fork (BCH: ~0.3/year, BTG: ~0.7/year).
+                </p>
+                <p>
+                    This suggests that network effects compound over time, increasingly
+                    favoring the dominant chain.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>27.9 Lessons and Principles</h2>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.12 (Fork Success Factors)</p>
+                <p>
+                    Analysis of historical forks suggests success factors:
+                </p>
+                <ol>
+                    <li><strong>Clear value proposition:</strong> Must offer something BTC cannot</li>
+                    <li><strong>Technical competence:</strong> Must maintain security and development</li>
+                    <li><strong>Community:</strong> Must build independent user base</li>
+                    <li><strong>Timing:</strong> Early forks captured more value</li>
+                    <li><strong>Replay protection:</strong> Essential for user safety</li>
+                </ol>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.13 (Why Hard Forks Rarely Succeed)</p>
+                <p>
+                    The historical record suggests hard forks face structural disadvantages:
+                </p>
+                <ul>
+                    <li>Network effects strongly favor incumbents</li>
+                    <li>Developer talent tends toward dominant chain</li>
+                    <li>Liquidity fragmentation harms both chains initially</li>
+                    <li>User confusion degrades trust</li>
+                    <li>Minority chain faces security challenges</li>
+                </ul>
+                <p>
+                    Soft forks, by maintaining compatibility, avoid these problems.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.14 (The Fork Right)</p>
+                <p>
+                    Despite their typically poor outcomes, the ability to fork remains
+                    important:
+                </p>
+                <ul>
+                    <li>Provides exit option, limiting majoritarian abuse</li>
+                    <li>Creates natural experiment for different approaches</li>
+                    <li>Demonstrates that Bitcoin is not controlled by any group</li>
+                    <li>Historical forks actually strengthened BTC's Schelling point</li>
+                </ul>
+                <p>
+                    The freedom to fork, even if rarely exercised successfully, is a
+                    feature, not a bug.
+                </p>
+            </div>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 27.1</p>
+                <p>
+                    Calculate the cost (in USD) to perform a 51% attack on Bitcoin Gold for
+                    1 hour, given that BTG hash rate is approximately 2 MS/s and Equihash
+                    ASIC rental costs $0.10 per MS/s per hour. Compare to the cost of
+                    attacking Bitcoin.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 27.2</p>
+                <p>
+                    Design a replay protection mechanism that works without changing the
+                    transaction format. What are the tradeoffs of your approach?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 27.3</p>
+                <p>
+                    Model the "difficulty death spiral" mathematically. Given a minority
+                    chain starting with 10% hash rate, Bitcoin's 2016-block adjustment
+                    period, and miners who switch chains based on profitability, simulate
+                    the first month of the minority chain. Under what conditions does it
+                    survive?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 27.4</p>
+                <p>
+                    Analyze the SegWit2x futures markets. Given that B2X futures traded at
+                    0.15 BTC before cancellation, what did this imply about market
+                    expectations? How do futures markets serve as coordination mechanisms?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 27.5</p>
+                <p>
+                    Research the BCH "hash war" of November 2018. Both sides mined at a
+                    significant loss. Model this as a game theory problem: what were the
+                    payoffs, and why did both sides eventually accept coexistence?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="26-fork-theory.html" class="prev-chapter">← Chapter 26: Fork Theory</a>
+            <a href="28-segwit-deep-dive.html" class="next-chapter">Chapter 28: SegWit Deep Dive →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>
