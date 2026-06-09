@@ -215,7 +215,7 @@
                 <ul>
                     <li>Finding a valid block is 50 trillion times harder than at difficulty 1</li>
                     <li>Expected hashes: ~50 trillion × (genesis difficulty hashes)</li>
-                    <li>At 500 EH/s network hashrate: ~10 minutes per block</li>
+                    <li>At ~360 EH/s network hashrate: ~10 minutes per block</li>
                 </ul>
             </div>
 
@@ -231,7 +231,11 @@
                     Genesis block hash (2009, difficulty 1):
                 </p>
                 <pre class="code-block">000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
-^^^^^^^^ 8 leading hex zeros (32 leading binary zeros)</pre>
+^^^^^^^^^^ 10 leading hex zeros (43 leading binary zeros)</pre>
+                <p>
+                    The difficulty-1 target only requires about 32 leading zero bits;
+                    the genesis hash overshot it considerably.
+                </p>
 
                 <p>A modern block (difficulty ~50T):</p>
                 <pre class="code-block">0000000000000000000234abc...
@@ -261,11 +265,12 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Off-by-one error.</p>
+                <p class="remark-title">Remark 14.1 (Off-by-One Error).</p>
                 <p>
                     Bitcoin Core's implementation measures
-                    <span class="math">actual_time = timestamp(block[h]) − timestamp(block[h − 2016])</span>,
-                    which spans 2015 inter-block intervals rather than 2016. This makes
+                    <span class="math">actual_time = timestamp(block[h]) − timestamp(block[h − 2015])</span>,
+                    the first and last blocks of the <em>same</em> 2016-block window,
+                    which spans only 2015 inter-block intervals rather than 2016. This makes
                     difficulty systematically ~0.05% too low. The bug has been preserved
                     for consensus compatibility.
                 </p>
@@ -610,7 +615,7 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
             <h3>14.8.3 Selfish Mining</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 14.1 (Selfish Mining)</p>
+                <p class="remark-title">Remark 14.2 (Selfish Mining)</p>
                 <p>
                     Eyal and Sirer (2014) showed that miners with >33% hash power can gain
                     disproportionate rewards by strategically withholding blocks. This reduces
@@ -628,7 +633,7 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 14.2 (Energy Consumption)</p>
+                <p class="remark-title">Remark 14.3 (Energy Consumption)</p>
                 <p>
                     Bitcoin's energy consumption is a feature, not a bug. The energy spent
                     mining represents a real-world cost that attackers must also pay. Security
@@ -699,7 +704,7 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
             </table>
 
             <p>
-                Modern ASICs are roughly 10 billion times more efficient than the CPUs
+                Modern ASICs hash roughly 100 million times faster than the CPUs
                 Satoshi used in 2009.
             </p>
         </section>

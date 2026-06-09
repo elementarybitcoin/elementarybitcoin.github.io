@@ -169,7 +169,7 @@
                     <li>If <span class="math">n = 1</span>, return <span class="math">h₁</span></li>
                     <li>If <span class="math">n</span> is odd, duplicate the last hash: <span class="math">hₙ₊₁ = hₙ</span></li>
                     <li>Pair adjacent hashes and compute: <span class="math">pᵢ = H(h₂ᵢ₋₁ || h₂ᵢ)</span></li>
-                    <li>Recursively compute the Merkle root of <span class="math">p₁, p₂, ..., p_{n/2}</span></li>
+                    <li>Recursively compute the Merkle root of the resulting <span class="math">⌈n/2⌉</span> hashes <span class="math">p₁, p₂, ...</span></li>
                 </ol>
             </div>
 
@@ -195,7 +195,7 @@
                     <text x="150" y="102" text-anchor="middle" font-family="Georgia" font-size="9">H(ABCD)</text>
 
                     <rect x="330" y="85" width="80" height="25" rx="4" fill="#fff8e8" stroke="#d4a574"/>
-                    <text x="370" y="102" text-anchor="middle" font-family="Georgia" font-size="9">H(EE)</text>
+                    <text x="370" y="102" text-anchor="middle" font-family="Georgia" font-size="9">H(EEEE)</text>
 
                     <line x1="230" y1="65" x2="150" y2="85" stroke="#666" stroke-width="1"/>
                     <line x1="290" y1="65" x2="370" y2="85" stroke="#666" stroke-width="1"/>
@@ -208,10 +208,10 @@
                     <text x="160" y="145" text-anchor="middle" font-family="Georgia" font-size="9">H(CD)</text>
 
                     <rect x="310" y="130" width="50" height="22" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="335" y="145" text-anchor="middle" font-family="Georgia" font-size="9">H(E)</text>
+                    <text x="335" y="145" text-anchor="middle" font-family="Georgia" font-size="9">H(EE)</text>
 
                     <rect x="380" y="130" width="50" height="22" rx="3" fill="#f5e8e8" stroke="#c44" stroke-dasharray="3,2"/>
-                    <text x="405" y="145" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">H(E)</text>
+                    <text x="405" y="145" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">H(EE)</text>
 
                     <line x1="120" y1="110" x2="80" y2="130" stroke="#666" stroke-width="1"/>
                     <line x1="180" y1="110" x2="160" y2="130" stroke="#666" stroke-width="1"/>
@@ -237,7 +237,7 @@
                     <!-- Duplicate annotation -->
                     <text x="405" y="178" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">duplicated</text>
                 </svg>
-                <figcaption>Figure 12.2: When the transaction count is odd, the last hash is duplicated.</figcaption>
+                <figcaption>Figure 12.2: With five transactions, E is duplicated at the leaf level to form H(EE), which is itself duplicated at the next level.</figcaption>
             </figure>
 
             <div class="example">

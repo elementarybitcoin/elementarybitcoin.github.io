@@ -94,10 +94,12 @@
             <div class="remark">
                 <p class="remark-title">Remark 15.1 (Why Not Exactly 21 Million?)</p>
                 <p>
-                    The actual maximum is slightly less due to:
+                    The protocol maximum falls short of 21 million solely because of
+                    integer truncation in the subsidy calculation (subsidies are whole
+                    satoshis, halved by integer division). The <em>spendable</em> supply
+                    is lower still due to:
                 </p>
                 <ul>
-                    <li>Integer truncation in subsidy calculation (satoshis, not fractional)</li>
                     <li>Lost genesis block reward (50 BTC unspendable)</li>
                     <li>Miners occasionally claiming less than full subsidy</li>
                     <li>Provably burned coins</li>
@@ -355,14 +357,14 @@ Time between halvings: 210,000 × 10 min = 2,100,000 min
                         <td>Backward compatibility</td>
                     </tr>
                     <tr>
-                        <td>Max transaction size</td>
-                        <td>~400,000 bytes</td>
+                        <td>Max transaction size (policy)</td>
+                        <td>400,000 weight units (~100 kvB)</td>
                         <td>Prevent abuse</td>
                     </tr>
                     <tr>
-                        <td>Min transaction size</td>
-                        <td>82 bytes</td>
-                        <td>Prevent CVE-2017-12842</td>
+                        <td>Min transaction size (policy)</td>
+                        <td>65 non-witness bytes</td>
+                        <td>Prevent CVE-2017-12842 (64-byte txs)</td>
                     </tr>
                 </tbody>
             </table>
@@ -418,7 +420,7 @@ Time between halvings: 210,000 × 10 min = 2,100,000 min
                     Block timestamps must not exceed:
                 </p>
                 <p class="math-block">
-                    network\_adjusted\_time + 2 hours
+                    network_adjusted_time + 2 hours
                 </p>
                 <p>
                     where network-adjusted time is derived from peer clocks.
@@ -550,7 +552,7 @@ Time between halvings: 210,000 × 10 min = 2,100,000 min
                     </tr>
                     <tr>
                         <td>Max message size</td>
-                        <td>32 MB</td>
+                        <td>4 MB</td>
                     </tr>
                     <tr>
                         <td>Max headers per message</td>
@@ -773,8 +775,8 @@ Time between halvings: 210,000 × 10 min = 2,100,000 min
             <div class="exercise">
                 <p class="exercise-title">Exercise 15.4</p>
                 <p>
-                    Why is 100 satoshi million (1 BTC = 10⁸ satoshis) a good choice for
-                    divisibility? What problems might arise with fewer or more decimal places?
+                    Why is 100 million satoshis per bitcoin (1 BTC = 10⁸ satoshis) a good
+                    choice for divisibility? What problems might arise with fewer or more decimal places?
                 </p>
             </div>
 
