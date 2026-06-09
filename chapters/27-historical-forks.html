@@ -184,7 +184,7 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
                 </ul>
             </div>
 
-            <h3>27.2.3 Bitcoin Unlimited (December 2015)</h3>
+            <h3>27.2.3 Bitcoin Unlimited (announced December 2015, released January 2016)</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 27.5 (Bitcoin Unlimited)</p>
@@ -301,7 +301,7 @@ if (timeSince6Blocks > 12 hours):
                     <li>BCH less profitable → miners return to BTC → cycle repeats</li>
                 </ol>
                 <p>
-                    Result: 92,000 "extra" BCH mined in first months due to fast blocks.
+                    Result: roughly 100,000+ "extra" BCH mined ahead of schedule by the time the EDA was retired (November 2017).
                 </p>
             </div>
 
@@ -346,7 +346,7 @@ if (timeSince6Blocks > 12 hours):
                     <tr>
                         <td>Hash rate (% of BTC)</td>
                         <td>~5%</td>
-                        <td>~20%</td>
+                        <td>~50-100% briefly (EDA oscillations)</td>
                         <td>~1%</td>
                     </tr>
                     <tr>
@@ -538,17 +538,17 @@ if (timeSince6Blocks > 12 hours):
                         <tr>
                             <td>May 2018</td>
                             <td>~$18 million</td>
-                            <td>22 blocks</td>
+                            <td>~20+ blocks</td>
                         </tr>
                         <tr>
                             <td>January 2020</td>
                             <td>~$72,000</td>
-                            <td>14 blocks</td>
+                            <td>14-15 blocks (two reorgs)</td>
                         </tr>
                         <tr>
                             <td>July 2020</td>
-                            <td>~$10,000</td>
-                            <td>10 blocks</td>
+                            <td>none (thwarted)</td>
+                            <td>~1,300-block secret chain rejected via checkpoint at 640,650</td>
                         </tr>
                     </tbody>
                 </table>
@@ -709,7 +709,7 @@ if (timeSince6Blocks > 12 hours):
                     <tr>
                         <td>Bitcoin SV</td>
                         <td>Ideological</td>
-                        <td>~10%</td>
+                        <td>~5%</td>
                         <td>~0.1%</td>
                         <td>Marginal</td>
                     </tr>
@@ -724,7 +724,7 @@ if (timeSince6Blocks > 12 hours):
                         <td>Bitcoin Diamond</td>
                         <td>Commercial</td>
                         <td>~1%</td>
-                        <td>~0.001%</td>
+                        <td>~0.0002%</td>
                         <td>Zombie</td>
                     </tr>
                     <tr>
@@ -754,7 +754,7 @@ if (timeSince6Blocks > 12 hours):
                     V<sub>fork</sub>(t) / V<sub>BTC</sub>(t) ∝ e<sup>-λt</sup>
                 </p>
                 <p>
-                    where λ varies by fork (BCH: ~0.3/year, BTG: ~0.7/year).
+                    where λ varies by fork (BCH: ~0.4/year, BTG: ~0.7/year).
                 </p>
                 <p>
                     This suggests that network effects compound over time, increasingly
@@ -823,8 +823,8 @@ if (timeSince6Blocks > 12 hours):
                 <p class="exercise-title">Exercise 27.1</p>
                 <p>
                     Calculate the cost (in USD) to perform a 51% attack on Bitcoin Gold for
-                    1 hour, given that BTG hash rate is approximately 2 MS/s and Equihash
-                    ASIC rental costs $0.10 per MS/s per hour. Compare to the cost of
+                    1 hour, given that BTG hash rate is approximately 2 MS/s (2,000 kS/s)
+                    and Equihash ASIC rental costs $0.10 per kS/s per hour. Compare to the cost of
                     attacking Bitcoin.
                 </p>
             </div>
