@@ -127,7 +127,7 @@
             <p>
                 At its heart, a Schnorr signature is a <em>non-interactive zero-knowledge proof</em>
                 that the signer knows the discrete logarithm of their public key. The signer
-                proves they know <span class="math">d</span> (where <span class="math">Q = dG</span>)
+                proves they know <span class="math">d</span> (where <span class="math">P = dG</span>)
                 without revealing <span class="math">d</span> itself.
             </p>
 
@@ -140,7 +140,7 @@
                     <li><strong>Commitment:</strong> Prover chooses random <span class="math">k</span>, sends <span class="math">R = kG</span></li>
                     <li><strong>Challenge:</strong> Verifier sends random <span class="math">e</span></li>
                     <li><strong>Response:</strong> Prover sends <span class="math">s = k + ed</span></li>
-                    <li><strong>Verify:</strong> Verifier checks <span class="math">sG = R + eQ</span></li>
+                    <li><strong>Verify:</strong> Verifier checks <span class="math">sG = R + eP</span></li>
                 </ol>
             </div>
 
@@ -154,7 +154,7 @@
 
                     <!-- Verifier -->
                     <rect x="340" y="50" width="120" height="30" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
-                    <text x="400" y="70" text-anchor="middle" font-family="Georgia" font-size="12">Verifier (knows Q)</text>
+                    <text x="400" y="70" text-anchor="middle" font-family="Georgia" font-size="12">Verifier (knows P)</text>
 
                     <!-- Step 1: R -->
                     <path d="M 160 100 L 340 100" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arr8b)"/>
@@ -173,7 +173,7 @@
                     <!-- Verification -->
                     <rect x="330" y="200" width="140" height="35" fill="#f8f5f0" stroke="#8b4513" stroke-width="1.5" rx="4"/>
                     <text x="400" y="215" text-anchor="middle" font-family="Georgia" font-size="10">Check:</text>
-                    <text x="400" y="228" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">sG = R + eQ ?</text>
+                    <text x="400" y="228" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">sG = R + eP ?</text>
 
                     <defs>
                         <marker id="arr8b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
@@ -190,7 +190,7 @@
             <div class="proof">
                 <p class="proof-title">Why verification works</p>
                 <p>
-                    <span class="math">sG = (k + ed)G = kG + edG = R + e(dG) = R + eQ</span>
+                    <span class="math">sG = (k + ed)G = kG + edG = R + e(dG) = R + eP</span>
                     <span class="qed"></span>
                 </p>
             </div>
@@ -287,12 +287,12 @@ Sign(d, m):
     // Ensure private key produces even-y public key
     1. Compute P = dG
     2. If y(P) is odd, set d = n - d       // Negate if needed
-    3. Let p = x(P)                        // x-coordinate (public key)
+    3. Let pk = x(P)                       // x-coordinate (public key)
 
     // Generate deterministic nonce
     4. Let a = bytes(d)                    // 32 bytes
     5. Let t = a XOR H_aux(aux_rand)       // Optional auxiliary randomness
-    6. Let rand = H_nonce(t || p || m)
+    6. Let rand = H_nonce(t || pk || m)
     7. Let k' = int(rand) mod n
     8. If k' = 0, fail
 
@@ -302,7 +302,7 @@ Sign(d, m):
     11. Let r = x(R)                       // x-coordinate of R
 
     // Compute challenge and signature
-    12. Let e = int(H_challenge(r || p || m)) mod n
+    12. Let e = int(H_challenge(r || pk || m)) mod n
     13. Let s = (k + ed) mod n
 
     // Return 64-byte signature
@@ -346,7 +346,7 @@ Sign(d, m):
 
                     <!-- Challenge e -->
                     <rect x="280" y="150" width="150" height="40" fill="#fff" stroke="#666" stroke-width="1.5" rx="4"/>
-                    <text x="355" y="168" text-anchor="middle" font-family="Georgia" font-size="10">e = H(r || p || m)</text>
+                    <text x="355" y="168" text-anchor="middle" font-family="Georgia" font-size="10">e = H(r || pk || m)</text>
                     <text x="355" y="183" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">challenge</text>
 
                     <!-- Arrows to challenge -->
@@ -400,16 +400,16 @@ Sign(d, m):
             <div class="definition">
                 <p class="definition-title">Algorithm 8.2 (BIP-340 Schnorr Verification)</p>
                 <pre>
-Verify(p, m, sig):
+Verify(pk, m, sig):
     // Parse inputs
-    1. Let P = lift_x(p)               // Recover point with even y
+    1. Let P = lift_x(pk)              // Recover point with even y
        If P is invalid, return false
     2. Let r = int(sig[0:32])
     3. Let s = int(sig[32:64])
-    4. If r ≥ p or s ≥ n, return false
+    4. If r ≥ p or s ≥ n, return false // p = field prime, n = group order
 
     // Compute challenge
-    5. Let e = int(H_challenge(bytes(r) || p || m)) mod n
+    5. Let e = int(H_challenge(bytes(r) || pk || m)) mod n
 
     // Verify equation: sG = R + eP
     6. Let R = sG - eP
@@ -602,8 +602,9 @@ Verify(p, m, sig):
                     <span class="math">P = a₁P₁ + a₂P₂ + ... + aₙPₙ</span>
                 </p>
                 <p>
-                    Each party must prove knowledge of their discrete log before their key
-                    affects the aggregate.
+                    The coefficients <span class="math">aᵢ</span> make it infeasible to choose
+                    a rogue key that cancels honest keys, so&mdash;unlike earlier
+                    schemes&mdash;no party needs to prove knowledge of their discrete log.
                 </p>
             </div>
 

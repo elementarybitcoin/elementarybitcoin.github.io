@@ -162,7 +162,7 @@
                     is the elliptic curve point:
                 </p>
                 <p class="math-block">
-                    K = d · G
+                    P = d · G
                 </p>
                 <p>
                     where <span class="math">G</span> is the generator point of secp256k1.
@@ -171,10 +171,10 @@
 
             <p>
                 This computation is the "easy direction" of the trapdoor function we studied
-                in Chapter 1. Given <span class="math">d</span>, computing <span class="math">K</span>
+                in Chapter 1. Given <span class="math">d</span>, computing <span class="math">P</span>
                 requires only <span class="math">O(log d)</span> group operations via the
                 double-and-add algorithm. The reverse—finding <span class="math">d</span> given
-                <span class="math">K</span>—is the elliptic curve discrete logarithm problem (ECDLP),
+                <span class="math">P</span>—is the elliptic curve discrete logarithm problem (ECDLP),
                 believed to be computationally infeasible.
             </p>
 
@@ -192,7 +192,7 @@
 
                     <!-- Public key box -->
                     <rect x="220" y="45" width="100" height="50" rx="8" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
-                    <text x="270" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-style="italic">K = (x, y)</text>
+                    <text x="270" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-style="italic">P = (x, y)</text>
                     <text x="270" y="87" text-anchor="middle" font-family="Georgia" font-size="11">(public key)</text>
 
                     <!-- Security note -->
@@ -211,7 +211,7 @@
             <h3>9.2.1 Public Key Serialization</h3>
 
             <p>
-                A public key is a point <span class="math">K = (x, y)</span> on the secp256k1 curve.
+                A public key is a point <span class="math">P = (x, y)</span> on the secp256k1 curve.
                 Both coordinates are 256-bit integers, so the full representation requires 64 bytes
                 (512 bits). However, Bitcoin supports two serialization formats.
             </p>
@@ -902,14 +902,14 @@
                         <td><code>1</code></td>
                         <td>Base58Check</td>
                         <td>20-byte pubkey hash</td>
-                        <td>25–34 chars</td>
+                        <td>26–34 chars</td>
                     </tr>
                     <tr>
                         <td>P2SH</td>
                         <td><code>3</code></td>
                         <td>Base58Check</td>
                         <td>20-byte script hash</td>
-                        <td>25–34 chars</td>
+                        <td>34 chars</td>
                     </tr>
                     <tr>
                         <td>P2WPKH</td>
