@@ -888,12 +888,15 @@ Response:
                     headers. For Class F, the fraud proof provides a compact witness linking
                     the violation to the block header via merkle inclusion; the client verifies
                     the merkle path and checks the rule. For Class T, the fraud proof includes
-                    the offending transaction, its merkle path, and any referenced output data;
-                    the client verifies inclusion and re-executes the relevant check. For Class U,
+                    the offending transaction, its merkle path, and the referenced outputs
+                    <em>together with their own merkle inclusion proofs</em> (without these, a
+                    malicious prover could fabricate input data to "prove" a valid transaction
+                    invalid); the client verifies all inclusions and re-executes the relevant
+                    check. For Class U,
                     proving that a UTXO does <em>not</em> exist requires enumerating the
                     entire set or referencing a commitment that does not currently exist in
                     Bitcoin's block structure. Without such a commitment, no compact
-                    non-existence proof is possible. ∎
+                    non-existence proof is known. ∎
                 </p>
             </div>
 

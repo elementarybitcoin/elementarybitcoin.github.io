@@ -668,13 +668,18 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 9.3 (Bech32 Error Detection)</p>
                 <p>
-                    Bech32 encoding guarantees detection of:
+                    For strings up to 90 characters, Bech32 encoding guarantees detection of:
                 </p>
                 <ul>
-                    <li>Any single character error</li>
+                    <li>Any single character substitution</li>
                     <li>Any single transposition of adjacent characters</li>
-                    <li>Any error affecting up to 4 characters</li>
+                    <li>Any substitution error affecting up to 4 characters</li>
                 </ul>
+                <p>
+                    Insertion errors are not covered&mdash;the original Bech32 checksum is
+                    malleable under certain trailing-character insertions, which is what
+                    Bech32m (used for Taproot addresses) fixes.
+                </p>
                 <p>
                     For longer error bursts, undetected errors occur with probability at most
                     1 in 10⁹.

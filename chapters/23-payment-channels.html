@@ -256,7 +256,7 @@
                     In a unidirectional channel:
                 </p>
                 <ul>
-                    <li><strong>Bob's guarantee:</strong> Can always claim the latest payment Alice signed</li>
+                    <li><strong>Bob's guarantee:</strong> Can always claim the latest payment Alice signed (provided he closes the channel before any refund locktime, added below, expires)</li>
                     <li><strong>Alice's guarantee:</strong> Bob can only claim what Alice signed</li>
                     <li><strong>Problem:</strong> Alice cannot recover uncommitted funds if Bob disappears</li>
                 </ul>
@@ -322,7 +322,7 @@ OP_ENDIF</code></pre>
             </div>
 
             <div class="example">
-                <p><strong>Example 23.2</strong> (The Double-Spend Attack)</p>
+                <p><strong>Example 23.2</strong> (The Old-State Broadcast Attack)</p>
                 <p>
                     Alice and Bob open a channel with 0.5 BTC each:
                 </p>

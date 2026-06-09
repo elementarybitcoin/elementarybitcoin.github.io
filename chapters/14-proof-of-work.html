@@ -546,10 +546,12 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
                     has success probability:
                 </p>
                 <p class="math-block">
-                    P(success) = 1 − Σₖ₌₀^z [λᵏe^(-λ)/k! × (1 − (q/p)^(z-k))]
+                    P(success) ≈ 1 − Σₖ₌₀^z [λᵏe^(-λ)/k! × (1 − (q/p)^(z-k))]
                 </p>
                 <p>
                     where <span class="math">λ = z(q/p)</span> and <span class="math">p = 1 − q</span>.
+                    (This is Nakamoto's Poisson approximation of the attacker's progress; the
+                    exact distribution is negative binomial, but the difference is small.)
                 </p>
             </div>
 
@@ -645,16 +647,21 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
                 </p>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 14.6 (Security Budget)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 14.4 (Security Budget).</p>
                 <p>
-                    The cost to attack Bitcoin is bounded below by the mining revenue:
+                    As a first-order heuristic, the cost to attack Bitcoin scales with
+                    mining revenue:
                 </p>
                 <p class="math-block">
-                    attack_cost ≥ mining_revenue × attack_duration / block_time
+                    attack_cost ≈ mining_revenue × attack_duration / block_time
                 </p>
                 <p>
-                    This creates a "security budget" paid by inflation (subsidy) and fees.
+                    This holds under zero-margin mining (free entry drives cost toward
+                    revenue) with rented hashrate and no recapture of block rewards by the
+                    attacker; real attacks also face a duration-independent hardware floor.
+                    This revenue stream is the "security budget" paid by inflation (subsidy)
+                    and fees (see Remark 25.10 for the demand-side condition).
                 </p>
             </div>
         </section>

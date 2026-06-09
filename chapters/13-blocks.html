@@ -393,8 +393,9 @@ target = 0x00ffff × 256^(29-3)
                 <p class="proof-title">Proof.</p>
                 <p>
                     Modifying any data in <span class="math">B_{n-1}</span> changes its header (via the
-                    Merkle root if transactions change, or directly if header fields change). This changes
-                    <span class="math">H(B_{n-1})</span>. Since <span class="math">B_n</span> commits to
+                    Merkle root if transactions change, or directly if header fields change). Assuming
+                    <span class="math">H</span> is collision-resistant, this changes
+                    <span class="math">H(B_{n-1})</span> except with negligible probability. Since <span class="math">B_n</span> commits to
                     the original hash, the link breaks. Repairing requires new proof of work for
                     <span class="math">B_n</span> and all descendants. □
                 </p>

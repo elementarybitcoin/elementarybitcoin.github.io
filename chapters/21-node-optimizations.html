@@ -304,10 +304,12 @@
                     <li>PoW target, difficulty adjustment: checked</li>
                 </ul>
                 <p>
-                    An attacker would need to produce a chain with valid PoW leading to
-                    a different assumevalid block. This requires rewriting history with
-                    hundreds of exahashes of work—far exceeding the cost of a 51% attack
-                    on current blocks. ∎
+                    The hardcoded hash pins its entire ancestor set: no alternate history can
+                    become an ancestor of that block, so no amount of proof-of-work enables
+                    invalid scripts to slip beneath it. The residual trust is therefore not in
+                    PoW at all but in the correctness of the hardcoded hash shipped with the
+                    software release&mdash;an assumption already implied by running the
+                    software, and one that is auditable by anyone who fully validates. ∎
                 </p>
             </div>
 
