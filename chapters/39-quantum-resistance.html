@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter 39: Quantum Resistance - Elementary Bitcoin</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#8383;</text></svg>">
 </head>
 <body>
@@ -133,9 +133,9 @@ Common Quantum Gates:
 
             <div class="formula-block">
                 <p><strong>The Discrete Log Problem:</strong></p>
-                <code>Given public key P = k × G, find private key k</code>
+                <code>Given public key P = d × G, find private key d</code>
                 <p>Classical: ~2¹²⁸ operations for 256-bit curve</p>
-                <p>Quantum (Shor): ~2⁵³ operations with enough qubits</p>
+                <p>Quantum (Shor): ~10¹² gate operations with enough qubits</p>
             </div>
 
             <h3>Algorithm Overview</h3>
@@ -145,19 +145,19 @@ Common Quantum Gates:
 Shor's Algorithm for Discrete Log:
 
 1. Quantum Phase Estimation
-   ├── Create superposition of all possible k values
-   ├── Apply controlled multiplication
-   └── Measure to find period r
+   ├── Create superposition over pairs (a, b)
+   ├── Apply controlled group operations
+   └── Measure to learn the period
 
 2. Period Finding
-   ├── Find r such that G^r ≡ 1 (mod N)
+   ├── Find the period of f(a, b) = aG + bP
    ├── Uses Quantum Fourier Transform
    └── Polynomial time vs exponential classical
 
 3. Extract Private Key
-   ├── Given P = k × G and period r
-   ├── Compute k from phase relationship
-   └── Verify: k × G = P ✓
+   ├── The period of f encodes d (since P = dG)
+   ├── Compute d from the measured phase
+   └── Verify: d × G = P ✓
 
 Resource Requirements (256-bit ECDSA):
 ├── Qubits needed: ~2,330 logical qubits
@@ -281,7 +281,7 @@ Practical Reality:
 ├── Grover requires coherent computation
 ├── Can't simply "add more qubits" for speedup
 ├── One quantum computer = √N speedup
-├── Multiple quantum computers = same total work as classical
+├── M quantum computers: only √M collective speedup (vs M× classically)
 └── ASICs likely remain competitive for mining
 </pre>
             </div>
@@ -404,7 +404,7 @@ For Breaking 256-bit ECDSA (Roetteler et al., 2017):
                     <tr>
                         <td>IBM Roadmap (2023)</td>
                         <td>2033</td>
-                        <td>"100,000 logical qubits"</td>
+                        <td>"100,000 physical qubits"</td>
                     </tr>
                     <tr>
                         <td>Mosca Theorem</td>
@@ -491,8 +491,8 @@ Quantum: Still exponential (no known efficient algorithm)
 
 ML-DSA (Dilithium) for Bitcoin:
 ├── Security: 128-256 bit post-quantum
-├── Public key: 1,952 bytes (vs 33 bytes ECDSA)
-├── Signature: 4,627 bytes (vs 72 bytes ECDSA)
+├── Public key: 2,592 bytes (vs 33 bytes ECDSA)
+├── Signature: 4,627 bytes (vs 72 bytes ECDSA)   [ML-DSA-87]
 └── Verification: Fast, similar to ECDSA
 </pre>
             </div>

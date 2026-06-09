@@ -46,10 +46,10 @@
                     Given private key d, public key P = d·G, and message m:
                 </p>
                 <ol>
-                    <li>Choose random nonce k, compute R = k·G</li>
-                    <li>Compute challenge e = H<sub>BIP340/challenge</sub>(R || P || m)</li>
+                    <li>Choose random nonce k, compute R = k·G (negating k if R has an odd y-coordinate)</li>
+                    <li>Compute challenge e = H<sub>BIP340/challenge</sub>(x(R) || x(P) || m), hashing the x-only serializations</li>
                     <li>Compute s = k + e·d (mod n)</li>
-                    <li>Signature is (R, s), serialized as 64 bytes</li>
+                    <li>Signature is (x(R), s), serialized as 64 bytes</li>
                 </ol>
             </div>
 
@@ -445,7 +445,7 @@ Stack after:  [n] (or [n+1] if valid)
             <div class="remark">
                 <p class="remark-title">Remark 29.4 (OP_SUCCESS for Upgrades)</p>
                 <p>
-                    OP_SUCCESSx opcodes (80 of them) make scripts immediately succeed.
+                    OP_SUCCESSx opcodes (87 of them) make scripts immediately succeed.
                     Future soft forks can redefine them to have new meaning:
                 </p>
                 <ul>

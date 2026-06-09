@@ -117,11 +117,13 @@
 Original:  sig = (r, s)       where s < n/2
 Malleated: sig = (r, n − s)   where n − s > n/2
 
-Verification computes: R = (z·s⁻¹)·G + (r·s⁻¹)·Q
-With s' = n − s:        R' = (z·s'⁻¹)·G + (r·s'⁻¹)·Q = −R
+Verification computes: R = (z·s⁻¹)·G + (r·s⁻¹)·P
+With s' = n − s:        R' = (z·s'⁻¹)·G + (r·s'⁻¹)·P = −R
 Since R'.x = R.x (negation preserves x), both pass.</pre>
                 <p>
-                    BIP-146 (low-S requirement) fixed this by requiring s ≤ n/2.
+                    Bitcoin Core's low-S standardness rule (proposed for consensus as
+                    BIP-146, which never activated) requires s ≤ n/2 as relay policy;
+                    SegWit removed signatures from the txid entirely.
                 </p>
             </div>
 
@@ -445,6 +447,8 @@ where:
                 </table>
                 <p>
                     vbytes = ⌈441/4⌉ = 111 vbytes (vs 192 actual bytes).
+                    (Input/output count varints are omitted for clarity; a complete
+                    serialization adds 2 base bytes.)
                 </p>
             </div>
 
@@ -455,7 +459,7 @@ where:
                 </p>
                 <ul>
                     <li><strong>All legacy:</strong> ~1 MB (1,000,000 bytes = 4,000,000 WU)</li>
-                    <li><strong>All P2WPKH:</strong> ~2.1 MB (~1,600 transactions)</li>
+                    <li><strong>All P2WPKH:</strong> ~2.1 MB (~7,000 transactions)</li>
                     <li><strong>All P2WSH multisig:</strong> ~3.7 MB</li>
                     <li><strong>Theoretical max:</strong> ~4 MB (all witness data)</li>
                 </ul>
@@ -758,7 +762,7 @@ witness:      <sig> <pubkey></pre>
                         </tr>
                         <tr>
                             <td>P2TR (Taproot)</td>
-                            <td>~111</td>
+                            <td>~154</td>
                             <td>bc1p...</td>
                         </tr>
                     </tbody>

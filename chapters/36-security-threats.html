@@ -144,8 +144,9 @@
                 </p>
                 <p>
                     where λ = k · (q/p). The simplified approximation (q/p)<sup>k</sup>
-                    overestimates the probability for small k and underestimates the
-                    catch-up component; the table below uses the exact Poisson formula.
+                    underestimates the probability because it ignores the attacker's
+                    Poisson-distributed progress during the k confirmations; the table
+                    below uses the exact Poisson formula.
                 </p>
             </div>
 
@@ -220,14 +221,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>March 2013</td>
-                            <td>24 blocks</td>
-                            <td>Version 0.8 bug (accidental fork)</td>
-                        </tr>
-                        <tr>
                             <td>August 2010</td>
                             <td>53 blocks</td>
                             <td>Value overflow bug (184B BTC created)</td>
+                        </tr>
+                        <tr>
+                            <td>March 2013</td>
+                            <td>24 blocks</td>
+                            <td>Version 0.8 bug (accidental fork)</td>
                         </tr>
                         <tr>
                             <td>Normal</td>
