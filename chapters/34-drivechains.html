@@ -25,8 +25,9 @@
             <p class="chapter-intro">
                 Drivechains propose a radical alternative to federated sidechains: let Bitcoin
                 miners themselves custody the two-way peg. Through "hashrate escrow," miners
-                collectively control sidechain withdrawals, theoretically providing trustless
-                interoperability without Bitcoin consensus changes beyond two new opcodes.
+                collectively control sidechain withdrawals, providing trust-minimized
+                (miner-majority) interoperability with only one new opcode (OP_DRIVECHAIN)
+                plus a small set of new coinbase-message rules.
                 This chapter examines BIP-300/301's mechanism, security model, and the
                 intense controversy surrounding the proposal.
             </p>
@@ -114,20 +115,21 @@
                 </p>
                 <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
 Sidechain deposit address:
-  OP_DRIVECHAIN &lt;sidechain_id&gt;
+  OP_DRIVECHAIN &lt;sidechain_id&gt; OP_TRUE
 
 Withdrawal process:
   1. User requests withdrawal on sidechain
   2. Sidechain bundles requests into withdrawal bundle
   3. Bundle hash published to mainchain
-  4. Miners ACK/NACK in coinbase for ~13,150 blocks (~3 months)
+  4. Miners ACK/NACK in coinbase; bundle needs 13,150 ACKs
+     within a 26,300-block (~6-month) window
   5. If ACKs > threshold, withdrawal executes</pre>
             </div>
 
             <div class="definition">
                 <p class="definition-title">Definition 34.4 (Withdrawal Bundle)</p>
                 <p>
-                    A <strong>withdrawal bundle</strong> (WT^) aggregates multiple withdrawals:
+                    A <strong>withdrawal bundle</strong> (historically written WT^; current BIP-300 simply says "bundle", capped at 6,000 withdrawals) aggregates multiple withdrawals:
                 </p>
                 <ul>
                     <li>Created by sidechain nodes</li>
@@ -144,7 +146,7 @@ Withdrawal process:
                 </p>
                 <ol>
                     <li>Create a fraudulent withdrawal bundle</li>
-                    <li>Accumulate ~13,150 ACKs over ~3 months</li>
+                    <li>Accumulate 13,150 ACKs within the 26,300-block (~6-month) window (a bare-majority coalition takes ~6 months; ~3 months requires near-unanimous ACKing)</li>
                     <li>Maintain >50% hashrate commitment throughout</li>
                 </ol>
                 <p>
@@ -169,7 +171,7 @@ Withdrawal process:
                     <!-- Threshold reached -->
                     <circle cx="370" cy="80" r="8" fill="#28a745"/>
                     <text x="370" y="60" text-anchor="middle" font-family="Georgia" font-size="8">Threshold</text>
-                    <text x="370" y="110" text-anchor="middle" font-family="Georgia" font-size="7">~3 months</text>
+                    <text x="370" y="110" text-anchor="middle" font-family="Georgia" font-size="7">~3-6 months</text>
 
                     <!-- Execution -->
                     <circle cx="420" cy="80" r="8" fill="#3498db"/>
@@ -178,7 +180,7 @@ Withdrawal process:
                     <!-- ACK counter -->
                     <text x="225" y="140" text-anchor="middle" font-family="Georgia" font-size="9">ACK score: 0 → 13,150 (threshold)</text>
                 </svg>
-                <figcaption>Figure 34.2: Withdrawal voting timeline (~3 months).</figcaption>
+                <figcaption>Figure 34.2: Withdrawal voting: 13,150 ACKs within a 26,300-block (~6-month) window.</figcaption>
             </figure>
         </section>
 
@@ -253,11 +255,11 @@ OP_RETURN &lt;BMM_TAG&gt; &lt;sidechain_id&gt; &lt;block_hash&gt;
                 </p>
                 <ol>
                     <li>Malicious miners create false withdrawal to themselves</li>
-                    <li>Vote for it over ~3 months</li>
+                    <li>Vote for it over ~3-6 months</li>
                     <li>If successful, steal all sidechain deposits</li>
                 </ol>
                 <p>
-                    Cost: Must maintain >50% hashrate for 3 months while attack is visible.
+                    Cost: Must maintain >50% hashrate for 3-6 months while the attack is visible.
                 </p>
             </div>
 
