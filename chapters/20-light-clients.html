@@ -452,7 +452,7 @@ script_hash (little-endian hex) = 56f4de...23c1ab</code></pre>
                 <p>
                     The privacy concerns above apply to <em>public</em> Electrum servers.
                     Running your own server (ElectrumX, Fulcrum, electrs) connected to your
-                    own full node eliminates third-party privacy leakage, though requires
+                    own full node eliminates third-party privacy leakage, though it requires
                     the resources to run both services.
                 </p>
             </div>
@@ -703,7 +703,7 @@ Response:
             </p>
 
             <div class="definition">
-                <p><strong>Definition 20.8</strong> (Validation Capability Classes)</p>
+                <p><strong>Definition 20.7</strong> (Validation Capability Classes)</p>
                 <p>
                     We classify consensus checks into four classes based on the data
                     required to verify them:
@@ -759,7 +759,7 @@ Response:
                         <td>SHA-256 midstate proof (BIP 180)</td>
                     </tr>
                     <tr>
-                        <td>Coinbase reward does not exceed subsidy + fees</td>
+                        <td>Coinbase reward does not exceed subsidy (fee component is Class U)</td>
                         <td>F</td>
                         <td>Coinbase transaction + merkle proof</td>
                     </tr>
@@ -822,7 +822,7 @@ Response:
             </p>
 
             <div class="definition">
-                <p><strong>Definition 20.9</strong> (Fraud Proof)</p>
+                <p><strong>Definition 20.8</strong> (Fraud Proof)</p>
                 <p>
                     A <em>fraud proof</em> for a consensus rule <em>R</em> applied to block <em>B</em>
                     is a data structure <em>P</em> such that:
@@ -853,8 +853,11 @@ Response:
                 200&ndash;500 bytes) and its merkle inclusion proof (about 11 hashes for
                 a block of 2000 transactions). The light client verifies the merkle proof
                 against the header it already holds, parses the coinbase outputs, and
-                checks that the total does not exceed the known subsidy for that block
-                height plus the claimed fee total.
+                checks the coinbase outputs against the known subsidy for that block
+                height. Note the limit: verifying the <em>fee</em> component would require
+                the input values of every transaction in the block, so a compact fraud
+                proof can only catch coinbase outputs exceeding the subsidy plus an
+                independently proven fee total.
             </p>
 
             <div class="theorem">
@@ -933,7 +936,7 @@ Response:
             </p>
 
             <div class="definition">
-                <p><strong>Definition 20.10</strong> (Compact Client)</p>
+                <p><strong>Definition 20.9</strong> (Compact Client)</p>
                 <p>
                     A <em>compact client</em> is a light client that:
                 </p>
@@ -1122,7 +1125,7 @@ Response:
             <h3>Decision Framework</h3>
 
             <div class="definition">
-                <p><strong>Definition 20.11</strong> (Architecture Selection Criteria)</p>
+                <p><strong>Definition 20.10</strong> (Architecture Selection Criteria)</p>
                 <p>Consider these factors when choosing a light client architecture:</p>
                 <ol>
                     <li><strong>Privacy requirements:</strong> Who can see your addresses?</li>

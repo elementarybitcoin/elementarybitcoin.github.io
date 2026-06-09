@@ -797,7 +797,9 @@
 
     // Process remaining bytes
     k = 0
-    for remaining bytes (little-endian):
+    for each remaining byte i (little-endian):
+        k = k XOR (byte[i] << (8 * i))
+    if k ≠ 0:
         k = k * c1
         k = rotl32(k, r1)
         k = k * c2
@@ -928,8 +930,8 @@
                         <td>BIP-37 proposed by Mike Hearn and Matt Corallo</td>
                     </tr>
                     <tr>
-                        <td>2012-12</td>
-                        <td>Implemented in Bitcoin Core 0.8.0</td>
+                        <td>2013-02</td>
+                        <td>Released in Bitcoin Core 0.8.0</td>
                     </tr>
                     <tr>
                         <td>2014</td>

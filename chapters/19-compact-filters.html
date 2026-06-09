@@ -74,7 +74,7 @@
             <h4>Privacy Advantage</h4>
             <p>
                 <strong>The server learns nothing about client interests.</strong> A client that
-                downloads filter for block N is indistinguishable from any other client downloading
+                downloads the filter for block N is indistinguishable from any other client downloading
                 that filter. When the client requests the full block, the server learns only that
                 "something in this block is interesting"—not which transactions, addresses, or
                 scripts.
@@ -331,8 +331,8 @@
 
                     <!-- Step 2: Hash -->
                     <g transform="translate(30, 115)">
-                        <text x="0" y="0" font-size="11" font-weight="bold">2. Hash to [0, N·M):</text>
-                        <text x="0" y="20" font-size="10" fill="#666">With N=3, M=16, range = [0, 48)</text>
+                        <text x="0" y="0" font-size="11" font-weight="bold">2. Hash to [0, N·F):</text>
+                        <text x="0" y="20" font-size="10" fill="#666">With N=3, F=16, range = [0, 48)</text>
                         <rect x="0" y="30" width="60" height="25" fill="#fff3e0" stroke="#ef6c00" rx="3"/>
                         <text x="30" y="47" text-anchor="middle" font-size="10">7</text>
                         <rect x="90" y="30" width="60" height="25" fill="#fff3e0" stroke="#ef6c00" rx="3"/>
@@ -391,31 +391,35 @@
             <div class="theorem">
                 <p><strong>Theorem 19.3</strong> (GCS Space Efficiency)</p>
                 <p>
-                    A Golomb-Coded Set with N elements and false positive rate 1/M requires
-                    approximately N · (1 + log₂(M)) bits, plus a small constant overhead.
+                    A Golomb-Coded Set with N elements and false positive rate 1/F requires
+                    approximately N · (1 + log₂(F)) bits, plus a small constant overhead.
                 </p>
             </div>
 
             <div class="proof">
                 <p><strong>Proof sketch.</strong></p>
                 <p>
-                    Each delta has expected value M (since N elements are spread over range N·M).
-                    Golomb-Rice with P = log₂(M) encodes values near M optimally. The expected
-                    code length per delta is approximately 1 + P = 1 + log₂(M) bits.
-                    With N deltas, total size ≈ N · (1 + log₂(M)) bits. ∎
+                    Each delta has expected value F (since N elements are spread over range N·F).
+                    Golomb-Rice with P = log₂(F) (so that the divisor M = 2^P ≈ F) encodes
+                    values near F optimally. The expected code length per delta is
+                    approximately 1 + P = 1 + log₂(F) bits.
+                    With N deltas, total size ≈ N · (1 + log₂(F)) bits. ∎
                 </p>
             </div>
 
             <div class="example">
                 <p><strong>Example 19.2</strong> (BIP-158 Filter Size)</p>
                 <p>
-                    BIP-158 uses P = 19 (M = 2¹⁹ ≈ 524,288) and parameter F = M.
+                    BIP-158 uses P = 19 (M = 2¹⁹ = 524,288) and false-positive
+                    parameter F = 784,931 (≈ 1.5 × 2¹⁹).
                     For a block with N = 2000 scriptPubKeys:
                 </p>
                 <ul>
                     <li>Filter size ≈ 2000 × (1 + 19) = 40,000 bits = 5,000 bytes</li>
                     <li>Compared to full block: ~1-2 MB</li>
-                    <li>Ratio: ~1/200 to 1/400</li>
+                    <li>Ratio: ~1/200 to 1/400 for this N; real blocks contain
+                    more filter elements (~5,000&ndash;10,000), giving the
+                    ~1/80 ratio quoted elsewhere</li>
                 </ul>
             </div>
         </section>
@@ -645,10 +649,10 @@
                     The filter header for block N is:
                 </p>
                 <div class="formula">
-                    filter_header<sub>N</sub> = SHA256(SHA256(filter<sub>N</sub>) || filter_header<sub>N-1</sub>)
+                    filter_header<sub>N</sub> = SHA256d(SHA256d(filter<sub>N</sub>) || filter_header<sub>N-1</sub>)
                 </div>
                 <p>
-                    Where filter<sub>N</sub> is the raw filter bytes and filter_header<sub>-1</sub> = 0x00...00 (32 zero bytes).
+                    Where SHA256d(x) = SHA256(SHA256(x)), filter<sub>N</sub> is the raw filter bytes, and filter_header<sub>-1</sub> = 0x00...00 (32 zero bytes).
                 </p>
             </div>
 
@@ -665,7 +669,7 @@
 
                         <rect x="0" y="50" width="100" height="40" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
                         <text x="50" y="73" text-anchor="middle" font-size="9">Header₀ =</text>
-                        <text x="50" y="85" text-anchor="middle" font-size="8">H(F₀ || 0x00...)</text>
+                        <text x="50" y="85" text-anchor="middle" font-size="8">H(H(F₀) || 0x00...)</text>
                     </g>
 
                     <!-- Arrow -->
@@ -678,7 +682,7 @@
 
                         <rect x="0" y="50" width="100" height="40" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
                         <text x="50" y="73" text-anchor="middle" font-size="9">Header₁ =</text>
-                        <text x="50" y="85" text-anchor="middle" font-size="8">H(F₁ || H₀)</text>
+                        <text x="50" y="85" text-anchor="middle" font-size="8">H(H(F₁) || H₀)</text>
                     </g>
 
                     <!-- Arrow -->
@@ -691,7 +695,7 @@
 
                         <rect x="0" y="50" width="100" height="40" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
                         <text x="50" y="73" text-anchor="middle" font-size="9">Header₂ =</text>
-                        <text x="50" y="85" text-anchor="middle" font-size="8">H(F₂ || H₁)</text>
+                        <text x="50" y="85" text-anchor="middle" font-size="8">H(H(F₂) || H₁)</text>
                     </g>
 
                     <!-- Arrow -->
@@ -969,8 +973,8 @@
     for height in range(wallet.last_synced + 1, tip.height + 1):
         filter = GetFilter(height)
 
-        // Verify filter matches header
-        assert SHA256d(filter) == filter_headers[height]
+        // Verify filter against the committed header chain
+        assert SHA256d(SHA256d(filter) || filter_headers[height - 1]) == filter_headers[height]
 
         // Test wallet addresses against filter
         if MatchFilter(filter, wallet.scriptPubKeys):
@@ -1041,8 +1045,8 @@
                 <p><strong>Exercise 19.3</strong></p>
                 <p>
                     Prove that if a client queries k independent peers for filter headers and
-                    at least one is honest, any filter manipulation will be detected with
-                    probability 1 - (1/k).
+                    at least one is honest, any filter manipulation is detected with
+                    certainty (the client observes conflicting headers).
                 </p>
             </div>
 
