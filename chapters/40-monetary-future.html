@@ -9,782 +9,779 @@
 </head>
 <body>
     <nav class="chapter-nav">
-        <a href="39-quantum-resistance.html" class="prev">&#8592; Chapter 39: Quantum Resistance</a>
-        <a href="../index.html" class="home">&#8962; Home</a>
-        <a href="../index.html" class="next">Return to Index &#8594;</a>
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume V: The Path to a Sustainable Future</span>
     </nav>
 
-    <article class="chapter">
-        <header class="chapter-header">
-            <p class="volume-title">Volume V: The Path to a Sustainable Future</p>
-            <p class="part-title">Part XVI: The Road Ahead</p>
-            <h1>Chapter 40: Bitcoin's Monetary Future</h1>
-            <p class="subtitle">From Digital Curiosity to Global Reserve Asset</p>
-        </header>
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 40</p>
+        <h1 class="chapter-title">Bitcoin's Monetary Future</h1>
+        <p class="chapter-subtitle">From Digital Curiosity to Global Reserve Asset</p>
+        <p class="chapter-epigraph">
+            "It might make sense just to get some in case it catches on. If enough people
+            think the same way, that becomes a self-fulfilling prophecy."
+            <br>&mdash; Satoshi Nakamoto, January 17, 2009
+        </p>
+    </header>
 
-        <blockquote class="chapter-quote">
-            "It might make sense just to get some in case it catches on. If enough people think the same way, that becomes a self-fulfilling prophecy."
-            <cite>— Satoshi Nakamoto, January 17, 2009</cite>
-        </blockquote>
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                More than fifteen years after its creation, Bitcoin has exceeded nearly every
+                early expectation&mdash;yet its ultimate role in the global monetary system remains
+                undefined. Is Bitcoin digital gold? A global settlement layer? An alternative
+                reserve currency? The base money of a new financial system? This final chapter
+                examines Bitcoin's potential futures: the scenarios, the obstacles, the game
+                theory of adoption, and the implications if Bitcoin achieves its maximum
+                potential. Bitcoin is not just a new payment technology&mdash;it is a potential
+                transformation of money itself. The outcomes range from irrelevance to the most
+                significant monetary change since the end of the gold standard. Much of this
+                chapter is necessarily speculative; speculative claims are confined to clearly
+                labeled scenario definitions and remarks, never stated as theorems.
+            </p>
+        </section>
 
-        <section id="introduction">
-            <h2>The Unfinished Revolution</h2>
+        <section>
+            <h2>40.1 The Evolution of Money</h2>
 
-            <p>More than fifteen years after its creation, Bitcoin has exceeded nearly every early expectation—yet its ultimate role in the global monetary system remains undefined. Is Bitcoin digital gold? A global settlement layer? An alternative reserve currency? The base money of a new financial system?</p>
+            <div class="definition">
+                <p class="definition-title">Definition 40.1 (Monetary Eras)</p>
+                <p>
+                    The history of money divides into four broad eras, each characterized by
+                    distinct monetary properties:
+                </p>
+                <ol>
+                    <li><strong>Commodity money</strong> (ancient &ndash; 1971): shells, cattle, salt,
+                    and metals; the gold standard peaked from 1870&ndash;1914, followed by the
+                    Bretton Woods system (1944&ndash;1971). Properties: scarce, durable, divisible,
+                    portable.</li>
+                    <li><strong>Fiat currency</strong> (1971 &ndash; present): the Nixon shock ended
+                    gold convertibility, replaced by central bank management and floating
+                    exchange rates. Properties: elastic supply, political control.</li>
+                    <li><strong>Digital fiat</strong> (1990s &ndash; present): electronic banking,
+                    credit cards, ACH, SWIFT, and central bank digital currencies (CBDCs).
+                    Properties: convenient, surveilled, controllable.</li>
+                    <li><strong>Bitcoin</strong> (2009 &ndash; future?): programmable scarcity,
+                    decentralized issuance, permissionless access. Properties: fixed supply,
+                    censorship-resistant, borderless.</li>
+                </ol>
+            </div>
 
-            <p>This final chapter explores Bitcoin's potential futures: the scenarios, the obstacles, the game theory of adoption, and the profound implications for human civilization if Bitcoin achieves its maximum potential.</p>
-
-            <div class="key-concept">
-                <h3>The Stakes</h3>
-                <p>Bitcoin isn't just a new payment technology—it's a potential transformation of money itself. The outcomes range from irrelevance to the most significant monetary change since the end of the gold standard. Understanding these possibilities is essential for navigating the decades ahead.</p>
+            <div class="example">
+                <p class="example-title">Example 40.1 (Monetary Problems and Bitcoin's Responses)</p>
+                <p>
+                    Bitcoin addresses fundamental issues with existing monetary systems:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Problem</th>
+                            <th>Fiat Status Quo</th>
+                            <th>Bitcoin Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Inflation</td>
+                            <td>2-10%+ annual debasement</td>
+                            <td>Fixed 21M supply cap</td>
+                        </tr>
+                        <tr>
+                            <td>Censorship</td>
+                            <td>Accounts frozen, transactions blocked</td>
+                            <td>Permissionless transactions</td>
+                        </tr>
+                        <tr>
+                            <td>Seizure</td>
+                            <td>Assets confiscated by decree</td>
+                            <td>Self-custody with cryptography</td>
+                        </tr>
+                        <tr>
+                            <td>Border control</td>
+                            <td>Capital controls, reporting requirements</td>
+                            <td>Borderless by design</td>
+                        </tr>
+                        <tr>
+                            <td>Counterparty risk</td>
+                            <td>Bank failures, bail-ins</td>
+                            <td>Bearer asset, no intermediary</td>
+                        </tr>
+                        <tr>
+                            <td>Settlement speed</td>
+                            <td>Days for international transfers</td>
+                            <td>~1 hour (6 confirmations) vs days for wires</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
-        <section id="monetary-evolution">
-            <h2>The Evolution of Money</h2>
+        <section>
+            <h2>40.2 Stages of Adoption</h2>
 
-            <h3>Historical Progression</h3>
-
-            <p>Money has evolved through distinct phases:</p>
-
-            <div class="code-block">
-<pre>
-Monetary Evolution:
-
-1. Commodity Money (ancient - 1971)
-   ├── Shells, cattle, salt, metals
-   ├── Gold standard peak (1870-1914)
-   ├── Bretton Woods (1944-1971)
-   └── Properties: Scarce, durable, divisible, portable
-
-2. Fiat Currency (1971 - present)
-   ├── Nixon shock ends gold convertibility
-   ├── Central bank management
-   ├── Floating exchange rates
-   └── Properties: Elastic supply, political control
-
-3. Digital Fiat (1990s - present)
-   ├── Electronic banking
-   ├── Credit cards, ACH, SWIFT
-   ├── Central bank digital currencies (CBDCs)
-   └── Properties: Convenient, surveilled, controllable
-
-4. Bitcoin (2009 - future?)
-   ├── Programmable scarcity
-   ├── Decentralized issuance
-   ├── Permissionless access
-   └── Properties: Fixed supply, censorship-resistant, borderless
-</pre>
+            <div class="definition">
+                <p class="definition-title">Definition 40.2 (Adoption S-Curve)</p>
+                <p>
+                    The <strong>adoption S-curve</strong> is the standard model of technology
+                    diffusion: adoption grows slowly among innovators, accelerates through early
+                    adopters and the early majority, then saturates among the late majority and
+                    laggards. Applied to Bitcoin, the model partitions adopters into five stages
+                    by period, user base, and price regime.
+                </p>
             </div>
 
-            <h3>What Problem Does Bitcoin Solve?</h3>
-
-            <p>Bitcoin addresses fundamental issues with existing monetary systems:</p>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Problem</th>
-                        <th>Fiat Status Quo</th>
-                        <th>Bitcoin Solution</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Inflation</td>
-                        <td>2-10%+ annual debasement</td>
-                        <td>Fixed 21M supply cap</td>
-                    </tr>
-                    <tr>
-                        <td>Censorship</td>
-                        <td>Accounts frozen, transactions blocked</td>
-                        <td>Permissionless transactions</td>
-                    </tr>
-                    <tr>
-                        <td>Seizure</td>
-                        <td>Assets confiscated by decree</td>
-                        <td>Self-custody with cryptography</td>
-                    </tr>
-                    <tr>
-                        <td>Border control</td>
-                        <td>Capital controls, reporting requirements</td>
-                        <td>Borderless by design</td>
-                    </tr>
-                    <tr>
-                        <td>Counterparty risk</td>
-                        <td>Bank failures, bail-ins</td>
-                        <td>Bearer asset, no intermediary</td>
-                    </tr>
-                    <tr>
-                        <td>Settlement speed</td>
-                        <td>Days for international transfers</td>
-                        <td>~1 hour (6 confirmations) vs days for wires</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <section id="adoption-stages">
-            <h2>Stages of Adoption</h2>
-
-            <h3>The S-Curve Model</h3>
-
-            <p>Technology adoption typically follows an S-curve pattern:</p>
-
-            <div class="code-block">
-<pre>
-Bitcoin Adoption Stages:
-
-Stage 1: Innovators (2009-2012)
-├── Cypherpunks, cryptographers
-├── Ideological early adopters
-├── Price: $0 → $12
-└── Users: Thousands
-
-Stage 2: Early Adopters (2012-2017)
-├── Tech-savvy investors
-├── First exchanges, services
-├── Price: $12 → $1,000
-└── Users: Millions
-
-Stage 3: Early Majority (2017-2024)
-├── Retail speculation
-├── Institutional exploration
-├── Price: $1,000 → $70,000+
-└── Users: Tens of millions
-
-Stage 4: Late Majority (2024-2030?)
-├── Corporate treasury adoption
-├── Nation-state reserves
-├── ETFs, pension funds
-└── Users: Hundreds of millions
-
-Stage 5: Laggards (2030+?)
-├── Universal acceptance
-├── Unit of account
-├── Reserve currency
-└── Users: Billions
-</pre>
+            <div class="example">
+                <p class="example-title">Example 40.2 (Bitcoin's Adoption Stages)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th>Period</th>
+                            <th>Adopters</th>
+                            <th>Price</th>
+                            <th>Users</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1. Innovators</td>
+                            <td>2009-2012</td>
+                            <td>Cypherpunks, cryptographers, ideological early adopters</td>
+                            <td>$0 &rarr; $12</td>
+                            <td>Thousands</td>
+                        </tr>
+                        <tr>
+                            <td>2. Early Adopters</td>
+                            <td>2012-2017</td>
+                            <td>Tech-savvy investors; first exchanges and services</td>
+                            <td>$12 &rarr; $1,000</td>
+                            <td>Millions</td>
+                        </tr>
+                        <tr>
+                            <td>3. Early Majority</td>
+                            <td>2017-2024</td>
+                            <td>Retail speculation, institutional exploration</td>
+                            <td>$1,000 &rarr; $70,000+</td>
+                            <td>Tens of millions</td>
+                        </tr>
+                        <tr>
+                            <td>4. Late Majority</td>
+                            <td>2024-2030?</td>
+                            <td>Corporate treasuries, nation-state reserves, ETFs, pension funds</td>
+                            <td>&mdash;</td>
+                            <td>Hundreds of millions</td>
+                        </tr>
+                        <tr>
+                            <td>5. Laggards</td>
+                            <td>2030+?</td>
+                            <td>Universal acceptance, unit of account, reserve currency</td>
+                            <td>&mdash;</td>
+                            <td>Billions</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <h3>Current Position</h3>
-
-            <p>As of the mid-2020s, Bitcoin appears to be transitioning from Early Majority to Late Majority:</p>
-
-            <ul>
-                <li><strong>Spot ETFs approved:</strong> Institutional access simplified</li>
-                <li><strong>Corporate holdings:</strong> MicroStrategy, Tesla, others</li>
-                <li><strong>Nation-state adoption:</strong> El Salvador (legal tender 2021&ndash;2025, now voluntary)</li>
-                <li><strong>Market cap:</strong> ~$2 trillion (top 10 global assets)</li>
-                <li><strong>Network effects:</strong> Self-reinforcing adoption dynamics</li>
-            </ul>
-        </section>
-
-        <section id="nation-state-game-theory">
-            <h2>Nation-State Game Theory</h2>
-
-            <h3>A Coordination Game</h3>
-
-            <p>Nations face a coordination problem regarding Bitcoin&mdash;a stag hunt with multiple equilibria rather than a prisoner's dilemma (compare the Schelling-point analysis of Example 26.2):</p>
-
-            <div class="code-block">
-<pre>
-Nation-State Bitcoin Game:
-
-If ALL nations reject Bitcoin:
-├── Status quo maintained
-├── Dollar hegemony continues
-└── No nation gains/loses from BTC
-
-If SOME nations adopt while others reject:
-├── Adopters gain if BTC succeeds
-├── Adopters lose if BTC fails
-├── Rejecters lose if BTC succeeds
-└── First-mover advantage significant
-
-If ALL nations adopt Bitcoin:
-├── New monetary order
-├── Early adopters benefit most
-├── Late adopters pay premium
-└── No nation can stop it
-
-Hedging / First-Mover Logic (no dominant strategy exists):
-├── If neighbors might adopt → consider adopting
-├── If BTC might succeed → early adoption advantageous
-├── Waiting has opportunity cost
-└── A small allocation is a cheap hedge against the adoption equilibrium
-</pre>
-            </div>
-
-            <h3>Strategic Reserve Asset</h3>
-
-            <p>The case for Bitcoin in sovereign reserves:</p>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Consideration</th>
-                        <th>For Bitcoin</th>
-                        <th>Against Bitcoin</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Sanction resistance</td>
-                        <td>Cannot be frozen by adversaries</td>
-                        <td>May invite sanctions for holding</td>
-                    </tr>
-                    <tr>
-                        <td>Diversification</td>
-                        <td>Non-correlated with traditional assets</td>
-                        <td>Highly volatile</td>
-                    </tr>
-                    <tr>
-                        <td>Settlement</td>
-                        <td>Direct, no intermediary risk</td>
-                        <td>Limited throughput</td>
-                    </tr>
-                    <tr>
-                        <td>Scarcity</td>
-                        <td>Cannot be inflated</td>
-                        <td>Cannot be expanded in crisis</td>
-                    </tr>
-                    <tr>
-                        <td>Sovereignty</td>
-                        <td>No issuer to impose conditions</td>
-                        <td>Rules cannot be changed if needed</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>The Tipping Point</h3>
-
-            <div class="key-concept">
-                <h3>When Does FOMO Start?</h3>
-                <p>If one major economy adds Bitcoin to reserves, others face pressure to follow. The first major central bank (Fed, ECB, PBoC, BoJ) to accumulate Bitcoin could trigger a cascade of sovereign adoption—dramatically impacting price and legitimacy.</p>
+            <div class="remark">
+                <p class="remark-title">Remark 40.1 (Current Position)</p>
+                <p>
+                    As of the mid-2020s, Bitcoin appears to be transitioning from Early Majority
+                    to Late Majority:
+                </p>
+                <ul>
+                    <li><strong>Spot ETFs approved:</strong> Institutional access simplified</li>
+                    <li><strong>Corporate holdings:</strong> MicroStrategy, Tesla, others</li>
+                    <li><strong>Nation-state adoption:</strong> El Salvador (legal tender 2021&ndash;2025, now voluntary)</li>
+                    <li><strong>Market cap:</strong> ~$2 trillion (top 10 global assets)</li>
+                    <li><strong>Network effects:</strong> Self-reinforcing adoption dynamics</li>
+                </ul>
             </div>
         </section>
 
-        <section id="scenarios">
-            <h2>Future Scenarios</h2>
+        <section>
+            <h2>40.3 Nation-State Game Theory</h2>
 
-            <h3>Scenario 1: Digital Gold (High Probability)</h3>
-
-            <p>Bitcoin becomes a widely-held store of value alongside gold:</p>
-
-            <div class="code-block">
-<pre>
-Digital Gold Scenario:
-
-Market Position:
-├── 10-40% of gold's market cap of ~$15T ($1.5-6 trillion)
-├── Held by 5-10% of global population
-├── In 10-20% of investment portfolios
-└── Price: $75,000-300,000 per BTC
-
-Characteristics:
-├── Store of value, not medium of exchange
-├── "Digital property" narrative dominates
-├── Coexists with fiat currencies
-├── Limited payment usage (high-value settlement)
-└── Lightning Network for smaller transactions
-
-Implications:
-├── Wealth preservation tool
-├── Portfolio diversification asset
-├── Not disruptive to existing monetary order
-└── Fiat inflation continues, Bitcoin holders protected
-</pre>
+            <div class="definition">
+                <p class="definition-title">Definition 40.3 (Nation-State Adoption Game)</p>
+                <p>
+                    The <strong>nation-state adoption game</strong> models national Bitcoin policy
+                    as a coordination game&mdash;a stag hunt with multiple equilibria rather than a
+                    prisoner's dilemma (compare the Schelling-point analysis of Example 26.2).
+                    The payoff structure has three regimes:
+                </p>
+                <ul>
+                    <li><strong>All nations reject:</strong> the status quo is maintained, dollar
+                    hegemony continues, and no nation gains or loses from Bitcoin.</li>
+                    <li><strong>Some adopt while others reject:</strong> adopters gain if Bitcoin
+                    succeeds and lose if it fails; rejecters lose if Bitcoin succeeds. The
+                    first-mover advantage is significant.</li>
+                    <li><strong>All nations adopt:</strong> a new monetary order emerges; early
+                    adopters benefit most, late adopters pay a premium, and no nation can stop it.</li>
+                </ul>
             </div>
 
-            <h3>Scenario 2: Global Reserve Asset (Medium Probability)</h3>
-
-            <p>Bitcoin joins or replaces gold in central bank reserves:</p>
-
-            <div class="code-block">
-<pre>
-Reserve Asset Scenario:
-
-Market Position:
-├── Equal to or greater than gold (~$15 trillion)
-├── Held by majority of central banks
-├── Strategic reserve for nations
-└── Price: $700,000-1,500,000 per BTC
-
-Characteristics:
-├── Settlement layer for international trade
-├── Neutral asset for adversarial nations
-├── Backing for fiat currencies (partial)
-├── Reduced dollar hegemony
-└── New Bretton Woods-style arrangements
-
-Implications:
-├── Fundamental shift in monetary order
-├── Reduced US exorbitant privilege
-├── Increased financial sovereignty for small nations
-├── More multipolar monetary system
-</pre>
+            <div class="remark">
+                <p class="remark-title">Remark 40.2 (Hedging Logic)</p>
+                <p>
+                    No dominant strategy exists in the adoption game, so each nation's best
+                    response depends on its beliefs about others:
+                </p>
+                <ul>
+                    <li>If neighbors might adopt &rarr; consider adopting</li>
+                    <li>If Bitcoin might succeed &rarr; early adoption is advantageous</li>
+                    <li>Waiting has opportunity cost</li>
+                    <li>A small allocation is a cheap hedge against the adoption equilibrium</li>
+                </ul>
             </div>
 
-            <h3>Scenario 3: Global Base Money (Low-Medium Probability)</h3>
-
-            <p>Bitcoin becomes the primary global unit of account:</p>
-
-            <div class="code-block">
-<pre>
-Base Money Scenario:
-
-Market Position:
-├── Majority of global monetary base
-├── Universal unit of account
-├── Primary settlement for all trade
-└── Price: Measured in satoshis, not dollars
-
-Characteristics:
-├── Prices quoted in BTC/sats globally
-├── Fiat currencies pegged to Bitcoin
-├── Central banks manage BTC-backed currencies
-├── Layer 2 handles all daily transactions
-└── Layer 1 for final settlement only
-
-Implications:
-├── End of fiat monetary era
-├── Deflationary pressure (falling prices)
-├── Reduced credit expansion capability
-├── Fundamental economic restructuring
-├── Unknown social/political consequences
-</pre>
+            <div class="example">
+                <p class="example-title">Example 40.3 (Strategic Reserve Considerations)</p>
+                <p>
+                    The case for and against Bitcoin in sovereign reserves:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Consideration</th>
+                            <th>For Bitcoin</th>
+                            <th>Against Bitcoin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sanction resistance</td>
+                            <td>Cannot be frozen by adversaries</td>
+                            <td>May invite sanctions for holding</td>
+                        </tr>
+                        <tr>
+                            <td>Diversification</td>
+                            <td>Non-correlated with traditional assets</td>
+                            <td>Highly volatile</td>
+                        </tr>
+                        <tr>
+                            <td>Settlement</td>
+                            <td>Direct, no intermediary risk</td>
+                            <td>Limited throughput</td>
+                        </tr>
+                        <tr>
+                            <td>Scarcity</td>
+                            <td>Cannot be inflated</td>
+                            <td>Cannot be expanded in crisis</td>
+                        </tr>
+                        <tr>
+                            <td>Sovereignty</td>
+                            <td>No issuer to impose conditions</td>
+                            <td>Rules cannot be changed if needed</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <h3>Scenario 4: Niche/Failure (Low Probability)</h3>
-
-            <p>Bitcoin remains marginal or declines:</p>
-
-            <div class="code-block">
-<pre>
-Failure Scenario:
-
-Possible Causes:
-├── Catastrophic bug/exploit discovered
-├── Quantum computing breaks ECDSA (no migration)
-├── Coordinated global ban (enforced)
-├── Superior technology replaces it
-├── Internal governance failure
-└── Fee market collapse, security degradation
-
-Market Position:
-├── <$100 billion market cap
-├── Limited to ideological users
-├── No mainstream adoption
-└── Viewed as failed experiment
-
-Probability Assessment:
-├── 15+ years of resilience argues against
-├── Network effects provide stability
-├── No superior alternative has emerged
-├── Global ban coordination unlikely
-└── Estimated probability: <10%
-</pre>
+            <div class="remark">
+                <p class="remark-title">Remark 40.3 (The Tipping Point)</p>
+                <p>
+                    If one major economy adds Bitcoin to its reserves, others face pressure to
+                    follow. The first major central bank (Fed, ECB, PBoC, BoJ) to accumulate
+                    Bitcoin could trigger a cascade of sovereign adoption&mdash;dramatically
+                    impacting price and legitimacy.
+                </p>
             </div>
         </section>
 
-        <section id="hyperbitcoinization">
-            <h2>Hyperbitcoinization</h2>
+        <section>
+            <h2>40.4 Future Scenarios</h2>
 
-            <h3>The Concept</h3>
+            <p>
+                Where a scenario states a price range, the arithmetic is the simple identity
+            </p>
+            <p class="math-block">
+                price = market capitalization / circulating supply,
+            </p>
+            <p>
+                evaluated at a round circulating supply of roughly 20 million BTC.
+            </p>
 
-            <p>Hyperbitcoinization describes the theoretical tipping point where Bitcoin becomes the dominant global currency:</p>
-
-            <div class="key-concept">
-                <h3>Definition</h3>
-                <p>"Hyperbitcoinization is the point at which Bitcoin becomes the default value system of the world—not through force, but through voluntary adoption driven by superior monetary properties."</p>
+            <div class="definition">
+                <p class="definition-title">Definition 40.4 (Scenario: Digital Gold)</p>
+                <p>
+                    In the <strong>digital gold scenario</strong> (high probability), Bitcoin
+                    becomes a widely-held store of value alongside gold:
+                </p>
+                <ul>
+                    <li><strong>Market position:</strong> 10-40% of gold's market cap of ~$15T
+                    ($1.5-6 trillion); held by 5-10% of the global population; in 10-20% of
+                    investment portfolios; price $75,000-300,000 per BTC.</li>
+                    <li><strong>Characteristics:</strong> store of value rather than medium of
+                    exchange; the "digital property" narrative dominates; coexistence with fiat
+                    currencies; limited payment usage (high-value settlement), with the Lightning
+                    Network for smaller transactions.</li>
+                    <li><strong>Implications:</strong> wealth preservation tool and portfolio
+                    diversification asset; not disruptive to the existing monetary order; fiat
+                    inflation continues while Bitcoin holders are protected.</li>
+                </ul>
             </div>
 
-            <h3>Potential Triggers</h3>
-
-            <ol>
-                <li><strong>Fiat currency crisis:</strong> Major currency hyperinflation drives adoption</li>
-                <li><strong>Sovereign default cascade:</strong> Trust in government money collapses</li>
-                <li><strong>Weaponized dollar:</strong> Overuse of sanctions drives alternatives</li>
-                <li><strong>Institutional stampede:</strong> FOMO among pension funds, sovereign wealth</li>
-                <li><strong>Technological tipping point:</strong> UX reaches mass-market readiness</li>
-            </ol>
-
-            <h3>How It Might Unfold</h3>
-
-            <div class="code-block">
-<pre>
-Hyperbitcoinization Process:
-
-Phase 1: Speculative Store of Value
-├── Current state
-├── HODLers accumulate
-├── Volatility decreases over time
-└── Institutional adoption grows
-
-Phase 2: Treasury Reserve Asset
-├── Companies hold BTC
-├── Nations add to reserves
-├── Legitimacy established
-└── Infrastructure matures
-
-Phase 3: Medium of Exchange
-├── Lightning adoption scales
-├── Commerce integration
-├── Salary payments begin
-└── Dual pricing (fiat + BTC)
-
-Phase 4: Unit of Account
-├── Prices quoted in sats
-├── Fiat prices derived from BTC
-├── Accounting standards adapt
-└── Mental shift: BTC is "real money"
-
-Phase 5: Base Money Layer
-├── Settlement for all global trade
-├── Fiat currencies as stablecoins on BTC
-├── Central banks as BTC custodians
-└── New monetary order established
-</pre>
+            <div class="example">
+                <p class="example-title">Example 40.4 (Implied Price: Digital Gold)</p>
+                <p>
+                    At 10% of gold's market cap and a ~20 million BTC supply:
+                </p>
+                <p class="math-block">
+                    price = $1.5 trillion / 20,000,000 BTC = $75,000 per BTC.
+                </p>
+                <p>
+                    At 40% of gold's market cap:
+                </p>
+                <p class="math-block">
+                    price = $6 trillion / 20,000,000 BTC = $300,000 per BTC.
+                </p>
             </div>
-        </section>
 
-        <section id="economic-implications">
-            <h2>Economic Implications</h2>
+            <div class="definition">
+                <p class="definition-title">Definition 40.5 (Scenario: Global Reserve Asset)</p>
+                <p>
+                    In the <strong>global reserve asset scenario</strong> (medium probability),
+                    Bitcoin joins or replaces gold in central bank reserves:
+                </p>
+                <ul>
+                    <li><strong>Market position:</strong> market cap equal to or greater than
+                    gold (~$15 trillion); held by a majority of central banks; a strategic
+                    reserve for nations; price $700,000-1,500,000 per BTC.</li>
+                    <li><strong>Characteristics:</strong> settlement layer for international
+                    trade; a neutral asset for adversarial nations; partial backing for fiat
+                    currencies; reduced dollar hegemony; new Bretton Woods-style arrangements.</li>
+                    <li><strong>Implications:</strong> a fundamental shift in the monetary order;
+                    reduced US exorbitant privilege; increased financial sovereignty for small
+                    nations; a more multipolar monetary system.</li>
+                </ul>
+            </div>
 
-            <h3>A Deflationary Standard</h3>
+            <div class="example">
+                <p class="example-title">Example 40.5 (Implied Price: Reserve Asset)</p>
+                <p>
+                    At gold parity and a ~20 million BTC supply:
+                </p>
+                <p class="math-block">
+                    price = $15 trillion / 20,000,000 BTC = $750,000 per BTC,
+                </p>
+                <p>
+                    at the lower end of the scenario's $700,000-1,500,000 range; market caps up
+                    to roughly $30 trillion correspond to the upper end.
+                </p>
+            </div>
 
-            <p>If Bitcoin becomes dominant, its fixed supply creates a naturally deflationary environment:</p>
+            <div class="definition">
+                <p class="definition-title">Definition 40.6 (Scenario: Global Base Money)</p>
+                <p>
+                    In the <strong>global base money scenario</strong> (low-medium probability),
+                    Bitcoin becomes the primary global unit of account:
+                </p>
+                <ul>
+                    <li><strong>Market position:</strong> the majority of the global monetary
+                    base; universal unit of account; primary settlement for all trade; price
+                    measured in satoshis, not dollars.</li>
+                    <li><strong>Characteristics:</strong> prices quoted in BTC/sats globally;
+                    fiat currencies pegged to Bitcoin; central banks manage BTC-backed
+                    currencies; Layer 2 handles all daily transactions; Layer 1 for final
+                    settlement only.</li>
+                    <li><strong>Implications:</strong> end of the fiat monetary era; deflationary
+                    pressure (falling prices); reduced credit expansion capability; fundamental
+                    economic restructuring; unknown social and political consequences.</li>
+                </ul>
+            </div>
 
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Characteristic</th>
-                        <th>Inflationary Fiat</th>
-                        <th>Bitcoin Standard</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Purchasing power</td>
-                        <td>Decreases over time</td>
-                        <td>Increases over time</td>
-                    </tr>
-                    <tr>
-                        <td>Saving incentive</td>
-                        <td>Discouraged (invest or lose)</td>
-                        <td>Encouraged (value preserved)</td>
-                    </tr>
-                    <tr>
-                        <td>Time preference</td>
-                        <td>High (spend now)</td>
-                        <td>Low (save for future)</td>
-                    </tr>
-                    <tr>
-                        <td>Debt dynamics</td>
-                        <td>Debt inflated away</td>
-                        <td>Debt becomes heavier</td>
-                    </tr>
-                    <tr>
-                        <td>Price signals</td>
-                        <td>Distorted by inflation</td>
-                        <td>Clear, stable measurement</td>
-                    </tr>
-                    <tr>
-                        <td>Capital allocation</td>
-                        <td>Favors debtors</td>
-                        <td>Favors savers</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="definition">
+                <p class="definition-title">Definition 40.7 (Scenario: Niche or Failure)</p>
+                <p>
+                    In the <strong>failure scenario</strong> (low probability), Bitcoin remains
+                    marginal or declines. Possible causes:
+                </p>
+                <ul>
+                    <li>Catastrophic bug or exploit discovered</li>
+                    <li>Quantum computing breaks ECDSA (no migration)</li>
+                    <li>Coordinated global ban (enforced)</li>
+                    <li>Superior technology replaces it</li>
+                    <li>Internal governance failure</li>
+                    <li>Fee market collapse, security degradation</li>
+                </ul>
+                <p>
+                    Market position: market cap below $100 billion, limited to ideological users,
+                    no mainstream adoption, viewed as a failed experiment.
+                </p>
+            </div>
 
-            <h3>The Deflation Debate</h3>
-
-            <p>Critics argue deflation is dangerous:</p>
-
-            <ul>
-                <li><strong>Debt deflation spiral:</strong> Falling prices increase real debt burden</li>
-                <li><strong>Delayed consumption:</strong> Why buy today if cheaper tomorrow?</li>
-                <li><strong>Wage stickiness:</strong> Nominal wage cuts are psychologically difficult</li>
-            </ul>
-
-            <p>Proponents counter:</p>
-
-            <ul>
-                <li><strong>Productivity deflation:</strong> Falling prices from efficiency gains are healthy</li>
-                <li><strong>Low time preference:</strong> Encourages sustainable investment</li>
-                <li><strong>Historical examples:</strong> 19th century gold standard saw growth with mild deflation</li>
-                <li><strong>Technology prices:</strong> Computers get cheaper; people still buy them</li>
-            </ul>
-
-            <h3>Credit and Banking</h3>
-
-            <p>A Bitcoin standard would transform banking:</p>
-
-            <div class="code-block">
-<pre>
-Banking Under Bitcoin Standard:
-
-Traditional Fractional Reserve:
-├── Banks create money through lending
-├── Central bank as lender of last resort
-├── Deposit insurance backstops runs
-└── Money supply expands with credit
-
-Bitcoin Native Banking:
-├── Full reserve custody (no money creation)
-├── Credit still possible (term-matched loans)
-├── No lender of last resort for BTC
-├── Bank runs possible if fractional reserve attempted
-└── Higher lending rates, lower leverage
-
-Likely Hybrid:
-├── Bitcoin-backed fiat currencies
-├── Central banks hold BTC reserves
-├── Fractional reserve on fiat layer
-├── Bitcoin as final settlement asset
-└── Similar to gold standard historically
-</pre>
+            <div class="remark">
+                <p class="remark-title">Remark 40.4 (Probability Assessment)</p>
+                <p>
+                    Several considerations argue against the failure scenario: 15+ years of
+                    resilience, network effects that provide stability, the absence of any
+                    superior alternative, and the unlikelihood of coordinated global ban
+                    enforcement. Estimated probability: below 10%.
+                </p>
             </div>
         </section>
 
-        <section id="social-political">
-            <h2>Social and Political Implications</h2>
+        <section>
+            <h2>40.5 Hyperbitcoinization</h2>
 
-            <h3>Separation of Money and State</h3>
-
-            <p>Bitcoin potentially represents a historic separation:</p>
-
-            <div class="key-concept">
-                <h3>The Monetary Reformation</h3>
-                <p>Just as separation of church and state limited religious authority, separation of money and state could limit monetary authority. Governments would lose the ability to print money, fundamentally constraining fiscal policy.</p>
+            <div class="definition">
+                <p class="definition-title">Definition 40.8 (Hyperbitcoinization)</p>
+                <p>
+                    <strong>Hyperbitcoinization</strong> is the point at which Bitcoin becomes
+                    the default value system of the world&mdash;not through force, but through
+                    voluntary adoption driven by superior monetary properties.
+                </p>
             </div>
 
-            <h3>Winners and Losers</h3>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Group</th>
-                        <th>Bitcoin Advantage</th>
-                        <th>Bitcoin Disadvantage</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Savers</td>
-                        <td>Wealth preserved from inflation</td>
-                        <td>Must learn new technology</td>
-                    </tr>
-                    <tr>
-                        <td>Debtors</td>
-                        <td>Discipline in borrowing</td>
-                        <td>Debt becomes heavier</td>
-                    </tr>
-                    <tr>
-                        <td>Governments</td>
-                        <td>Budget discipline enforced</td>
-                        <td>Lose monetary flexibility</td>
-                    </tr>
-                    <tr>
-                        <td>Banks</td>
-                        <td>Custody business opportunity</td>
-                        <td>Reduced lending profits</td>
-                    </tr>
-                    <tr>
-                        <td>Developing nations</td>
-                        <td>Escape currency manipulation</td>
-                        <td>Lose competitive devaluation</td>
-                    </tr>
-                    <tr>
-                        <td>Early adopters</td>
-                        <td>Significant wealth gain</td>
-                        <td>Social/political backlash</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Governance Challenges</h3>
-
-            <p>A Bitcoin-dominated monetary system raises questions:</p>
-
-            <ul>
-                <li><strong>Crisis response:</strong> How do governments stimulate during recessions?</li>
-                <li><strong>War financing:</strong> Can nations fund large-scale conflicts?</li>
-                <li><strong>Wealth inequality:</strong> Early adopters gain disproportionately</li>
-                <li><strong>Democratic control:</strong> Monetary policy becomes protocol rules</li>
-                <li><strong>Transition pain:</strong> Existing debts become harder to repay</li>
-            </ul>
-        </section>
-
-        <section id="challenges">
-            <h2>Challenges to Widespread Adoption</h2>
-
-            <h3>Technical Challenges</h3>
-
-            <ul>
-                <li><strong>Scalability:</strong> Layer 1 limited to ~500K tx/day; Layer 2 still maturing</li>
-                <li><strong>UX:</strong> Key management too complex for average users</li>
-                <li><strong>Quantum computing:</strong> Requires cryptographic migration</li>
-                <li><strong>Security budget:</strong> Long-term sustainability uncertain</li>
-            </ul>
-
-            <h3>Economic Challenges</h3>
-
-            <ul>
-                <li><strong>Volatility:</strong> Unsuitable for pricing until stability achieved</li>
-                <li><strong>Network effects:</strong> Incumbent currencies have strong inertia</li>
-                <li><strong>Transition costs:</strong> Switching from fiat is expensive/disruptive</li>
-                <li><strong>Credit contraction:</strong> Less money creation means less credit</li>
-            </ul>
-
-            <h3>Political Challenges</h3>
-
-            <ul>
-                <li><strong>Regulatory hostility:</strong> Governments may restrict use</li>
-                <li><strong>CBDCs:</strong> Competing government digital currencies</li>
-                <li><strong>Geopolitical:</strong> May trigger international conflict</li>
-                <li><strong>Vested interests:</strong> Current system benefits from status quo</li>
-            </ul>
-
-            <h3>Social Challenges</h3>
-
-            <ul>
-                <li><strong>Education:</strong> Most people don't understand money</li>
-                <li><strong>Trust:</strong> "Magic internet money" perception persists</li>
-                <li><strong>Custody:</strong> "Be your own bank" is burdensome</li>
-                <li><strong>Inequality:</strong> Early adopter wealth creates resentment</li>
-            </ul>
-        </section>
-
-        <section id="coexistence">
-            <h2>The Coexistence Model</h2>
-
-            <h3>Bitcoin Among Monies</h3>
-
-            <p>The most likely near-term outcome is coexistence:</p>
-
-            <div class="code-block">
-<pre>
-Multi-Money Future:
-
-Bitcoin:
-├── Global settlement layer
-├── Store of value / digital gold
-├── Reserve asset for institutions
-└── Censorship-resistant savings
-
-Stablecoins:
-├── Dollar/euro/etc. on blockchain
-├── Daily transactions
-├── Commerce and payments
-└── Regulatory compliance built-in
-
-CBDCs:
-├── Government digital currencies
-├── Programmable, surveillable
-├── Welfare, taxation, control
-└── Competition with private money
-
-Local Fiat:
-├── Traditional currencies persist
-├── Gradually Bitcoin-backed
-├── Legal tender for taxes
-└── Managed float against BTC
-</pre>
+            <div class="remark">
+                <p class="remark-title">Remark 40.5 (Potential Triggers)</p>
+                <ol>
+                    <li><strong>Fiat currency crisis:</strong> Major currency hyperinflation drives adoption</li>
+                    <li><strong>Sovereign default cascade:</strong> Trust in government money collapses</li>
+                    <li><strong>Weaponized dollar:</strong> Overuse of sanctions drives alternatives</li>
+                    <li><strong>Institutional stampede:</strong> FOMO among pension funds, sovereign wealth</li>
+                    <li><strong>Technological tipping point:</strong> UX reaches mass-market readiness</li>
+                </ol>
             </div>
 
-            <h3>The Layer Model</h3>
-
-            <div class="code-block">
-<pre>
-Monetary System Layers:
-
-Layer 1: Bitcoin base layer
-├── Final settlement
-├── Maximum security
-├── Minimum throughput
-└── Reserve asset status
-
-Layer 2: Lightning / State channels
-├── Fast payments
-├── Low fees
-├── BTC-denominated
-└── Self-custodial option
-
-Layer 3: Bitcoin banks / Custodians
-├── Fractional reserve possible
-├── Traditional banking services
-├── Regulated, insured
-└── Trade-off: convenience vs sovereignty
-
-Layer 4: Fiat / Stablecoins
-├── Unit of account for commerce
-├── Backed by BTC reserves
-├── Familiar user experience
-└── Bridge to legacy system
-</pre>
+            <div class="definition">
+                <p class="definition-title">Definition 40.9 (Hyperbitcoinization Phases)</p>
+                <p>
+                    A hypothetical hyperbitcoinization process proceeds in five phases:
+                </p>
+                <ol>
+                    <li><strong>Speculative store of value</strong> (the current state): holders
+                    accumulate, volatility decreases over time, institutional adoption grows.</li>
+                    <li><strong>Treasury reserve asset:</strong> companies hold BTC, nations add
+                    it to reserves, legitimacy is established, infrastructure matures.</li>
+                    <li><strong>Medium of exchange:</strong> Lightning adoption scales, commerce
+                    integrates, salary payments begin, dual pricing (fiat + BTC) appears.</li>
+                    <li><strong>Unit of account:</strong> prices are quoted in sats, fiat prices
+                    are derived from BTC, accounting standards adapt, and the mental shift
+                    completes: BTC is "real money".</li>
+                    <li><strong>Base money layer:</strong> settlement for all global trade; fiat
+                    currencies as stablecoins on BTC; central banks as BTC custodians; a new
+                    monetary order established.</li>
+                </ol>
             </div>
         </section>
 
-        <section id="timeline">
-            <h2>Potential Timeline</h2>
+        <section>
+            <h2>40.6 Economic Implications</h2>
 
-            <div class="code-block">
-<pre>
-Speculative Adoption Timeline:
-
-2024-2027: Institutional Foundation
-├── ETFs accumulate significant holdings
-├── More public companies add treasury BTC
-├── United States establishes Strategic Bitcoin Reserve (2025)
-├── Lightning Network reaches 10M+ users
-└── Price range: $50K-$200K
-
-2027-2032: Mainstream Legitimacy
-├── Multiple sovereign holders
-├── Pension fund allocations common
-├── Bitcoin savings accounts widespread
-├── Unit of account for some niches
-└── Price range: $200K-$1M
-
-2032-2040: Monetary Competition
-├── Bitcoin vs CBDC competition
-├── Some nations adopt BTC standard
-├── Fiat currencies weakened
-├── Layer 2 handles billions of users
-└── Price range: $500K-$5M
-
-2040+: New Monetary Order (if successful)
-├── Bitcoin as global reserve
-├── Fiat currencies pegged to BTC
-├── Price quoted in satoshis
-└── Generational wealth transfer complete
-</pre>
+            <div class="definition">
+                <p class="definition-title">Definition 40.10 (Deflationary Standard)</p>
+                <p>
+                    A <strong>deflationary standard</strong> is a monetary regime whose money
+                    supply is fixed while output grows, so that the general price level falls
+                    and purchasing power rises over time. If Bitcoin becomes dominant, its fixed
+                    supply creates such a regime:
+                </p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Characteristic</th>
+                            <th>Inflationary Fiat</th>
+                            <th>Bitcoin Standard</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Purchasing power</td>
+                            <td>Decreases over time</td>
+                            <td>Increases over time</td>
+                        </tr>
+                        <tr>
+                            <td>Saving incentive</td>
+                            <td>Discouraged (invest or lose)</td>
+                            <td>Encouraged (value preserved)</td>
+                        </tr>
+                        <tr>
+                            <td>Time preference</td>
+                            <td>High (spend now)</td>
+                            <td>Low (save for future)</td>
+                        </tr>
+                        <tr>
+                            <td>Debt dynamics</td>
+                            <td>Debt inflated away</td>
+                            <td>Debt becomes heavier</td>
+                        </tr>
+                        <tr>
+                            <td>Price signals</td>
+                            <td>Distorted by inflation</td>
+                            <td>Clear, stable measurement</td>
+                        </tr>
+                        <tr>
+                            <td>Capital allocation</td>
+                            <td>Favors debtors</td>
+                            <td>Favors savers</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="warning-box">
-                <h4>Uncertainty Acknowledgment</h4>
-                <p>These timelines are highly speculative. Bitcoin could achieve widespread adoption faster—or never achieve it at all. The future is inherently unpredictable, and this should inform investment and planning decisions.</p>
+            <div class="remark">
+                <p class="remark-title">Remark 40.6 (The Deflation Debate)</p>
+                <p>
+                    Critics argue deflation is dangerous:
+                </p>
+                <ul>
+                    <li><strong>Debt deflation spiral:</strong> Falling prices increase real debt burden</li>
+                    <li><strong>Delayed consumption:</strong> Why buy today if cheaper tomorrow?</li>
+                    <li><strong>Wage stickiness:</strong> Nominal wage cuts are psychologically difficult</li>
+                </ul>
+                <p>
+                    Proponents counter:
+                </p>
+                <ul>
+                    <li><strong>Productivity deflation:</strong> Falling prices from efficiency gains are healthy</li>
+                    <li><strong>Low time preference:</strong> Encourages sustainable investment</li>
+                    <li><strong>Historical examples:</strong> 19th century gold standard saw growth with mild deflation</li>
+                    <li><strong>Technology prices:</strong> Computers get cheaper; people still buy them</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 40.11 (Banking Models Under a Bitcoin Standard)</p>
+                <p>
+                    Three banking models are relevant to a Bitcoin-dominated system:
+                </p>
+                <ul>
+                    <li><strong>Traditional fractional reserve:</strong> banks create money
+                    through lending; the central bank acts as lender of last resort; deposit
+                    insurance backstops runs; the money supply expands with credit.</li>
+                    <li><strong>Bitcoin-native banking:</strong> full reserve custody (no money
+                    creation); credit remains possible via term-matched loans; no lender of last
+                    resort for BTC; bank runs are possible if fractional reserve is attempted;
+                    higher lending rates and lower leverage.</li>
+                    <li><strong>Likely hybrid:</strong> Bitcoin-backed fiat currencies; central
+                    banks hold BTC reserves; fractional reserve on the fiat layer; Bitcoin as
+                    the final settlement asset&mdash;similar to the historical gold standard.</li>
+                </ul>
             </div>
         </section>
 
-        <section id="conclusion">
-            <h2>Conclusion: The Money of the Future</h2>
+        <section>
+            <h2>40.7 Social and Political Implications</h2>
 
-            <h3>What Bitcoin Represents</h3>
-
-            <p>Beyond technology or investment, Bitcoin represents an idea: that money can be a protocol rather than a privilege, that monetary policy can be algorithmic rather than political, and that individuals can have true financial sovereignty.</p>
-
-            <div class="key-concept">
-                <h3>The Fundamental Innovation</h3>
-                <p>Bitcoin's core innovation isn't blockchain technology—it's the creation of absolute digital scarcity. For the first time in history, we have a digital asset that cannot be copied, counterfeited, or inflated. This property, combined with decentralized consensus, creates a new form of money that could persist for generations.</p>
+            <div class="remark">
+                <p class="remark-title">Remark 40.7 (The Monetary Reformation)</p>
+                <p>
+                    Bitcoin potentially represents a historic separation of money and state.
+                    Just as separation of church and state limited religious authority,
+                    separation of money and state could limit monetary authority. Governments
+                    would lose the ability to print money, fundamentally constraining fiscal
+                    policy.
+                </p>
             </div>
 
-            <h3>The Path Forward</h3>
+            <div class="example">
+                <p class="example-title">Example 40.6 (Winners and Losers)</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Group</th>
+                            <th>Bitcoin Advantage</th>
+                            <th>Bitcoin Disadvantage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Savers</td>
+                            <td>Wealth preserved from inflation</td>
+                            <td>Must learn new technology</td>
+                        </tr>
+                        <tr>
+                            <td>Debtors</td>
+                            <td>Discipline in borrowing</td>
+                            <td>Debt becomes heavier</td>
+                        </tr>
+                        <tr>
+                            <td>Governments</td>
+                            <td>Budget discipline enforced</td>
+                            <td>Lose monetary flexibility</td>
+                        </tr>
+                        <tr>
+                            <td>Banks</td>
+                            <td>Custody business opportunity</td>
+                            <td>Reduced lending profits</td>
+                        </tr>
+                        <tr>
+                            <td>Developing nations</td>
+                            <td>Escape currency manipulation</td>
+                            <td>Lose competitive devaluation</td>
+                        </tr>
+                        <tr>
+                            <td>Early adopters</td>
+                            <td>Significant wealth gain</td>
+                            <td>Social/political backlash</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-            <p>Bitcoin's future depends on:</p>
+            <div class="remark">
+                <p class="remark-title">Remark 40.8 (Governance Challenges)</p>
+                <p>
+                    A Bitcoin-dominated monetary system raises questions:
+                </p>
+                <ul>
+                    <li><strong>Crisis response:</strong> How do governments stimulate during recessions?</li>
+                    <li><strong>War financing:</strong> Can nations fund large-scale conflicts?</li>
+                    <li><strong>Wealth inequality:</strong> Early adopters gain disproportionately</li>
+                    <li><strong>Democratic control:</strong> Monetary policy becomes protocol rules</li>
+                    <li><strong>Transition pain:</strong> Existing debts become harder to repay</li>
+                </ul>
+            </div>
+        </section>
 
+        <section>
+            <h2>40.8 Obstacles to Widespread Adoption</h2>
+
+            <div class="remark">
+                <p class="remark-title">Remark 40.9 (Technical and Economic Obstacles)</p>
+                <p>
+                    <strong>Technical:</strong>
+                </p>
+                <ul>
+                    <li><strong>Scalability:</strong> Layer 1 limited to ~500K tx/day; Layer 2 still maturing</li>
+                    <li><strong>UX:</strong> Key management too complex for average users</li>
+                    <li><strong>Quantum computing:</strong> Requires cryptographic migration</li>
+                    <li><strong>Security budget:</strong> Long-term sustainability uncertain</li>
+                </ul>
+                <p>
+                    <strong>Economic:</strong>
+                </p>
+                <ul>
+                    <li><strong>Volatility:</strong> Unsuitable for pricing until stability achieved</li>
+                    <li><strong>Network effects:</strong> Incumbent currencies have strong inertia</li>
+                    <li><strong>Transition costs:</strong> Switching from fiat is expensive/disruptive</li>
+                    <li><strong>Credit contraction:</strong> Less money creation means less credit</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 40.10 (Political and Social Obstacles)</p>
+                <p>
+                    <strong>Political:</strong>
+                </p>
+                <ul>
+                    <li><strong>Regulatory hostility:</strong> Governments may restrict use</li>
+                    <li><strong>CBDCs:</strong> Competing government digital currencies</li>
+                    <li><strong>Geopolitical:</strong> May trigger international conflict</li>
+                    <li><strong>Vested interests:</strong> Current system benefits from status quo</li>
+                </ul>
+                <p>
+                    <strong>Social:</strong>
+                </p>
+                <ul>
+                    <li><strong>Education:</strong> Most people don't understand money</li>
+                    <li><strong>Trust:</strong> "Magic internet money" perception persists</li>
+                    <li><strong>Custody:</strong> "Be your own bank" is burdensome</li>
+                    <li><strong>Inequality:</strong> Early adopter wealth creates resentment</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>40.9 The Coexistence Model</h2>
+
+            <div class="definition">
+                <p class="definition-title">Definition 40.12 (Multi-Money Coexistence)</p>
+                <p>
+                    The <strong>coexistence model</strong>&mdash;the most likely near-term
+                    outcome&mdash;assigns complementary roles to several forms of money:
+                </p>
+                <ul>
+                    <li><strong>Bitcoin:</strong> global settlement layer; store of value /
+                    digital gold; reserve asset for institutions; censorship-resistant savings.</li>
+                    <li><strong>Stablecoins:</strong> dollar, euro, and other currencies on
+                    blockchains; daily transactions; commerce and payments; regulatory
+                    compliance built in.</li>
+                    <li><strong>CBDCs:</strong> government digital currencies; programmable and
+                    surveillable; welfare, taxation, control; competition with private money.</li>
+                    <li><strong>Local fiat:</strong> traditional currencies persist, gradually
+                    Bitcoin-backed; legal tender for taxes; managed float against BTC.</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 40.13 (The Layer Model)</p>
+                <p>
+                    The <strong>layer model</strong> organizes a future monetary system into
+                    four layers, trading security for convenience as one moves up the stack:
+                </p>
+                <ul>
+                    <li><strong>Layer 1 &mdash; Bitcoin base layer:</strong> final settlement,
+                    maximum security, minimum throughput, reserve asset status.</li>
+                    <li><strong>Layer 2 &mdash; Lightning / state channels:</strong> fast
+                    payments, low fees, BTC-denominated, self-custodial option.</li>
+                    <li><strong>Layer 3 &mdash; Bitcoin banks / custodians:</strong> fractional
+                    reserve possible, traditional banking services, regulated and insured;
+                    trade-off: convenience vs sovereignty.</li>
+                    <li><strong>Layer 4 &mdash; Fiat / stablecoins:</strong> unit of account for
+                    commerce, backed by BTC reserves, familiar user experience, bridge to the
+                    legacy system.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>40.10 A Speculative Timeline</h2>
+
+            <div class="remark">
+                <p class="remark-title">Remark 40.11 (Speculative Adoption Timeline)</p>
+                <ul>
+                    <li><strong>2024-2027 &mdash; Institutional foundation:</strong> ETFs
+                    accumulate significant holdings; more public companies add treasury BTC;
+                    the United States establishes a Strategic Bitcoin Reserve (2025); the
+                    Lightning Network reaches 10M+ users. Price range: $50K-$200K.</li>
+                    <li><strong>2027-2032 &mdash; Mainstream legitimacy:</strong> multiple
+                    sovereign holders; pension fund allocations common; Bitcoin savings accounts
+                    widespread; unit of account for some niches. Price range: $200K-$1M.</li>
+                    <li><strong>2032-2040 &mdash; Monetary competition:</strong> Bitcoin vs CBDC
+                    competition; some nations adopt a BTC standard; fiat currencies weakened;
+                    Layer 2 handles billions of users. Price range: $500K-$5M.</li>
+                    <li><strong>2040+ &mdash; New monetary order (if successful):</strong>
+                    Bitcoin as global reserve; fiat currencies pegged to BTC; prices quoted in
+                    satoshis; generational wealth transfer complete.</li>
+                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 40.12 (Uncertainty)</p>
+                <p>
+                    These timelines are highly speculative. Bitcoin could achieve widespread
+                    adoption faster&mdash;or never achieve it at all. The future is inherently
+                    unpredictable, and this should inform investment and planning decisions.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>40.11 The Money of the Future</h2>
+
+            <p>
+                Beyond technology or investment, Bitcoin represents an idea: that money can be
+                a protocol rather than a privilege, that monetary policy can be algorithmic
+                rather than political, and that individuals can have true financial sovereignty.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 40.13 (Absolute Digital Scarcity)</p>
+                <p>
+                    Bitcoin's core innovation isn't blockchain technology&mdash;it's the creation
+                    of absolute digital scarcity. For the first time in history, we have a
+                    digital asset that cannot be copied, counterfeited, or inflated. This
+                    property, combined with decentralized consensus, creates a new form of money
+                    that could persist for generations.
+                </p>
+            </div>
+
+            <p>
+                Bitcoin's future depends on:
+            </p>
             <ol>
                 <li><strong>Technical evolution:</strong> Continued protocol development, Layer 2 maturation</li>
                 <li><strong>Economic resilience:</strong> Surviving market cycles, maintaining security budget</li>
@@ -793,45 +790,121 @@ Speculative Adoption Timeline:
                 <li><strong>Community cohesion:</strong> Maintaining consensus on core principles</li>
             </ol>
 
-            <h3>Final Thoughts</h3>
+            <p>
+                Bitcoin may ultimately succeed or fail. But it has already achieved something
+                remarkable: it has proven that decentralized digital money is possible. Whatever
+                happens to Bitcoin specifically, the genie cannot be put back in the bottle. The
+                idea of programmable, scarce, permissionless money will persist.
+            </p>
 
-            <p>Bitcoin may ultimately succeed or fail. But it has already achieved something remarkable: it has proven that decentralized digital money is possible. Whatever happens to Bitcoin specifically, the genie cannot be put back in the bottle. The idea of programmable, scarce, permissionless money will persist.</p>
+            <p>
+                For those who believe in this vision, the path forward is clear: continue
+                building, continue learning, continue advocating for financial sovereignty.
+                The monetary system of tomorrow will be shaped by the choices made today.
+            </p>
 
-            <p>For those who believe in this vision, the path forward is clear: continue building, continue learning, continue advocating for financial sovereignty. The monetary system of tomorrow will be shaped by the choices made today.</p>
-
-            <p>Whether Bitcoin becomes the foundation of a new global monetary order or remains a niche asset, it has already changed how we think about money. That intellectual revolution—the recognition that money itself can be reimagined—may prove to be Bitcoin's most enduring legacy.</p>
+            <p>
+                Whether Bitcoin becomes the foundation of a new global monetary order or remains
+                a niche asset, it has already changed how we think about money. That intellectual
+                revolution&mdash;the recognition that money itself can be reimagined&mdash;may
+                prove to be Bitcoin's most enduring legacy.
+            </p>
         </section>
 
-        <section id="summary">
-            <h2>Summary: Elementary Bitcoin Complete</h2>
+        <section>
+            <h2>40.12 Summary: Volume V Key Points</h2>
 
-            <div class="key-takeaways">
-                <h3>Volume V Key Points</h3>
-                <ul>
-                    <li><strong>Security threats</strong> like 51% attacks are real but expensive</li>
-                    <li><strong>Defense mechanisms</strong> include checkpoints, confirmations, and social consensus</li>
-                    <li><strong>Security budget</strong> must transition from subsidy to fees over 20-30 years</li>
-                    <li><strong>Quantum computing</strong> will require cryptographic migration—but we have time</li>
-                    <li><strong>Bitcoin's monetary future</strong> ranges from niche asset to global reserve currency</li>
-                    <li><strong>The outcome is not predetermined</strong>—it depends on technical, economic, and social factors</li>
-                </ul>
+            <ul>
+                <li><strong>Security threats</strong> like 51% attacks are real but expensive</li>
+                <li><strong>Defense mechanisms</strong> include checkpoints, confirmations, and social consensus</li>
+                <li><strong>Security budget</strong> must transition from subsidy to fees over 20-30 years</li>
+                <li><strong>Quantum computing</strong> will require cryptographic migration&mdash;but we have time</li>
+                <li><strong>Bitcoin's monetary future</strong> ranges from niche asset to global reserve currency</li>
+                <li><strong>The outcome is not predetermined</strong>&mdash;it depends on technical, economic, and social factors</li>
+            </ul>
+
+            <p>
+                From cryptographic primitives to global monetary futures, Elementary Bitcoin has
+                covered the technical foundations, economic principles, and philosophical
+                implications of this revolutionary technology. The knowledge you've gained
+                provides the foundation for understanding, using, and contributing to Bitcoin's
+                ongoing development. The future is unwritten. Build wisely.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 40.1</p>
+                <p>
+                    Suppose Bitcoin reaches a market capitalization of $4 trillion with a
+                    circulating supply of 19.7 million BTC. Compute the implied price per BTC.
+                    Which scenario of Section 40.4 does this fall under?
+                </p>
             </div>
 
-            <div class="info-box">
-                <h4>The Journey Complete</h4>
-                <p>From cryptographic primitives to global monetary futures, Elementary Bitcoin has covered the technical foundations, economic principles, and philosophical implications of this revolutionary technology. The knowledge you've gained provides the foundation for understanding, using, and contributing to Bitcoin's ongoing development.</p>
-                <p><strong>The future is unwritten. Build wisely.</strong></p>
+            <div class="exercise">
+                <p class="exercise-title">Exercise 40.2</p>
+                <p>
+                    After the 2028 halving the block subsidy falls from 3.125 to
+                    <span class="math">1.5625</span> BTC. Assuming 144 blocks per day, compute the annual flow of
+                    new coins, the total stock at the halving (sum the five completed subsidy
+                    epochs of 210,000 blocks each), and the resulting stock-to-flow ratio.
+                    Compare it with the stock-to-flow of the 2024&ndash;2028 epoch.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 40.3</p>
+                <p>
+                    Using the identity price = market cap / supply, compute the implied BTC
+                    price if Bitcoin exactly matches gold's ~$15 trillion market cap at a
+                    circulating supply of 19.7 million BTC. How does the answer compare with
+                    Example 40.5's figure at 20 million BTC?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 40.4</p>
+                <p>
+                    Consider the nation-state adoption game of Definition 40.3. Identify its
+                    pure-strategy equilibria, and explain why the game is a stag hunt rather
+                    than a prisoner's dilemma. Why does the absence of a dominant strategy make
+                    a small "hedging" allocation rational for a risk-averse nation?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 40.5</p>
+                <p>
+                    In the failure scenario of Definition 40.7, Bitcoin's market cap falls below
+                    $100 billion. What price per BTC does this imply at a supply of 19.7 million
+                    BTC?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 40.6</p>
+                <p>
+                    Under the deflationary standard of Definition 40.10, suppose the money
+                    supply is fixed and real output grows 2% per year, so the price level falls
+                    by a factor of <span class="math">1/1.02</span> each year. By what fraction does the price level
+                    fall over 20 years? Relate your answer to the deflation debate of
+                    Remark 40.6.
+                </p>
             </div>
         </section>
 
         <nav class="chapter-navigation">
             <a href="39-quantum-resistance.html" class="prev-chapter">&#8592; Chapter 39: Quantum Resistance</a>
-            <a href="../index.html" class="next-chapter">Return to Index &#8594;</a>
+            <a href="../index.html">Index</a>
+            <span style="color: #999;">Volume V Complete</span>
         </nav>
-    </article>
+    </main>
 
     <footer>
-        <p>Elementary Bitcoin - Volume V: The Path to a Sustainable Future</p>
+        <p>Elementary Bitcoin · Volume V: The Path to a Sustainable Future (Draft)</p>
         <p><em>The End... and The Beginning</em></p>
     </footer>
 </body>
