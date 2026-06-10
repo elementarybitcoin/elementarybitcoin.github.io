@@ -17,19 +17,23 @@
     <header class="chapter-header">
         <p class="chapter-number">Chapter 34</p>
         <h1>Drivechains</h1>
-        <p class="chapter-subtitle">BIP-300/301 and Miner-Enforced Sidechains</p>
+        <p class="chapter-subtitle">BIP-300/301: Anatomy of a Failed Proposal</p>
     </header>
 
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                Drivechains propose an alternative to federated sidechains: let Bitcoin
+                Drivechains proposed an alternative to federated sidechains: let Bitcoin
                 miners themselves custody the two-way peg. Through "hashrate escrow," miners
-                collectively control sidechain withdrawals, providing trust-minimized
-                (miner-majority) interoperability with only one new opcode (OP_DRIVECHAIN)
-                plus a small set of new coinbase-message rules.
-                This chapter examines BIP-300/301's mechanism, security model, and the
-                controversy surrounding the proposal.
+                would collectively control sidechain withdrawals, with only one new opcode
+                (OP_DRIVECHAIN) plus a small set of new coinbase-message rules. The proposal
+                never achieved consensus, and in 2026 its principal advocate announced an
+                exit hard fork instead. We study it anyway&mdash;and partly for that reason:
+                drivechains are this book's best case study in how a technically coherent
+                proposal can fail on its security model, its trust assumptions, and the
+                governance process of Chapter 33, and in what an exit from that process
+                looks like. The mechanism first; the cautionary tale at the end
+                (Section 34.7).
             </p>
         </section>
 
@@ -250,6 +254,20 @@ OP_RETURN &lt;BMM_TAG&gt; &lt;sidechain_id&gt; &lt;block_hash&gt;
                     <li><strong>Public visibility:</strong> Theft attempts are observable</li>
                     <li><strong>Economic incentives:</strong> Theft risks Bitcoin's value</li>
                 </ul>
+                <p>
+                    A second trust vector is easy to miss. Bitcoin's consensus does not
+                    validate sidechain state, so each sidechain's rules&mdash;including what
+                    counts as a legitimate withdrawal&mdash;are defined entirely by whoever
+                    maintains that sidechain's software (in practice, the sponsoring company
+                    for every drivechain proposed to date). By the code-as-specification
+                    argument of Section 33.9, those maintainers hold de facto rule-setting
+                    power over deposited funds: a malicious or compromised release can
+                    redefine peg behavior, and miners voting on withdrawal bundles have no
+                    Bitcoin-level criterion for distinguishing legitimate bundles from
+                    illegitimate ones. Users of a drivechain therefore trust <em>two</em>
+                    parties the base layer never asks them to trust: a miner majority and
+                    a software maintainer.
+                </p>
             </div>
 
             <div class="definition">
@@ -420,22 +438,58 @@ OP_RETURN &lt;BMM_TAG&gt; &lt;sidechain_id&gt; &lt;block_hash&gt;
         </section>
 
         <section>
-            <h2 id="s34-7">34.7 Current Status</h2>
+            <h2 id="s34-7">34.7 Postscript: Activation Failure and the Exit Fork</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 34.9 (Activation Status)</p>
+                <p class="remark-title">Remark 34.9 (How the Proposal Ended)</p>
                 <p>
-                    As of this writing:
+                    BIP-300/301 were fully specified, implemented in a Bitcoin Core fork,
+                    and advocated for the better part of a decade&mdash;and never approached
+                    the rough consensus (Definition 33.4) that activation requires. The
+                    objections that stuck were the ones analyzed above: the security model
+                    asks users to trust a miner majority with custody (Definition 34.6) and
+                    a software maintainer with the rules (Remark 34.3), and many reviewers
+                    judged "miners can vote to take the deposits, slowly and in public" to
+                    be a description of the design rather than an attack on it.
                 </p>
-                <ul>
-                    <li>BIP-300/301 written and specified</li>
-                    <li>Implementation exists (Bitcoin Core fork)</li>
-                    <li>No activation attempt yet</li>
-                    <li>Significant developer opposition</li>
-                    <li>Active debate in community</li>
-                </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.10 (The 2026 "eCash" Fork)</p>
                 <p>
-                    Drivechains remain one of the most debated potential upgrades.
+                    In April 2026 the proposal's architect announced the exit: a hard fork
+                    of Bitcoin, named "eCash," scheduled for August 2026 at approximately
+                    block 964,000, with drivechains enabled natively. The fork copies
+                    Bitcoin's ledger and credits BTC holders 1:1 on the new chain&mdash;with
+                    one exception that drew immediate criticism: part of the balances
+                    associated with Satoshi-era addresses (roughly 500,000 of 1.1 million
+                    coins, per the announcement) would be reassigned on the forked ledger to
+                    investors who fund the project. No bitcoin moves&mdash;Chapter 26's
+                    taxonomy applies, and the BTC ledger is untouched&mdash;but every prior
+                    fork in Chapter 27, whatever its other choices, preserved existing
+                    balances exactly (even Bitcoin Gold's premine was newly mined, not
+                    reassigned). Critics called the reallocation confiscation; the project
+                    framed the fork as both an alternative path and pressure on Bitcoin
+                    Core, to be called off if BIP-300/301 activated first. (This "eCash"
+                    is unrelated to eCash/XEC, the 2021 Bitcoin ABC rebrand of
+                    Section 27.6.3.)
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.11 (The Cautionary Tale)</p>
+                <p>
+                    Read as a case study, the drivechain decade illustrates three of this
+                    volume's themes at once. First, technical coherence does not entitle a
+                    proposal to activation: the mechanism worked as specified, and the
+                    network declined it anyway, on trust-model grounds (Section 33.3's
+                    consensus formation operating as designed). Second, exit is always
+                    available&mdash;but Chapter 26's game theory governs what exit is worth,
+                    and Chapter 27's record of forks asserting themselves against the
+                    incumbent network effect is not encouraging. Third, the form the exit
+                    took&mdash;reassigning dormant balances to fund the venture&mdash;shows
+                    why the credibility of "your balances survive every rule change" is
+                    itself part of what a fork is selling, and what abandoning it costs.
                 </p>
             </div>
         </section>
