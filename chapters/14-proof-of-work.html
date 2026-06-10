@@ -527,6 +527,26 @@ Daily revenue (at 3.125 BTC subsidy, $40,000/BTC):
 
 Daily profit = $3.60 - $3.60 = $0.00</pre>
             </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 14.3 (Issuance Without an Issuer)</p>
+                <p>
+                    Proof of work plays a second role beside securing the chain: it is the
+                    mechanism by which every new coin enters circulation, and it is the only
+                    known mechanism that does so without an issuer. The subsidy (Definition
+                    15.2) is paid to whoever finds a valid block, and finding one requires
+                    only the expenditure of resources that anyone, anywhere, may purchase.
+                    The protocol thus sells new coins at posted terms, so much expected work
+                    per coin, to an open market, holding no inventory and favoring no buyer.
+                    The difficulty of achieving this any other way is structural: a system
+                    whose validators are selected by stake presupposes that the stake
+                    already exists and is distributed, and a protocol cannot create its own
+                    initial distribution; it must be allocated by someone, on terms that
+                    someone chooses. Proof of work is what allows the question "who decided
+                    the initial distribution?" to have the answer: no one&mdash;only the
+                    rules, and whoever participated. Remark 15.4 records the history.
+                </p>
+            </div>
         </section>
 
         <section>
@@ -630,7 +650,7 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
             <h3 id="s14-8-2">14.8.2 The 51% Attack</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 14.3 (Capabilities of a Majority Attacker)</p>
+                <p class="remark-title">Remark 14.4 (Capabilities of a Majority Attacker)</p>
                 <p>
                     An attacker controlling more than 50% of hash power can
                     (the <span class="math">q ≥ p</span> case of Theorem 14.2):
@@ -653,7 +673,7 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
             <h3 id="s14-8-3">14.8.3 Selfish Mining</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 14.4 (Selfish Mining)</p>
+                <p class="remark-title">Remark 14.5 (Selfish Mining)</p>
                 <p>
                     Eyal and Sirer (2014) showed that miners with >33% hash power can gain
                     disproportionate rewards by strategically withholding blocks. This reduces
@@ -671,7 +691,7 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 14.5 (Energy Consumption)</p>
+                <p class="remark-title">Remark 14.6 (Energy Consumption)</p>
                 <p>
                     Bitcoin's energy consumption is integral to its security model, not an
                     inefficiency of it: the energy spent mining represents a real-world cost
@@ -686,7 +706,7 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 14.6 (Security Budget)</p>
+                <p class="remark-title">Remark 14.7 (Security Budget)</p>
                 <p>
                     As a first-order heuristic, the cost to attack Bitcoin scales with
                     mining revenue:
