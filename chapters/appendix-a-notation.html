@@ -33,6 +33,8 @@
             <p>
                 This appendix collects the notation, conventions, and terminology used throughout
                 the text. Entries are organized by topic and listed in order of first appearance.
+                Section A.12 disambiguates symbols that carry different meanings in different
+                chapters.
             </p>
         </section>
 
@@ -84,6 +86,26 @@
                     <td><span class="math">ℤₙ*</span></td>
                     <td>The multiplicative group of integers modulo <span class="math">n</span> (elements coprime to <span class="math">n</span>)</td>
                     <td>Ex. 1.10</td>
+                </tr>
+                <tr>
+                    <td><span class="math">⌊x⌋, ⌈x⌉</span></td>
+                    <td>Floor (round down) and ceiling (round up) of <span class="math">x</span></td>
+                    <td>Ch. 12, 15</td>
+                </tr>
+                <tr>
+                    <td><span class="math">Σ</span></td>
+                    <td>Summation over an indicated index range</td>
+                    <td>Ch. 10</td>
+                </tr>
+                <tr>
+                    <td><span class="math">O(·)</span></td>
+                    <td>Big-O asymptotic growth: <span class="math">f = O(g)</span> if <span class="math">f</span> grows no faster than a constant multiple of <span class="math">g</span></td>
+                    <td>Ch. 2</td>
+                </tr>
+                <tr>
+                    <td><span class="math">x || y</span></td>
+                    <td>Concatenation of byte strings <span class="math">x</span> and <span class="math">y</span></td>
+                    <td>Ch. 5</td>
                 </tr>
             </table>
         </section>
@@ -143,9 +165,19 @@
                     <td>Thm. 1.1</td>
                 </tr>
                 <tr>
+                    <td><span class="math">ord(a)</span></td>
+                    <td>The order of element <span class="math">a</span>: the smallest positive <span class="math">m</span> with <span class="math">aᵐ = e</span>; equals <span class="math">|⟨a⟩|</span> and divides <span class="math">|G|</span></td>
+                    <td>Def. 1.5, Cor. 1.1</td>
+                </tr>
+                <tr>
                     <td><span class="math">log_g(h)</span></td>
                     <td>The discrete logarithm of <span class="math">h</span> to base <span class="math">g</span></td>
                     <td>Def. 1.9</td>
+                </tr>
+                <tr>
+                    <td><span class="math">φ(n)</span></td>
+                    <td>Euler's totient: the count of integers in <span class="math">{1, ..., n}</span> coprime to <span class="math">n</span></td>
+                    <td>Def. 2.7</td>
                 </tr>
             </table>
         </section>
@@ -174,11 +206,434 @@
                     <td>Representation of curve points as <span class="math">(x, y)</span> pairs, as opposed to projective or Jacobian coordinates</td>
                     <td>Ch. 3</td>
                 </tr>
+                <tr>
+                    <td><span class="math">λ</span></td>
+                    <td>The slope of the chord (addition) or tangent (doubling) line in the point-addition formulas</td>
+                    <td>Thm. 3.2, 3.3</td>
+                </tr>
+                <tr>
+                    <td><span class="math">E(𝔽ₚ)</span></td>
+                    <td>The group of points on curve <span class="math">E</span> with coordinates in <span class="math">𝔽ₚ</span>, together with <span class="math">𝒪</span></td>
+                    <td>Ch. 4</td>
+                </tr>
+                <tr>
+                    <td><span class="math">kP</span></td>
+                    <td>Scalar multiplication: <span class="math">P + P + ⋯ + P</span> (<span class="math">k</span> times), computed by double-and-add</td>
+                    <td>Alg. 3.1</td>
+                </tr>
+                <tr>
+                    <td><strong>Hasse bound</strong></td>
+                    <td><span class="math">|#E(𝔽ₚ) − (p+1)| ≤ 2√p</span>: the curve's point count is close to <span class="math">p</span></td>
+                    <td>Ch. 5</td>
+                </tr>
             </table>
         </section>
 
         <section>
-            <h2>A.4 Conventions</h2>
+            <h2>A.4 The secp256k1 Curve</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">p</span></td>
+                    <td>The field prime <span class="math">2²⁵⁶ − 2³² − 977</span></td>
+                    <td>Ch. 5</td>
+                </tr>
+                <tr>
+                    <td><span class="math">a = 0, b = 7</span></td>
+                    <td>Curve coefficients: secp256k1 is <span class="math">y² = x³ + 7</span> over <span class="math">𝔽ₚ</span></td>
+                    <td>Ch. 5</td>
+                </tr>
+                <tr>
+                    <td><span class="math">G</span></td>
+                    <td>The standard generator point (base point)</td>
+                    <td>Ch. 5</td>
+                </tr>
+                <tr>
+                    <td><span class="math">n</span></td>
+                    <td>The order of <span class="math">G</span>: the number of points in <span class="math">⟨G⟩</span>; prime, slightly below <span class="math">p</span></td>
+                    <td>Ch. 5</td>
+                </tr>
+                <tr>
+                    <td><span class="math">h = 1</span></td>
+                    <td>The cofactor <span class="math">#E(𝔽ₚ)/n</span>; equal to 1 for secp256k1</td>
+                    <td>Ch. 5</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.5 Hash Functions</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol / Term</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">H(m)</span></td>
+                    <td>A cryptographic hash of message <span class="math">m</span> (SHA-256 unless stated otherwise)</td>
+                    <td>Ch. 6</td>
+                </tr>
+                <tr>
+                    <td><strong>HASH256, SHA256d</strong></td>
+                    <td>Double SHA-256: <span class="math">SHA256(SHA256(x))</span>; used for txids, block hashes, and filter headers</td>
+                    <td>Ch. 6</td>
+                </tr>
+                <tr>
+                    <td><strong>HASH160</strong></td>
+                    <td><span class="math">RIPEMD160(SHA256(x))</span>; used for addresses</td>
+                    <td>Def. 6.4</td>
+                </tr>
+                <tr>
+                    <td><strong>Tagged hash</strong></td>
+                    <td><span class="math">SHA256(SHA256(tag) || SHA256(tag) || x)</span>, BIP-340's domain separation</td>
+                    <td>Ch. 8</td>
+                </tr>
+                <tr>
+                    <td><strong>Birthday bound</strong></td>
+                    <td>Collisions in an <span class="math">n</span>-bit hash become likely after about <span class="math">2^(n/2)</span> evaluations</td>
+                    <td>Thm. 9.1</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.6 Keys, Addresses, and Signatures</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol / Term</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">d</span></td>
+                    <td>A private key: an integer in <span class="math">[1, n−1]</span></td>
+                    <td>Ch. 5</td>
+                </tr>
+                <tr>
+                    <td><span class="math">P = dG</span></td>
+                    <td>The public key: the curve point obtained by scalar-multiplying the generator by <span class="math">d</span></td>
+                    <td>Ch. 5</td>
+                </tr>
+                <tr>
+                    <td><span class="math">k</span></td>
+                    <td>A signing nonce: a fresh secret integer per signature (reuse reveals <span class="math">d</span>, Thm. 7.2)</td>
+                    <td>Ch. 7</td>
+                </tr>
+                <tr>
+                    <td><span class="math">z</span></td>
+                    <td>The message hash being signed, interpreted as an integer mod <span class="math">n</span></td>
+                    <td>Ch. 7</td>
+                </tr>
+                <tr>
+                    <td><span class="math">(r, s)</span></td>
+                    <td>An ECDSA signature: <span class="math">r = x(kG) mod n</span>, <span class="math">s = k⁻¹(z + rd) mod n</span></td>
+                    <td>Ch. 7</td>
+                </tr>
+                <tr>
+                    <td><span class="math">(R, s)</span> with <span class="math">e</span></td>
+                    <td>A Schnorr signature: nonce point <span class="math">R = kG</span>, challenge <span class="math">e = H(R || P || m)</span>, response <span class="math">s = k + ed</span>; BIP-340 serializes <span class="math">x(R)</span> only</td>
+                    <td>Ch. 8</td>
+                </tr>
+                <tr>
+                    <td><strong>x-only key</strong></td>
+                    <td>A public key serialized as its 32-byte x-coordinate, with even y implied (BIP-340)</td>
+                    <td>Ch. 8</td>
+                </tr>
+                <tr>
+                    <td><strong>Base58Check, WIF</strong></td>
+                    <td>Checksummed encodings for legacy addresses and private keys</td>
+                    <td>Ch. 9</td>
+                </tr>
+                <tr>
+                    <td><strong>Bech32 / Bech32m</strong></td>
+                    <td>The SegWit address encodings (bc1q... / bc1p...)</td>
+                    <td>Ch. 9</td>
+                </tr>
+                <tr>
+                    <td><strong>P2PKH, P2SH, P2WPKH, P2TR</strong></td>
+                    <td>Standard output types: pay to public-key hash, script hash, witness public-key hash, Taproot</td>
+                    <td>Ch. 9&ndash;11</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.7 Transactions and Blocks</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol / Term</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><strong>UTXO</strong></td>
+                    <td>Unspent transaction output: the atomic unit of spendable bitcoin</td>
+                    <td>Ch. 10</td>
+                </tr>
+                <tr>
+                    <td><strong>Outpoint</strong> <span class="math">txid:vout</span></td>
+                    <td>A reference to a specific output of a specific transaction</td>
+                    <td>Ch. 10</td>
+                </tr>
+                <tr>
+                    <td><strong>scriptPubKey / scriptSig / witness</strong></td>
+                    <td>The locking script on an output, and the unlocking data on an input (legacy / SegWit)</td>
+                    <td>Ch. 10</td>
+                </tr>
+                <tr>
+                    <td><strong>satoshi (sat)</strong></td>
+                    <td><span class="math">10⁻⁸</span> BTC, the smallest on-chain unit</td>
+                    <td>Ch. 10</td>
+                </tr>
+                <tr>
+                    <td><strong>WU, vbyte, sat/vB</strong></td>
+                    <td>Weight units (<span class="math">weight = 3 × base size + total size</span>, capped at 4,000,000), virtual bytes (<span class="math">⌈weight/4⌉</span>), and the fee rate per vbyte</td>
+                    <td>Def. 10.15</td>
+                </tr>
+                <tr>
+                    <td><strong>Merkle root, proof</strong> <span class="math">π</span></td>
+                    <td>The pairwise-hash commitment to a block's transactions; an inclusion proof of <span class="math">⌈log₂ n⌉</span> hashes</td>
+                    <td>Ch. 12</td>
+                </tr>
+                <tr>
+                    <td><span class="math">h</span> (height)</td>
+                    <td>A block's distance from the genesis block</td>
+                    <td>Ch. 13</td>
+                </tr>
+                <tr>
+                    <td><strong>target, bits, difficulty</strong></td>
+                    <td>The threshold a block hash must not exceed; its compact encoding; and <span class="math">difficulty = target_max / target</span></td>
+                    <td>Def. 14.2, 14.3</td>
+                </tr>
+                <tr>
+                    <td><strong>chainwork</strong></td>
+                    <td><span class="math">Σ 2²⁵⁶ / (targetᵢ + 1)</span> over a chain's blocks; consensus follows the most-work chain, not the longest</td>
+                    <td>Ch. 13, 26</td>
+                </tr>
+                <tr>
+                    <td><strong>mempool</strong></td>
+                    <td>A node's set of valid, unconfirmed transactions</td>
+                    <td>Def. 13.16</td>
+                </tr>
+                <tr>
+                    <td><strong>MTP</strong></td>
+                    <td>Median time past: the median of the previous 11 block timestamps, used for time-based consensus rules</td>
+                    <td>Ch. 13</td>
+                </tr>
+                <tr>
+                    <td><strong>H/s &hellip; EH/s</strong></td>
+                    <td>Hashrate units: hashes per second, through exa- (<span class="math">10¹⁸</span>) hashes per second</td>
+                    <td>Ch. 14</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.8 Mining and Attack Probability</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">q</span>, <span class="math">p = 1 − q</span></td>
+                    <td>The attacker's and honest network's fractions of total hashrate</td>
+                    <td>Thm. 14.4</td>
+                </tr>
+                <tr>
+                    <td><span class="math">z</span> (or <span class="math">k</span>)</td>
+                    <td>The number of confirmations a transaction has received</td>
+                    <td>Thm. 14.4, 17.6</td>
+                </tr>
+                <tr>
+                    <td><span class="math">λ = z(q/p)</span></td>
+                    <td>The Poisson intensity in Nakamoto's double-spend analysis: the attacker's expected progress during <span class="math">z</span> confirmations</td>
+                    <td>Thm. 14.4</td>
+                </tr>
+                <tr>
+                    <td><span class="math">E[X]</span></td>
+                    <td>The expected value (long-run average) of a random quantity <span class="math">X</span></td>
+                    <td>Ch. 14</td>
+                </tr>
+                <tr>
+                    <td><strong>Geometric, Poisson</strong></td>
+                    <td>The trials-until-success and event-count distributions used throughout the mining analysis</td>
+                    <td>Ch. 14 (Probability Background)</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.9 Consensus Constants</h2>
+
+            <table>
+                <tr>
+                    <th>Quantity</th>
+                    <th>Value</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td>Block subsidy</td>
+                    <td><span class="math">⌊50 · 10⁸ / 2^⌊h/210000⌋⌋</span> satoshis (3.125 BTC in the 2024&ndash;2028 era)</td>
+                    <td>Def. 15.2</td>
+                </tr>
+                <tr>
+                    <td>Halving interval</td>
+                    <td>210,000 blocks (&approx; 4 years)</td>
+                    <td>Ch. 15</td>
+                </tr>
+                <tr>
+                    <td>Maximum supply</td>
+                    <td>20,999,999.9769 BTC (integer truncation keeps it below 21 million)</td>
+                    <td>Ch. 15</td>
+                </tr>
+                <tr>
+                    <td>Retarget window</td>
+                    <td>2016 blocks, adjustment clamped to <span class="math">[1/4, 4]</span> per period</td>
+                    <td>Ch. 14</td>
+                </tr>
+                <tr>
+                    <td>Block weight limit</td>
+                    <td>4,000,000 WU</td>
+                    <td>Ch. 13, 15</td>
+                </tr>
+                <tr>
+                    <td>Coinbase maturity</td>
+                    <td>100 blocks before newly minted coins are spendable</td>
+                    <td>Ch. 10</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.10 Filters and Light Clients</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><span class="math">m, k, n</span> (Bloom)</td>
+                    <td>Filter size in bits, number of hash functions, and number of inserted elements; false-positive rate <span class="math">≈ (1 − e^(−kn/m))ᵏ</span></td>
+                    <td>Def. 18.1, Thm. 18.1</td>
+                </tr>
+                <tr>
+                    <td><span class="math">N, P, M, F</span> (GCS)</td>
+                    <td>Element count, Golomb-Rice parameter, divisor <span class="math">M = 2ᴾ</span>, and false-positive parameter (BIP-158: <span class="math">P = 19</span>, <span class="math">F = 784,931</span>)</td>
+                    <td>Def. 19.1&ndash;19.5</td>
+                </tr>
+                <tr>
+                    <td><strong>SPV</strong></td>
+                    <td>Simplified payment verification: header-chain plus Merkle-proof validation</td>
+                    <td>Ch. 17</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.11 Payment Channels and Lightning</h2>
+
+            <table>
+                <tr>
+                    <th>Symbol / Term</th>
+                    <th>Meaning</th>
+                    <th>Introduced</th>
+                </tr>
+                <tr>
+                    <td><strong>HTLC</strong></td>
+                    <td>Hashed timelocked contract: pays on revealing the preimage <span class="math">r</span> of <span class="math">H(r)</span>, refunds after a timeout</td>
+                    <td>Def. 23.9</td>
+                </tr>
+                <tr>
+                    <td><span class="math">r</span>, <span class="math">H(r)</span></td>
+                    <td>Payment preimage and payment hash, the atomicity anchor of a routed payment</td>
+                    <td>Ch. 23, 24</td>
+                </tr>
+                <tr>
+                    <td><strong>CLTV delta</strong></td>
+                    <td>The per-hop decrement in HTLC timeouts along a route (typically 40&ndash;144 blocks)</td>
+                    <td>Ch. 24</td>
+                </tr>
+                <tr>
+                    <td><strong>to_self_delay</strong></td>
+                    <td>The OP_CHECKSEQUENCEVERIFY delay on a broadcaster's own commitment outputs&mdash;the window for penalizing revoked states</td>
+                    <td>Ch. 23, 25</td>
+                </tr>
+                <tr>
+                    <td><strong>msat</strong></td>
+                    <td>Millisatoshi (<span class="math">10⁻³</span> sat), Lightning's sub-satoshi accounting unit</td>
+                    <td>Def. 24.8</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.12 Overloaded Symbols</h2>
+
+            <p>
+                Several letters carry different meanings in different chapters. Context
+                always disambiguates, but the major collisions are collected here.
+            </p>
+
+            <table>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Meanings</th>
+                </tr>
+                <tr>
+                    <td><span class="math">λ</span></td>
+                    <td>Chord/tangent slope in point addition (Ch. 3&ndash;5); Poisson intensity <span class="math">z(q/p)</span> in attack analysis (Ch. 14, 17, 26, 36); value-decay rate (Ch. 27)</td>
+                </tr>
+                <tr>
+                    <td><span class="math">k</span></td>
+                    <td>Signing nonce (Ch. 7&ndash;8, 29); confirmation count (Ch. 17, 26, 36&ndash;37); number of Bloom hash functions (Ch. 18); generic scalar/index elsewhere</td>
+                </tr>
+                <tr>
+                    <td><span class="math">p</span></td>
+                    <td>The secp256k1 field prime (Ch. 2, 4&ndash;5, 8); honest hashrate fraction <span class="math">1 − q</span> (Ch. 14+); a false-positive probability (Ch. 18)</td>
+                </tr>
+                <tr>
+                    <td><span class="math">P</span></td>
+                    <td>A public key / curve point (Ch. 5+); probability operator <span class="math">P(·)</span>; the Golomb-Rice parameter (Ch. 19)</td>
+                </tr>
+                <tr>
+                    <td><span class="math">n</span></td>
+                    <td>The order of <span class="math">G</span> (Ch. 5+); Bloom element count (Ch. 18); generic count elsewhere</td>
+                </tr>
+                <tr>
+                    <td><span class="math">m</span></td>
+                    <td>A message (Ch. 6&ndash;8); Bloom filter size in bits (Ch. 18); a summation index (Ch. 14, 17, 36)</td>
+                </tr>
+                <tr>
+                    <td><span class="math">F</span></td>
+                    <td>GCS false-positive parameter (Ch. 19); fraud-provable rule class (Ch. 20)</td>
+                </tr>
+                <tr>
+                    <td><span class="math">h</span></td>
+                    <td>Block height (Ch. 13&ndash;15); the secp256k1 cofactor (Ch. 5); a hash function (Ch. 18)</td>
+                </tr>
+                <tr>
+                    <td><strong>CSV</strong></td>
+                    <td>OP_CHECKSEQUENCEVERIFY, the relative-timelock opcode (Ch. 11, 23, 25); client-side validation (Ch. 22)</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>A.13 Conventions</h2>
 
             <ul>
                 <li>
@@ -194,6 +649,21 @@
                 <li>
                     <strong>Hexadecimal:</strong> Prefixed with <span class="math">0x</span>, e.g.
                     <span class="math">0xFF = 255</span>.
+                </li>
+                <li>
+                    <strong>Keys:</strong> Private keys are written <span class="math">d</span>,
+                    public keys <span class="math">P = dG</span>, and signing nonces
+                    <span class="math">k</span>, throughout the book.
+                </li>
+                <li>
+                    <strong>Confirmations:</strong> Chapter 14 writes the confirmation count as
+                    <span class="math">z</span> (following the whitepaper); later chapters use
+                    <span class="math">k</span>. The two are the same quantity.
+                </li>
+                <li>
+                    <strong>Minus sign:</strong> Mathematical subtraction and negation use the
+                    minus sign <span class="math">−</span>; hyphens appear only in prose and
+                    numeric ranges.
                 </li>
             </ul>
         </section>
