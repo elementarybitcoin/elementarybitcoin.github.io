@@ -56,6 +56,45 @@
                     less concerning and can be addressed by increasing key sizes.
                 </p>
             </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="248" viewBox="0 0 500 248">
+                    <!-- Quantum computer source -->
+                    <rect x="180" y="16" width="140" height="34" rx="6" fill="#f8f5f0" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <text x="250" y="37" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Quantum Computer</text>
+
+                    <!-- Fan-out arrows -->
+                    <path d="M 238 50 L 136 80" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow39a)"/>
+                    <path d="M 262 50 L 364 80" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow39a)"/>
+
+                    <!-- Shor branch -->
+                    <rect x="30" y="86" width="204" height="30" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="132" y="105" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Shor's Algorithm</text>
+                    <text x="132" y="136" text-anchor="middle" font-family="Georgia" font-size="10">Target: ECDSA signatures (ECDLP)</text>
+                    <text x="132" y="152" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">needs fault-tolerant quantum computer</text>
+                    <text x="132" y="166" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(~2,330 logical qubits, ~10¹² gates)</text>
+                    <rect x="30" y="182" width="204" height="48" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="132" y="202" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#c44">Severe: coins can be stolen</text>
+                    <text x="132" y="218" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">migration eventually required</text>
+
+                    <!-- Grover branch -->
+                    <rect x="266" y="86" width="204" height="30" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="368" y="105" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Grover's Algorithm</text>
+                    <text x="368" y="136" text-anchor="middle" font-family="Georgia" font-size="10">Target: SHA-256 mining</text>
+                    <text x="368" y="152" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">only quadratic speedup, O(√N)</text>
+                    <text x="368" y="166" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(√M collective gain from M machines)</text>
+                    <rect x="266" y="182" width="204" height="48" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="368" y="202" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#5a8f5a">Manageable: 2¹²⁸ still astronomical</text>
+                    <text x="368" y="218" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">difficulty adjustment compensates</text>
+
+                    <defs>
+                        <marker id="arrow39a" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#2f4f4f"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 39.1: The two quantum threats&mdash;Shor's algorithm endangers signatures and demands migration, while Grover's quadratic speedup leaves mining intact.</figcaption>
+            </figure>
         </section>
 
         <section>
@@ -255,6 +294,55 @@ Resource Requirements (256-bit ECDSA):
                     to quantum attack regardless of address reuse practices.
                 </p>
             </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="300" viewBox="0 0 500 300">
+                    <!-- Adversary -->
+                    <rect x="170" y="14" width="160" height="38" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="250" y="31" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Shor-Capable Adversary</text>
+                    <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(computes <tspan font-style="italic">d</tspan> from <tspan font-style="italic">P</tspan>)</text>
+
+                    <!-- Arrows to the two classes -->
+                    <path d="M 210 52 L 138 94" stroke="#c44" stroke-width="1.5" marker-end="url(#arrow39bRed)"/>
+                    <text x="108" y="64" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">reachable</text>
+                    <text x="108" y="76" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">immediately</text>
+                    <path d="M 290 52 L 362 94" stroke="#666" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow39bGray)"/>
+                    <text x="392" y="64" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">only during a</text>
+                    <text x="392" y="76" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">spend-time race</text>
+
+                    <!-- Exposed panel -->
+                    <rect x="30" y="100" width="210" height="158" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="135" y="122" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold" fill="#c44">Public Key Exposed</text>
+                    <text x="135" y="146" text-anchor="middle" font-family="Georgia" font-size="10">P2PK (early outputs,</text>
+                    <text x="135" y="160" text-anchor="middle" font-family="Georgia" font-size="10">~1 million BTC)</text>
+                    <text x="135" y="182" text-anchor="middle" font-family="Georgia" font-size="10">P2TR (tweaked key in output)</text>
+                    <text x="135" y="204" text-anchor="middle" font-family="Georgia" font-size="10">Reused / already-spent</text>
+                    <text x="135" y="218" text-anchor="middle" font-family="Georgia" font-size="10">addresses (key revealed)</text>
+                    <text x="135" y="242" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">no defense possible for these coins</text>
+
+                    <!-- Shielded panel -->
+                    <rect x="260" y="100" width="210" height="158" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="365" y="122" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold" fill="#5a8f5a">Hash-Shielded Until Spend</text>
+                    <text x="365" y="146" text-anchor="middle" font-family="Georgia" font-size="10">P2PKH (fresh address)</text>
+                    <text x="365" y="168" text-anchor="middle" font-family="Georgia" font-size="10">P2WPKH (fresh address)</text>
+                    <text x="365" y="196" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">only a hash appears on-chain;</text>
+                    <text x="365" y="210" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">key revealed at spend time</text>
+                    <text x="365" y="242" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">migration window available</text>
+
+                    <!-- Bottom annotation -->
+                    <text x="250" y="284" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">An output is exposed exactly when its public key, not a hash, is visible on-chain.</text>
+
+                    <defs>
+                        <marker id="arrow39bRed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#c44"/>
+                        </marker>
+                        <marker id="arrow39bGray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 39.2: Quantum vulnerability by output type&mdash;a Shor-capable adversary can immediately reach any coin whose public key is visible on-chain.</figcaption>
+            </figure>
 
             <div class="definition">
                 <p class="definition-title">Definition 39.5 (Transaction Race Attack)</p>
@@ -962,6 +1050,59 @@ Recommended Preparation Timeline:
 └── Full PQ security achieved
 </pre>
             </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="208" viewBox="0 0 500 208">
+                    <!-- Stage boxes -->
+                    <rect x="32" y="36" width="92" height="72" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="78" y="56" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Research</text>
+                    <text x="78" y="74" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">monitor; choose</text>
+                    <text x="78" y="88" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">PQ scheme (ML-DSA)</text>
+
+                    <rect x="136" y="36" width="92" height="72" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="182" y="56" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Testing</text>
+                    <text x="182" y="74" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">signet, wallets,</text>
+                    <text x="182" y="88" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">audits, BIP</text>
+
+                    <rect x="240" y="36" width="92" height="72" rx="6" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="286" y="56" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Activation</text>
+                    <text x="286" y="74" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">soft fork adds PQ</text>
+                    <text x="286" y="88" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">outputs (P2QRH)</text>
+
+                    <rect x="344" y="36" width="92" height="72" rx="6" fill="#f8f5f0" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <text x="390" y="56" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Migration</text>
+                    <text x="390" y="74" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">users move coins</text>
+                    <text x="390" y="88" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">to PQ addresses</text>
+
+                    <!-- Connectors to timeline -->
+                    <line x1="78" y1="108" x2="78" y2="150" stroke="#666" stroke-width="1"/>
+                    <line x1="182" y1="108" x2="182" y2="150" stroke="#666" stroke-width="1"/>
+                    <line x1="286" y1="108" x2="286" y2="150" stroke="#666" stroke-width="1"/>
+                    <line x1="390" y1="108" x2="390" y2="150" stroke="#666" stroke-width="1"/>
+
+                    <!-- Timeline axis -->
+                    <path d="M 30 150 L 484 150" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow39c)"/>
+                    <text x="78" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2024&ndash;2026</text>
+                    <text x="182" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2026&ndash;2028</text>
+                    <text x="286" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2028&ndash;2030</text>
+                    <text x="390" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2030&ndash;2040</text>
+
+                    <!-- Quantum threat marker -->
+                    <line x1="460" y1="112" x2="460" y2="164" stroke="#c44" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <text x="460" y="94" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">quantum</text>
+                    <text x="460" y="106" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">threat (<tspan font-style="italic">Z</tspan>)</text>
+
+                    <!-- Mosca annotation -->
+                    <text x="250" y="194" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Mosca's inequality: begin migration now whenever <tspan font-style="italic">X</tspan> + <tspan font-style="italic">Y</tspan> &gt; <tspan font-style="italic">Z</tspan>.</text>
+
+                    <defs>
+                        <marker id="arrow39c" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#2f4f4f"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 39.3: The migration path&mdash;from monitoring and standardization through a soft fork to user migration, completed before the quantum threat arrives.</figcaption>
+            </figure>
 
             <div class="remark">
                 <p class="remark-title">Remark 39.13 (The 20-Year Window)</p>
