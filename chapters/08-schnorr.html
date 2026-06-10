@@ -652,8 +652,10 @@ Verify(pk, m, sig):
             <div class="remark">
                 <p class="remark-title">Block Validation</p>
                 <p>
-                    Bitcoin nodes can batch-verify all Schnorr signatures in a block, significantly
-                    speeding up initial block download and validation of new blocks.
+                    BIP-340 signatures are designed so that all Schnorr signatures in a block
+                    could be verified as a single batch, which would reduce worst-case block
+                    validation cost; as of mid-2026, Bitcoin Core validates signatures
+                    individually (see Remark 29.2).
                 </p>
             </div>
         </section>

@@ -28,6 +28,8 @@
                 This chapter examines the major covenant proposals under discussion: OP_CHECKTEMPLATEVERIFY
                 (CTV), OP_CAT, OP_VAULT, and others. We analyze their technical mechanisms,
                 use cases, and the tradeoffs that make covenant design contentious.
+                The Layer 2 protocols of Chapter 32 are the principal intended
+                applications: covenants are what those designs would buy.
             </p>
         </section>
 
@@ -395,8 +397,8 @@ OP_CHECKSIG</pre>
                 OP_VAULT is a purpose-built opcode for secure custody.
             </p>
 
-            <div class="definition">
-                <p class="definition-title">Definition 30.6 (OP_VAULT)</p>
+            <div class="example">
+                <p class="example-title">Example 30.4 (OP_VAULT)</p>
                 <p>
                     <strong>OP_VAULT</strong> (BIP-345) creates a two-stage withdrawal process:
                 </p>
@@ -465,8 +467,8 @@ OP_CHECKSIG</pre>
                 <figcaption>Figure 30.4: OP_VAULT lifecycle with trigger, recovery, and completion paths.</figcaption>
             </figure>
 
-            <div class="definition">
-                <p class="definition-title">Definition 30.7 (OP_VAULT Opcodes)</p>
+            <div class="example">
+                <p class="example-title">Example 30.5 (OP_VAULT Opcodes)</p>
                 <p>
                     BIP-345 introduces two new opcodes:
                 </p>
@@ -498,7 +500,7 @@ OP_CHECKSIG</pre>
             <h3 id="s30-5-1">30.5.1 SIGHASH_ANYPREVOUT (BIP-118)</h3>
 
             <div class="definition">
-                <p class="definition-title">Definition 30.8 (ANYPREVOUT)</p>
+                <p class="definition-title">Definition 30.6 (ANYPREVOUT)</p>
                 <p>
                     <strong>SIGHASH_ANYPREVOUT</strong> creates signatures that do not commit
                     to specific inputs:
@@ -513,7 +515,7 @@ OP_CHECKSIG</pre>
             <h3 id="s30-5-2">30.5.2 OP_TXHASH / OP_CHECKTXHASHVERIFY</h3>
 
             <div class="definition">
-                <p class="definition-title">Definition 30.9 (TXHASH)</p>
+                <p class="definition-title">Definition 30.7 (TXHASH)</p>
                 <p>
                     <strong>OP_TXHASH</strong> provides flexible transaction introspection:
                 </p>
@@ -527,7 +529,7 @@ OP_CHECKSIG</pre>
             <h3 id="s30-5-3">30.5.3 OP_CHECKSIGFROMSTACK</h3>
 
             <div class="definition">
-                <p class="definition-title">Definition 30.10 (CSFS)</p>
+                <p class="definition-title">Definition 30.8 (CSFS)</p>
                 <p>
                     <strong>OP_CHECKSIGFROMSTACK</strong> verifies a signature against arbitrary
                     data (not the transaction sighash):
@@ -598,7 +600,7 @@ Stack: [1 if valid]</pre>
             <h2 id="s30-6">30.6 Recursive Covenants and Concerns</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 30.11 (Recursive Covenant)</p>
+                <p class="definition-title">Definition 30.9 (Recursive Covenant)</p>
                 <p>
                     A <strong>recursive covenant</strong> can enforce that outputs must
                     themselves be encumbered by the same (or similar) covenant:
@@ -647,7 +649,7 @@ Stack: [1 if valid]</pre>
             <h2 id="s30-7">30.7 Covenant Applications</h2>
 
             <div class="example">
-                <p class="example-title">Example 30.4 (Summary of Applications)</p>
+                <p class="example-title">Example 30.6 (Summary of Applications)</p>
                 <table class="data-table">
                     <thead>
                         <tr>

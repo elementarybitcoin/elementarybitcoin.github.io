@@ -27,6 +27,11 @@
                 signatures, Merkleized Alternative Script Trees (MAST), and cryptographic
                 key tweaking&mdash;so that complex spending conditions are indistinguishable
                 from simple payments, improving both privacy and efficiency.
+                Within this volume, Taproot is the second soft-fork case study: a
+                technically uncontested change whose activation mechanism was nonetheless
+                disputed (the LOT debate, Section 33.7.2), demonstrating that
+                Chapter 33's governance questions arise even when no one objects to the
+                change itself.
                 This chapter dissects Taproot's architecture, from BIP-340 Schnorr signatures
                 through BIP-341 output construction to BIP-342 Tapscript execution.
             </p>
@@ -36,43 +41,22 @@
             <h2 id="s29-1">29.1 Schnorr Signatures (BIP-340)</h2>
 
             <p>
-                Taproot begins with a new signature scheme: Schnorr signatures, which improve
-                on ECDSA in several respects.
+                Taproot's signature scheme is the BIP-340 Schnorr scheme constructed and
+                analyzed in Chapter 8; this section recalls it rather than re-deriving it.
+                A signature on message <span class="math">m</span> under private key
+                <span class="math">d</span> (public key <span class="math">P = d·G</span>)
+                is the 64-byte pair <span class="math">(x(R), s)</span>, where
+                <span class="math">R = k·G</span> for a nonce <span class="math">k</span>,
+                <span class="math">e = H<sub>BIP340/challenge</sub>(x(R) || x(P) || m)</span>
+                is the challenge, and <span class="math">s = k + e·d (mod n)</span>;
+                verification checks <span class="math">s·G = R + e·P</span>. The complete
+                signing and verification procedures, including deterministic nonce
+                generation, are Algorithms 8.1 and 8.2, and correctness is Theorem 8.1.
+                The property everything in this chapter builds on is <em>linearity</em>
+                (Theorem 8.2): partial signatures computed against a shared challenge sum
+                to a valid signature under the summed public key, which is what makes key
+                aggregation (Section 29.5) and adaptor signatures (Section 29.6) possible.
             </p>
-
-            <div class="definition">
-                <p class="definition-title">Definition 29.1 (BIP-340 Schnorr Signature)</p>
-                <p>
-                    Given private key <span class="math">d</span>, public key <span class="math">P = d·G</span>, and message <span class="math">m</span>:
-                </p>
-                <ol>
-                    <li>Choose random nonce <span class="math">k</span>, compute <span class="math">R = k·G</span> (negating <span class="math">k</span> if <span class="math">R</span> has an odd <span class="math">y</span>-coordinate)</li>
-                    <li>Compute challenge <span class="math">e = H<sub>BIP340/challenge</sub>(x(R) || x(P) || m)</span>, hashing the x-only serializations</li>
-                    <li>Compute <span class="math">s = k + e·d (mod n)</span></li>
-                    <li>Signature is <span class="math">(x(R), s)</span>, serialized as 64 bytes</li>
-                </ol>
-            </div>
-
-            <div class="definition">
-                <p class="definition-title">Definition 29.2 (Schnorr Verification)</p>
-                <p>
-                    To verify signature <span class="math">(R, s)</span> on message <span class="math">m</span> with public key <span class="math">P</span>:
-                </p>
-                <ol>
-                    <li>Compute <span class="math">e = H<sub>BIP340/challenge</sub>(R || P || m)</span></li>
-                    <li>Check that <span class="math">s·G = R + e·P</span></li>
-                </ol>
-            </div>
-
-            <div class="proof">
-                <p class="proof-title">Correctness.</p>
-                <p>
-                    If the signature is valid:
-                </p>
-                <p class="math-block">
-                    s·G = (k + e·d)·G = k·G + e·d·G = R + e·P ✓
-                </p>
-            </div>
 
             <figure>
                 <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
@@ -110,19 +94,29 @@
                 <figcaption>Figure 29.1: ECDSA vs Schnorr signature comparison.</figcaption>
             </figure>
 
-            <h3 id="s29-1-1">29.1.1 X-Only Public Keys</h3>
+            <h3 id="s29-1-1">29.1.1 X-Only Keys, Even Y, and Tagged Hashes</h3>
 
-            <div class="definition">
-                <p class="definition-title">Definition 29.3 (X-Only Public Key)</p>
-                <p>
-                    BIP-340 uses <strong>x-only public keys</strong>: only the x-coordinate
-                    is stored (32 bytes instead of 33). The y-coordinate is implicitly even:
-                </p>
-                <ul>
-                    <li>If <span class="math">P</span> has odd <span class="math">y</span>, negate it: use <span class="math">−P</span> (which has even <span class="math">y</span>)</li>
-                    <li>Adjust private key accordingly: if <span class="math">P</span> has odd <span class="math">y</span>, use <span class="math">n − d</span></li>
-                </ul>
-            </div>
+            <p>
+                Three BIP-340 conventions from Chapter 8 do real work in Taproot and are
+                worth restating:
+            </p>
+            <ul>
+                <li><strong>X-only public keys (Definition 8.3):</strong> keys are
+                    serialized as the 32-byte x-coordinate alone; this is the form that
+                    appears in every P2TR scriptPubKey and inside every Taproot hash.</li>
+                <li><strong>The even-y convention (Definition 8.3):</strong> the implicit
+                    y-coordinate is even; a signer whose point has odd <span class="math">y</span>
+                    negates the secret (<span class="math">d ↦ n − d</span>). The
+                    discarded parity is not always free: for the output key it must be
+                    carried explicitly, as the parity bit of the control block
+                    (Definition 29.4).</li>
+                <li><strong>Tagged hashes (Definition 8.4):</strong>
+                    <span class="math">H<sub>tag</sub>(x) = SHA256(SHA256(tag) || SHA256(tag) || x)</span>.
+                    BIP-340 uses the tag <em>BIP0340/challenge</em>; BIP-341 reuses the
+                    same construction with the tags <em>TapTweak</em>, <em>TapLeaf</em>, and
+                    <em>TapBranch</em>, which appear throughout Sections 29.2 and 29.3.
+                    Distinct tags keep these hash domains from colliding.</li>
+            </ul>
 
             <div class="remark">
                 <p class="remark-title">Remark 29.1 (X-Only Savings)</p>
@@ -137,20 +131,16 @@
 
             <h3 id="s29-1-2">29.1.2 Batch Verification</h3>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 29.1 (Schnorr Batch Verification)</p>
-                <p>
-                    Given <span class="math">n</span> signatures <span class="math">(R<sub>i</sub>, s<sub>i</sub>)</span> on messages <span class="math">m<sub>i</sub></span>
-                    with public keys <span class="math">P<sub>i</sub></span>, batch verify by checking:
-                </p>
-                <p class="math-block">
-                    (Σ a<sub>i</sub>·s<sub>i</sub>)·G = Σ a<sub>i</sub>·R<sub>i</sub> + Σ a<sub>i</sub>·e<sub>i</sub>·P<sub>i</sub>
-                </p>
-                <p>
-                    where <span class="math">a<sub>i</sub></span> are random weights. Cost: <span class="math">O(n)</span> point additions, one
-                    multi-scalar multiplication, vs <span class="math">O(n)</span> full verifications individually.
-                </p>
-            </div>
+            <p>
+                Linearity also gives batch verification (Theorem 8.3): <span class="math">n</span>
+                signatures can be checked at once with a single random linear combination,
+                <span class="math">(Σ a<sub>i</sub>·s<sub>i</sub>)·G = Σ a<sub>i</sub>·R<sub>i</sub> + Σ a<sub>i</sub>·e<sub>i</sub>·P<sub>i</sub></span>
+                for random weights <span class="math">a<sub>i</sub></span>, at the cost of one
+                multi-scalar multiplication instead of <span class="math">n</span> full
+                verifications. BIP-340 was designed so that all of a block's signatures
+                are batchable; ECDSA's verification equation, which is non-linear in
+                <span class="math">s</span>, admits no analogous check.
+            </p>
 
             <div class="remark">
                 <p class="remark-title">Remark 29.2 (Batch Verification Speedup)</p>
@@ -171,7 +161,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.4 (Tweak)</p>
+                <p class="definition-title">Definition 29.1 (Tweak)</p>
                 <p>
                     A <strong>tweaked public key</strong> <span class="math">Q</span> is computed from internal key <span class="math">P</span>
                     and tweak <span class="math">t</span>:
@@ -188,7 +178,7 @@
             </div>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.5 (Taproot Tweak)</p>
+                <p class="definition-title">Definition 29.2 (Taproot Tweak)</p>
                 <p>
                     For Taproot, the tweak encodes the script tree:
                 </p>
@@ -263,7 +253,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.6 (TapTree)</p>
+                <p class="definition-title">Definition 29.3 (TapTree)</p>
                 <p>
                     A <strong>TapTree</strong> is a Merkle tree of scripts:
                 </p>
@@ -322,7 +312,7 @@
             </figure>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.7 (Control Block)</p>
+                <p class="definition-title">Definition 29.4 (Control Block)</p>
                 <p>
                     To spend via script path, the witness includes a <strong>control block</strong>:
                 </p>
@@ -336,7 +326,7 @@ where:
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.2 (MAST Privacy)</p>
+                <p class="theorem-title">Theorem 29.1 (MAST Privacy)</p>
                 <p>
                     When spending via script path:
                 </p>
@@ -381,7 +371,7 @@ where:
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.8 (Tapscript Changes)</p>
+                <p class="definition-title">Definition 29.5 (Tapscript Changes)</p>
                 <p>
                     Tapscript modifies Script semantics:
                 </p>
@@ -395,7 +385,7 @@ where:
             </div>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.9 (OP_CHECKSIGADD)</p>
+                <p class="definition-title">Definition 29.6 (OP_CHECKSIGADD)</p>
                 <p>
                     <strong>OP_CHECKSIGADD</strong> enables efficient threshold signatures:
                 </p>
@@ -463,12 +453,14 @@ Stack after:  [n] (or [n+1] if valid)
             <h2 id="s29-5">29.5 Key Aggregation: MuSig2</h2>
 
             <p>
-                Schnorr's linearity enables multi-party signatures in which the
+                Schnorr's linearity (Theorem 8.2) enables multi-party signatures in which the
                 aggregate key and signature are indistinguishable from those of a single party.
+                Chapter 8 introduced MuSig key aggregation and the rogue-key attack it defeats
+                (Definitions 8.5 and 8.6); MuSig2 is the production two-round protocol.
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.10 (MuSig2 Key Aggregation)</p>
+                <p class="definition-title">Definition 29.7 (MuSig2 Key Aggregation)</p>
                 <p>
                     Given <span class="math">n</span> public keys <span class="math">P<sub>1</sub>, ..., P<sub>n</sub></span>:
                 </p>
@@ -480,7 +472,7 @@ Stack after:  [n] (or [n+1] if valid)
             </div>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.11 (MuSig2 Signing)</p>
+                <p class="definition-title">Definition 29.8 (MuSig2 Signing)</p>
                 <p>
                     Two-round signing protocol:
                 </p>
@@ -492,7 +484,7 @@ Stack after:  [n] (or [n+1] if valid)
                 <p><strong>Round 2:</strong></p>
                 <ol>
                     <li>Compute <span class="math">R = Σ R<sub>i,1</sub> + b·Σ R<sub>i,2</sub></span> where <span class="math">b = H(agg_nonces || agg_key || msg)</span></li>
-                    <li>Each signer computes partial: <span class="math">s<sub>i</sub> = k<sub>i,1</sub> + b·k<sub>i,2</sub> + e·a<sub>i</sub>·d<sub>i</sub></span>, where <span class="math">e = H(R || P || m)</span> is the challenge of Definition 29.1</li>
+                    <li>Each signer computes partial: <span class="math">s<sub>i</sub> = k<sub>i,1</sub> + b·k<sub>i,2</sub> + e·a<sub>i</sub>·d<sub>i</sub></span>, where <span class="math">e = H(R || P || m)</span> is the BIP-340 challenge recalled in Section 29.1</li>
                     <li>Aggregate: <span class="math">s = Σ s<sub>i</sub></span></li>
                     <li>Final signature: <span class="math">(R, s)</span></li>
                 </ol>
@@ -534,7 +526,7 @@ Stack after:  [n] (or [n+1] if valid)
             </figure>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.3 (MuSig2 Privacy; Nick, Ruffing, Seurin 2021)</p>
+                <p class="theorem-title">Theorem 29.2 (MuSig2 Privacy; Nick, Ruffing, Seurin 2021)</p>
                 <p>
                     A MuSig2 aggregate key and signature are computationally indistinguishable
                     from a single-party key and signature. An observer cannot determine:
@@ -555,7 +547,7 @@ Stack after:  [n] (or [n+1] if valid)
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 29.12 (Adaptor Signature)</p>
+                <p class="definition-title">Definition 29.9 (Adaptor Signature)</p>
                 <p>
                     An <strong>adaptor signature</strong> <span class="math">σ'</span> is a "partial" signature that becomes
                     valid when combined with a secret scalar <span class="math">t</span>:
@@ -568,7 +560,7 @@ Stack after:  [n] (or [n+1] if valid)
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.4 (Adaptor Atomicity)</p>
+                <p class="theorem-title">Theorem 29.3 (Adaptor Atomicity)</p>
                 <p>
                     Adaptor signatures enable atomic swaps without hash preimages:
                 </p>
