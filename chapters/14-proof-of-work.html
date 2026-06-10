@@ -131,6 +131,22 @@
                 to find a valid hash is exhaustive search—trying different nonces until one works.
             </p>
 
+            <div class="remark">
+                <p class="remark-title">Probability Background.</p>
+                <p>
+                    Two facts from elementary probability are used repeatedly in this volume.
+                    First, if an experiment succeeds with probability <span class="math">p</span>
+                    on each independent trial, the number of trials until the first success
+                    follows the <em>geometric distribution</em>, whose <em>expected value</em>
+                    (long-run average) is <span class="math">1/p</span>. Second, the number of
+                    successes in a long stretch of such trials is well approximated by the
+                    <em>Poisson distribution</em>: the count equals <span class="math">m</span>
+                    with probability <span class="math">λᵐe^(−λ)/m!</span>, where
+                    <span class="math">λ</span> is the expected count. Both facts can be taken
+                    on faith or found in any introductory probability text.
+                </p>
+            </div>
+
             <div class="theorem">
                 <p class="theorem-title">Theorem 14.1 (Expected Attempts)</p>
                 <p>
@@ -480,6 +496,9 @@ new_difficulty = old_difficulty / 0.857
                 <p class="math-block">
                     revenue = (subsidy + fees) × (miner_hashrate / network_hashrate)
                 </p>
+                <p>
+                    (The block subsidy schedule is defined in Definition 15.2.)
+                </p>
             </div>
 
             <div class="definition">
@@ -740,7 +759,9 @@ Daily profit = $3.60 - $3.60 = $0.00</pre>
                 <p class="exercise-title">Exercise 14.3</p>
                 <p>
                     A miner has 1% of network hash power. What is their expected number
-                    of blocks per day? What is the standard deviation?
+                    of blocks per day? What is the standard deviation? (Hint: block counts
+                    are approximately Poisson, and a Poisson distribution's variance equals
+                    its mean.)
                 </p>
             </div>
 

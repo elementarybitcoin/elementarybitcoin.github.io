@@ -145,7 +145,7 @@
                         <td>Perfect</td>
                     </tr>
                     <tr>
-                        <td>Pruned Node</td>
+                        <td>Pruned Node (Section 21.4)</td>
                         <td>Self-verified</td>
                         <td>Self-verified</td>
                         <td>Perfect</td>
@@ -440,7 +440,7 @@ script_hash (little-endian hex) = 56f4de...23c1ab</code></pre>
 
             <ul>
                 <li><strong>Wallet creation:</strong> Sequential address queries reveal when the wallet was created</li>
-                <li><strong>HD derivation:</strong> Query patterns reveal BIP-32 derivation paths</li>
+                <li><strong>HD derivation:</strong> Query patterns reveal hierarchical-deterministic wallet structure (BIP-32, a wallet standard outside this book's scope)</li>
                 <li><strong>Change addresses:</strong> Immediate queries after broadcasts reveal change outputs</li>
                 <li><strong>Session correlation:</strong> Multiple sessions can be linked by query patterns</li>
             </ul>
@@ -824,7 +824,7 @@ Response:
             <div class="definition">
                 <p><strong>Definition 20.8</strong> (Fraud Proof)</p>
                 <p>
-                    A <em>fraud proof</em> for a consensus rule <em>R</em> applied to block <em>B</em>
+                    Refining Definition 17.5: a <em>fraud proof</em> for a consensus rule <em>R</em> applied to block <em>B</em>
                     is a data structure <em>P</em> such that:
                 </p>
                 <ol>

@@ -115,7 +115,7 @@
                 </p>
                 <ol>
                     <li>A bit array <var>B</var> of <var>m</var> bits, initially all zeros</li>
-                    <li>A family of <var>k</var> independent hash functions <var>h₁, h₂, ..., hₖ</var>, each mapping elements to {0, 1, ..., m-1}</li>
+                    <li>A family of <var>k</var> independent hash functions <var>h₀, h₁, ..., hₖ₋₁</var>, each mapping elements to {0, 1, ..., m−1}</li>
                 </ol>
                 <p>
                     To <em>add</em> element <var>x</var>: set <var>B[hᵢ(x)] = 1</var> for all <var>i ∈ {1, ..., k}</var>.
