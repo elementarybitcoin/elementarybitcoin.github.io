@@ -58,18 +58,6 @@
             line-height: 1.8;
             color: #555;
         }
-        .draft-notice {
-            background: #fff3cd;
-            border: 2px solid #8b4513;
-            padding: 1rem;
-            margin: 1rem auto;
-            max-width: 600px;
-            text-align: center;
-            border-radius: 8px;
-        }
-        .draft-notice strong {
-            color: #c87f0a;
-        }
         .epigraph {
             max-width: 450px;
             margin: 3rem auto;
@@ -209,9 +197,6 @@
             cryptographic protocols, protocol architecture, scaling technologies,
             forks, security, and monetary futures upon which Bitcoin is founded.
         </p>
-        <div class="draft-notice">
-            <strong>DRAFT:</strong> Volumes IV & V are included below as drafts undergoing revision.
-        </div>
     </div>
 
     <div class="epigraph">
@@ -228,27 +213,29 @@
                 <li class="current-volume">
                     <span class="vol-num">Volume I:</span>
                     <span class="vol-title">Mathematical Foundations</span>
-                    <span class="vol-status">— complete</span>
+                    <span class="vol-status">— complete · proved</span>
                 </li>
                 <li>
                     <span class="vol-num">Volume II:</span>
                     <span class="vol-title">Protocol Architecture</span>
-                    <span class="vol-status">— complete</span>
+                    <span class="vol-status">— complete · verifiable protocol fact</span>
                 </li>
                 <li>
                     <span class="vol-num">Volume III:</span>
                     <span class="vol-title">Scaling and Verification</span>
-                    <span class="vol-status">— complete</span>
+                    <span class="vol-status">— complete · verifiable protocol fact</span>
                 </li>
                 <li>
                     <span class="vol-num">Volume IV:</span>
                     <span class="vol-title">Forks and Futures</span>
                     <span class="vol-draft">DRAFT</span>
+                    <span class="vol-status">— the contested present, positions attributed</span>
                 </li>
                 <li>
                     <span class="vol-num">Volume V:</span>
                     <span class="vol-title">The Path to a Sustainable Future</span>
                     <span class="vol-draft">DRAFT</span>
+                    <span class="vol-status">— disciplined speculation, labeled as such</span>
                 </li>
             </ul>
         </section>
@@ -303,6 +290,30 @@
             <p>
                 Wherever you start, Appendix A (notation), Appendix C (subject index), and
                 Appendix D (the rule catalog) are designed for random access.
+            </p>
+        </section>
+
+        <section class="preface">
+            <h2>A Note on Epistemic Status</h2>
+            <p>
+                Not everything in this book is true in the same way, and the reader deserves
+                to know which kind of truth each part offers. <strong>Volume I</strong> is
+                mathematics: its theorems are proved and will be true in a century.
+                <strong>Volumes II and III</strong> are verifiable protocol fact&mdash;every
+                claim can be checked against running code and the cited specifications, and
+                changes only when the protocol does. <strong>Volume IV</strong> surveys the
+                contested present: fork histories whose narratives are still argued,
+                proposals whose statuses drift, governance questions that are contested by
+                construction. There the book reports positions, attributes them to their
+                holders, and dates every perishable claim. <strong>Volume V</strong> is
+                disciplined speculation&mdash;economic models with stated assumptions and
+                scenarios labeled as scenarios, kept in remarks and never dressed as
+                theorems.
+            </p>
+            <p>
+                The gradient is the design. The first three volumes give you the tools; the
+                last two show you the open questions those tools illuminate&mdash;and by the
+                time you reach them, you will not need this book to tell you what to think.
             </p>
         </section>
 

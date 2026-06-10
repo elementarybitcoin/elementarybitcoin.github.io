@@ -284,12 +284,23 @@ during which the owner claws the funds back to cold storage.</pre>
                 <p>
                     CTV has been controversial despite its simplicity:
                 </p>
-                <ul>
-                    <li><strong>Proponents:</strong> Minimal, well-analyzed, enables useful patterns</li>
-                    <li><strong>Opponents:</strong> Too limited, may need replacement soon</li>
-                    <li><strong>Concerns:</strong> Could enable new MEV-like extraction</li>
-                    <li><strong>Process:</strong> Activation attempts have stalled multiple times</li>
-                </ul>
+                <p>
+                    Proponents&mdash;including BIP-119's author and, by 2025, a substantial
+                    list of developers urging activation alongside CSFS&mdash;argue that CTV
+                    is the most-reviewed covenant primitive ever proposed, that vaults address
+                    theft losses users suffer today, and that indefinite delay is itself a
+                    choice with costs. Opponents counter that no consensus change should
+                    activate without demonstrated demand from production systems, that the
+                    2022 activation attempt tried to short-circuit the consensus process of
+                    Chapter 33, and that committing to a limited primitive now may foreclose
+                    a better general design later. (Critics sometimes add that even limited
+                    covenants begin a path toward MEV-like extraction; proponents respond
+                    that CTV's fixed, non-recursive templates leave nothing to extract&mdash;the
+                    expressivity concern belongs to general introspection, Remark 30.3.)
+                    Beneath the specific proposals lies the meta-debate of Remark 33.4:
+                    whether the difficulty of activating any covenant is a failure of
+                    governance or its proper functioning.
+                </p>
             </div>
         </section>
 
@@ -363,6 +374,12 @@ OP_CHECKSIG</pre>
                     <li><strong>Recursive covenants:</strong> Potentially possible with CAT</li>
                     <li><strong>Script complexity:</strong> CAT-based covenants are complex</li>
                     <li><strong>Audit difficulty:</strong> Harder to reason about than CTV</li>
+                    <li><strong>MEV and expressivity:</strong> Critics argue that general
+                        introspection imports the miner-extractable-value dynamics of
+                        expressive chains and could be used to build transferable
+                        restrictions on coins; proponents respond that the same restrictions
+                        are already constructible off-chain and that opt-in scripts cannot
+                        encumber anyone else's coins</li>
                 </ul>
             </div>
         </section>
@@ -519,6 +536,7 @@ Stack: [1 if valid]</pre>
             </div>
 
             <h3 id="s30-5-4">30.5.4 Comparison Table</h3>
+            <p>Statuses as of mid-2026.</p>
 
             <table class="data-table">
                 <thead>
