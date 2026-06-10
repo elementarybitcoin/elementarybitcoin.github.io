@@ -137,7 +137,7 @@
             <h3>29.1.2 Batch Verification</h3>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.2 (Schnorr Batch Verification)</p>
+                <p class="theorem-title">Theorem 29.1 (Schnorr Batch Verification)</p>
                 <p>
                     Given n signatures (R<sub>i</sub>, s<sub>i</sub>) on messages m<sub>i</sub>
                     with public keys P<sub>i</sub>, batch verify by checking:
@@ -241,7 +241,7 @@
             </figure>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.3 (Taproot Spending Paths)</p>
+                <p class="theorem-title">Theorem 29.2 (Taproot Spending Paths)</p>
                 <p>
                     A Taproot output (OP_1 &lt;Q&gt;) can be spent two ways:
                 </p>
@@ -334,14 +334,14 @@ where:
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.4 (MAST Privacy)</p>
+                <p class="theorem-title">Theorem 29.3 (MAST Privacy)</p>
                 <p>
                     When spending via script path:
                 </p>
                 <ul>
                     <li>Only the executed script is revealed</li>
                     <li>Other scripts remain hidden (only hashes in proof)</li>
-                    <li>Number of alternative scripts is hidden (proof length varies)</li>
+                    <li>The exact number of alternative scripts is hidden, though the Merkle path length reveals the revealed leaf's depth (a lower bound on tree size)</li>
                 </ul>
                 <p>
                     When spending via key path:
@@ -489,7 +489,7 @@ Stack after:  [n] (or [n+1] if valid)
                 <p><strong>Round 2:</strong></p>
                 <ol>
                     <li>Compute R = Σ R<sub>i,1</sub> + b·Σ R<sub>i,2</sub> where b = H(agg_nonces || agg_key || msg)</li>
-                    <li>Each signer computes partial: s<sub>i</sub> = k<sub>i,1</sub> + b·k<sub>i,2</sub> + e·a<sub>i</sub>·d<sub>i</sub></li>
+                    <li>Each signer computes partial: s<sub>i</sub> = k<sub>i,1</sub> + b·k<sub>i,2</sub> + e·a<sub>i</sub>·d<sub>i</sub>, where e = H(R || P || m) is the challenge of Definition 29.1</li>
                     <li>Aggregate: s = Σ s<sub>i</sub></li>
                     <li>Final signature: (R, s)</li>
                 </ol>
@@ -531,7 +531,7 @@ Stack after:  [n] (or [n+1] if valid)
             </figure>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.6 (MuSig2 Privacy)</p>
+                <p class="theorem-title">Theorem 29.4 (MuSig2 Privacy)</p>
                 <p>
                     A MuSig2 aggregate key and signature are computationally indistinguishable
                     from a single-party key and signature. An observer cannot determine:
@@ -565,7 +565,7 @@ Stack after:  [n] (or [n+1] if valid)
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 29.7 (Adaptor Atomicity)</p>
+                <p class="theorem-title">Theorem 29.5 (Adaptor Atomicity)</p>
                 <p>
                     Adaptor signatures enable atomic swaps without hash preimages:
                 </p>

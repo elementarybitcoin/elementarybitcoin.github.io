@@ -170,15 +170,16 @@ where:
                     manipulation each retarget period:
                 </p>
                 <ol>
-                    <li><strong>Phase 1:</strong> Set the <em>last</em> block of the current
-                        period (block[2015]) to a timestamp far in the <em>future</em></li>
+                    <li><strong>Phase 1:</strong> Hold the period's timestamps far in the
+                        <em>past</em>, then set the <em>last</em> block (block[2015]) as late
+                        as the rules allow (~2 hours past real time)</li>
                     <li><strong>Phase 2:</strong> Set the <em>first</em> block of the next period
-                        (block[2016]) to a timestamp far in the <em>past</em></li>
+                        (block[2016]) back to the held-back past time</li>
                     <li>The difficulty formula sees a large
                         <code>actual_time</code> (future minus past), causing
                         difficulty to decrease (subject to the 4× clamp per period)</li>
                     <li>Repeat: each period reduces difficulty by up to 4×</li>
-                    <li>After ~16 periods, difficulty approaches zero</li>
+                    <li>After ~24 periods (log₄ of current difficulty ≈ 10¹⁴), difficulty approaches the minimum</li>
                 </ol>
                 <p>
                     Theoretical outcome: Mine all remaining Bitcoin in weeks.
