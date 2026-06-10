@@ -31,8 +31,8 @@
             <p class="chapter-intro">
                 Bitcoin's security model faces a fundamental challenge: the block subsidy
                 that currently funds most mining operations is designed to eventually reach
-                zero. This creates what critics&mdash;most formally Eric Budish (2018) and
-                Rapha&euml;l Auer (2019)&mdash;call the "security budget problem"&mdash;will
+                zero. This creates what critics, most formally Eric Budish (2018) and
+                Rapha&euml;l Auer (2019), call the "security budget problem": will
                 transaction fees alone provide sufficient incentive for miners to secure the
                 network? This chapter examines the mathematics, economics, and game theory
                 of Bitcoin's long-term security budget, analyzing whether the network can
@@ -160,7 +160,7 @@
             </div>
 
             <p>
-                By 2032 the block subsidy will be 0.78125 BTC per block&mdash;less than the
+                By 2032 the block subsidy will be 0.78125 BTC per block, less than the
                 total fees a single block has sometimes collected during high-demand
                 periods. The transition to a fee-based security model is scheduled, and
                 its first-order effects are already measurable in the fee share of miner
@@ -230,7 +230,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 38.1: The halving staircase&mdash;the block subsidy decays geometrically while uncertain fee revenue must grow to replace it.</figcaption>
+                <figcaption>Figure 38.1: The halving staircase. The block subsidy decays geometrically while uncertain fee revenue must grow to replace it.</figcaption>
             </figure>
         </section>
 
@@ -328,7 +328,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 38.2: The security condition&mdash;in this model, the network is secure only while the cost of attack, set by the security budget, exceeds the value an attacker can extract.</figcaption>
+                <figcaption>Figure 38.2: The security condition. In this model, the network is secure only while the cost of attack, set by the security budget, exceeds the value an attacker can extract.</figcaption>
             </figure>
         </section>
 
@@ -436,11 +436,11 @@ Fee Determination:
             <p>Demand for blockspace comes from multiple sources:</p>
 
             <ol>
-                <li><strong>High-value transfers:</strong> Exchanges, institutions, large holders&mdash;price insensitive</li>
-                <li><strong>Time-sensitive payments:</strong> Commerce, payroll&mdash;moderately price sensitive</li>
-                <li><strong>Consolidation:</strong> UTXO management&mdash;price sensitive, can wait</li>
-                <li><strong>Data inscription:</strong> Ordinals, BRC-20&mdash;highly variable demand</li>
-                <li><strong>Layer 2 settlements:</strong> Lightning channel opens/closes&mdash;batched, price sensitive</li>
+                <li><strong>High-value transfers:</strong> Exchanges, institutions, large holders (price insensitive)</li>
+                <li><strong>Time-sensitive payments:</strong> Commerce, payroll (moderately price sensitive)</li>
+                <li><strong>Consolidation:</strong> UTXO management (price sensitive, can wait)</li>
+                <li><strong>Data inscription:</strong> Ordinals, BRC-20 (highly variable demand)</li>
+                <li><strong>Layer 2 settlements:</strong> Lightning channel opens/closes (batched, price sensitive)</li>
             </ol>
 
             <p>
@@ -482,7 +482,7 @@ Fee Determination:
                     At 2,500 tx/block: ~$760 per transaction
                 </p>
                 <p>
-                    This model requires average fees of hundreds of dollars&mdash;sustainable
+                    This model requires average fees of hundreds of dollars, sustainable
                     only if Bitcoin is used exclusively for high-value settlement.
                 </p>
             </div>
@@ -555,7 +555,7 @@ Fee Determination:
                 </table>
                 <p>
                     If this trend continues, security as a percentage of value secured
-                    could fall below 0.5%&mdash;potentially inadequate for a global reserve
+                    could fall below 0.5%, potentially inadequate for a global reserve
                     asset.
                 </p>
             </div>
@@ -703,8 +703,8 @@ if (GetRandInt(10) == 0)
                 <p>
                     A stronger version of the position disputes the premise of the models in
                     Section 38.5 outright: what attack cost must exceed is the value an
-                    attacker can actually capture&mdash;the double-spendable <em>flow</em> of
-                    transactions&mdash;not Bitcoin's market capitalization, a <em>stock</em>.
+                    attacker can actually capture (the double-spendable <em>flow</em> of
+                    transactions), not Bitcoin's market capitalization (a <em>stock</em>).
                     Combined with the hardware realities of Remark 38.13 (SHA-256 hashrate
                     cannot be rented at scale, and an attacker's ASICs lose their value if
                     the attack succeeds), the budget required for deterrence may be far
@@ -726,7 +726,7 @@ if (GetRandInt(10) == 0)
             <ul>
                 <li>Reduces node decentralization</li>
                 <li>Contentious (see SegWit2x failure)</li>
-                <li>May not solve problem&mdash;fees might drop proportionally</li>
+                <li>May not solve problem: fees might drop proportionally</li>
             </ul>
 
             <h3 id="s38-7-3">38.7.3 Tail Emission (Perpetual Inflation)</h3>
@@ -860,7 +860,7 @@ Layer 2 Fee Model:
                     </tbody>
                 </table>
                 <p>
-                    The figures inherit every limitation of the heuristic&mdash;in
+                    The figures inherit every limitation of the heuristic: in
                     particular, they ignore the hardware-acquisition and opportunity costs
                     of Remark 38.13, which raise the effective cost of attack.
                 </p>
@@ -872,7 +872,7 @@ Layer 2 Fee Model:
                     If Bitcoin becomes a global reserve asset holding $10+ trillion in
                     value, it must resist nation-state attacks. Deterrence against a state
                     actor requires the attack cost to be large relative to the resources
-                    such an actor would commit&mdash;a quantity that is political rather
+                    such an actor would commit, a quantity that is political rather
                     than computable. Published estimates of the budget required for
                     state-level deterrence vary by more than an order of magnitude.
                 </p>

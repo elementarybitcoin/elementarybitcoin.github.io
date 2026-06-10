@@ -38,7 +38,7 @@
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                Section 8 of the Bitcoin whitepaper describes "Simplified Payment Verification"&mdash;a
+                Section 8 of the Bitcoin whitepaper describes "Simplified Payment Verification": a
                 method for verifying payments without running a full node. This section, spanning
                 just over two hundred words, has generated enormous controversy and widespread misunderstanding.
                 In this chapter, we examine SPV with mathematical precision: what it proves, what
@@ -405,7 +405,7 @@
                     Suppose an attacker has eclipsed an SPV client and wants it to accept a
                     fabricated payment with <span class="math">k = 6</span> confirmations. The
                     six headers must satisfy real proof of work at the network's current
-                    difficulty (the client checks this&mdash;see the caveat below), so producing
+                    difficulty (the client checks this; see the caveat below), so producing
                     them costs, in expectation, the same work as honestly mining six blocks.
                     The economic cost is therefore the forgone honest revenue:
                 </p>
@@ -413,7 +413,7 @@
                     cost &asymp; k &times; (subsidy + fees) &asymp; 6 &times; (3.125 + 0.05) &asymp; 19 BTC
                 </p>
                 <p>
-                    &mdash;on the order of millions of dollars at recent prices, spent on blocks
+                    This is on the order of millions of dollars at recent prices, spent on blocks
                     the rest of the network will never accept. The defense is purely economic:
                     six confirmations protect a payment <em>smaller</em> than this cost even
                     against a fully eclipsed client, and fail to protect a larger one. This is
@@ -428,12 +428,12 @@
                 <p>
                     Example 17.1's arithmetic silently assumes the client verifies that each
                     header's difficulty target follows the adjustment rules (Phase 1 of the
-                    validation pipeline, Definition 13.19)&mdash;not merely that each header
+                    validation pipeline, Definition 13.19), not merely that each header
                     meets <em>its own stated</em> target. A client that skips this check can be
                     fed a chain of trivial-difficulty headers fabricated for fractions of a
                     cent. Verifying the retarget schedule forces the attacker to either pay
                     full price per block or fork far enough back to "grind down" the
-                    difficulty across multiple retarget periods&mdash;a chain that minimum
+                    difficulty across multiple retarget periods, a chain that minimum
                     accumulated-work checks reject (Section 37.3).
                 </p>
             </div>
@@ -594,7 +594,7 @@
                 <p>
                     Despite years of research, general-purpose fraud proofs for Bitcoin do not
                     exist. The problem is that proving a transaction is invalid requires proving
-                    a negative&mdash;that a UTXO does not exist&mdash;which requires either:
+                    a negative (that a UTXO does not exist), which requires either:
                 </p>
                 <ul>
                     <li>The entire UTXO set (defeats the purpose of SPV)</li>
@@ -722,9 +722,9 @@
                     In practice, most "SPV wallets" today use either:
                 </p>
                 <ul>
-                    <li>Bloom filters (BIP-37)&mdash;with serious privacy issues (Chapter 18)</li>
-                    <li>Trusted servers (Electrum model)&mdash;not SPV at all (Chapter 20)</li>
-                    <li>Compact block filters (BIP-157)&mdash;improved privacy (Chapter 19)</li>
+                    <li>Bloom filters (BIP-37), with serious privacy issues (Chapter 18)</li>
+                    <li>Trusted servers (Electrum model), not SPV at all (Chapter 20)</li>
+                    <li>Compact block filters (BIP-157), with improved privacy (Chapter 19)</li>
                 </ul>
             </div>
 
@@ -754,7 +754,7 @@
                     majority of hashrate being <em>honest</em>, but on a majority being honest
                     <em>and validating</em>. Hashrate that follows headers without checking
                     blocks counts toward proof of work but not toward the enforcement of
-                    <span class="math">V</span> (Definition 13.18)&mdash;and in July 2015 the
+                    <span class="math">V</span> (Definition 13.18). In July 2015 the
                     two quantities visibly came apart.
                 </p>
             </div>

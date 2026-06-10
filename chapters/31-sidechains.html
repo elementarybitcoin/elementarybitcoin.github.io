@@ -101,8 +101,8 @@
                 <p class="theorem-title">Proposition 31.1 (Peg Security Tradeoff)</p>
                 <p>
                     Without changes to Bitcoin's consensus rules, a trustless two-way
-                    peg&mdash;where trustless means peg-out authorization verified entirely
-                    by the consensus rules of Definition 13.18&mdash;is impossible: Bitcoin
+                    peg (where trustless means peg-out authorization verified entirely
+                    by the consensus rules of Definition 13.18) is impossible: Bitcoin
                     Script has no opcode that can verify sidechain consensus, so some
                     extrinsic trust (or a new opcode) must authorize peg-outs. The options
                     are:
@@ -115,7 +115,7 @@
                 <p>
                     BitVM-style constructions (Exercise 31.4) do not contradict this:
                     they reduce trust to the assumption that one of <span class="math">n</span>
-                    designated verifiers is honest&mdash;trust minimization, not
+                    designated verifiers is honest: trust minimization, not
                     trustlessness in the above sense.
                 </p>
             </div>
@@ -232,7 +232,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 31.2: The Liquid federated peg&mdash;locked BTC and issued L-BTC are mediated entirely by the 11-of-15 federation multisig, which forms the trust boundary.</figcaption>
+                <figcaption>Figure 31.2: The Liquid federated peg. Locked BTC and issued L-BTC are mediated entirely by the 11-of-15 federation multisig, which forms the trust boundary.</figcaption>
             </figure>
 
             <div class="remark">
@@ -347,7 +347,7 @@
                 <ol>
                     <li>Sidechain generates ZK proof of valid peg-out</li>
                     <li>Bitcoin verifies proof (requires new opcodes)</li>
-                    <li>No federation needed&mdash;the proof is self-validating</li>
+                    <li>No federation needed: the proof is self-validating</li>
                 </ol>
             </div>
 
@@ -376,7 +376,7 @@
                     <li>Miners commit BTC to participate in Stacks consensus</li>
                     <li>BTC goes to STX Stackers (recycled security)</li>
                     <li>Stacks blocks anchor to Bitcoin blocks</li>
-                    <li>Not a traditional sidechain&mdash;no direct BTC peg until sBTC</li>
+                    <li>Not a traditional sidechain: no direct BTC peg until sBTC</li>
                 </ul>
             </div>
 
@@ -491,7 +491,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 31.3: The sidechain security hierarchy&mdash;peg designs ordered from strongest to weakest guarantees.</figcaption>
+                <figcaption>Figure 31.3: The sidechain security hierarchy. Peg designs are ordered from strongest to weakest guarantees.</figcaption>
             </figure>
         </section>
 
@@ -533,7 +533,7 @@
                 propose adding one opcode (OP_DRIVECHAIN) under which sidechain deposits
                 sit in a hashrate escrow: a withdrawal bundle requires 13,150 miner ACKs
                 within a 26,300-block (~6-month) window, with sidechain blocks produced via
-                blind merged mining&mdash;miners sell block space to sidechain operators
+                blind merged mining: miners sell block space to sidechain operators
                 without validating sidechain state.
             </p>
 
@@ -541,7 +541,7 @@
                 <p class="remark-title">Remark 31.7 (Why It Did Not Activate)</p>
                 <p>
                     Critics held that the design asks users to trust two parties the base
-                    layer does not ask them to trust: a miner majority can vote deposits to itself&mdash;slowly
+                    layer does not ask them to trust: a miner majority can vote deposits to itself, slowly
                     and in public, which proponents argued is the defense (the theft is
                     visible and punishable, up to a user-activated soft fork) and which
                     critics judged a description of the design rather than an attack on it.

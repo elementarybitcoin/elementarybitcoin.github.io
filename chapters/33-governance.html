@@ -24,7 +24,7 @@
         <section>
             <p class="chapter-intro">
                 How does a protocol with no central authority evolve? Bitcoin's governance
-                is often called "rough consensus and running code"&mdash;a process where changes
+                is often called "rough consensus and running code," a process where changes
                 require broad agreement across developers, miners, users, and businesses.
                 This chapter examines Bitcoin's unique governance model: the BIP process,
                 the dynamics of soft fork activation, and the philosophical tensions that
@@ -124,7 +124,7 @@
                 </p>
                 <p>
                     <strong>Specification:</strong> Changes affecting implementations
-                    (consensus rules, peer services, API/RPC, applications)&mdash;called
+                    (consensus rules, peer services, API/RPC, applications), called
                     "Standards Track" under the older BIP-2 process
                 </p>
                 <p>
@@ -242,13 +242,13 @@
                     this book has already used two of them:
                 </p>
                 <ol>
-                    <li><strong>Consensus rules</strong> &mdash; the technical sense: the
+                    <li><strong>Consensus rules</strong> (the technical sense): the
                         validation predicate of Definition 13.18, the rules of Definition 16.1
                         and Appendix D. A precise, falsifiable property of software.</li>
-                    <li><strong>Near-unanimity</strong> &mdash; the social sense: no
+                    <li><strong>Near-unanimity</strong> (the social sense): no
                         significant stakeholder objects. This is what "rough consensus"
                         (Definition 33.4 below) approximates.</li>
-                    <li><strong>General agreement</strong> &mdash; the loose sense: most
+                    <li><strong>General agreement</strong> (the loose sense): most
                         participants, perhaps weighted by some unstated notion of expertise
                         or stake, are in favor.</li>
                 </ol>
@@ -258,10 +258,10 @@
                     it (sense 1, checkable), that identified stakeholders object (sense 2,
                     answerable), or merely that someone, somewhere disagrees (sense 3,
                     unfalsifiable). A speaker who never specifies which sense is meant cannot
-                    be refuted&mdash;which is precisely the word's rhetorical value to those
+                    be refuted, which is precisely the word's rhetorical value to those
                     who deploy it. The remedy is terminological discipline: say
                     <em>consensus rules</em> for sense 1, <em>non-contentious</em> for
-                    sense 2, and <em>general agreement</em> for sense 3&mdash;and when someone
+                    sense 2, and <em>general agreement</em> for sense 3. When someone
                     asserts that consensus exists or is lacking, ask which kind they mean.
                     This book uses "consensus" unqualified only in the technical sense.
                 </p>
@@ -332,7 +332,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 33.3: The three senses of "consensus" (Remark 33.2)&mdash;the validation predicate, near-unanimity among stakeholders, and general agreement are different referents sharing one word.</figcaption>
+                <figcaption>Figure 33.3: The three senses of "consensus" (Remark 33.2): the validation predicate, near-unanimity among stakeholders, and general agreement are different referents sharing one word.</figcaption>
             </figure>
 
             <div class="definition">
@@ -473,7 +473,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 33.4: Activation paths from proposed rule to active rule&mdash;a fixed flag day, miner signaling (MASF), and user enforcement (UASF), per Definition 33.5 and Remark 33.5.</figcaption>
+                <figcaption>Figure 33.4: Activation paths from proposed rule to active rule: a fixed flag day, miner signaling (MASF), and user enforcement (UASF), per Definition 33.5 and Remark 33.5.</figcaption>
             </figure>
 
             <div class="example">
@@ -510,18 +510,18 @@
             <div class="remark">
                 <p class="remark-title">Remark 33.6 (The Developer-Power Critique)</p>
                 <p>
-                    Critics&mdash;from legal scholars such as Angela Walch to veterans of the
-                    block size war&mdash;argue that the formal power map of Remark 33.1
+                    Critics, from legal scholars such as Angela Walch to veterans of the
+                    block size war, argue that the formal power map of Remark 33.1
                     understates developer influence. Maintainers control commit access to the
                     software the economy runs by default, and defaults are sticky: "users can
                     reject a release" is true in principle but rarely exercised. Agenda
-                    setting&mdash;which proposals receive review at all&mdash;is itself a form
+                    setting (which proposals receive review at all) is itself a form
                     of power, and contributor funding is concentrated among a handful of
                     sponsors. On this view, Section 33.9's code-as-specification argument
                     cuts against the customary reassurance rather than for it: if the rules
                     are the code, those who write the code write the rules. Walch presses
                     the point furthest, arguing that core developers function as de facto
-                    fiduciaries&mdash;exercising trusted power without accountability. The
+                    fiduciaries, exercising trusted power without accountability. The
                     rebuttals follow.
                 </p>
             </div>
@@ -617,7 +617,7 @@
                     <li><strong>Issue:</strong> How to scale Bitcoin (blocks vs layers)</li>
                     <li><strong>Camps:</strong> Big blockers vs small blockers</li>
                     <li><strong>Resolution:</strong> SegWit activated; BCH forked away</li>
-                    <li><strong>Lesson widely drawn:</strong> Users, not just miners, determine consensus&mdash;though some observers attribute the outcome more narrowly to exchanges and large economic nodes, and note that the UASF ultimatum was never carried to a contested split</li>
+                    <li><strong>Lesson widely drawn:</strong> Users, not just miners, determine consensus, though some observers attribute the outcome more narrowly to exchanges and large economic nodes, and note that the UASF ultimatum was never carried to a contested split</li>
                 </ul>
             </div>
 
@@ -656,8 +656,8 @@
             <div class="example">
                 <p class="example-title">Example 33.6 (The OP_RETURN Default)</p>
                 <p>
-                    In 2025 a dispute over Bitcoin Core's default data-carrier policy&mdash;the
-                    relay limit on OP_RETURN payloads (Section 11.9, Appendix D.6)&mdash;became,
+                    In 2025 a dispute over Bitcoin Core's default data-carrier policy, the
+                    relay limit on OP_RETURN payloads (Section 11.9, Appendix D.6), became,
                     by common description on both sides, the most contentious policy
                     dispute since the block size war. One side
                     argued that relay defaults should track what miners demonstrably include,
@@ -674,12 +674,12 @@
                     The disputed rules are policy, not consensus (Definition 16.2): no
                     setting of them can split the chain (Appendix D.6), and both sides'
                     blocks remained valid to all. Claims that one side or the other
-                    "lacked consensus" exhibited precisely the ambiguity of Remark 33.2&mdash;the
+                    "lacked consensus" exhibited precisely the ambiguity of Remark 33.2: the
                     rules permitted both behaviors (sense 1), while neither near-unanimity
                     (sense 2) nor general agreement (sense 3) existed for either default.
                     And the migration of operators between implementations was the client
                     diversity trade-off of Remark 33.13 operating in real time: an exercise
-                    of the exit option that is harmless at the policy layer&mdash;and would
+                    of the exit option that is harmless at the policy layer but would
                     be a chain split at the consensus layer. What the episode demonstrates
                     is that defaults are a governance surface even when they govern nothing
                     consensus-critical: the fight was over what Bitcoin is <em>for</em>,
@@ -738,11 +738,11 @@
                     <span class="math">V(C, B)</span>. The specification problem is that no
                     canonical statement of <span class="math">V</span> exists apart from
                     implementations of it. The BIPs describe individual rule changes, but no
-                    BIP&mdash;and no combination of BIPs&mdash;describes the complete predicate;
+                    BIP, and no combination of BIPs, describes the complete predicate;
                     large parts of it (the original rules, accumulated bug-for-bug behaviors,
                     serialization edge cases) are documented nowhere except in code. The
                     practical consequence: "valid" means "accepted by the software the economy
-                    runs," and a bug in that software is not a bug at all&mdash;it is a rule.
+                    runs," and a bug in that software is not a bug at all: it is a rule.
                 </p>
             </div>
 
@@ -753,13 +753,13 @@
                     Reread it as a statement about specification. Bitcoin Core 0.7 stored the
                     block index in Berkeley DB, which enforces a configurable limit on
                     simultaneously locked database pages. A sufficiently large block exceeded
-                    that limit on 0.7 nodes, which therefore rejected it&mdash;while 0.8 nodes,
+                    that limit on 0.7 nodes, which therefore rejected it, while 0.8 nodes,
                     using LevelDB, accepted it. The network split for 24 blocks.
                 </p>
                 <p>
                     No one had written the rule "a block must not require more than
                     <span class="math">N</span> Berkeley DB page locks," and no one would have
-                    endorsed it&mdash;yet it was, operationally, part of
+                    endorsed it. Yet it was, operationally, part of
                     <span class="math">V</span>: an unwritten, environment-dependent validation
                     rule violating the determinism requirement of Definition 13.18. The episode
                     shows that the consensus rules are whatever the deployed software does,
@@ -771,11 +771,11 @@
                 <p class="remark-title">Remark 33.13 (The Client Diversity Dilemma)</p>
                 <p>
                     The specification problem shapes the debate over implementation diversity.
-                    With a single dominant implementation, its bugs are uniform&mdash;everyone
+                    With a single dominant implementation, its bugs are uniform: everyone
                     accepts and rejects the same blocks, so latent rule-defects do not split
                     the network, but the project inherits a monoculture's fragility and
                     concentrates de facto rule-setting power (Section 33.5). With many
-                    independent implementations, no single codebase defines the rules&mdash;but
+                    independent implementations, no single codebase defines the rules, but
                     any disagreement between them, however obscure, is a chain split waiting
                     for an adversary to trigger it. Without an authoritative specification to
                     converge on, diversity trades one systemic risk for another.
@@ -790,8 +790,8 @@
                     "spec" and "implementation" cannot drift apart. Efforts span a spectrum.
                     Bitcoin Core's <code>libbitcoinkernel</code> project extracts the consensus
                     engine from the rest of the node, so that one well-reviewed artifact can
-                    serve many clients. Declarative approaches&mdash;such as the Hornet DSL
-                    (Sharp, 2025)&mdash;go further, restating the validation pipeline of
+                    serve many clients. Declarative approaches, such as the Hornet DSL
+                    (Sharp, 2025), go further, restating the validation pipeline of
                     Definition 13.19 as pure, deterministic, height-tagged rule functions with
                     no side effects, verified against existing implementations by large-scale
                     differential testing rather than formal proof. Whether any such artifact
