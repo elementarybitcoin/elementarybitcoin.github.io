@@ -507,6 +507,94 @@
             </div>
         </section>
 
+        <section>
+            <h2 id="s33-9">33.9 The Specification Problem</h2>
+
+            <p>
+                Every governance question in this chapter presupposes that there is a
+                well-defined thing being governed: <em>the consensus rules</em>. But where,
+                exactly, do those rules live? Bitcoin has no normative specification. There
+                is no document whose text is authoritative the way a constitution or an IETF
+                standard is. What exists is software&mdash;above all Bitcoin Core&mdash;whose
+                behavior <em>is</em>, in practice, the definition of validity.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 33.10 (Code as Specification)</p>
+                <p>
+                    Section 13.10 defined validation as a pure predicate
+                    <span class="math">V(C, B)</span>. The specification problem is that no
+                    canonical statement of <span class="math">V</span> exists apart from
+                    implementations of it. The BIPs describe individual rule changes, but no
+                    BIP&mdash;and no combination of BIPs&mdash;describes the complete predicate;
+                    large parts of it (the original rules, accumulated bug-for-bug behaviors,
+                    serialization edge cases) are documented nowhere except in code. The
+                    practical consequence: "valid" means "accepted by the software the economy
+                    runs," and a bug in that software is not a bug at all&mdash;it is a rule.
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 33.6 (March 2013: A Specification Failure)</p>
+                <p>
+                    Chapters 26 and 36 treat the March 2013 fork as an accidental chain split.
+                    Reread it as a statement about specification. Bitcoin Core 0.7 stored the
+                    block index in Berkeley DB, which enforces a configurable limit on
+                    simultaneously locked database pages. A sufficiently large block exceeded
+                    that limit on 0.7 nodes, which therefore rejected it&mdash;while 0.8 nodes,
+                    using LevelDB, accepted it. The network split for 24 blocks.
+                </p>
+                <p>
+                    No one had written the rule "a block must not require more than
+                    <span class="math">N</span> Berkeley DB page locks," and no one would have
+                    endorsed it&mdash;yet it was, operationally, part of
+                    <span class="math">V</span>: an unwritten, environment-dependent validation
+                    rule violating the determinism requirement of Definition 13.18. The episode
+                    shows that the consensus rules are whatever the deployed software does,
+                    including the parts nobody knows about.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 33.11 (The Client Diversity Dilemma)</p>
+                <p>
+                    The specification problem shapes the debate over implementation diversity.
+                    With a single dominant implementation, its bugs are uniform&mdash;everyone
+                    accepts and rejects the same blocks, so latent rule-defects do not split
+                    the network, but the project inherits a monoculture's fragility and
+                    concentrates de facto rule-setting power (Section 33.5). With many
+                    independent implementations, no single codebase defines the rules&mdash;but
+                    any disagreement between them, however obscure, is a chain split waiting
+                    for an adversary to trigger it. Without an authoritative specification to
+                    converge on, diversity trades one systemic risk for another.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 33.12 (Toward Executable Specifications)</p>
+                <p>
+                    The emerging response is to make the specification <em>executable</em>:
+                    a statement of <span class="math">V</span> precise enough to run, so that
+                    "spec" and "implementation" cannot drift apart. Efforts span a spectrum.
+                    Bitcoin Core's <code>libbitcoinkernel</code> project extracts the consensus
+                    engine from the rest of the node, so that one well-reviewed artifact can
+                    serve many clients. Declarative approaches&mdash;such as the Hornet DSL
+                    (Sharp, 2025)&mdash;go further, restating the validation pipeline of
+                    Definition 13.19 as pure, deterministic, height-tagged rule functions with
+                    no side effects, verified against existing implementations by large-scale
+                    differential testing rather than formal proof. Whether any such artifact
+                    ever becomes <em>normative</em> is itself a governance question: a
+                    specification only specifies if the economy treats divergence from it as
+                    a bug rather than a rule change.
+                </p>
+            </div>
+
+            <p>
+                Appendix D collects the consensus rule catalog that any such specification
+                must capture.
+            </p>
+        </section>
+
         <section class="exercises">
             <h2>Exercises</h2>
 
