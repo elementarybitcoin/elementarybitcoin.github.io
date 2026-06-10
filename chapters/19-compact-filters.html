@@ -257,7 +257,7 @@
                 </p>
                 <ul>
                     <li><strong>Quotient:</strong> q = n >> P (right shift by P bits)</li>
-                    <li><strong>Remainder:</strong> r = n & ((1 << P) - 1) (low P bits)</li>
+                    <li><strong>Remainder:</strong> <code>r = n &amp; ((1 &lt;&lt; P) - 1)</code> (low P bits)</li>
                     <li><strong>Encoding:</strong> [q ones] [0] [P-bit remainder]</li>
                 </ul>
             </div>
@@ -267,13 +267,13 @@
                 <p>Encode n = 25 with P = 4 (M = 16):</p>
                 <ul>
                     <li>q = 25 >> 4 = 1</li>
-                    <li>r = 25 & 15 = 9 = 1001<sub>2</sub></li>
+                    <li><code>r = 25 &amp; 15 = 9</code> = 1001₂</li>
                     <li>Encoding: <span class="golomb-bits">1</span><span class="golomb-bits">0</span><span class="golomb-bits">1001</span> = "101001"</li>
                 </ul>
                 <p>Encode n = 7 with P = 4:</p>
                 <ul>
                     <li>q = 7 >> 4 = 0</li>
-                    <li>r = 7 & 15 = 7 = 0111<sub>2</sub></li>
+                    <li><code>r = 7 &amp; 15 = 7</code> = 0111₂</li>
                     <li>Encoding: <span class="golomb-bits">0</span><span class="golomb-bits">0111</span> = "00111"</li>
                 </ul>
             </div>
@@ -653,7 +653,7 @@
                     The filter header for block N is:
                 </p>
                 <div class="formula">
-                    filter_header<sub>N</sub> = SHA256d(SHA256d(filter<sub>N</sub>) || filter_header<sub>N-1</sub>)
+                    filter_header<sub>N</sub> = SHA256d(SHA256d(filter<sub>N</sub>) || filter_header<sub>N−1</sub>)
                 </div>
                 <p>
                     Where SHA256d(x) = SHA256(SHA256(x)) (the HASH256 function of Chapter 6), filter<sub>N</sub> is the raw filter bytes, and filter_header<sub>-1</sub> = 0x00...00 (32 zero bytes).
@@ -823,7 +823,7 @@
                     of at least one false positive is:
                 </p>
                 <div class="formula">
-                    P(false positive) = 1 - (1 - 1/F)<sup>Q</sup> ≈ Q/F
+                    P(false positive) = 1 − (1 − 1/F)<sup>Q</sup> ≈ Q/F
                 </div>
                 <p>
                     With F = 784931, a wallet with 100 addresses has approximately 1/7849

@@ -69,7 +69,7 @@
                 <p>
                     If the signature is valid:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     s·G = (k + e·d)·G = k·G + e·d·G = R + e·P ✓
                 </p>
             </div>
@@ -142,7 +142,7 @@
                     Given n signatures (R<sub>i</sub>, s<sub>i</sub>) on messages m<sub>i</sub>
                     with public keys P<sub>i</sub>, batch verify by checking:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     (Σ a<sub>i</sub>·s<sub>i</sub>)·G = Σ a<sub>i</sub>·R<sub>i</sub> + Σ a<sub>i</sub>·e<sub>i</sub>·P<sub>i</sub>
                 </p>
                 <p>
@@ -174,13 +174,13 @@
                     A <strong>tweaked public key</strong> Q is computed from internal key P
                     and tweak t:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     Q = P + t·G
                 </p>
                 <p>
                     The corresponding tweaked private key (if P = d·G):
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     q = d + t (mod n)
                 </p>
             </div>
@@ -190,7 +190,7 @@
                 <p>
                     For Taproot, the tweak encodes the script tree:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     t = H<sub>TapTweak</sub>(P || script_root)
                 </p>
                 <p>

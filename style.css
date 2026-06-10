@@ -384,6 +384,25 @@ footer {
     margin: 0 auto;
 }
 
+/* Display mathematics */
+.math-block {
+    text-align: center;
+    font-family: 'Times New Roman', 'STIX Two Math', serif;
+    font-style: italic;
+    margin: 1.2rem 0;
+}
+
+.formula {
+    text-align: center;
+    font-family: 'Times New Roman', 'STIX Two Math', serif;
+    font-style: italic;
+    margin: 1.2rem 0;
+}
+
+.math-block code, .formula code {
+    font-style: normal;
+}
+
 /* Late-volume chapter layout (Ch 37-40 skeleton) */
 .volume-title, .part-title {
     font-variant: small-caps;

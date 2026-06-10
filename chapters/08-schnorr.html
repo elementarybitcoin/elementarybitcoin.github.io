@@ -268,7 +268,7 @@
                     tagged hashes:
                 </p>
                 <p style="text-align: center; font-size: 1.05em;">
-                    <span class="math">H_{tag}(x) = SHA256(SHA256(tag) || SHA256(tag) || x)</span>
+                    <span class="math">H_tag(x) = SHA256(SHA256(tag) || SHA256(tag) || x)</span>
                 </p>
                 <p>
                     The tag is prepended twice (64 bytes total) to align with SHA256's block size,
@@ -453,10 +453,10 @@ Verify(pk, m, sig):
                     <span class="math">R = kG</span> and <span class="math">e = H(r||pk||m)</span>.
                 </p>
                 <p>
-                    Verification computes <span class="math">sG - eP</span>:
+                    Verification computes <span class="math">sG − eP</span>:
                 </p>
                 <p style="text-align: center;">
-                    <span class="math">sG - eP = (k + ed)G - e(dG) = kG + edG - edG = kG = R</span>
+                    <span class="math">sG − eP = (k + ed)G − e(dG) = kG + edG − edG = kG = R</span>
                 </p>
                 <p>
                     Since <span class="math">r = x(R)</span> and <span class="math">R</span> has even
@@ -581,7 +581,7 @@ Verify(pk, m, sig):
                 <p class="definition-title">Definition 8.5 (Rogue Key Attack)</p>
                 <p>
                     In naive aggregation, a malicious party can choose their "public key" as
-                    <span class="math">P_{rogue} = P' - P_{honest}</span> where <span class="math">P'</span>
+                    <span class="math">P_rogue = P′ − P_honest</span> where <span class="math">P'</span>
                     is a key they control. The aggregated key becomes just <span class="math">P'</span>,
                     which the attacker can sign alone.
                 </p>

@@ -493,19 +493,19 @@ Verify(P, m, (r, s)):
                 </p>
                 <p>Subtracting:</p>
                 <p style="text-align: center;">
-                    <span class="math">s₁ - s₂ = k⁻¹(z₁ - z₂) mod n</span>
+                    <span class="math">s₁ − s₂ = k⁻¹(z₁ − z₂) mod n</span>
                 </p>
                 <p>Solving for <span class="math">k</span> (the hypothesis
                     <span class="math">z₁ ≢ z₂</span> guarantees
                     <span class="math">s₁ − s₂ ≠ 0</span>, so the inverse exists):</p>
                 <p style="text-align: center;">
-                    <span class="math">k = (z₁ - z₂)(s₁ - s₂)⁻¹ mod n</span>
+                    <span class="math">k = (z₁ − z₂)(s₁ − s₂)⁻¹ mod n</span>
                 </p>
                 <p>
                     Once <span class="math">k</span> is known, the private key follows:
                 </p>
                 <p style="text-align: center;">
-                    <span class="math">d = r⁻¹(s₁k - z₁) mod n</span>
+                    <span class="math">d = r⁻¹(s₁k − z₁) mod n</span>
                     <span class="qed"></span>
                 </p>
             </div>
@@ -599,7 +599,7 @@ Verify(P, m, (r, s)):
                 <p class="theorem-title">Theorem 7.3 (Signature Malleability)</p>
                 <p>
                     If <span class="math">(r, s)</span> is a valid ECDSA signature, then so is
-                    <span class="math">(r, n - s)</span>.
+                    <span class="math">(r, n − s)</span>.
                 </p>
             </div>
 
@@ -610,12 +610,12 @@ Verify(P, m, (r, s)):
                     <span class="math">u₁ = zs⁻¹</span> and <span class="math">u₂ = rs⁻¹</span>.
                 </p>
                 <p>
-                    For <span class="math">s' = n - s</span>, we have
-                    <span class="math">(s')⁻¹ = (n - s)⁻¹ = -s⁻¹ mod n</span>.
+                    For <span class="math">s′ = n − s</span>, we have
+                    <span class="math">(s′)⁻¹ = (n − s)⁻¹ = −s⁻¹ mod n</span>.
                 </p>
                 <p>
-                    Thus <span class="math">u₁' = -u₁</span> and <span class="math">u₂' = -u₂</span>,
-                    giving <span class="math">u₁'G + u₂'P = -(u₁G + u₂P)</span>.
+                    Thus <span class="math">u₁′ = −u₁</span> and <span class="math">u₂′ = −u₂</span>,
+                    giving <span class="math">u₁′G + u₂′P = −(u₁G + u₂P)</span>.
                 </p>
                 <p>
                     Since negating a point only changes the y-coordinate, the x-coordinate

@@ -46,7 +46,7 @@
                     parent block, creating divergent chain histories. Let B<sub>p</sub> be a block
                     and B<sub>1</sub>, B<sub>2</sub> be distinct blocks such that:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     prev_hash(B<sub>1</sub>) = prev_hash(B<sub>2</sub>) = hash(B<sub>p</sub>)
                 </p>
                 <p>
@@ -117,7 +117,7 @@
                     chain tip. For natural forks, this occurs when one branch accumulates strictly
                     more work:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     W(chain<sub>1</sub>) > W(chain<sub>2</sub>) ⟹ nodes adopt chain<sub>1</sub>
                 </p>
                 <p>
@@ -140,8 +140,8 @@
                     Let λ be the block arrival rate (blocks per second) and δ be the network
                     propagation delay. The probability of a natural fork is approximately:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
-                    P(fork) ≈ 1 - e<sup>-λδ</sup> ≈ λδ for small λδ
+                <p class="math-block">
+                    P(fork) ≈ 1 − e<sup>−λδ</sup> ≈ λδ for small λδ
                 </p>
             </div>
 
@@ -152,8 +152,8 @@
                     completes. The inter-arrival time follows an exponential distribution with
                     rate λ. The probability that another block arrives within time δ is:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
-                    P(T ≤ δ) = 1 - e<sup>-λδ</sup>
+                <p class="math-block">
+                    P(T ≤ δ) = 1 − e<sup>−λδ</sup>
                 </p>
                 <p>
                     For Bitcoin, λ ≈ 1/600 blocks/second and δ ≈ 1-10 seconds, giving
@@ -333,7 +333,7 @@
                     and v<sub>B</sub>(n-k) be the value of holding coins on chain A (with k adopters)
                     and chain B (with n-k adopters) respectively. The payoff exhibits network effects:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     v<sub>A</sub>(k) = f(k) · m<sub>A</sub>
                 </p>
                 <p>
@@ -513,7 +513,7 @@
                     A <strong>fork choice rule</strong> is a function that selects the "best"
                     chain from a set of valid chains:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     FCR: 𝒫(Chains) → Chain
                 </p>
             </div>
@@ -523,7 +523,7 @@
                 <p>
                     Bitcoin's fork choice rule selects the chain with most cumulative work:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     FCR<sub>Nakamoto</sub>(C) = argmax<sub>c∈C</sub> Σ<sub>b∈c</sub> work(b)
                 </p>
                 <p>
@@ -588,7 +588,7 @@
                     Accounting also for blocks the attacker mines during the confirmation
                     period (Theorem 14.4), the probability of a successful double-spend is:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     P(double-spend) = 1 − Σ<sub>m=0</sub><sup>k</sup> [λ<sup>m</sup>e<sup>−λ</sup>/m! × (1 − (q/p)<sup>k−m</sup>)],&nbsp;&nbsp;λ = k(q/p)
                 </p>
                 <p>

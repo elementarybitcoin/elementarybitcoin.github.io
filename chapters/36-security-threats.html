@@ -136,7 +136,7 @@
                     the number of confirmations. The exact probability of a successful
                     double-spend (Nakamoto, 2008) is:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     P(success) = 1 if q ≥ 0.5<br>
                     P(success) = 1 − Σ<sub>m=0</sub><sup>k</sup>
                     [λ<sup>m</sup>e<sup>−λ</sup>/m! · (1 − (q/p)<sup>k−m</sup>)]
@@ -247,7 +247,7 @@
                 <ul>
                     <li>P(1-block reorg) ≈ δ/T ≈ 0.5-1%</li>
                     <li>P(2-block reorg) ≈ (δ/T)² ≈ 0.01%</li>
-                    <li>P(k-block reorg) ≈ (δ/T)<sup>k</sup> (approximately)</li>
+                    <li>P(k-block reorg) ≈ (δ/T)ᵏ (approximately)</li>
                 </ul>
                 <p>
                     Deep reorgs under honest mining are astronomically unlikely.
@@ -276,8 +276,8 @@
                 <p>
                     Selfish mining is profitable when attacker hashrate q satisfies:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
-                    q > (1 - γ) / (3 - 2γ)
+                <p class="math-block">
+                    q > (1 − γ) / (3 − 2γ)
                 </p>
                 <p>
                     where γ is the fraction of honest miners who mine on attacker's block
