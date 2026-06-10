@@ -561,12 +561,14 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     <!-- Scale bar -->
                     <rect x="50" y="50" width="350" height="30" rx="4" fill="none" stroke="#2f4f4f" stroke-width="2"/>
 
-                    <!-- Filled portion representing security -->
-                    <rect x="50" y="50" width="350" height="30" rx="4" fill="#5a8f5a" fill-opacity="0.3"/>
+                    <!-- Filled portion representing security: 128 of 256 bits = half the bar -->
+                    <rect x="50" y="50" width="175" height="30" rx="4" fill="#5a8f5a" fill-opacity="0.3"/>
+                    <line x1="225" y1="44" x2="225" y2="86" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,3"/>
 
                     <!-- Labels -->
                     <text x="50" y="100" text-anchor="start" font-family="Georgia" font-size="10">0 bits</text>
-                    <text x="225" y="70" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold" fill="#2f4f4f">128-bit security</text>
+                    <text x="137.5" y="70" text-anchor="middle" font-family="Georgia" font-size="13" font-weight="bold" fill="#2f4f4f">128-bit security</text>
+                    <text x="225" y="100" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">128 bits</text>
                     <text x="400" y="100" text-anchor="end" font-family="Georgia" font-size="10">256 bits</text>
 
                     <!-- Annotation -->

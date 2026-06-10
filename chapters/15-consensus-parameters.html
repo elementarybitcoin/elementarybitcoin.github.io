@@ -133,24 +133,30 @@
                     <text x="350" y="195" text-anchor="middle" font-family="Georgia" font-size="9">2080</text>
                     <text x="430" y="195" text-anchor="middle" font-family="Georgia" font-size="9">2140</text>
 
-                    <!-- Supply curve (logarithmic approach to 21M) -->
+                    <!-- Supply curve: piecewise-linear in time, vertices at halvings,
+                         computed from S(k) = 21M(1 - 2^-k); x-axis piecewise per tick labels -->
                     <path d="M 50 180
-                             Q 80 140 100 120
-                             Q 120 100 140 90
-                             Q 170 75 200 65
-                             Q 250 56 300 54
-                             Q 350 53 400 52
-                             L 450 51"
+                             L 77.3 115.5
+                             L 113.6 83.2
+                             L 150 67.1
+                             L 170 59.1
+                             L 190 55.0
+                             L 210 53.0
+                             L 230 52.0
+                             L 250 51.5
+                             L 270 51.1
+                             L 300 51.0
+                             L 450 51.0"
                           stroke="#4a90d9" stroke-width="2.5" fill="none"/>
 
                     <!-- 21M asymptote -->
-                    <line x1="50" y1="48" x2="450" y2="48" stroke="#c44" stroke-width="1" stroke-dasharray="5,3"/>
-                    <text x="460" y="52" font-family="Georgia" font-size="9" fill="#c44">21M</text>
+                    <line x1="50" y1="50.5" x2="450" y2="50.5" stroke="#c44" stroke-width="1" stroke-dasharray="5,3"/>
+                    <text x="460" y="53" font-family="Georgia" font-size="9" fill="#c44">21M</text>
 
-                    <!-- Halving markers -->
-                    <line x1="80" y1="175" x2="80" y2="185" stroke="#5a8f5a" stroke-width="2"/>
-                    <line x1="110" y1="175" x2="110" y2="185" stroke="#5a8f5a" stroke-width="2"/>
-                    <line x1="140" y1="175" x2="140" y2="185" stroke="#5a8f5a" stroke-width="2"/>
+                    <!-- Halving markers (2012, 2016, 2020, 2024) -->
+                    <line x1="77" y1="175" x2="77" y2="185" stroke="#5a8f5a" stroke-width="2"/>
+                    <line x1="114" y1="175" x2="114" y2="185" stroke="#5a8f5a" stroke-width="2"/>
+                    <line x1="150" y1="175" x2="150" y2="185" stroke="#5a8f5a" stroke-width="2"/>
                     <line x1="170" y1="175" x2="170" y2="185" stroke="#5a8f5a" stroke-width="2"/>
 
                     <text x="125" y="170" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">halvings</text>

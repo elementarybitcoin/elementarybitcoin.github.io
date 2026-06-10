@@ -135,13 +135,15 @@
                     <text x="250" y="159" text-anchor="middle" font-family="Georgia" font-size="9">Confirmations</text>
                     <text x="60" y="85" text-anchor="middle" font-family="Georgia" font-size="9" transform="rotate(-90, 60, 85)">P(reversal)</text>
 
-                    <!-- Curve for q=25% -->
-                    <path d="M 80 50 Q 120 80 160 100 T 280 120 T 400 128" stroke="#c44" stroke-width="2" fill="none"/>
-                    <text x="420" y="125" font-family="Georgia" font-size="9" fill="#c44">q=25%</text>
+                    <!-- Curve for q=25%: Nakamoto formula (Theorem 14.2),
+                         P(k) = 1, 0.5223, 0.3154, 0.1961, 0.1235, 0.0784, 0.0499 -->
+                    <path d="M 80 50 L 136 88.2 L 192 104.8 L 248 114.3 L 304 120.1 L 360 123.7 L 416 126" stroke="#c44" stroke-width="2" fill="none"/>
+                    <text x="150" y="84" font-family="Georgia" font-size="9" fill="#c44">q=25%</text>
 
-                    <!-- Curve for q=10% -->
-                    <path d="M 80 50 C 95 100, 110 118, 130 124 S 170 129, 200 129" stroke="#8b4513" stroke-width="2" fill="none"/>
-                    <text x="110" y="100" font-family="Georgia" font-size="9" fill="#8b4513">q=10%</text>
+                    <!-- Curve for q=10%: Nakamoto formula (Theorem 14.2),
+                         P(k) = 1, 0.2046, 0.0510, 0.0132, 0.0035, 0.0009, 0.0002 -->
+                    <path d="M 80 50 L 136 113.6 L 192 125.9 L 248 128.9 L 304 129.5 L 360 129.5 L 416 129.5" stroke="#8b4513" stroke-width="2" fill="none"/>
+                    <text x="92" y="120" font-family="Georgia" font-size="9" fill="#8b4513">q=10%</text>
 
                     <!-- Markers -->
                     <text x="80" y="143" font-family="Georgia" font-size="9">0</text>
