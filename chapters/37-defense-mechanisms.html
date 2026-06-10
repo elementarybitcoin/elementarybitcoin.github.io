@@ -309,6 +309,60 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                 </ul>
             </div>
 
+            <figure>
+                <svg class="diagram" width="500" height="255" viewBox="0 0 500 255">
+                    <defs>
+                        <marker id="arrow37c" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                            <path d="M 0 0 L 7 3 L 0 6 z" fill="#5a8f5a"/>
+                        </marker>
+                        <marker id="arrow37d" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                            <path d="M 0 0 L 7 3 L 0 6 z" fill="#c44"/>
+                        </marker>
+                        <marker id="arrow37e" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                            <path d="M 0 0 L 7 3 L 0 6 z" fill="#4a90d9"/>
+                        </marker>
+                    </defs>
+
+                    <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Outbound Diversity Defeats a Partial Eclipse</text>
+
+                    <!-- Node -->
+                    <rect x="30" y="105" width="90" height="44" fill="#f0f5f8" stroke="#2f4f4f" rx="4"/>
+                    <text x="75" y="124" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Your node</text>
+                    <text x="75" y="138" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">outbound slots</text>
+
+                    <!-- Attacker netgroup -->
+                    <rect x="300" y="45" width="170" height="36" fill="#ffe8e8" stroke="#c44" rx="4"/>
+                    <text x="385" y="60" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Attacker peers</text>
+                    <text x="385" y="73" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">all in one /16 netgroup</text>
+
+                    <!-- Honest netgroups -->
+                    <rect x="300" y="95" width="170" height="36" fill="#f5f8f0" stroke="#5a8f5a" rx="4"/>
+                    <text x="385" y="110" text-anchor="middle" font-family="Georgia" font-size="9">Honest peer</text>
+                    <text x="385" y="123" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">different /16 netgroup</text>
+
+                    <rect x="300" y="145" width="170" height="36" fill="#f5f8f0" stroke="#5a8f5a" rx="4"/>
+                    <text x="385" y="160" text-anchor="middle" font-family="Georgia" font-size="9">Honest peer (anchor)</text>
+                    <text x="385" y="173" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">remembered across restarts</text>
+
+                    <rect x="300" y="195" width="170" height="36" fill="#fff" stroke="#4a90d9" stroke-dasharray="4,3" rx="4"/>
+                    <text x="385" y="210" text-anchor="middle" font-family="Georgia" font-size="9">New peer (feeler)</text>
+                    <text x="385" y="223" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">periodically tested</text>
+
+                    <!-- Connections -->
+                    <line x1="120" y1="112" x2="292" y2="64" stroke="#c44" stroke-width="1.5" marker-end="url(#arrow37d)"/>
+                    <text x="200" y="76" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">one slot max (/16 rule)</text>
+
+                    <line x1="120" y1="122" x2="292" y2="113" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arrow37c)"/>
+                    <line x1="120" y1="132" x2="292" y2="163" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arrow37c)"/>
+
+                    <line x1="120" y1="142" x2="292" y2="213" stroke="#4a90d9" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow37e)"/>
+                    <text x="176" y="180" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">feeler</text>
+
+                    <text x="250" y="248" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Bucketed peer storage limits attacker entries in the address table.</text>
+                </svg>
+                <figcaption>Figure 37.3: Outbound diversity limits an attacker's /16 netgroup to a single connection slot, while anchor and feeler connections preserve honest links.</figcaption>
+            </figure>
+
             <div class="definition">
                 <p class="definition-title">Definition 37.8 (Tor and Privacy)</p>
                 <p>
@@ -418,6 +472,67 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <li>Demonstrated social layer's importance</li>
                 </ul>
             </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="285" viewBox="0 0 500 285">
+                    <defs>
+                        <marker id="arrow37f" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                            <path d="M 0 0 L 7 3 L 0 6 z" fill="#666"/>
+                        </marker>
+                    </defs>
+
+                    <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Defense in Depth</text>
+
+                    <text x="125" y="40" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#c44">Attack</text>
+                    <text x="380" y="40" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#5a8f5a">Defense</text>
+
+                    <!-- Row 1: double-spend -->
+                    <rect x="35" y="50" width="180" height="34" fill="#ffe8e8" stroke="#c44" rx="4"/>
+                    <text x="125" y="65" text-anchor="middle" font-family="Georgia" font-size="9">Double-spend,</text>
+                    <text x="125" y="78" text-anchor="middle" font-family="Georgia" font-size="9">shallow reorg</text>
+                    <line x1="222" y1="67" x2="278" y2="67" stroke="#666" stroke-width="1.5" marker-end="url(#arrow37f)"/>
+                    <rect x="285" y="50" width="190" height="34" fill="#f5f8f0" stroke="#5a8f5a" rx="4"/>
+                    <text x="380" y="65" text-anchor="middle" font-family="Georgia" font-size="9">Confirmation requirements</text>
+                    <text x="380" y="78" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&sect;37.1</text>
+
+                    <!-- Row 2: deep reorg -->
+                    <rect x="35" y="96" width="180" height="34" fill="#ffe8e8" stroke="#c44" rx="4"/>
+                    <text x="125" y="111" text-anchor="middle" font-family="Georgia" font-size="9">Deep reorg,</text>
+                    <text x="125" y="124" text-anchor="middle" font-family="Georgia" font-size="9">low-work fake chain</text>
+                    <line x1="222" y1="113" x2="278" y2="113" stroke="#666" stroke-width="1.5" marker-end="url(#arrow37f)"/>
+                    <rect x="285" y="96" width="190" height="34" fill="#f5f8f0" stroke="#5a8f5a" rx="4"/>
+                    <text x="380" y="111" text-anchor="middle" font-family="Georgia" font-size="9">Checkpoints, minimum chain work</text>
+                    <text x="380" y="124" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&sect;37.2&ndash;37.3</text>
+
+                    <!-- Row 3: eclipse -->
+                    <rect x="35" y="142" width="180" height="34" fill="#ffe8e8" stroke="#c44" rx="4"/>
+                    <text x="125" y="157" text-anchor="middle" font-family="Georgia" font-size="9">Eclipse attack,</text>
+                    <text x="125" y="170" text-anchor="middle" font-family="Georgia" font-size="9">node targeting</text>
+                    <line x1="222" y1="159" x2="278" y2="159" stroke="#666" stroke-width="1.5" marker-end="url(#arrow37f)"/>
+                    <rect x="285" y="142" width="190" height="34" fill="#f5f8f0" stroke="#5a8f5a" rx="4"/>
+                    <text x="380" y="157" text-anchor="middle" font-family="Georgia" font-size="9">Peer diversity, anchors, Tor</text>
+                    <text x="380" y="170" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&sect;37.5</text>
+
+                    <!-- Row 4: majority hashrate -->
+                    <rect x="35" y="188" width="180" height="34" fill="#ffe8e8" stroke="#c44" rx="4"/>
+                    <text x="125" y="203" text-anchor="middle" font-family="Georgia" font-size="9">Majority-hashrate</text>
+                    <text x="125" y="216" text-anchor="middle" font-family="Georgia" font-size="9">attack</text>
+                    <line x1="222" y1="205" x2="278" y2="205" stroke="#666" stroke-width="1.5" marker-end="url(#arrow37f)"/>
+                    <rect x="285" y="188" width="190" height="34" fill="#f5f8f0" stroke="#5a8f5a" rx="4"/>
+                    <text x="380" y="203" text-anchor="middle" font-family="Georgia" font-size="9">Attack cost asymmetry</text>
+                    <text x="380" y="216" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&sect;37.6</text>
+
+                    <!-- Row 5: consensus failure -->
+                    <rect x="35" y="234" width="180" height="34" fill="#ffe8e8" stroke="#c44" rx="4"/>
+                    <text x="125" y="249" text-anchor="middle" font-family="Georgia" font-size="9">Consensus failure</text>
+                    <text x="125" y="262" text-anchor="middle" font-family="Georgia" font-size="9">(2013 fork)</text>
+                    <line x1="222" y1="251" x2="278" y2="251" stroke="#666" stroke-width="1.5" marker-end="url(#arrow37f)"/>
+                    <rect x="285" y="234" width="190" height="34" fill="#f5f8f0" stroke="#5a8f5a" rx="4"/>
+                    <text x="380" y="249" text-anchor="middle" font-family="Georgia" font-size="9">Social coordination, UASF</text>
+                    <text x="380" y="262" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&sect;37.7</text>
+                </svg>
+                <figcaption>Figure 37.4: Defense in depth&mdash;each attack class is countered by at least one mechanism in this chapter.</figcaption>
+            </figure>
         </section>
 
         <section>
