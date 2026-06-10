@@ -76,6 +76,25 @@
                 validation happens privately between transacting parties, with Bitcoin serving
                 only as a timestamping and anti-double-spend anchor.
             </p>
+
+            <div class="remark">
+                <p><strong>Remark 22.1</strong> (A Note on Scope)</p>
+                <p>
+                    Whether this chapter's subject belongs in a book about Bitcoin is itself
+                    contested. The protocols described here embed their consensus <em>in</em>
+                    Bitcoin rather than being part of it: Bitcoin neither validates nor is
+                    aware of their state, and arbitrarily many such protocols can anchor to
+                    any blockchain. On that view&mdash;held by serious protocol
+                    researchers&mdash;client-side validation is a separate field that merely
+                    uses Bitcoin, the way a document timestamped in the chain is not thereby
+                    part of the protocol. We include the chapter because the technique
+                    illuminates this volume's central question&mdash;what must be validated,
+                    by whom, at what cost&mdash;by exhibiting the extreme point of the
+                    spectrum: validation work pushed entirely to the parties who care about
+                    the state. Readers should weigh these designs as applications built on
+                    Bitcoin's guarantees, not extensions of them.
+                </p>
+            </div>
             <p>
                 This chapter explores the theoretical foundations of client-side validation,
                 from Peter Todd's single-use seals to modern implementations like RGB and

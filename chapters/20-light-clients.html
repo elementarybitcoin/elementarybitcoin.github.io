@@ -916,10 +916,28 @@ Response:
             </ul>
 
             <p>
-                This is the <em>data availability problem</em>. Solutions proposed in
-                other systems include data availability sampling, where light clients
-                request random fragments of the block and use erasure coding to detect
-                withholding. Bitcoin does not currently implement such a mechanism.
+                This is the <em>data availability problem</em>, and its sting is sharper
+                than the withholding scenario alone suggests. Suppose an honest node raises
+                the alarm: "the data for block <span class="math">B</span> is unavailable."
+                That claim is <em>unattributable</em>. Unavailability is not a property of
+                the block but of the network at a moment in time&mdash;the withholder can
+                release the data the instant anyone investigates, at which point the alarm
+                looks false and the alarmer looks dishonest. No proof of past unavailability
+                is possible, so no one can be punished: not the miner (the data is now
+                available) and not the alarmer (perhaps it really was unavailable when they
+                checked). The consequence is that unavailability alarms are a free,
+                unpunishable denial-of-service vector: an adversary can cry wolf endlessly,
+                forcing light clients either to download whole blocks (defeating the purpose)
+                or to learn to ignore alarms (defeating the alert system). This dilemma, not
+                the absence of a UTXO commitment, is the structural reason the whitepaper's
+                suggestion that full nodes could "alert" light clients (Section 17.7) has
+                never been made to work.
+            </p>
+            <p>
+                Solutions proposed in other systems include data availability sampling,
+                where light clients request random fragments of the block and use erasure
+                coding to detect withholding probabilistically (Al-Bassam, Sonnino &amp;
+                Buterin, 2018). Bitcoin does not currently implement such a mechanism.
             </p>
 
             <h3>Compact Clients: Header Distribution via Relay Networks</h3>
