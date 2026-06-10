@@ -72,7 +72,7 @@
             <p>
                 Bitcoin's blockchain provides a globally replicated, publicly verifiable ledger.
                 But this openness comes at a cost: every node must validate every transaction,
-                limiting throughput and privacy. <em>Client-side validation</em> inverts this model&mdash;
+                limiting throughput and privacy. <em>Client-side validation</em> inverts this model:
                 validation happens privately between transacting parties, with Bitcoin serving
                 only as a timestamping and anti-double-spend anchor.
             </p>
@@ -84,12 +84,12 @@
                     contested. The protocols described here embed their consensus <em>in</em>
                     Bitcoin rather than being part of it: Bitcoin neither validates nor is
                     aware of their state, and arbitrarily many such protocols can anchor to
-                    any blockchain. On that view&mdash;held by serious protocol
-                    researchers&mdash;client-side validation is a separate field that merely
+                    any blockchain. On that view, held by serious protocol
+                    researchers, client-side validation is a separate field that merely
                     uses Bitcoin, the way a document timestamped in the chain is not thereby
                     part of the protocol. We include the chapter because the technique
-                    illuminates this volume's central question&mdash;what must be validated,
-                    by whom, at what cost&mdash;by exhibiting the extreme point of the
+                    illuminates this volume's central question (what must be validated,
+                    by whom, at what cost) by exhibiting the extreme point of the
                     spectrum: validation work pushed entirely to the parties who care about
                     the state. Readers should weigh these designs as applications built on
                     Bitcoin's guarantees, not extensions of them.
@@ -303,7 +303,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 22.1</strong> — A Bitcoin UTXO as a single-use seal: spending
+                    <strong>Figure 22.1:</strong> A Bitcoin UTXO as a single-use seal. Spending
                     the UTXO with a commitment "closes" the seal over that message. The UTXO can
                     only be spent once, ensuring the seal can only be closed once.
                 </figcaption>
@@ -466,7 +466,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 22.2</strong> — RGB architecture: clients exchange proofs
+                    <strong>Figure 22.2:</strong> RGB architecture. Clients exchange proofs
                     directly; Bitcoin provides only anchoring and anti-double-spend guarantees.
                 </figcaption>
             </figure>
@@ -533,7 +533,7 @@
                     <li>No seal was closed twice (via Bitcoin UTXO uniqueness)</li>
                 </ol>
                 <p>
-                    The receiver needs no trusted third party&mdash;verification is purely mathematical.
+                    The receiver needs no trusted third party: verification is purely mathematical.
                 </p>
             </div>
 
@@ -647,7 +647,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 22.3</strong> — Taproot Assets embeds asset commitments in
+                    <strong>Figure 22.3:</strong> Taproot Assets embeds asset commitments in
                     Taproot script trees. The commitment is invisible unless revealed.
                 </figcaption>
             </figure>
@@ -708,7 +708,7 @@
                     For <span class="math">N</span> client-side validation transfers, the blockchain footprint is:
                 </p>
                 <ul>
-                    <li><strong>Optimal case:</strong> <span class="math">O(1)</span>&mdash;multiple transfers share one anchor tx</li>
+                    <li><strong>Optimal case:</strong> <span class="math">O(1)</span>: multiple transfers share one anchor tx</li>
                     <li><strong>Typical case:</strong> <span class="math">O(N)</span> Bitcoin transactions, but each tx is minimal size</li>
                     <li><strong>Data stored:</strong> Only commitments (~32 bytes), not state</li>
                 </ul>

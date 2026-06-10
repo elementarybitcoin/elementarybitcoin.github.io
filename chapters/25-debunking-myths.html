@@ -49,8 +49,8 @@
 
         <section class="introduction">
             <p>
-                This chapter examines commonly repeated claims about Bitcoin&mdash;by critics
-                and by advocates&mdash;using the definitions and results of the preceding
+                This chapter examines commonly repeated claims about Bitcoin, by critics
+                and by advocates, using the definitions and results of the preceding
                 volumes. Each claim is stated precisely, its implicit assumptions identified,
                 and its scope established.
             </p>
@@ -144,7 +144,7 @@
 
                     <text x="395" y="222" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&#10003; = independently verified</text>
                 </svg>
-                <figcaption>Figure 25.1: SPV verification is a strict subset of full-node verification&mdash;SPV checks inclusion and work but trusts miners for everything below the line.</figcaption>
+                <figcaption>Figure 25.1: SPV verification is a strict subset of full-node verification. SPV checks inclusion and work but trusts miners for everything below the line.</figcaption>
             </figure>
 
             <p>
@@ -357,7 +357,7 @@
                     The comparison is not free. Lightning requires inbound liquidity before
                     a user can receive (Section 24.6), pathfinding can fail for large
                     payments (Section 24.4), and every channel open or close is itself an
-                    on-chain transaction&mdash;so onboarding users onto layer 2 remains
+                    on-chain transaction, so onboarding users onto layer 2 remains
                     bounded by base-layer capacity. The defensible claim is comparative:
                     layer 2 multiplies the value of each on-chain byte; it does not make
                     block space irrelevant.
@@ -443,7 +443,7 @@
                     With an LN-Penalty channel:
                 </p>
                 <ul>
-                    <li><strong>Minimum:</strong> Check the blockchain once per to_self_delay (the OP_CHECKSEQUENCEVERIFY relative-timelock delay on revoked commitments&mdash;not Chapter 22's "CSV" client-side validation&mdash;commonly 144&ndash;2016 blocks: 1 day to 2 weeks)</li>
+                    <li><strong>Minimum:</strong> Check the blockchain once per to_self_delay (the OP_CHECKSEQUENCEVERIFY relative-timelock delay on revoked commitments, not Chapter 22's "CSV" client-side validation; commonly 144&ndash;2016 blocks: 1 day to 2 weeks)</li>
                     <li><strong>With watchtower:</strong> A watchtower monitors on the operator's behalf</li>
                     <li><strong>eltoo/LN-Symmetry channels (proposed; requires SIGHASH_ANYPREVOUT, Section 24.7):</strong> no punishment needed; old states are superseded rather than punished</li>
                 </ul>
@@ -451,7 +451,7 @@
 
             <p>
                 The risk is real but bounded. Checking at intervals shorter than the
-                negotiated to_self_delay is sufficient&mdash;once per week comfortably covers a
+                negotiated to_self_delay is sufficient: once per week comfortably covers a
                 2016-block (2 week) delay. Watchtowers (Chapter 23) delegate the task, at the
                 cost of assuming the watchtower is online and honest.
             </p>
@@ -549,8 +549,8 @@
             <p>
                 <strong>Conclusion.</strong> No attack on full SHA-256 meaningfully better
                 than the generic bounds is known as of early 2026 (Remark 25.9), and the
-                historical pattern of hash-function failure&mdash;long public erosion before
-                a break&mdash;has not begun for SHA-256. If weaknesses emerged, script-level
+                historical pattern of hash-function failure (long public erosion before
+                a break) has not begun for SHA-256. If weaknesses emerged, script-level
                 uses of SHA-256 could be supplemented by soft fork; replacing the
                 proof-of-work or transaction-identifier hash would be a hard fork requiring
                 the coordination of Chapter 16.
@@ -589,7 +589,7 @@
                     <li>Spend coins for which it does not hold keys</li>
                     <li>Create coins beyond the subsidy schedule</li>
                     <li>Change consensus rules (full nodes reject invalid blocks)</li>
-                    <li>Prevent users from transacting on a minority chain&mdash;immediately,
+                    <li>Prevent users from transacting on a minority chain: immediately,
                         if that chain changes the proof-of-work function (Chapter 26), or once
                         the attack ceases, if it retains the same proof-of-work; while the
                         attack is sustained, a same-proof-of-work minority chain can be
@@ -608,7 +608,7 @@
                 </p>
                 <p>
                     If the attacker mines invalid blocks, honest nodes ignore them and follow
-                    the valid chain&mdash;even if it has less work. The most-work rule applies
+                    the valid chain, even if it has less work. The most-work rule applies
                     only among <em>valid</em> chains. The positive capabilities follow from
                     majority control of block production: the attacker outpaces the honest
                     chain in expectation, so it can reorganize recent blocks, replace its own
@@ -654,14 +654,14 @@
                     <rect x="118" y="212" width="264" height="26" rx="4" fill="#fff" stroke="#2f4f4f" stroke-width="1"/>
                     <text x="250" y="229" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Validity is decided by full nodes, not hashrate</text>
                 </svg>
-                <figcaption>Figure 25.3: Majority hashrate controls the ordering of valid blocks, not what is valid&mdash;the boundary is enforced by full nodes.</figcaption>
+                <figcaption>Figure 25.3: Majority hashrate controls the ordering of valid blocks, not what is valid; the boundary is enforced by full nodes.</figcaption>
             </figure>
 
             <p>
                 <strong>Conclusion.</strong> Majority hashrate confers control over the
                 ordering of valid blocks, not over what is valid (Figure 25.3). The
-                capabilities it grants&mdash;reorganization, double-spending of the attacker's
-                own coins, censorship&mdash;are serious, and Chapter 36 analyzes them further;
+                capabilities it grants (reorganization, double-spending of the attacker's
+                own coins, censorship) are serious, and Chapter 36 analyzes them further;
                 arbitrary control is not among them.
             </p>
 
@@ -752,7 +752,7 @@
                     <li>2017 peak: ~10 BTC/block in fees (daily average, December 2017)</li>
                     <li>2021 peak: ~2 BTC/block in fees (daily average, April 2021)</li>
                     <li>2023: inscription demand produced repeated spikes above ~1 BTC/block in daily averages (May and December 2023)</li>
-                    <li>April 2024: the halving block, block 840,000, carried ~37.6 BTC in fees&mdash;an extreme single-block outlier driven by demand for its block space</li>
+                    <li>April 2024: the halving block, block 840,000, carried ~37.6 BTC in fees, an extreme single-block outlier driven by demand for its block space</li>
                 </ul>
                 <p>
                     As the subsidy declines, fees must supply a growing share of any given
@@ -766,7 +766,7 @@
                 <p>
                     The transition to fee-based security is genuinely uncertain. It depends on
                     future transaction demand, BTC price, and layer 2 adoption. This is an
-                    open research question, not a solved problem&mdash;and neither is it a
+                    open research question, not a solved problem; neither is it a
                     demonstration of inevitable failure.
                 </p>
             </div>
@@ -805,12 +805,12 @@
                 <p>
                     Whether the security purchased is worth the energy consumed is a normative
                     question, and this book does not adjudicate it. Critics argue that the
-                    externalities of mining&mdash;emissions, grid load, hardware
-                    turnover&mdash;exceed the social value of the service, and that comparable
+                    externalities of mining (emissions, grid load, hardware
+                    turnover) exceed the social value of the service, and that comparable
                     monetary properties could be obtained more cheaply by other consensus
                     designs. Proponents argue that the consumption is purchased voluntarily at
                     market prices, that miners seek the cheapest available energy, and that
-                    the service secured&mdash;settlement without a trusted issuer&mdash;has no
+                    the service secured, settlement without a trusted issuer, has no
                     demonstrated substitute with the same properties. Both positions begin
                     from the same technical facts stated above and diverge on valuation, not
                     on mechanism.
@@ -821,7 +821,7 @@
                 <strong>Conclusion.</strong> The provable part of the claim's subject is the
                 mechanism: attack cost approximates the cost of replicating the honest
                 hashrate, and energy expenditure is how that cost is imposed. The claim's
-                verdict&mdash;that the consumption is waste&mdash;is a valuation, contested
+                verdict (that the consumption is waste) is a valuation, contested
                 on both sides, and is recorded as such in Remark 25.13.
             </p>
         </section>
@@ -844,15 +844,15 @@
                 <ul>
                     <li>Anyone can generate unlimited addresses without permission</li>
                     <li>No transaction field carries identity, and nothing in <span class="math">V(C, B)</span> (Definition 13.18) references a blacklist</li>
-                    <li>As long as some miners include a transaction and the majority does not orphan their blocks, it eventually confirms (soft censorship, Definition 36.6): with non-censoring fraction <span class="math">q</span> of hashrate, the expected inclusion delay is <span class="math">1/q</span> blocks&mdash;and censored users can pay higher fees to non-censoring miners</li>
+                    <li>As long as some miners include a transaction and the majority does not orphan their blocks, it eventually confirms (soft censorship, Definition 36.6): with non-censoring fraction <span class="math">q</span> of hashrate, the expected inclusion delay is <span class="math">1/q</span> blocks, and censored users can pay higher fees to non-censoring miners</li>
                 </ul>
                 <p>
                     Two caveats sharpen the analysis rather than weaken it. A majority
                     coalition willing to orphan non-compliant blocks could enforce hard
-                    censorship (Definition 36.6)&mdash;at the visible cost of attacking the
+                    censorship (Definition 36.6), at the visible cost of attacking the
                     chain itself. And a soft fork could, in principle, make specific outputs
                     unspendable: freezing is not "technically impossible," it is a rule
-                    change&mdash;and a rule change must win the fork game of Chapter 26
+                    change, and a rule change must win the fork game of Chapter 26
                     against the economic weight that rejects it. That is a stronger defense
                     than impossibility: it does not depend on no one trying, only on the
                     economy declining to follow.
@@ -899,7 +899,7 @@
                 to the aggregate enforcement that disciplines miners (Remark 25.10). The claim
                 confuses the absence of hashrate with the absence of function; validation and
                 block production are different roles (Figure 25.3). The converse
-                overstatement&mdash;that every node protects the network&mdash;is examined as
+                overstatement, that every node protects the network, is examined as
                 Claim 25.19.
             </p>
         </section>
@@ -965,7 +965,7 @@
                 protected by a coordination game, not by mathematics. That protection is of a
                 different kind from a theorem: an equilibrium of Chapter 26's fork game in
                 which every holder is paid to defend the cap. Describing it as mathematical
-                misstates where the security resides&mdash;in participants continuing to
+                misstates where the security resides: in participants continuing to
                 choose these rules.
             </p>
 
@@ -977,7 +977,7 @@
             </div>
 
             <p>
-                Validation is genuinely permissionless and widely distributed&mdash;that
+                Validation is genuinely permissionless and widely distributed; that
                 much the device-tier analysis of Section 34.1 supports. But block
                 template construction is concentrated in a handful of mining pools;
                 maintainer influence over the de facto specification is real
@@ -1009,7 +1009,7 @@
                 engineering effort behind compact filters (Chapter 19), and the Electrum
                 leakage analysis (Section 20.3) are all responses to the fact that the
                 base protocol leaks. A bank record is private from the public and visible
-                to the state; Bitcoin's ledger is the reverse&mdash;visible to everyone,
+                to the state; Bitcoin's ledger is the reverse: visible to everyone,
                 deniable to no one, indefinitely.
             </p>
 
@@ -1031,7 +1031,7 @@
             <p>
                 March 2013 is the decisive counterexample: the 0.8-valid chain was
                 abandoned <em>by agreement</em>, with miners deliberately reorganizing
-                onto the chain the buggy software preferred (Example 33.7)&mdash;human
+                onto the chain the buggy software preferred (Example 33.7): human
                 coordination overruling the deployed code's verdict, within hours.
                 Section 33.9 gives the structural reason the slogan cannot be exact: no
                 canonical statement of the rules exists apart from software that humans
@@ -1057,8 +1057,8 @@
                 Remark 25.15 established what a node provides its operator: independent
                 verification of the operator's own funds. Network-level effects are real but
                 aggregate: what disciplines miners is the enforcing economic fraction
-                <span class="math">e</span> of Section 34.4&mdash;validation by actors
-                whose acceptance gives coins value&mdash;not the raw count of listening
+                <span class="math">e</span> of Section 34.4 (validation by actors
+                whose acceptance gives coins value), not the raw count of listening
                 nodes, which is cheaply inflatable and economically weightless. One more
                 node behind a home connection changes <span class="math">e</span> by
                 approximately nothing; a merchant, exchange, or payment processor
@@ -1068,8 +1068,8 @@
             <p>
                 <strong>Conclusion.</strong> A full node primarily protects its operator;
                 network-level power is a property of the aggregate enforcing economy. Both
-                extremes fail&mdash;Claim 25.13 in one direction, this claim in the
-                other&mdash;and the resolution is the same in both: verification matters in
+                extremes fail (Claim 25.13 in one direction, this claim in the
+                other), and the resolution is the same in both: verification matters in
                 proportion to the economic activity that depends on it.
             </p>
         </section>
@@ -1175,7 +1175,7 @@
 
             <ul>
                 <li>
-                    SPV provides useful but weaker security than full nodes&mdash;trusting
+                    SPV provides useful but weaker security than full nodes: trusting
                     miners rather than verifying independently.
                 </li>
                 <li>
@@ -1223,7 +1223,7 @@
             <p>
                 The reader who has worked through all three volumes now possesses the
                 mathematical and protocol knowledge to understand Bitcoin from first
-                principles&mdash;to verify rather than trust, to analyze rather than believe,
+                principles: to verify rather than trust, to analyze rather than believe,
                 and to build rather than merely use.
             </p>
         </section>

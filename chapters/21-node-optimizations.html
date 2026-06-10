@@ -65,7 +65,7 @@
         <section class="introduction">
             <p>
                 Running a full node requires downloading, validating, and storing the entire
-                Bitcoin blockchain&mdash;a process that has become increasingly demanding as the
+                Bitcoin blockchain, a process that has become increasingly demanding as the
                 chain grows. This chapter examines optimizations that reduce the time,
                 bandwidth, and storage required to run a fully validating node.
             </p>
@@ -208,7 +208,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 21.1</strong> — IBD proceeds through distinct phases, each with
+                    <strong>Figure 21.1:</strong> IBD proceeds through distinct phases, each with
                     different resource bottlenecks. Modern Bitcoin Core overlaps these phases for
                     efficiency.
                 </figcaption>
@@ -244,7 +244,7 @@
             <h2 id="s21-2">21.2 AssumeValid</h2>
 
             <p>
-                The most time-consuming part of IBD is signature validation&mdash;verifying every
+                The most time-consuming part of IBD is signature validation: verifying every
                 ECDSA and Schnorr signature in 900+ million inputs. AssumeValid optimizes
                 this by skipping signature checks for blocks buried under substantial
                 proof-of-work.
@@ -284,7 +284,7 @@
                 </ul>
                 <p>
                     The only attack is creating a fake alternate history with invalid
-                    signatures buried under the hardcoded assumevalid point&mdash;which requires
+                    signatures buried under the hardcoded assumevalid point, which requires
                     building a valid-PoW chain with more work than the real chain up to
                     that point.
                 </p>
@@ -308,7 +308,7 @@
                     become an ancestor of that block, so no amount of proof-of-work enables
                     invalid scripts to slip beneath it. The residual trust is therefore not in
                     PoW at all but in the correctness of the hardcoded hash shipped with the
-                    software release&mdash;an assumption already implied by running the
+                    software release, an assumption already implied by running the
                     software, and one that is auditable by anyone who fully validates. ∎
                 </p>
             </div>
@@ -482,7 +482,7 @@ bitcoind -assumevalid=00000000000000000001...</code></pre>
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 21.2</strong> — AssumeUTXO enables immediate sync from a snapshot
+                    <strong>Figure 21.2:</strong> AssumeUTXO enables immediate sync from a snapshot
                     while background validation eventually verifies the snapshot was correct.
                 </figcaption>
             </figure>
@@ -744,7 +744,7 @@ prune=550</code></pre>
                     </g>
                 </svg>
                 <figcaption>
-                    <strong>Figure 21.3</strong> — Utreexo forest: perfect binary trees of heights
+                    <strong>Figure 21.3:</strong> Utreexo forest: perfect binary trees of heights
                     corresponding to powers of 2 in the UTXO count. The full state is just the
                     tree roots (~1 KB for billions of UTXOs).
                 </figcaption>
@@ -834,9 +834,9 @@ prune=550</code></pre>
                 <p><strong>Remark 21.1</strong> (SwiftSync)</p>
                 <p>
                     A recent proposal attacks initial block download from a different angle.
-                    <em>SwiftSync</em> (Somsen, 2025) ships a compact hints file&mdash;one bit
+                    <em>SwiftSync</em> (Somsen, 2025) ships a compact hints file (one bit
                     per output, marking whether it is still unspent at the snapshot
-                    height&mdash;so that validation during sync needs no UTXO-set lookups at
+                    height) so that validation during sync needs no UTXO-set lookups at
                     all. Correctness is enforced by an aggregate check: each output marked
                     spent is hashed into a running accumulator when created and subtracted
                     when consumed; the accumulator returning to zero proves every such output
@@ -1037,7 +1037,7 @@ prune=550</code></pre>
     </main>
 
     <footer>
-        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+        <p>Elementary Bitcoin · Volume III: Scaling and Verification</p>
         <p style="font-size: 0.85em;"><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> &middot; <a href="https://github.com/elementarybitcoin/elementarybitcoin.github.io">contribute</a></p>
     </footer>
 </body>
