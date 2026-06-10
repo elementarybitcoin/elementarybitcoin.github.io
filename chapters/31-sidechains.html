@@ -175,6 +175,58 @@
                 </p>
             </div>
 
+            <figure>
+                <svg class="diagram" width="500" height="245" viewBox="0 0 500 245">
+                    <!-- Trust boundary around federation -->
+                    <rect x="192" y="58" width="116" height="128" fill="none" stroke="#c44" stroke-width="1.5" stroke-dasharray="5 3" rx="4"/>
+                    <text x="250" y="72" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">trust boundary</text>
+
+                    <!-- Bitcoin mainchain -->
+                    <rect x="25" y="85" width="110" height="80" rx="4" fill="#8b4513" stroke="#8b4513" stroke-width="2"/>
+                    <text x="80" y="112" text-anchor="middle" font-family="Georgia" font-size="11" fill="white" font-weight="bold">Bitcoin</text>
+                    <text x="80" y="127" text-anchor="middle" font-family="Georgia" font-size="11" fill="white" font-weight="bold">Mainchain</text>
+                    <text x="80" y="148" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">BTC in peg address</text>
+
+                    <!-- Federation -->
+                    <rect x="200" y="85" width="100" height="80" rx="4" fill="#f8f5f0" stroke="#2f4f4f" stroke-width="2"/>
+                    <text x="250" y="112" text-anchor="middle" font-family="Georgia" font-size="11" fill="#2f4f4f" font-weight="bold">Federation</text>
+                    <text x="250" y="130" text-anchor="middle" font-family="Georgia" font-size="10" fill="#2f4f4f">11-of-15</text>
+                    <text x="250" y="144" text-anchor="middle" font-family="Georgia" font-size="10" fill="#2f4f4f">multisig</text>
+
+                    <!-- Liquid sidechain -->
+                    <rect x="365" y="85" width="110" height="80" rx="4" fill="#4a90d9" stroke="#4a90d9" stroke-width="2"/>
+                    <text x="420" y="112" text-anchor="middle" font-family="Georgia" font-size="11" fill="white" font-weight="bold">Liquid</text>
+                    <text x="420" y="127" text-anchor="middle" font-family="Georgia" font-size="11" fill="white" font-weight="bold">Sidechain</text>
+                    <text x="420" y="148" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">L-BTC issued</text>
+
+                    <!-- Peg-in arrows (top rail) -->
+                    <path d="M 135 105 L 196 105" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrowGreen31b)"/>
+                    <text x="164" y="96" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">lock</text>
+                    <path d="M 300 105 L 361 105" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrowGreen31b)"/>
+                    <text x="336" y="96" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">mint</text>
+
+                    <!-- Peg-out arrows (bottom rail) -->
+                    <path d="M 365 145 L 304 145" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed31b)"/>
+                    <text x="336" y="160" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">burn</text>
+                    <path d="M 198 145 L 137 145" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed31b)"/>
+                    <text x="164" y="160" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">release</text>
+
+                    <!-- Legend -->
+                    <text x="250" y="210" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Peg-in: user locks BTC; after 102 confirmations the federation mints L-BTC.</text>
+                    <text x="250" y="226" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Peg-out: burn L-BTC; the federation releases BTC (direct peg-outs: members only).</text>
+
+                    <defs>
+                        <marker id="arrowGreen31b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
+                        </marker>
+                        <marker id="arrowRed31b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#c44"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 31.2: The Liquid federated peg&mdash;locked BTC and issued L-BTC are mediated entirely by the 11-of-15 federation multisig, which forms the trust boundary.</figcaption>
+            </figure>
+
             <div class="remark">
                 <p class="remark-title">Remark 31.1 (Liquid Tradeoffs)</p>
                 <table class="data-table">
@@ -387,6 +439,52 @@
                     <li><strong>Single custodian:</strong> Full trust in one entity</li>
                 </ol>
             </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="295" viewBox="0 0 500 295">
+                    <!-- Strength axis -->
+                    <text x="60" y="24" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">strongest</text>
+                    <line x1="60" y1="32" x2="60" y2="262" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray31)"/>
+                    <text x="60" y="282" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">weakest</text>
+
+                    <!-- 1 Bitcoin mainchain -->
+                    <rect x="100" y="30" width="180" height="30" rx="3" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="190" y="49" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#5a8f5a">Bitcoin mainchain</text>
+                    <text x="295" y="49" text-anchor="start" font-family="Georgia" font-size="9" fill="#666">full consensus security</text>
+
+                    <!-- 2 Validity rollup -->
+                    <rect x="100" y="70" width="180" height="30" rx="3" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="190" y="89" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#4a90d9">Validity rollup</text>
+                    <text x="295" y="89" text-anchor="start" font-family="Georgia" font-size="9" fill="#666">cryptographic proofs (if implemented)</text>
+
+                    <!-- 3 Optimistic rollup -->
+                    <rect x="100" y="110" width="180" height="30" rx="3" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="190" y="129" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#4a90d9">Optimistic rollup</text>
+                    <text x="295" y="129" text-anchor="start" font-family="Georgia" font-size="9" fill="#666">fraud proofs + challenge period</text>
+
+                    <!-- 4 Large federation -->
+                    <rect x="100" y="150" width="180" height="30" rx="3" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="190" y="169" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#8b4513">Large federation</text>
+                    <text x="295" y="169" text-anchor="start" font-family="Georgia" font-size="9" fill="#666">m-of-n trust (e.g., 11-of-15)</text>
+
+                    <!-- 5 Small federation -->
+                    <rect x="100" y="190" width="180" height="30" rx="3" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="190" y="209" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#8b4513">Small federation</text>
+                    <text x="295" y="209" text-anchor="start" font-family="Georgia" font-size="9" fill="#666">few trusted parties</text>
+
+                    <!-- 6 Single custodian -->
+                    <rect x="100" y="230" width="180" height="30" rx="3" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="190" y="249" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#c44">Single custodian</text>
+                    <text x="295" y="249" text-anchor="start" font-family="Georgia" font-size="9" fill="#666">full trust in one entity</text>
+
+                    <defs>
+                        <marker id="arrowGray31" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 31.3: The sidechain security hierarchy&mdash;peg designs ordered from strongest to weakest guarantees.</figcaption>
+            </figure>
         </section>
 
         <section>

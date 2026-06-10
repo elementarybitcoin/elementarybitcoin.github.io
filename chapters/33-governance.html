@@ -267,6 +267,74 @@
                 </p>
             </div>
 
+            <figure>
+                <svg class="diagram" width="500" height="224" viewBox="0 0 500 224">
+                    <!-- The shared word -->
+                    <rect x="205" y="8" width="90" height="26" rx="4" fill="#f8f5f0" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">"consensus"</text>
+
+                    <!-- Branch lines to the three referents -->
+                    <path d="M 250 34 L 250 48" stroke="#666" stroke-width="1"/>
+                    <path d="M 85 48 L 415 48" stroke="#666" stroke-width="1"/>
+                    <path d="M 85 48 L 85 62" stroke="#666" stroke-width="1" marker-end="url(#arrow33d)"/>
+                    <path d="M 250 48 L 250 62" stroke="#666" stroke-width="1" marker-end="url(#arrow33d)"/>
+                    <path d="M 415 48 L 415 62" stroke="#666" stroke-width="1" marker-end="url(#arrow33d)"/>
+
+                    <!-- Panel 1: consensus rules -->
+                    <rect x="15" y="70" width="140" height="140" rx="4" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="85" y="90" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">1. Consensus rules</text>
+                    <text x="85" y="104" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">technical sense</text>
+                    <rect x="55" y="114" width="60" height="28" rx="3" fill="#fff" stroke="#2f4f4f"/>
+                    <text x="85" y="132" text-anchor="middle" font-family="Georgia" font-size="10" font-style="italic">V(C, B)</text>
+                    <text x="85" y="160" text-anchor="middle" font-family="Georgia" font-size="9">a property of</text>
+                    <text x="85" y="173" text-anchor="middle" font-family="Georgia" font-size="9">software</text>
+                    <text x="85" y="196" text-anchor="middle" font-family="Georgia" font-size="9" font-style="italic" fill="#666">checkable</text>
+
+                    <!-- Panel 2: near-unanimity -->
+                    <rect x="180" y="70" width="140" height="140" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="250" y="90" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">2. Near-unanimity</text>
+                    <text x="250" y="104" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">social sense</text>
+                    <circle cx="214" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="232" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="250" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="268" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="286" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="214" cy="138" r="5" fill="#2f4f4f"/>
+                    <circle cx="232" cy="138" r="5" fill="#2f4f4f"/>
+                    <circle cx="250" cy="138" r="5" fill="#2f4f4f"/>
+                    <circle cx="268" cy="138" r="5" fill="#fff" stroke="#2f4f4f"/>
+                    <circle cx="286" cy="138" r="5" fill="#2f4f4f"/>
+                    <text x="250" y="160" text-anchor="middle" font-family="Georgia" font-size="9">no significant</text>
+                    <text x="250" y="173" text-anchor="middle" font-family="Georgia" font-size="9">objection</text>
+                    <text x="250" y="196" text-anchor="middle" font-family="Georgia" font-size="9" font-style="italic" fill="#666">answerable</text>
+
+                    <!-- Panel 3: general agreement -->
+                    <rect x="345" y="70" width="140" height="140" rx="4" fill="#fff8f0" stroke="#8b4513"/>
+                    <text x="415" y="90" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">3. General agreement</text>
+                    <text x="415" y="104" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">loose sense</text>
+                    <circle cx="379" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="397" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="415" cy="122" r="5" fill="#fff" stroke="#2f4f4f"/>
+                    <circle cx="433" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="451" cy="122" r="5" fill="#2f4f4f"/>
+                    <circle cx="379" cy="138" r="5" fill="#2f4f4f"/>
+                    <circle cx="397" cy="138" r="5" fill="#fff" stroke="#2f4f4f"/>
+                    <circle cx="415" cy="138" r="5" fill="#2f4f4f"/>
+                    <circle cx="433" cy="138" r="5" fill="#fff" stroke="#2f4f4f"/>
+                    <circle cx="451" cy="138" r="5" fill="#2f4f4f"/>
+                    <text x="415" y="160" text-anchor="middle" font-family="Georgia" font-size="9">most participants</text>
+                    <text x="415" y="173" text-anchor="middle" font-family="Georgia" font-size="9">in favor</text>
+                    <text x="415" y="196" text-anchor="middle" font-family="Georgia" font-size="9" font-style="italic" fill="#666">unfalsifiable</text>
+
+                    <defs>
+                        <marker id="arrow33d" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 33.3: The three senses of "consensus" (Remark 33.2)&mdash;the validation predicate, near-unanimity among stakeholders, and general agreement are different referents sharing one word.</figcaption>
+            </figure>
+
             <div class="definition">
                 <p class="definition-title">Definition 33.4 (Rough Consensus)</p>
                 <p>
@@ -351,6 +419,60 @@
                     <li>Risk: chain split if miners resist</li>
                 </ul>
             </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="258" viewBox="0 0 500 258">
+                    <!-- Start: proposed rule -->
+                    <rect x="10" y="99" width="78" height="60" rx="4" fill="#f8f5f0" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <text x="49" y="124" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Proposed</text>
+                    <text x="49" y="138" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">rule (BIP)</text>
+
+                    <!-- End: active rule -->
+                    <rect x="412" y="99" width="78" height="60" rx="4" fill="#f8f5f0" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <text x="451" y="124" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Active</text>
+                    <text x="451" y="138" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">rule</text>
+
+                    <!-- Path 1: flag day -->
+                    <rect x="130" y="15" width="240" height="66" rx="4" fill="#fff8f0" stroke="#8b4513"/>
+                    <text x="250" y="38" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Flag day</text>
+                    <text x="250" y="56" text-anchor="middle" font-family="Georgia" font-size="9">activation at a fixed block height or date</text>
+
+                    <!-- Path 2: miner signaling -->
+                    <rect x="130" y="96" width="240" height="66" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="250" y="112" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Miner signaling (MASF)</text>
+                    <text x="250" y="126" text-anchor="middle" font-family="Georgia" font-size="9">miners signal readiness;</text>
+                    <text x="250" y="138" text-anchor="middle" font-family="Georgia" font-size="9">activation at threshold (e.g., 95%)</text>
+                    <text x="250" y="153" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">risk: miners can block upgrades</text>
+
+                    <!-- Path 3: user enforcement -->
+                    <rect x="130" y="177" width="240" height="66" rx="4" fill="#f0f5f8" stroke="#4a90d9"/>
+                    <text x="250" y="193" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">User enforcement (UASF)</text>
+                    <text x="250" y="207" text-anchor="middle" font-family="Georgia" font-size="9">users set a flag day; miners</text>
+                    <text x="250" y="219" text-anchor="middle" font-family="Georgia" font-size="9">must comply or risk invalid blocks</text>
+                    <text x="250" y="234" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">risk: chain split if miners resist</text>
+
+                    <!-- Fan-out from proposed rule -->
+                    <path d="M 88 129 L 105 129" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <path d="M 105 48 L 105 210" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <path d="M 105 48 L 126 48" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow33c)"/>
+                    <path d="M 105 129 L 126 129" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow33c)"/>
+                    <path d="M 105 210 L 126 210" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow33c)"/>
+
+                    <!-- Fan-in to active rule -->
+                    <path d="M 370 48 L 395 48" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <path d="M 370 129 L 395 129" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <path d="M 370 210 L 395 210" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <path d="M 395 48 L 395 210" stroke="#2f4f4f" stroke-width="1.5"/>
+                    <path d="M 395 129 L 408 129" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow33c)"/>
+
+                    <defs>
+                        <marker id="arrow33c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#2f4f4f"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 33.4: Activation paths from proposed rule to active rule&mdash;a fixed flag day, miner signaling (MASF), and user enforcement (UASF), per Definition 33.5 and Remark 33.5.</figcaption>
+            </figure>
 
             <div class="example">
                 <p class="example-title">Example 33.2 (SegWit Activation)</p>
