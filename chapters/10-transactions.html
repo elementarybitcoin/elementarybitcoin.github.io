@@ -40,7 +40,7 @@
             <p class="chapter-intro">
                 A Bitcoin transaction is a signed data structure that transfers value from
                 one or more sources to one or more destinations. Understanding transaction
-                structure is essential—every bitcoin that exists can be traced through an
+                structure is essential&mdash;every bitcoin that exists can be traced through an
                 unbroken chain of transactions back to its creation in a coinbase.
             </p>
 
@@ -120,7 +120,7 @@
             <div class="remark">
                 <p class="remark-title">Remark 10.1 (No Partial Spending)</p>
                 <p>
-                    A UTXO must be spent entirely—you cannot spend "part" of an output.
+                    A UTXO must be spent entirely&mdash;you cannot spend "part" of an output.
                     If you wish to send less than a UTXO's full value, you create a transaction
                     with one output to the recipient and another "change" output back to yourself.
                 </p>
@@ -249,7 +249,7 @@
             </div>
 
             <p>
-                Locktime enables time-locked transactions—useful for inheritance planning,
+                Locktime enables time-locked transactions&mdash;useful for inheritance planning,
                 escrow, and payment channels.
             </p>
         </section>
@@ -319,7 +319,7 @@
             <div class="example">
                 <p class="example-title">Example 10.1 (Outpoint Reference)</p>
                 <p>
-                    To spend output index 1 from transaction with txid:
+                    To spend output index 1 from the transaction with txid:
                 </p>
                 <pre class="code-block">a1b2c3d4e5f6...789012345678abcdef</pre>
                 <p>
@@ -600,7 +600,7 @@ efcdab78563412...f6e5d4c3b2a1
                 <p class="definition-title">Definition 10.12 (Txid and Wtxid)</p>
                 <p>
                     The <strong>txid</strong> is the double-SHA256 hash of the "legacy" serialization
-                    (version, inputs, outputs, locktime)—excluding marker, flag, and witness.
+                    (version, inputs, outputs, locktime)&mdash;excluding marker, flag, and witness.
                 </p>
                 <p>
                     The <strong>wtxid</strong> is the double-SHA256 hash of the complete serialization
@@ -674,9 +674,9 @@ efcdab78563412...f6e5d4c3b2a1
                 <p class="example-title">Example 10.3 (Sighash Applications)</p>
                 <ul>
                     <li><strong>SIGHASH_ALL:</strong> Standard signing. Commits to the entire transaction.</li>
-                    <li><strong>SIGHASH_NONE:</strong> "Blank check"—anyone can add outputs.</li>
+                    <li><strong>SIGHASH_NONE:</strong> "Blank check"&mdash;anyone can add outputs.</li>
                     <li><strong>SIGHASH_SINGLE:</strong> Useful for atomic swaps.</li>
-                    <li><strong>SIGHASH_ANYONECANPAY | SIGHASH_ALL:</strong> Crowdfunding—others can add inputs.</li>
+                    <li><strong>SIGHASH_ANYONECANPAY | SIGHASH_ALL:</strong> Crowdfunding&mdash;others can add inputs.</li>
                 </ul>
             </div>
         </section>
@@ -800,7 +800,7 @@ efcdab78563412...f6e5d4c3b2a1
 
             <p>
                 The coinbase scriptSig must contain the block height (BIP-34) and can include
-                arbitrary data—famously used by Satoshi to embed the headline "The Times
+                arbitrary data&mdash;famously used by Satoshi to embed the headline "The Times
                 03/Jan/2009 Chancellor on brink of second bailout for banks."
             </p>
         </section>

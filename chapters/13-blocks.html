@@ -241,8 +241,8 @@
                 <p class="remark-title">Remark 13.1 (Hash Display Convention)</p>
                 <p>
                     Block hashes are typically displayed in big-endian (reversed) format for
-                    readability. The internal little-endian format has leading zeros at the
-                    end, while display format has them at the beginning.
+                    readability. The internal little-endian format has the zero bytes at the
+                    end, while the display format has them at the beginning.
                 </p>
             </div>
 
@@ -467,7 +467,7 @@ target = 0x00ffff × 256^(29-3)
                 <p class="remark-title">Remark 13.3 (Effective Size Increase)</p>
                 <p>
                     The weight system allows blocks up to approximately 2.3 MB with typical
-                    transaction mixes (observed blocks average 1.5-2 MB), while maintaining
+                    transaction mixes (observed blocks average 1.5&ndash;2 MB), while maintaining
                     backward compatibility
                     with the 1 MB limit for non-witness data.
                 </p>
@@ -586,7 +586,7 @@ target = 0x00ffff × 256^(29-3)
                 </p>
                 <ul>
                     <li>Its coinbase output (50 BTC) is unspendable due to a quirk in the original code</li>
-                    <li>The embedded newspaper headline proves the block wasn't pre-mined</li>
+                    <li>The embedded newspaper headline proves the block was not pre-mined</li>
                     <li>Its previous hash is all zeros (no parent)</li>
                 </ul>
             </div>
@@ -700,7 +700,7 @@ target = 0x00ffff × 256^(29-3)
                     <!-- Labels -->
                     <text x="320" y="45" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">Main chain (most work)</text>
                 </svg>
-                <figcaption>Figure 13.5: Block n+1' is valid but stale—the main chain extended differently.</figcaption>
+                <figcaption>Figure 13.5: Block n+1' is valid but stale&mdash;the main chain extended differently.</figcaption>
             </figure>
         </section>
 

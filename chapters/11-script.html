@@ -737,7 +737,7 @@ OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
                 <p class="remark-title">Remark 11.3 (Off-by-One Bug)</p>
                 <p>
                     <code>OP_CHECKMULTISIG</code> has a historical bug: it pops one extra element
-                    from the stack beyond what's needed. The scriptSig must include a dummy
+                    from the stack beyond what is needed. The scriptSig must include a dummy
                     <code>OP_0</code> at the beginning to account for this.
                 </p>
             </div>
@@ -906,7 +906,7 @@ OP_2 OP_NUMEQUAL</pre>
                 <p class="exercise-title">Exercise 11.2</p>
                 <p>
                     Write a script that allows spending if the spender provides two numbers
-                    whose product is 42. (Note: OP_MUL is disabled, so you'll need a workaround.)
+                    whose product is 42. (Note: OP_MUL is disabled, so you will need a workaround.)
                 </p>
             </div>
 

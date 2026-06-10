@@ -50,7 +50,7 @@
         </section>
 
         <section>
-            <h2>7.1 What is a Digital Signature?</h2>
+            <h2>7.1 What Is a Digital Signature?</h2>
 
             <div class="definition">
                 <p class="definition-title">Definition 7.1 (Digital Signature Scheme)</p>
@@ -149,7 +149,7 @@
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Security Properties of Digital Signatures.</p>
+                <p class="remark-title">Security Properties of Digital Signatures</p>
                 <p>A secure signature scheme must satisfy:</p>
                 <ol>
                     <li>
@@ -343,7 +343,7 @@ Sign(d, m):
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Understanding the Formula.</p>
+                <p class="remark-title">Understanding the Formula</p>
                 <p>
                     The signature equation <span class="math">s = k⁻¹(z + rd) mod n</span> cleverly
                     entangles:
@@ -568,7 +568,7 @@ Verify(P, m, (r, s)):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Deterministic Nonces (RFC 6979).</p>
+                <p class="remark-title">Deterministic Nonces (RFC 6979)</p>
                 <p>
                     To prevent nonce-related failures, modern implementations use <strong>RFC 6979</strong>,
                     which derives <span class="math">k</span> deterministically from the private key
@@ -625,7 +625,7 @@ Verify(P, m, (r, s)):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Bitcoin's Low-S Rule.</p>
+                <p class="remark-title">Bitcoin's Low-S Rule</p>
                 <p>
                     To mitigate malleability, Bitcoin requires that <span class="math">s ≤ n/2</span>
                     as a standardness (relay) policy: nodes will not relay transactions whose
@@ -663,7 +663,7 @@ Verify(P, m, (r, s)):
             </div>
 
             <p>
-                DER encoding results in variable-length signatures, typically 71-73 bytes.
+                DER encoding results in variable-length signatures, typically 71&ndash;73 bytes.
                 This inefficiency is one reason Bitcoin later adopted Schnorr signatures
                 (Chapter 8), which have a fixed 64-byte encoding.
             </p>
@@ -709,7 +709,7 @@ Verify(P, m, (r, s)):
 
             <div class="exercise">
                 <span class="exercise-number">7.6.</span>
-                Explain why RFC 6979 deterministic nonces don't violate the requirement
+                Explain why RFC 6979 deterministic nonces do not violate the requirement
                 that each signature use a "random" nonce.
             </div>
         </section>

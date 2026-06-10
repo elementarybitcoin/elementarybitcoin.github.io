@@ -61,7 +61,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Advantages of Schnorr over ECDSA.</p>
+                <p class="remark-title">Advantages of Schnorr over ECDSA</p>
                 <ol>
                     <li>
                         <strong>Provable security:</strong> Schnorr has a formal security proof
@@ -221,7 +221,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Binding to the Message.</p>
+                <p class="remark-title">Binding to the Message</p>
                 <p>
                     Including the message in the challenge hash binds the signature to that
                     specific message. Any attempt to use the same signature for a different
@@ -257,7 +257,7 @@
                 <p>
                     Using only the x-coordinate saves 1 byte per public key (32 vs. 33 bytes for
                     compressed keys). More importantly, it simplifies key aggregation protocols
-                    since there's no need to track y-coordinate parity through aggregation.
+                    since there is no need to track y-coordinate parity through aggregation.
                 </p>
             </div>
 
@@ -383,7 +383,7 @@ Sign(d, m):
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Even Y-Coordinates.</p>
+                <p class="remark-title">Even Y-Coordinates</p>
                 <p>
                     BIP-340 requires that both the public key <span class="math">P</span> and the
                     nonce point <span class="math">R</span> have even y-coordinates. This is achieved
@@ -507,7 +507,7 @@ Verify(pk, m, sig):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Why a shared challenge is essential.</p>
+                <p class="remark-title">Why a shared challenge is essential</p>
                 <p>
                     If each signer independently produces a signature <span class="math">(Rᵢ, sᵢ)</span>
                     with their own challenge <span class="math">eᵢ = H(Rᵢ ∥ Pᵢ ∥ m)</span>,
@@ -572,7 +572,7 @@ Verify(pk, m, sig):
             <h2>8.8 MuSig: Secure Multi-Signatures</h2>
 
             <p>
-                While naive key and signature aggregation is possible, it's vulnerable to
+                While naive key and signature aggregation is possible, it is vulnerable to
                 <em>rogue key attacks</em>. The <strong>MuSig</strong> protocol provides
                 secure multi-signatures.
             </p>
@@ -609,7 +609,7 @@ Verify(pk, m, sig):
             </div>
 
             <div class="remark">
-                <p class="remark-title">MuSig2: The Production Protocol.</p>
+                <p class="remark-title">MuSig2: The Production Protocol</p>
                 <p>
                     MuSig2 is the current recommended protocol, requiring only two rounds of
                     communication (compared to three in original MuSig). It achieves this by
@@ -645,12 +645,12 @@ Verify(pk, m, sig):
                     invalid, a random choice of weights passes with probability at most
                     <span class="math">2⁻¹²⁸</span>. This requires only one expensive
                     multi-scalar multiplication instead of <span class="math">n</span> separate
-                    verifications, yielding approximately 2× speedup for large batches.
+                    verifications, yielding approximately a 2× speedup for large batches.
                 </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Block Validation.</p>
+                <p class="remark-title">Block Validation</p>
                 <p>
                     Bitcoin nodes can batch-verify all Schnorr signatures in a block, significantly
                     speeding up initial block download and validation of new blocks.

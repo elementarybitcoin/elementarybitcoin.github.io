@@ -65,7 +65,7 @@
         <section class="introduction">
             <p>
                 Running a full node requires downloading, validating, and storing the entire
-                Bitcoin blockchain—a process that has grown increasingly demanding as the
+                Bitcoin blockchain&mdash;a process that has become increasingly demanding as the
                 chain grows. This chapter examines optimizations that reduce the time,
                 bandwidth, and storage required to run a fully validating node.
             </p>
@@ -244,7 +244,7 @@
             <h2>21.2 AssumeValid</h2>
 
             <p>
-                The most time-consuming part of IBD is signature validation—verifying every
+                The most time-consuming part of IBD is signature validation&mdash;verifying every
                 ECDSA and Schnorr signature in 900+ million inputs. AssumeValid optimizes
                 this by skipping signature checks for blocks buried under substantial
                 proof-of-work.
@@ -284,7 +284,7 @@
                 </ul>
                 <p>
                     The only attack is creating a fake alternate history with invalid
-                    signatures buried under the hardcoded assumevalid point—requiring
+                    signatures buried under the hardcoded assumevalid point&mdash;which requires
                     building a valid-PoW chain with more work than the real chain up to
                     that point.
                 </p>
@@ -392,7 +392,7 @@ bitcoind -assumevalid=00000000000000000001...</code></pre>
             <h2>21.3 AssumeUTXO</h2>
 
             <p>
-                While AssumeValid speeds up validation, it doesn't eliminate the need to
+                While AssumeValid speeds up validation, it does not eliminate the need to
                 process all historical blocks. AssumeUTXO goes further by bootstrapping
                 from a pre-computed UTXO set snapshot.
             </p>
@@ -878,7 +878,7 @@ prune=550</code></pre>
             </table>
 
             <p style="font-size: 0.9rem; color: #666;">
-                * AssumeValid requires attacker to rewrite history with valid PoW<br>
+                * AssumeValid requires an attacker to rewrite history with valid PoW<br>
                 † Time to functional node; background validation continues<br>
                 ‡ Trust eliminated when background sync completes
             </p>
@@ -984,7 +984,7 @@ prune=550</code></pre>
                 </li>
                 <li>
                     AssumeValid skips signature validation for deeply buried blocks,
-                    reducing IBD time by ~80% with minimal additional trust assumption.
+                    reducing IBD time by ~80% with minimal additional trust assumptions.
                 </li>
                 <li>
                     AssumeUTXO enables instant functionality by loading a pre-computed

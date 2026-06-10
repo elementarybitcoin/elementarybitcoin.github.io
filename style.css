@@ -172,7 +172,8 @@ h3 {
     margin-bottom: 0.5rem;
 }
 
-.definition-title::after, .theorem-title::after {
+.definition-title::after, .theorem-title::after,
+.remark-title::after, .example-title::after, .exercise-title::after {
     content: ".";
 }
 

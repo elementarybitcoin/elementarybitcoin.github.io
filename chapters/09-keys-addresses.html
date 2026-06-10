@@ -57,7 +57,7 @@
             <h2>9.1 Private Keys</h2>
 
             <p>
-                A Bitcoin private key is, at its core, simply a number. But not just any number—it
+                A Bitcoin private key is, at its core, simply a number. But not just any number&mdash;it
                 must be chosen with extreme care.
             </p>
 
@@ -142,7 +142,7 @@
                 </p>
                 <p>
                     For this probability to reach 50%, we would need <span class="math">m ≈ 2¹²⁸</span>
-                    key generations—a number beyond any conceivable computation.
+                    key generations&mdash;a number beyond any conceivable computation.
                 </p>
             </div>
         </section>
@@ -173,8 +173,8 @@
                 This computation is the "easy direction" of the trapdoor function we studied
                 in Chapters 3 and 4. Given <span class="math">d</span>, computing <span class="math">P</span>
                 requires only <span class="math">O(log d)</span> group operations via the
-                double-and-add algorithm. The reverse—finding <span class="math">d</span> given
-                <span class="math">P</span>—is the elliptic curve discrete logarithm problem (ECDLP),
+                double-and-add algorithm. The reverse&mdash;finding <span class="math">d</span> given
+                <span class="math">P</span>&mdash;is the elliptic curve discrete logarithm problem (ECDLP),
                 believed to be computationally infeasible.
             </p>
 
@@ -290,8 +290,8 @@
 
             <p>
                 Bitcoin addresses are not public keys directly, but rather hashes of public keys.
-                This indirection provides several benefits: shorter addresses, quantum resistance
-                (partial), and scripting flexibility.
+                This indirection provides several benefits: shorter addresses, partial quantum
+                resistance, and scripting flexibility.
             </p>
 
             <div class="definition">
@@ -356,7 +356,7 @@
 
             <p>
                 Raw binary data is inconvenient for humans to read, copy, or transcribe.
-                Bitcoin's legacy addresses use Base58Check encoding—a variant of base conversion
+                Bitcoin's legacy addresses use Base58Check encoding&mdash;a variant of base conversion
                 designed for clarity and error detection.
             </p>
 
@@ -369,8 +369,8 @@
                 </p>
                 <pre class="code-block">123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz</pre>
                 <p>
-                    Notably absent are: <code>0</code> (zero), <code>O</code> (capital O),
-                    <code>I</code> (capital I), and <code>l</code> (lowercase L)—characters
+                    Notably absent are <code>0</code> (zero), <code>O</code> (capital O),
+                    <code>I</code> (capital I), and <code>l</code> (lowercase L)&mdash;characters
                     easily confused in certain fonts.
                 </p>
             </div>
@@ -571,8 +571,8 @@
             </div>
 
             <p>
-                P2SH enables complex spending conditions—multisignature wallets, time-locked
-                contracts, and more—while presenting a uniform address format to senders.
+                P2SH enables complex spending conditions&mdash;multisignature wallets, time-locked
+                contracts, and more&mdash;while presenting a uniform address format to senders.
             </p>
 
             <table class="data-table">
@@ -616,7 +616,7 @@
                 </p>
                 <pre class="code-block">qpzry9x8gf2tvdw0s3jn54khce6mua7l</pre>
                 <p>
-                    Excluded are: <code>1</code>, <code>b</code>, <code>i</code>, <code>o</code>—characters
+                    Excluded are <code>1</code>, <code>b</code>, <code>i</code>, and <code>o</code>&mdash;characters
                     easily confused with others.
                 </p>
             </div>
@@ -726,7 +726,7 @@
                 </p>
             </div>
 
-            <h3>9.8.1 Bech32 vs Bech32m</h3>
+            <h3>9.8.1 Bech32 vs. Bech32m</h3>
 
             <p>
                 BIP-350 introduced Bech32m, a slight modification of Bech32 that fixes an

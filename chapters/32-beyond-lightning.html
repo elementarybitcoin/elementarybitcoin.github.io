@@ -23,10 +23,10 @@
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                Lightning Network solved the payment channel problem, but its complexity and
+                The Lightning Network solved the payment channel problem, but its complexity and
                 liquidity requirements have spurred research into alternative Layer 2 designs.
-                This chapter examines emerging protocols—Ark, Statechains, Channel Factories,
-                and others—that offer different tradeoffs in interactivity, liquidity, and
+                This chapter examines emerging protocols&mdash;Ark, Statechains, Channel Factories,
+                and others&mdash;that offer different tradeoffs in interactivity, liquidity, and
                 on-chain footprint.
             </p>
         </section>
@@ -90,7 +90,7 @@
             <div class="definition">
                 <p class="definition-title">Definition 32.2 (Ark)</p>
                 <p>
-                    <strong>Ark</strong> is an off-chain payment protocol where:
+                    <strong>Ark</strong> is an off-chain payment protocol in which:
                 </p>
                 <ul>
                     <li>An <strong>Ark Service Provider (ASP)</strong> facilitates payments</li>
@@ -159,7 +159,7 @@
                     Ark provides:
                 </p>
                 <ul>
-                    <li><strong>Non-interactive receiving:</strong> Recipient doesn't need to be online</li>
+                    <li><strong>Non-interactive receiving:</strong> Recipient does not need to be online</li>
                     <li><strong>No inbound liquidity:</strong> ASP provides liquidity for everyone</li>
                     <li><strong>Unilateral exit:</strong> Users can always claim on-chain</li>
                     <li><strong>Privacy:</strong> Payments within rounds are unlinkable</li>
@@ -230,7 +230,7 @@
                 <ul>
                     <li>UTXO is locked to a 2-of-2: user key + statechain entity (SE) key</li>
                     <li>Transfer: user sends their key share to recipient, and the SE atomically re-randomizes the shares so the old owner's copy becomes useless</li>
-                    <li>SE cannot steal (doesn't know full key) but can censor</li>
+                    <li>SE cannot steal (it does not know the full key) but can censor</li>
                     <li>Backup transaction allows unilateral on-chain claim</li>
                 </ul>
             </div>
@@ -277,7 +277,7 @@
                     <strong>Mercury Layer</strong> is a statechain implementation using:
                 </p>
                 <ul>
-                    <li>Blind signing by the SE (doesn't learn transaction details)</li>
+                    <li>Blind signing by the SE (it does not learn transaction details)</li>
                     <li>Atomic swaps between statechains</li>
                     <li>Fixed denominations for privacy</li>
                 </ul>
@@ -376,7 +376,7 @@
             <h2>32.5 LN-Symmetry (Eltoo)</h2>
 
             <p>
-                A cleaner channel design that requires SIGHASH_ANYPREVOUT.
+                LN-Symmetry is a cleaner channel design that requires SIGHASH_ANYPREVOUT.
             </p>
 
             <div class="definition">
@@ -385,7 +385,7 @@
                     <strong>LN-Symmetry</strong> (formerly Eltoo) simplifies Lightning channels:
                 </p>
                 <ul>
-                    <li>No asymmetric states—both parties have same commitment tx</li>
+                    <li>No asymmetric states&mdash;both parties have the same commitment tx</li>
                     <li>No penalty mechanism needed</li>
                     <li>State updates can be "rebased" on any prior state</li>
                     <li>Requires ANYPREVOUT (BIP-118)</li>
@@ -398,7 +398,7 @@
                     LN-Symmetry improves on LN-Penalty:
                 </p>
                 <ul>
-                    <li><strong>No toxic waste:</strong> Old states don't risk fund loss</li>
+                    <li><strong>No toxic waste:</strong> Old states do not risk fund loss</li>
                     <li><strong>Simpler watchtowers:</strong> Only need latest state</li>
                     <li><strong>Multi-party channels:</strong> Much easier to implement</li>
                     <li><strong>Smaller closure:</strong> Fewer transactions needed</li>
@@ -461,7 +461,7 @@
                 <p>
                     Calculate the capital efficiency of an Ark Service Provider. If the ASP
                     has 100 BTC locked and processes 1000 payments/day of average 0.01 BTC,
-                    what's the capital turnover rate?
+                    what is the capital turnover rate?
                 </p>
             </div>
 
@@ -484,7 +484,7 @@
             <div class="exercise">
                 <p class="exercise-title">Exercise 32.4</p>
                 <p>
-                    Model a channel factory with 10 participants. What's the probability
+                    Model a channel factory with 10 participants. What is the probability
                     that at least one goes offline during a factory update, assuming 95%
                     individual uptime?
                 </p>

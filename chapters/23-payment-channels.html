@@ -79,7 +79,7 @@
             <p>
                 Bitcoin's blockchain processes approximately 7 transactions per second globally.
                 Payment channels provide a mechanism for parties to transact thousands of times
-                while touching the blockchain only twice—once to open the channel and once to close it.
+                while touching the blockchain only twice&mdash;once to open the channel and once to close it.
             </p>
             <p>
                 This chapter develops the theory of payment channels from first principles,
@@ -256,7 +256,7 @@
                     In a unidirectional channel:
                 </p>
                 <ul>
-                    <li><strong>Bob's guarantee:</strong> Can always claim the latest payment Alice signed (provided he closes the channel before any refund locktime, added below, expires)</li>
+                    <li><strong>Bob's guarantee:</strong> Can always claim the latest payment Alice signed (provided he closes the channel before the expiry of any refund locktime, added below)</li>
                     <li><strong>Alice's guarantee:</strong> Bob can only claim what Alice signed</li>
                     <li><strong>Problem:</strong> Alice cannot recover uncommitted funds if Bob disappears</li>
                 </ul>
@@ -522,7 +522,7 @@ OP_ENDIF</code></pre>
                 <ol>
                     <li>The honest party detects the old state on-chain</li>
                     <li>During the timelock delay, they construct a punishment transaction</li>
-                    <li>Using the revealed revocation secret, they spend ALL channel funds</li>
+                    <li>Using the revealed revocation secret, they spend <em>all</em> channel funds</li>
                     <li>The cheater loses everything</li>
                 </ol>
             </div>
@@ -672,7 +672,7 @@ OP_ENDIF</code></pre>
             <h2>23.6 HTLCs: Conditional Payments</h2>
 
             <p>
-                Payment channels become truly powerful when combined with Hash Time-Locked
+                Payment channels become far more capable when combined with Hash Time-Locked
                 Contracts (HTLCs), enabling conditional payments and multi-hop routing.
             </p>
 
@@ -752,7 +752,7 @@ OP_ENDIF</code></pre>
                 <ol>
                     <li>Receives encrypted breach remedy data from channel participants</li>
                     <li>Monitors the blockchain for revoked commitments</li>
-                    <li>Broadcasts punishment transactions if breach detected</li>
+                    <li>Broadcasts punishment transactions if a breach is detected</li>
                     <li>Optionally collects a fee from recovered funds</li>
                 </ol>
             </div>
@@ -767,7 +767,7 @@ OP_ENDIF</code></pre>
                 <ul>
                     <li>Client provides encrypted blob keyed to commitment txid</li>
                     <li>Watchtower cannot decrypt without seeing breach on-chain</li>
-                    <li>Blob contains only enough info to construct punishment</li>
+                    <li>Blob contains only enough information to construct the punishment</li>
                 </ul>
             </div>
         </section>

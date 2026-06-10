@@ -76,14 +76,14 @@
             <p>
                 In 2012, BIP-37 introduced a mechanism for SPV clients to request only relevant
                 transactions from full nodes, rather than downloading every transaction in every
-                block. The approach used <em>Bloom filters</em>—probabilistic data structures that
+                block. The approach used <em>Bloom filters</em>&mdash;probabilistic data structures that
                 allow set membership queries with controllable false positive rates.
             </p>
             <p>
                 While elegant in theory, BIP-37 proved disastrous for privacy in practice. This
                 chapter examines both the mathematics of Bloom filters and the protocol-level
                 failures that led to its effective deprecation. Understanding these failures is
-                essential for appreciating why modern approaches like compact block filters
+                essential for appreciating why modern designs like compact block filters
                 (Chapter 19) take a fundamentally different approach.
             </p>
         </section>
@@ -91,7 +91,7 @@
         <div class="deprecation-notice">
             <h4>Historical Context</h4>
             <p>
-                BIP-37 Bloom filters are now widely considered harmful to user privacy and are
+                BIP-37 Bloom filters are now widely considered harmful to user privacy and have been
                 disabled by default in Bitcoin Core since version 0.19.0 (2019). This chapter
                 documents the approach for historical understanding and to illustrate how
                 privacy can fail catastrophically despite well-intentioned design.
@@ -104,8 +104,8 @@
             <p>
                 A Bloom filter is a space-efficient probabilistic data structure that tests
                 whether an element is a member of a set. It can produce false positives
-                (claiming an element is in the set when it isn't) but never false negatives
-                (if it says an element isn't in the set, it definitely isn't).
+                (claiming an element is in the set when it is not) but never false negatives
+                (if it says an element is not in the set, it definitely is not).
             </p>
 
             <div class="definition">
@@ -217,7 +217,7 @@
                     </g>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.1</strong> — Bloom filter operations with k=3 hash functions.
+                    <strong>Figure 18.1</strong>&mdash;Bloom filter operations with k=3 hash functions.
                     Red cells indicate bits set to 1. A query returns "possibly in set" only if
                     all k bits are set.
                 </figcaption>
@@ -478,7 +478,7 @@
                     </g>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.2</strong> — A merkleblock message contains just enough
+                    <strong>Figure 18.2</strong>&mdash;A merkleblock message contains just enough
                     Merkle tree nodes to prove that matched transactions are included in the block.
                     The client receives TX B in full, plus hashes H(A) and H(CD) to verify inclusion.
                 </figcaption>
@@ -525,7 +525,7 @@
 
             <p>
                 BIP-37's fundamental flaw is that the client sends its filter directly to
-                the server. Even with false positives providing supposed "cover", the
+                the server. Even with false positives providing supposed "cover," the
                 privacy loss is severe and often complete.
             </p>
 
@@ -612,7 +612,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.3</strong> — When a client updates their filter (e.g., after
+                    <strong>Figure 18.3</strong>&mdash;When a client updates their filter (e.g., after
                     generating new addresses), the intersection of matched addresses across filter
                     versions eliminates false positives and reveals true wallet addresses.
                 </figcaption>
@@ -705,7 +705,7 @@
                 </ul>
                 <p>
                     This work is proportional to block size, while the client's request is
-                    constant size (~36KB max filter + fixed overhead). A single client can
+                    constant size (~36 KB max filter + fixed overhead). A single client can
                     force gigabytes of disk I/O and CPU work.
                 </p>
             </div>
@@ -911,7 +911,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.4</strong> — Complete BIP-37 protocol flow showing filter
+                    <strong>Figure 18.4</strong>&mdash;Complete BIP-37 protocol flow showing filter
                     submission, filtered block requests, and optional filter updates.
                 </figcaption>
             </figure>
@@ -1011,12 +1011,12 @@
             </ul>
 
             <p>
-                However, using BIP-37 reveals your wallet addresses to any node you connect to.
+                However, using BIP-37 reveals a wallet's addresses to any node it connects to.
                 Privacy-conscious users should use wallets that implement:
             </p>
 
             <ul>
-                <li>Compact block filters (BIP-157/158) — see Chapter 19</li>
+                <li>Compact block filters (BIP-157/158)&mdash;see Chapter 19</li>
                 <li>Full block download with local filtering</li>
                 <li>Private Electrum servers</li>
                 <li>Full node with local wallet</li>
@@ -1064,7 +1064,7 @@
             <div class="exercise">
                 <p><strong>Exercise 18.5</strong></p>
                 <p>
-                    Explain why increasing the false positive rate doesn't meaningfully
+                    Explain why increasing the false positive rate does not meaningfully
                     improve privacy against a determined attacker with access to all
                     blockchain addresses.
                 </p>
@@ -1120,7 +1120,7 @@
     </main>
 
     <footer>
-        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+        <p>Elementary Bitcoin &mdash; Volume III: Scaling and Verification</p>
     </footer>
 </body>
 </html>

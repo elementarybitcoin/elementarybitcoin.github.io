@@ -52,7 +52,7 @@
 
             <p>
                 Consider a 12-hour clock. When it shows 10 o'clock and three hours pass, the clock
-                shows 1 o'clock&mdash;not 13. The numbers "wrap around" upon reaching 12. This
+                reads 1 o'clock&mdash;not 13. The numbers "wrap around" upon reaching 12. This
                 wrapping behavior is the essence of modular arithmetic.
             </p>
 
@@ -298,7 +298,7 @@
                     function <span class="math">f: ℤₚ → ℤₚ</span> defined by <span class="math">f(x) = ax</span>.
                     If <span class="math">f(x) = f(y)</span>, then <span class="math">ax ≡ ay (mod p)</span>,
                     so <span class="math">a(x − y) ≡ 0</span>. Since <span class="math">p</span> is
-                    prime and doesn't divide <span class="math">a</span>, it must divide
+                    prime and does not divide <span class="math">a</span>, it must divide
                     <span class="math">x − y</span>, giving <span class="math">x = y</span>. Thus
                     <span class="math">f</span> is injective, hence bijective. In particular, there
                     exists <span class="math">b</span> with <span class="math">f(b) = 1</span>, meaning
@@ -392,7 +392,7 @@
             </p>
             <p>
                 Reducing modulo <span class="math">p</span>: <span class="math">ax ≡ 1 (mod p)</span>.
-                Thus <span class="math">x</span> is the multiplicative inverse of <span class="math">a</span>!
+                Thus <span class="math">x</span> is the multiplicative inverse of <span class="math">a</span>.
             </p>
 
             <div class="definition">
@@ -482,7 +482,7 @@ function extended_gcd(a, b):
             <h2>2.5 Fermat's Little Theorem</h2>
 
             <p>
-                An elegant alternative method for computing inverses emerges from a beautiful
+                An elegant alternative method for computing inverses emerges from a classical
                 result attributed to Pierre de Fermat.
             </p>
 
@@ -579,7 +579,7 @@ function power_mod(a, k, n):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Looking Ahead.</p>
+                <p class="remark-title">Looking Ahead</p>
                 <p>
                     Repeated squaring is the multiplicative cousin of <em>double-and-add</em>, the
                     algorithm used to compute scalar multiplication on elliptic curves (Chapter 3).
@@ -605,7 +605,7 @@ function power_mod(a, k, n):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Efficiency.</p>
+                <p class="remark-title">Efficiency</p>
                 <p>
                     For large primes (like Bitcoin's <span class="math">p ≈ 2²⁵⁶</span>), the
                     extended Euclidean algorithm is typically faster than exponentiation for

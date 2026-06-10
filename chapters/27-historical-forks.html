@@ -25,7 +25,7 @@
             <p class="chapter-intro">
                 Bitcoin's history is marked by several contentious hard forks, each representing
                 a fundamental disagreement about the protocol's direction. This chapter provides
-                a rigorous analysis of major chain splits—their technical motivations, implementation
+                a rigorous analysis of major chain splits&mdash;their technical motivations, implementation
                 details, economic outcomes, and lessons learned. We examine these forks not to
                 judge their merits but to understand the dynamics of decentralized protocol evolution.
             </p>
@@ -58,7 +58,7 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
             <div class="remark">
                 <p class="remark-title">Remark 27.1 (The Scaling Trilemma Applied)</p>
                 <p>
-                    The block size debate represents a manifestation of the scaling trilemma:
+                    The block size debate is a manifestation of the scaling trilemma:
                 </p>
                 <ul>
                     <li><strong>Throughput:</strong> Larger blocks → more transactions per second</li>
@@ -132,7 +132,7 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
         </section>
 
         <section>
-            <h2>27.2 Failed Fork Attempts (2015-2017)</h2>
+            <h2>27.2 Failed Fork Attempts (2015&ndash;2017)</h2>
 
             <p>
                 Before Bitcoin Cash, several attempts to increase the block size failed to
@@ -189,8 +189,8 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
             <div class="definition">
                 <p class="definition-title">Definition 27.5 (Bitcoin Unlimited)</p>
                 <p>
-                    <strong>Bitcoin Unlimited</strong> took a radical approach: no hard-coded
-                    limit. Instead:
+                    <strong>Bitcoin Unlimited</strong> took a more sweeping approach: no hard-coded
+                    limit at all. Instead:
                 </p>
                 <ul>
                     <li>Miners set their own limits ("Emergent Consensus")</li>
@@ -301,7 +301,7 @@ if (timeSince6Blocks > 12 hours):
                     <li>BCH less profitable → miners return to BTC → cycle repeats</li>
                 </ol>
                 <p>
-                    Result: roughly 100,000+ "extra" BCH mined ahead of schedule by the time the EDA was retired (November 2017).
+                    Result: more than 100,000 "extra" BCH mined ahead of schedule by the time the EDA was retired (November 2017).
                 </p>
             </div>
 
@@ -383,7 +383,7 @@ if (timeSince6Blocks > 12 hours):
             <div class="remark">
                 <p class="remark-title">Remark 27.5 (The Hash War)</p>
                 <p>
-                    The BCH/BSV split involved an unusual "hash war" where both sides
+                    The BCH/BSV split involved an unusual "hash war" in which both sides
                     threatened to attack each other's chain:
                 </p>
                 <ul>
@@ -510,7 +510,7 @@ if (timeSince6Blocks > 12 hours):
             <div class="remark">
                 <p class="remark-title">Remark 27.7 (ASIC Resistance Futility)</p>
                 <p>
-                    Changing proof-of-work algorithm to be "ASIC-resistant" provides only
+                    Changing the proof-of-work algorithm to be "ASIC-resistant" provides only
                     temporary protection:
                 </p>
                 <ol>
@@ -566,7 +566,7 @@ if (timeSince6Blocks > 12 hours):
             <div class="definition">
                 <p class="definition-title">Definition 27.10 (Bitcoin Diamond)</p>
                 <p>
-                    Forked November 2017 with:
+                    <strong>Bitcoin Diamond</strong> forked in November 2017 with:
                 </p>
                 <ul>
                     <li>10× coin supply (210 million)</li>
@@ -575,7 +575,7 @@ if (timeSince6Blocks > 12 hours):
                     <li>Encrypted transaction amounts (claimed)</li>
                 </ul>
                 <p>
-                    Largely considered a "fork for profit" with minimal development.
+                    It is largely considered a "fork for profit" with minimal development.
                 </p>
             </div>
 
@@ -584,7 +584,7 @@ if (timeSince6Blocks > 12 hours):
             <div class="definition">
                 <p class="definition-title">Definition 27.11 (Bitcoin Private)</p>
                 <p>
-                    A fork-merge combining Bitcoin and Zclassic (February 2018):
+                    <strong>Bitcoin Private</strong> was a fork-merge combining Bitcoin and Zclassic (February 2018):
                 </p>
                 <ul>
                     <li>zk-SNARK privacy features from Zcash</li>
@@ -592,7 +592,7 @@ if (timeSince6Blocks > 12 hours):
                     <li>Equihash algorithm</li>
                 </ul>
                 <p>
-                    Investigation later revealed 2.04 million secretly premined coins.
+                    An investigation later revealed 2.04 million secretly premined coins.
                 </p>
             </div>
 
@@ -601,7 +601,7 @@ if (timeSince6Blocks > 12 hours):
             <div class="definition">
                 <p class="definition-title">Definition 27.12 (eCash)</p>
                 <p>
-                    Forked from Bitcoin Cash in November 2020:
+                    <strong>eCash</strong> forked from Bitcoin Cash in November 2020:
                 </p>
                 <ul>
                     <li>Avalanche consensus layer (post-consensus)</li>
@@ -633,7 +633,7 @@ if (timeSince6Blocks > 12 hours):
             <h2>27.7 The 2017 SegWit2x Attempt</h2>
 
             <p>
-                The most dramatic fork attempt that <em>didn't</em> happen: SegWit2x.
+                The most consequential fork attempt is one that <em>did not</em> happen: SegWit2x.
             </p>
 
             <div class="definition">
@@ -643,7 +643,7 @@ if (timeSince6Blocks > 12 hours):
                     by major companies and miners:
                 </p>
                 <ol>
-                    <li>Activate SegWit (soft fork) - achieved August 2017</li>
+                    <li>Activate SegWit (soft fork)&mdash;achieved August 2017</li>
                     <li>2 MB base block size hard fork within 6 months</li>
                 </ol>
                 <p>
@@ -807,7 +807,7 @@ if (timeSince6Blocks > 12 hours):
                     <li>Provides exit option, limiting majoritarian abuse</li>
                     <li>Creates natural experiment for different approaches</li>
                     <li>Demonstrates that Bitcoin is not controlled by any group</li>
-                    <li>Historical forks actually strengthened BTC's Schelling point</li>
+                    <li>Historical forks strengthened BTC's Schelling point</li>
                 </ul>
                 <p>
                     The freedom to fork, even if rarely exercised successfully, is a

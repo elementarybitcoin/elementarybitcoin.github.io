@@ -37,7 +37,7 @@
             <p>
                 We now focus our attention on the specific elliptic curve chosen by Satoshi Nakamoto
                 for Bitcoin: <strong>secp256k1</strong>. This curve, defined in the "Standards for
-                Efficient Cryptography" (SEC) document, possesses remarkable properties that make it
+                Efficient Cryptography" (SEC) document, possesses properties that make it
                 both efficient to compute and resistant to known attacks.
             </p>
             <p>
@@ -87,7 +87,7 @@
             </figure>
 
             <div class="remark">
-                <p class="remark-title">On the "k" in secp256k1.</p>
+                <p class="remark-title">On the "k" in secp256k1</p>
                 <p>
                     The SEC naming convention uses "k" for curves with efficiently computable
                     endomorphisms (enabling the GLV optimization for scalar multiplication).
@@ -315,7 +315,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             <p>
                 The fact that <span class="math">n < p</span> might seem surprising. Hasse's
                 theorem guarantees that <span class="math">|n − (p+1)| ≤ 2√p</span>, but it
-                doesn't specify whether <span class="math">n</span> is slightly above or
+                does not specify whether <span class="math">n</span> is slightly above or
                 below <span class="math">p + 1</span>. For secp256k1, we have
                 <span class="math">n ≈ p − 4.3 × 10³⁸</span>.
             </p>
@@ -334,7 +334,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Security Implication.</p>
+                <p class="remark-title">Security Implication</p>
                 <p>
                     A cofactor of 1 is cryptographically ideal. It means there are no "small
                     subgroup" attacks to worry about, and every point on the curve (except
@@ -452,7 +452,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                 </p>
                 <p>
                     So the public key is simply the generator point itself. While this is
-                    mathematically valid, it would be a catastrophically weak key in practice!
+                    mathematically valid, it would be a catastrophically weak key in practice.
                 </p>
                 <p>
                     For <span class="math">d = 2</span>, the public key is <span class="math">P = 2G</span>,
@@ -461,7 +461,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Key Space Size.</p>
+                <p class="remark-title">Key Space Size</p>
                 <p>
                     There are approximately <span class="math">2²⁵⁶</span> possible private keys.
                     For comparison:
@@ -544,7 +544,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                 <ol>
                     <li>Compute <span class="math">y² = x³ + 7 mod p</span></li>
                     <li>Compute <span class="math">y = (y²)^((p+1)/4) mod p</span> (valid since <span class="math">p ≡ 3 (mod 4)</span>)</li>
-                    <li>If the parity of <span class="math">y</span> doesn't match the prefix, use <span class="math">p − y</span></li>
+                    <li>If the parity of <span class="math">y</span> does not match the prefix, use <span class="math">p − y</span></li>
                 </ol>
                 <p>
                     Step 2 works by Euler's criterion: a nonzero <span class="math">a</span> is a
@@ -557,7 +557,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Compression Benefits.</p>
+                <p class="remark-title">Compression Benefits</p>
                 <p>
                     Compressed public keys save 32 bytes per key. In Bitcoin transactions,
                     this reduces transaction size and hence fees. Modern Bitcoin software
@@ -575,7 +575,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             </p>
 
             <div class="remark">
-                <p class="remark-title">Advantages of secp256k1.</p>
+                <p class="remark-title">Advantages of secp256k1</p>
                 <ol>
                     <li>
                         <strong>Efficiency:</strong> The special form of <span class="math">p</span>
@@ -599,7 +599,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Historical Note.</p>
+                <p class="remark-title">Historical Note</p>
                 <p>
                     The NIST curves (P-256, etc.) were specified with seed values used to
                     generate their parameters, but these seeds were never fully explained.
@@ -618,7 +618,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             </p>
 
             <div class="remark">
-                <p class="remark-title">Security Properties of secp256k1.</p>
+                <p class="remark-title">Security Properties of secp256k1</p>
                 <ul>
                     <li>
                         <strong>ECDLP hardness:</strong> No algorithm better than
@@ -626,11 +626,11 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     </li>
                     <li>
                         <strong>Not anomalous:</strong> <span class="math">n ≠ p</span>, so the
-                        anomalous curve attack doesn't apply.
+                        anomalous curve attack does not apply.
                     </li>
                     <li>
                         <strong>High embedding degree:</strong> The curve is not supersingular,
-                        so the MOV attack doesn't apply.
+                        so the MOV attack does not apply.
                     </li>
                     <li>
                         <strong>Twist security:</strong> The quadratic twist of secp256k1 has

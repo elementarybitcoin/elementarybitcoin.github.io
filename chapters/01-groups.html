@@ -38,8 +38,8 @@
         <section>
             <p>
                 When you send Bitcoin, your wallet takes a secret number&mdash;known only to you&mdash;and
-                multiplies it by a special point on a curve, publishing the result for all the world to see.
-                The remarkable fact that nobody can reverse this operation, even with all the world&rsquo;s
+                multiplies it by a special point on a curve, publishing the result for all to see.
+                The remarkable fact that nobody can reverse this operation, even with all the world's
                 computers working until the heat death of the universe, is not a matter of engineering
                 but of mathematics. It rests on the properties of an algebraic structure called a <em>group</em>.
             </p>
@@ -51,7 +51,7 @@
             </p>
             <p>
                 We shall proceed methodically, defining each concept with precision and illuminating
-                it with examples both familiar and novel. By the chapter&rsquo;s end, the reader will possess
+                it with examples both familiar and novel. By the chapter's end, the reader will possess
                 the vocabulary necessary to speak of elliptic curves with mathematical rigor.
             </p>
         </section>
@@ -276,7 +276,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark.</p>
+                <p class="remark-title">Remark</p>
                 <p>
                     The failure of the integers under multiplication to form a group hints at why cryptographers
                     favor working in finite fields, where every nonzero element has a multiplicative inverse.
@@ -362,7 +362,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Notation.</p>
+                <p class="remark-title">Notation</p>
                 <p>
                     When the group operation is written additively (as <span class="math">+</span>), we write
                     <span class="math">ng</span> instead of <span class="math">gⁿ</span>, meaning
@@ -497,7 +497,7 @@
             <h2>1.5 Subgroups</h2>
 
             <p>
-                Within any group, there may lurk smaller groups hiding in plain sight. These
+                Within any group, smaller groups may be hiding in plain sight. These
                 <em>subgroups</em> inherit the group structure from their parent.
             </p>
 
@@ -702,13 +702,13 @@
                     </tr>
                 </table>
                 <p>
-                    If we're told <span class="math">h = 4</span>, we can easily read off <span class="math">k = 4</span>.
+                    If we are told <span class="math">h = 4</span>, we can easily read off <span class="math">k = 4</span>.
                     But in a group with <span class="math">2²⁵⁶</span> elements, such tabulation is impossible.
                 </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Cryptographic Security.</p>
+                <p class="remark-title">Cryptographic Security</p>
                 <p>
                     The best known algorithms for the general DLP have complexity <span class="math">O(√n)</span>,
                     where <span class="math">n</span> is the group order. For Bitcoin's secp256k1 curve with

@@ -74,7 +74,7 @@
             <p>
                 Not every user can or wants to run a full Bitcoin node. Light clients provide
                 a spectrum of trade-offs between resource requirements and trust assumptions.
-                Understanding these trade-offs is essential for choosing—or building—appropriate
+                Understanding these trade-offs is essential for choosing&mdash;or building&mdash;appropriate
                 wallet infrastructure.
             </p>
             <p>
@@ -121,7 +121,7 @@
                 <p>
                     A <em>light client</em> is any Bitcoin client that does not independently
                     validate all transactions and blocks. Light clients necessarily trust
-                    some external party—miners, servers, or peers—for certain guarantees
+                    some external party&mdash;miners, servers, or peers&mdash;for certain guarantees
                     that full nodes verify independently.
                 </p>
             </div>
@@ -183,7 +183,7 @@
 
             <p>
                 Electrum, created in 2011, pioneered the client-server model for Bitcoin
-                wallets. The Electrum protocol (also called ElectrumX protocol) provides
+                wallets. The Electrum protocol (also called the ElectrumX protocol) provides
                 a JSON-RPC interface for querying blockchain data.
             </p>
 
@@ -677,7 +677,7 @@ Response:
                     <li>Querying multiple Electrum servers for consensus</li>
                 </ol>
                 <p>
-                    This doesn't fix privacy (servers still see addresses) but prevents
+                    This does not fix privacy (servers still see addresses) but prevents
                     balance manipulation attacks.
                 </p>
             </div>
@@ -853,7 +853,7 @@ Response:
                 200&ndash;500 bytes) and its merkle inclusion proof (about 11 hashes for
                 a block of 2000 transactions). The light client verifies the merkle proof
                 against the header it already holds, parses the coinbase outputs, and
-                checks the coinbase outputs against the known subsidy for that block
+                checks them against the known subsidy for that block
                 height. Note the limit: verifying the <em>fee</em> component would require
                 the input values of every transaction in the block, so a compact fraud
                 proof can only catch coinbase outputs exceeding the subsidy plus an
@@ -1219,7 +1219,7 @@ Response:
                 <p>
                     Compare the bandwidth requirements for syncing a 100-address wallet
                     from genesis using: (a) full node, (b) BIP-157/158, (c) Electrum
-                    server queries. Assume average block has 2500 transactions.
+                    server queries. Assume the average block has 2500 transactions.
                 </p>
             </div>
 
@@ -1234,7 +1234,7 @@ Response:
             <div class="exercise">
                 <p><strong>Exercise 20.4</strong></p>
                 <p>
-                    Explain why running an Electrum server over Tor still leaks privacy
+                    Explain why using an Electrum server over Tor still leaks privacy
                     to the server operator, while BIP-157/158 over Tor provides meaningful
                     privacy even against the peer.
                 </p>
@@ -1300,7 +1300,7 @@ Response:
                 </li>
                 <li>
                     Block explorer APIs are convenient but provide no verification and
-                    complete privacy loss to the operator.
+                    entail complete privacy loss to the operator.
                 </li>
                 <li>
                     Hybrid approaches combine multiple backends with verification layers

@@ -47,7 +47,7 @@
 
             <p>
                 Merkle trees are foundational to Bitcoin's scalability. They allow lightweight
-                clients to verify payments without downloading full blocks—a property we will
+                clients to verify payments without downloading full blocks&mdash;a property we will
                 explore thoroughly in Volume III when we study Simplified Payment Verification.
             </p>
         </section>
@@ -270,7 +270,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
             <h2>12.3 Merkle Proofs</h2>
 
             <p>
-                The key insight of Merkle trees is that inclusion of any element can be proven
+                The key insight of Merkle trees is that the inclusion of any element can be proven
                 with only <span class="math">O(log n)</span> hashes.
             </p>
 
@@ -334,7 +334,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
                     <rect x="320" y="245" width="15" height="15" fill="#f5f8f0" stroke="#5a8f5a"/>
                     <text x="345" y="257" font-family="Georgia" font-size="9">Computed path</text>
                 </svg>
-                <figcaption>Figure 12.3: To prove Tx B is included, we need only H(A) and H(CD)—just 2 hashes for 4 transactions.</figcaption>
+                <figcaption>Figure 12.3: To prove Tx B is included, we need only H(A) and H(CD)&mdash;just 2 hashes for 4 transactions.</figcaption>
             </figure>
 
             <div class="theorem">
@@ -645,7 +645,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
             <div class="remark">
                 <p class="remark-title">Remark 12.3 (Duplicate Transaction Attack)</p>
                 <p>
-                    Because odd-numbered transaction lists duplicate the last element, an attacker
+                    Because transaction lists of odd length duplicate the last element, an attacker
                     could construct blocks where duplicating certain transactions produced the
                     same Merkle root. This was fixed by rejecting blocks with duplicate transactions.
                 </p>
@@ -695,7 +695,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
                 <p>
                     Taproot encodes alternative spending scripts as leaves in a Merkle tree.
                     The Merkle root is tweaked into the public key. When spending via script,
-                    only the executed script and its Merkle proof are revealed—other branches
+                    only the executed script and its Merkle proof are revealed&mdash;other branches
                     remain private.
                 </p>
             </div>
@@ -748,7 +748,7 @@ E: 7e8f9a0b</pre>
             <div class="exercise">
                 <p class="exercise-title">Exercise 12.5</p>
                 <p>
-                    A Merkle tree has 1,000 leaves. Without knowing which leaf you'll need
+                    A Merkle tree has 1,000 leaves. Without knowing which leaf you will need
                     to prove, how much data must you store to be able to generate a proof
                     for any leaf? (Consider storing the full tree vs. just the leaves.)
                 </p>
