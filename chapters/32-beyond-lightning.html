@@ -27,7 +27,9 @@
                 liquidity requirements have spurred research into alternative Layer 2 designs.
                 This chapter examines emerging protocols&mdash;Ark, Statechains, Channel Factories,
                 and others&mdash;that offer different tradeoffs in interactivity, liquidity, and
-                on-chain footprint.
+                on-chain footprint. These systems are also what the covenant primitives of
+                Chapter 30 would buy: several become simpler, safer, or possible at all
+                given CTV or ANYPREVOUT.
             </p>
         </section>
 
@@ -87,8 +89,8 @@
                 Ark is a new L2 design that trades interactivity for simplicity.
             </p>
 
-            <div class="definition">
-                <p class="definition-title">Definition 32.1 (Ark)</p>
+            <div class="example">
+                <p class="example-title">Example 32.1 (Ark)</p>
                 <p>
                     <strong>Ark</strong> is an off-chain payment protocol in which:
                 </p>
@@ -102,7 +104,7 @@
             </div>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.2 (Ark Round)</p>
+                <p class="definition-title">Definition 32.1 (Ark Round)</p>
                 <p>
                     The ASP periodically creates a <strong>round</strong> (the design
                     calls for rounds every few seconds; deployed implementations batch
@@ -176,6 +178,59 @@
                 </ul>
             </div>
 
+            <p>
+                The capital requirement admits a simple steady-state analysis.
+            </p>
+
+            <div class="theorem">
+                <p class="theorem-title">Proposition 32.1 (ASP Capital Requirement)</p>
+                <p>
+                    Consider an ASP that processes payment volume
+                    <span class="math">v</span> (in BTC per day) and whose vTXOs expire
+                    <span class="math">T</span> days after issuance, so that the BTC the
+                    ASP advances into a round at time <span class="math">t</span> is
+                    recovered only at time <span class="math">t + T</span>. Then at
+                    steady state the ASP's locked capital is
+                </p>
+                <p class="math-block">
+                    C = v · T,
+                </p>
+                <p>
+                    and the capital turnover rate (daily volume per unit of locked
+                    capital) is <span class="math">v/C = 1/T</span> per day.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    At time <span class="math">t</span>, the advances still locked are
+                    exactly those made during the interval
+                    <span class="math">(t − T, t]</span>: earlier advances have expired
+                    and been swept back by the ASP. At steady state the ASP advances
+                    <span class="math">v</span> BTC per day, so the locked total is
+                    <span class="math">C = v · T</span>. Dividing the daily volume by
+                    this capital gives the turnover rate
+                    <span class="math">v/C = 1/T</span>. □
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 32.2 (Ark Capital Turnover)</p>
+                <p>
+                    An ASP has 100 BTC locked and processes 1,000 payments per day of
+                    average size 0.01 BTC, a volume of
+                    <span class="math">v = 1,000 × 0.01 = 10</span> BTC per day. The
+                    turnover rate is <span class="math">v/C = 10/100 = 0.1</span> per
+                    day: each bitcoin of ASP capital supports 0.1 BTC of daily volume,
+                    so the capital cycles once every 10 days. By Proposition 32.1 this
+                    is the steady state of a vTXO expiry of
+                    <span class="math">T = C/v = 10</span> days; halving the expiry to
+                    5 days would halve the capital requirement to 50 BTC for the same
+                    volume.
+                </p>
+            </div>
+
             <div class="remark">
                 <p class="remark-title">Remark 32.3 (Ark vs Lightning)</p>
                 <table class="data-table">
@@ -225,7 +280,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.3 (Statechain)</p>
+                <p class="definition-title">Definition 32.2 (Statechain)</p>
                 <p>
                     A <strong>statechain</strong> transfers UTXO ownership off-chain:
                 </p>
@@ -273,8 +328,8 @@
                 <figcaption>Figure 32.3: Statechain transfers UTXO ownership without on-chain transaction.</figcaption>
             </figure>
 
-            <div class="definition">
-                <p class="definition-title">Definition 32.4 (Mercury Layer)</p>
+            <div class="example">
+                <p class="example-title">Example 32.3 (Mercury Layer)</p>
                 <p>
                     <strong>Mercury Layer</strong> is a statechain implementation using:
                 </p>
@@ -307,7 +362,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.5 (Channel Factory)</p>
+                <p class="definition-title">Definition 32.3 (Channel Factory)</p>
                 <p>
                     A <strong>channel factory</strong> is a multi-party channel that can create
                     and modify internal channels without on-chain transactions:
@@ -372,6 +427,60 @@
                     <li><strong>Covenants would help:</strong> CTV could simplify coordination</li>
                 </ul>
             </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Proposition 32.2 (Factory Availability)</p>
+                <p>
+                    Suppose each of the <span class="math">n</span> participants in a
+                    channel factory is online independently with probability
+                    <span class="math">p</span> when an update is attempted. Then the
+                    probability that the update can proceed is
+                </p>
+                <p class="math-block">
+                    P(all n online) = p^n,
+                </p>
+                <p>
+                    the probability that at least one participant is offline is
+                    <span class="math">1 − p^n</span>, and the expected number of
+                    attempts until a successful update is <span class="math">1/p^n</span>.
+                    In particular, update availability decays exponentially in
+                    <span class="math">n</span>.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    Let <span class="math">A_i</span> be the event that participant
+                    <span class="math">i</span> is online, with
+                    <span class="math">P(A_i) = p</span>. A factory update requires all
+                    <span class="math">n</span> signatures (Definition 32.3), so it
+                    succeeds exactly on the event
+                    <span class="math">A_1 ∩ ⋯ ∩ A_n</span>, which by independence has
+                    probability <span class="math">p^n</span>. The complement has
+                    probability <span class="math">1 − p^n</span>, and the number of
+                    independent attempts until the first success is geometric with mean
+                    <span class="math">1/p^n</span>. Since <span class="math">p &lt; 1</span>,
+                    <span class="math">p^n</span> decreases exponentially as
+                    <span class="math">n</span> grows. □
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 32.4 (Ten-Party Factory Update)</p>
+                <p>
+                    Take <span class="math">n = 10</span> participants with 95%
+                    individual uptime. By Proposition 32.2 the probability that an
+                    update attempt succeeds is
+                    <span class="math">0.95^10 ≈ 0.599</span>, so about 40% of attempts
+                    (<span class="math">1 − 0.599 ≈ 0.401</span>) find at least one
+                    participant offline, and on average
+                    <span class="math">1/0.599 ≈ 1.67</span> attempts are needed per
+                    update. Even with high individual uptime, a ten-party factory is
+                    updateable only about 60% of the time: this makes the coordination
+                    cost of Remark 32.6 quantitative.
+                </p>
+            </div>
         </section>
 
         <section>
@@ -382,8 +491,8 @@
                 mechanism; it requires SIGHASH_ANYPREVOUT.
             </p>
 
-            <div class="definition">
-                <p class="definition-title">Definition 32.6 (LN-Symmetry)</p>
+            <div class="example">
+                <p class="example-title">Example 32.5 (LN-Symmetry)</p>
                 <p>
                     <strong>LN-Symmetry</strong> (formerly Eltoo) simplifies Lightning channels:
                 </p>
@@ -462,9 +571,11 @@
             <div class="exercise">
                 <p class="exercise-title">Exercise 32.1</p>
                 <p>
-                    Calculate the capital efficiency of an Ark Service Provider. If the ASP
-                    has 100 BTC locked and processes 1000 payments/day of average 0.01 BTC,
-                    what is the capital turnover rate?
+                    An ASP has 50 BTC locked and processes 4,000 payments per day of
+                    average size 0.005 BTC. Compute the daily payment volume and the
+                    capital turnover rate. Using Proposition 32.1, what vTXO expiry is
+                    consistent with this steady state? How much capital would the ASP
+                    need if it doubled its volume while extending the expiry to 7 days?
                 </p>
             </div>
 
@@ -487,9 +598,12 @@
             <div class="exercise">
                 <p class="exercise-title">Exercise 32.4</p>
                 <p>
-                    Model a channel factory with 10 participants. What is the probability
-                    that at least one goes offline during a factory update, assuming 95%
-                    individual uptime?
+                    A channel factory has 15 participants, each independently online 98%
+                    of the time. Using Proposition 32.2, compute the probability that a
+                    factory update attempt succeeds and the probability that at least one
+                    participant is offline. Keeping <span class="math">p = 0.98</span>,
+                    how large can <span class="math">n</span> grow before the success
+                    probability falls below one half?
                 </p>
             </div>
         </section>

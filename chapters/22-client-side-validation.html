@@ -655,49 +655,52 @@
                 </figcaption>
             </figure>
 
-            <h3>Comparison: RGB vs Taproot Assets</h3>
+            <h3>Comparison: RGB and Taproot Assets</h3>
+
+            <p>
+                Both protocols instantiate the same theory: UTXOs as single-use seals
+                (Theorem 22.1), state held off-chain, validation by the receiving party.
+                What distinguishes them conceptually is how each organizes that off-chain
+                state and what it asks the chain, and the receiver, to check:
+            </p>
 
             <table class="bitcoin-table">
                 <thead>
                     <tr>
-                        <th>Feature</th>
+                        <th>Aspect</th>
                         <th>RGB</th>
                         <th>Taproot Assets</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Smart contracts</td>
-                        <td>Full schema system</td>
-                        <td>Limited (assets focus)</td>
+                        <td>Validation model</td>
+                        <td>Receiver replays the full transition DAG against the contract schema</td>
+                        <td>Receiver verifies Merkle-sum (MS-SMT) inclusion and balance proofs</td>
                     </tr>
                     <tr>
-                        <td>Commitment</td>
-                        <td>Taproot / OP_RETURN</td>
-                        <td>Taproot only</td>
+                        <td>Where state lives</td>
+                        <td>Off-chain, held by the parties (consignments)</td>
+                        <td>Off-chain, held by the parties; optional public "Universe" registries for discovery</td>
                     </tr>
                     <tr>
-                        <td>Data structure</td>
-                        <td>DAG of transitions</td>
-                        <td>MS-SMT</td>
+                        <td>What the chain sees</td>
+                        <td>An opaque commitment (Taproot tweak or OP_RETURN)</td>
+                        <td>An opaque commitment (Taproot tweak only)</td>
                     </tr>
                     <tr>
-                        <td>Lightning</td>
-                        <td>Via separate channels</td>
-                        <td>Native integration</td>
-                    </tr>
-                    <tr>
-                        <td>Discovery</td>
-                        <td>Fully private</td>
-                        <td>Optional "Universe"</td>
-                    </tr>
-                    <tr>
-                        <td>Maturity</td>
-                        <td>Longer development</td>
-                        <td>Newer</td>
+                        <td>Trust assumptions</td>
+                        <td>Bitcoin consensus plus correct validation code; no third party</td>
+                        <td>Same; a Universe, where used, is trusted for discovery only, never for validity</td>
                     </tr>
                 </tbody>
             </table>
+
+            <p>
+                The two systems also differ in contract expressiveness, Lightning
+                integration, and maturity; these are feature-level distinctions that shift
+                with each release, and we omit them here.
+            </p>
         </section>
 
         <section>

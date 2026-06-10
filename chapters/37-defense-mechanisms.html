@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter 37: Defense Mechanisms | Elementary Bitcoin</title>
-    <meta name="description" content="Chapter 37: Defense Mechanisms - Checkpoints, confirmations, finality, and protection against attacks">
+    <meta name="description" content="Chapter 37: Defense Mechanisms - Trust accounting for checkpoints, minimum chain work, AssumeValid, confirmations, and the social layer">
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -17,54 +17,78 @@
     <header class="chapter-header">
         <p class="chapter-number">Chapter 37</p>
         <h1>Defense Mechanisms</h1>
-        <p class="chapter-subtitle">Checkpoints, Confirmations, and Protection</p>
+        <p class="chapter-subtitle">Trust Accounting for Bitcoin's Defenses</p>
     </header>
 
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                Bitcoin has evolved multiple layers of defense against the threats described
-                in the previous chapter. Some are built into the protocol; others are social
-                or economic. This chapter examines confirmation requirements, checkpoints,
-                node hardening, and the broader security model that protects Bitcoin users.
+                Bitcoin defends against the threats of Chapter 36 with several mechanisms:
+                confirmation requirements, checkpoints, minimum chain work, the validation
+                shortcuts of Chapter 21, peer-selection hardening, and an off-protocol
+                social layer. The mathematics of these mechanisms appears elsewhere in this
+                book; this chapter asks a different question. None of these defenses is
+                free: each one asks its user to trust something, and the useful question is
+                not "what defenses exist?" but "what does each defense ask you to trust,
+                and how is that trust bounded?" For each mechanism we state precisely
+                <em>what</em> is trusted, <em>by whom</em>, and <em>what a failure of that
+                trust would mean</em>. Every running node enables some configuration of
+                these mechanisms, so every node operator holds a portfolio of trust
+                assumptions, whether or not they have read the ledger. Figure 37.4 in
+                Section 37.7 collects the threat&ndash;defense pairings that organize the
+                chapter; each pairing should be read as a trade, in which a threat is
+                mitigated at the price of a bounded trust assumption. Section 37.8
+                closes the account with a single table listing every mechanism, its
+                trusted party, the scope of the trust, and its failure mode.
             </p>
         </section>
 
         <section>
             <h2 id="s37-1">37.1 Confirmation-Based Security</h2>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.1 (Confirmation)</p>
-                <p>
-                    A transaction has <strong><span class="math">k</span> confirmations</strong> when it is included
-                    in a block with <span class="math">k − 1</span> blocks built on top of it. The first block containing
-                    the transaction is confirmation 1.
-                </p>
-            </div>
+            <p>
+                The first defense is the oldest: wait. A transaction is
+                <span class="math">k</span>-confirmed when it is included in a block with
+                <span class="math">k − 1</span> blocks built on top of it
+                (Definition 26.11). The probability that an attacker with hashrate
+                fraction <span class="math">q &lt; 0.5</span> reverses a
+                <span class="math">k</span>-confirmed transaction is given by Nakamoto's
+                double-spend formula, stated as Theorem 14.2, derived by the
+                gambler's-ruin argument of Theorem 26.3, and tabulated in Section 14.8.
+                We do not restate that analysis here; what this chapter adds is the
+                trust statement it rests on.
+            </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.1 (Confirmation Security Model)</p>
+                <p class="remark-title">Remark 37.1 (Trust Accounting: Confirmations)</p>
                 <p>
-                    Confirmations provide probabilistic security:
+                    <strong>What is trusted:</strong> the honest-majority hypothesis,
+                    <span class="math">q &lt; 0.5</span>, together with the assumption that
+                    the node observing the confirmations sees the real network rather than
+                    an attacker-curated view (Section 37.5).
+                    <strong>By whom:</strong> every recipient who treats a
+                    <span class="math">k</span>-confirmed payment as settled.
+                    <strong>Failure mode:</strong> if <span class="math">q ≥ 0.5</span>,
+                    Theorem 36.1 gives reversal probability 1 for every
+                    <span class="math">k</span>; no confirmation count protects against a
+                    majority attacker. Even for <span class="math">q &lt; 0.5</span> the
+                    guarantee is quantitative, not absolute: recall from Chapter 36 that
+                    the naive catch-up bound <span class="math">(q/(1−q))ᵏ</span>
+                    understates the true probability (at <span class="math">q = 10%</span>,
+                    <span class="math">k = 6</span>: about 0.02%, not 0.0002%).
+                    Confirmations therefore buy a measured quantity of security against a
+                    hypothesized adversary; they do not buy finality.
                 </p>
-                <ul>
-                    <li>More confirmations = exponentially lower reversal probability</li>
-                    <li>Against an attacker with hashrate <span class="math">q &lt; 50%</span>, the reversal probability is
-                    given by Nakamoto's formula (Theorem 36.1); it decays roughly geometrically
-                    in <span class="math">k</span>, but the naive catch-up bound <span class="math">(q/(1−q))ᵏ</span> understates it
-                    (<span class="math">q = 10%</span>, <span class="math">k = 6</span>: about 0.02%, not 0.0002%)</li>
-                    <li>6 confirmations (~1 hour): Standard for large transactions</li>
-                    <li>1 confirmation (~10 min): Often sufficient for small amounts</li>
-                </ul>
             </div>
 
             <div class="example">
                 <p class="example-title">Example 37.1 (Published Confirmation Policies)</p>
                 <p>
                     Typical published exchange and merchant confirmation policies
-                    (approximate, mid-2026). Read against the reversal-probability table
-                    of Theorem 36.1, the policies scale the confirmation count with the
-                    value at risk.
+                    (approximate, mid-2026). Each row is an implicit trust statement:
+                    the chosen <span class="math">k</span> encodes the operator's estimate
+                    of the largest <span class="math">q</span> an attacker could
+                    profitably deploy against the value at risk.
                 </p>
                 <table class="data-table">
                     <thead>
@@ -128,7 +152,7 @@
                     <text x="360" y="143" font-family="Georgia" font-size="9">5</text>
                     <text x="416" y="143" font-family="Georgia" font-size="9">6</text>
                 </svg>
-                <figcaption>Figure 37.1: Reversal probability drops exponentially with confirmations.</figcaption>
+                <figcaption>Figure 37.1: Reversal probability drops exponentially with confirmations, conditional on the honest-majority hypothesis <span class="math">q &lt; 0.5</span> (Theorem 14.2).</figcaption>
             </figure>
         </section>
 
@@ -136,7 +160,7 @@
             <h2 id="s37-2">37.2 Checkpoints</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 37.2 (Checkpoint)</p>
+                <p class="definition-title">Definition 37.1 (Checkpoint)</p>
                 <p>
                     A <strong>checkpoint</strong> is a hardcoded (block height, block hash)
                     pair in node software. The node rejects any chain that does not include
@@ -145,7 +169,29 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.2 (Historical Checkpoints)</p>
+                <p class="remark-title">Remark 37.2 (Trust Accounting: Checkpoints)</p>
+                <p>
+                    <strong>What is trusted:</strong> the developers who selected the
+                    (height, hash) pairs, and the public review process around the release
+                    that shipped them.
+                    <strong>By whom:</strong> every node running an unmodified binary
+                    containing the checkpoints.
+                    <strong>Failure mode:</strong> a wrong or malicious checkpoint would
+                    force nodes onto a developer-chosen history, overriding proof-of-work
+                    entirely at the checkpointed heights. The trust is bounded in two ways.
+                    First, in scope: checkpoints cover only deep history. The most recent
+                    mainnet checkpoint sits at height 295,000 (April 2014), and none has
+                    been added since, so checkpoints constrain nothing about recent blocks.
+                    Second, in detectability: each pair is publicly checkable against the
+                    chain every existing node already holds, so a release containing a
+                    divergent checkpoint would fail review or be exposed immediately upon
+                    comparison. The trust is in a loud, auditable artifact, not a silent
+                    one.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 37.3 (Historical Checkpoints)</p>
                 <p>
                     Bitcoin Core historically included checkpoints:
                 </p>
@@ -158,41 +204,39 @@ checkpointData = {
     {105000, "0x00000000000291ce28027faea320c8d2..."},
     // ... more checkpoints
 };</pre>
-            </div>
-
-            <div class="remark">
-                <p class="remark-title">Remark 37.3 (Checkpoint Security)</p>
                 <p>
-                    Checkpoints provide:
-                </p>
-                <ul>
-                    <li><strong>DoS protection:</strong> Reject low-work fake chains quickly</li>
-                    <li><strong>Deep reorg prevention:</strong> Cannot reorg past checkpoint</li>
-                    <li><strong>Sync speedup:</strong> Skip some validation before checkpoint</li>
-                </ul>
-                <p>
-                    Tradeoff: Requires trusting checkpoint authors.
+                    In exchange for the trust of Remark 37.2, checkpoints provide DoS
+                    protection (low-work fake chains are rejected quickly), deep-reorg
+                    prevention (no reorg past a checkpoint), and a sync speedup (some
+                    validation is skipped before the checkpoint).
                 </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.4 (Checkpoint Controversy)</p>
+                <p class="remark-title">Remark 37.4 (From Checkpoints to Weaker Assumptions)</p>
                 <p>
-                    Checkpoints are controversial because they:
+                    Checkpoints are the most heavily criticized item in the trust ledger:
+                    they place the choice of valid history directly in developers' hands,
+                    could in principle be used maliciously, and sit uneasily with the
+                    "don't trust, verify" ethos. Modern Bitcoin Core has therefore frozen
+                    the checkpoint list and replaced its functions with mechanisms that
+                    ask for strictly less trust:
                 </p>
                 <ul>
-                    <li>Add trust in developers who set them</li>
-                    <li>Could theoretically be used maliciously</li>
-                    <li>Contradict "don't trust, verify" ethos</li>
+                    <li><strong>Headers-first sync:</strong> verify the proof-of-work chain
+                        before downloading blocks (Definition 21.2); trusts nothing beyond
+                        proof-of-work itself</li>
+                    <li><strong>Minimum chain work:</strong> reject chains below a work
+                        threshold (Section 37.3); trusts one number, not a chosen chain</li>
+                    <li><strong>AssumeValid:</strong> skip signature verification beneath a
+                        buried block (Section 37.4); trusts a hash whose effect is void
+                        unless an attacker also out-works the honest network</li>
                 </ul>
                 <p>
-                    Modern Bitcoin Core has de-emphasized checkpoints in favor of:
+                    The progression is the central pattern of this chapter: successive
+                    defenses retain most of the benefit while shrinking the scope of what
+                    must be trusted.
                 </p>
-                <ul>
-                    <li><strong>AssumeValid:</strong> Skip signature verification before known block</li>
-                    <li><strong>Headers-first sync:</strong> Verify PoW chain before downloading</li>
-                    <li><strong>Minimum chain work:</strong> Reject chains below threshold</li>
-                </ul>
             </div>
         </section>
 
@@ -200,7 +244,7 @@ checkpointData = {
             <h2 id="s37-3">37.3 Minimum Chain Work</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 37.3 (Minimum Chain Work)</p>
+                <p class="definition-title">Definition 37.2 (Minimum Chain Work)</p>
                 <p>
                     <strong>nMinimumChainWork</strong> is a hardcoded minimum cumulative
                     proof-of-work a chain must have to be considered valid:
@@ -215,17 +259,26 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.5 (Minimum Work Protection)</p>
+                <p class="remark-title">Remark 37.5 (Trust Accounting: Minimum Chain Work)</p>
                 <p>
-                    Minimum chain work provides:
+                    <strong>What is trusted:</strong> that the cumulative-work value
+                    recorded in the release is honest, that is, no greater than the work of
+                    the actual best chain at release time.
+                    <strong>By whom:</strong> every syncing node.
+                    <strong>Failure mode:</strong> a value set too low (or an old release
+                    never updated) weakens the filter, and the node may accept a low-work
+                    attack chain as a plausible sync candidate, wasting bandwidth and, in
+                    the worst case, following a fake chain until full validation or a
+                    higher-work honest chain corrects it. A value set too high, above the
+                    honest chain's work, fails loudly: the node refuses to consider any
+                    chain valid and cannot complete sync, a denial of service that is
+                    immediately visible rather than silently corrupting.
                 </p>
-                <ul>
-                    <li>Protection against low-work attack chains</li>
-                    <li>Faster sync (reject low-work chains early)</li>
-                    <li>No checkpoint-style trust (only requires past work exists)</li>
-                </ul>
                 <p>
-                    A chain below the minimum work is rejected without further validation.
+                    The trust here is strictly weaker than checkpoint trust: the value
+                    names no block and selects no chain. Any chain meeting the threshold
+                    passes, so developers shipping the number cannot steer nodes onto a
+                    particular history; they can only set the height of the bar.
                 </p>
             </div>
         </section>
@@ -233,32 +286,53 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
         <section>
             <h2 id="s37-4">37.4 AssumeValid and AssumeUTXO</h2>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.4 (AssumeValid)</p>
+            <p>
+                The mechanics of AssumeValid and AssumeUTXO are given in Chapter 21:
+                AssumeValid (Definition 21.3, Section 21.2) skips signature verification
+                for blocks beneath a hardcoded buried block while validating every other
+                consensus rule and building the full UTXO set; AssumeUTXO
+                (Definition 21.4, Section 21.3) bootstraps a node from a UTXO-set snapshot
+                whose hash is hardcoded in the binary, with full historical validation
+                continuing in the background. Their security properties are Theorems 21.1
+                and 21.2. Here we record only their entries in the trust ledger.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 37.6 (Trust Accounting: AssumeValid)</p>
                 <p>
-                    <strong>AssumeValid</strong> skips signature verification for blocks
-                    before a known "valid" block:
+                    <strong>What is trusted:</strong> the release process that selected
+                    the buried block hash: the developers who proposed it, the reviewers
+                    who checked it, and the signatures on the distributed binary.
+                    <strong>By whom:</strong> every node running with the default setting
+                    (it can be disabled with <code>-assumevalid=0</code>).
+                    <strong>Failure mode:</strong> accepting a history containing invalid
+                    signatures beneath the buried block. The trust is conjunctive, which
+                    is what makes it small: by Theorem 21.1, a malicious hash has no
+                    effect unless the chain containing the invalid signatures is also the
+                    most-work chain the node sees. An attacker must therefore corrupt the
+                    release process <em>and</em> out-work the honest network. The scope
+                    is also narrow: only signature checks are skipped, only beneath the
+                    buried block; amounts, inflation limits, and all other rules of the
+                    validation function (Definition 13.18) are still enforced.
                 </p>
-                <ul>
-                    <li>Still validates all other consensus rules</li>
-                    <li>Still builds UTXO set</li>
-                    <li>Skips signature checks (the most CPU-intensive part)</li>
-                    <li>Can be disabled with -assumevalid=0</li>
-                </ul>
             </div>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.5 (AssumeUTXO)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 37.7 (Trust Accounting: AssumeUTXO)</p>
                 <p>
-                    <strong>AssumeUTXO</strong> allows instant sync by assuming a UTXO
-                    set snapshot is valid:
+                    <strong>What is trusted:</strong> the snapshot hash shipped with the
+                    binary, through the same release process as AssumeValid.
+                    <strong>By whom:</strong> nodes that opt in to snapshot-based sync.
+                    <strong>Failure mode:</strong> larger than AssumeValid's. A wrong
+                    snapshot hash endorses an arbitrary UTXO set: fabricated balances,
+                    erased coins, anything. The bound is temporal rather than structural:
+                    by Theorem 21.2, background validation eventually re-derives the UTXO
+                    set from genesis, and a node that finds a mismatch rejects the
+                    snapshot. The trust is therefore borrowed, not granted: it is real
+                    during the window between snapshot load and background-validation
+                    completion, and it is repaid in full when the two-phase sync
+                    finishes.
                 </p>
-                <ol>
-                    <li>Download UTXO snapshot (serialized state)</li>
-                    <li>Verify hash matches hardcoded value</li>
-                    <li>Begin syncing from snapshot height immediately</li>
-                    <li>Background-validate full history eventually</li>
-                </ol>
             </div>
 
             <figure>
@@ -294,7 +368,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <rect x="70" y="155" width="280" height="15" fill="#f5f8f0" stroke="#5a8f5a"/>
                     <text x="210" y="167" text-anchor="middle" font-family="Georgia" font-size="9">Background validation (AssumeUTXO)</text>
                 </svg>
-                <figcaption>Figure 37.2: AssumeValid and AssumeUTXO sync optimization.</figcaption>
+                <figcaption>Figure 37.2: The trusted regions of the chain timeline under AssumeValid and AssumeUTXO; mechanics in Sections 21.2&ndash;21.3.</figcaption>
             </figure>
         </section>
 
@@ -302,7 +376,28 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             <h2 id="s37-5">37.5 Node Hardening</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.6 (Eclipse Attack Mitigations)</p>
+                <p class="remark-title">Remark 37.8 (Trust Accounting: Peer Selection)</p>
+                <p>
+                    <strong>What is trusted:</strong> assumptions about network topology:
+                    that the DNS seeds and address gossip from which a node learns peers
+                    are not wholly attacker-controlled, and that honest listening nodes
+                    are spread across many network groups.
+                    <strong>By whom:</strong> every node, since every node must choose
+                    peers somehow.
+                    <strong>Failure mode:</strong> the eclipse attack of Section 36.4. An
+                    eclipsed node still enforces every consensus rule, so an attacker
+                    cannot feed it invalid blocks; but the node's view of the
+                    <em>best</em> chain, the mempool, and network time becomes
+                    attacker-curated, which undermines the confirmation counting of
+                    Section 37.1 and enables the time-dilation attacks of
+                    Section 36.5.3. Unlike the mechanisms of Sections 37.2&ndash;37.4,
+                    this trust cannot be replaced by a hash in a binary; it can only be
+                    diversified, which is what the following defenses do.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 37.9 (Eclipse Attack Mitigations)</p>
                 <p>
                     Bitcoin Core includes multiple eclipse attack defenses:
                 </p>
@@ -313,6 +408,11 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <li><strong>Feeler connections:</strong> Periodically test new peers</li>
                     <li><strong>Peer eviction logic:</strong> Protect diverse, long-standing connections</li>
                 </ul>
+                <p>
+                    Each defense spreads the topology trust of Remark 37.8 across more
+                    independent parties, so that an attacker must control many network
+                    groups simultaneously rather than one address range.
+                </p>
             </div>
 
             <figure>
@@ -370,7 +470,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.7 (Tor and Privacy)</p>
+                <p class="remark-title">Remark 37.10 (Tor and Privacy)</p>
                 <p>
                     Running over Tor provides additional protection:
                 </p>
@@ -380,7 +480,10 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <li>Onion-only mode possible (-onlynet=onion)</li>
                 </ul>
                 <p>
-                    Tradeoff: Latency increase, potential Tor-level attacks.
+                    In trust-accounting terms this is a substitution, not an elimination:
+                    the node exchanges trust in the visibility of its own network position
+                    for trust in the Tor network's relays and directory authorities, and
+                    accepts higher latency and exposure to Tor-level attacks in return.
                 </p>
             </div>
         </section>
@@ -388,23 +491,41 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
         <section>
             <h2 id="s37-6">37.6 Economic Security</h2>
 
+            <p>
+                Every entry in Section 37.1's ledger charged its trust to the
+                honest-majority hypothesis. That hypothesis is not an axiom; it is
+                purchased continuously.
+            </p>
+
             <div class="remark">
-                <p class="remark-title">Remark 37.8 (Security Budget)</p>
+                <p class="remark-title">Remark 37.11 (Trust Accounting: The Honest-Majority Hypothesis)</p>
                 <p>
-                    Bitcoin's security is funded by:
+                    <strong>What is trusted:</strong> that the incentive structure of
+                    mining keeps a majority of hashrate honest, funded by the security
+                    budget:
                 </p>
                 <p class="math-block">
                     Security Budget = Block Subsidy + Transaction Fees
                 </p>
                 <p>
-                    This budget pays miners to provide honest hashrate, making attacks expensive.
+                    <strong>By whom:</strong> everyone relying on confirmation-based
+                    security, which by Remark 37.1 is every recipient of a payment.
+                    <strong>Failure mode:</strong> if the budget no longer makes honest
+                    mining more attractive than attacking, the hypothesis
+                    <span class="math">q &lt; 0.5</span> can fail, and with it the entire
+                    first row of the ledger. The trusted party here is notable: it is not
+                    a developer or a release process but a market structure, with no
+                    binary to audit and no flag to disable. Chapter 38 examines the
+                    conditions under which this trust could erode as the subsidy declines.
                 </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.9 (Attack-Cost Asymmetry)</p>
+                <p class="remark-title">Remark 37.12 (Attack-Cost Asymmetry)</p>
                 <p>
-                    Under current conditions, attacking is more expensive than defending:
+                    What currently keeps the hypothesis funded is an asymmetry between
+                    attacking and defending (cost figures in Section 36.6 and
+                    Example 36.2):
                 </p>
                 <ul>
                     <li>An attacker must match the honest hashrate plus some margin</li>
@@ -412,10 +533,6 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <li>Honest miners are paid (block rewards)</li>
                     <li>Attacker gains are self-limiting: the double-spend value plus any block rewards earned, whose value tends to collapse if the attack undermines confidence</li>
                 </ul>
-                <p>
-                    Chapter 38 examines the conditions under which this asymmetry could
-                    fail.
-                </p>
             </div>
 
             <div class="example">
@@ -458,7 +575,28 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             <h2 id="s37-7">37.7 Social Layer Defenses</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.10 (Social Consensus)</p>
+                <p class="remark-title">Remark 37.13 (Trust Accounting: The Social Layer)</p>
+                <p>
+                    <strong>What is trusted:</strong> off-protocol coordination: that an
+                    ad hoc set of developers, mining pool operators, and businesses can
+                    communicate, agree on a response, and act within hours when the
+                    protocol itself fails.
+                    <strong>By whom:</strong> everyone, but only in emergencies; in normal
+                    operation this layer is dormant.
+                    <strong>Failure mode:</strong> two-sided. If the trust is misplaced
+                    because coordination fails, a consensus emergency goes unresolved and
+                    the chain stays split. If the trust is misplaced in the opposite
+                    direction, the same small group that can coordinate a rescue could
+                    coordinate a rule change, which is precisely the governance concern of
+                    Chapter 33 and the maintainer trust vector of Section 33.9. The social
+                    layer is the only defense in this chapter whose trusted party is a
+                    group of identifiable people acting with discretion rather than an
+                    auditable artifact.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 37.14 (Channels of Social Defense)</p>
                 <p>
                     Beyond technical rules, Bitcoin has social defenses:
                 </p>
@@ -470,17 +608,31 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                 </ul>
             </div>
 
-            <div class="remark">
-                <p class="remark-title">Remark 37.11 (The 2013 Fork Response)</p>
+            <div class="example">
+                <p class="example-title">Example 37.3 (The 2013 Coordinated Response)</p>
                 <p>
-                    When a bug caused a 24-block reorg in 2013:
+                    The evidence that the social layer works is the fork of March 2013.
+                    A divergence between Bitcoin Core 0.7 and 0.8, an unwritten
+                    database-level validation rule analyzed as a specification failure in
+                    Example 33.7, split the network at block 225,430 into two chains, each
+                    extended by part of the hashrate. The protocol could not resolve the
+                    split: both chains were valid under the rules their miners ran, and
+                    the most-work rule was selecting the chain that older nodes could not
+                    accept.
                 </p>
-                <ul>
-                    <li>Developers, miners, and businesses coordinated on IRC</li>
-                    <li>Miners voluntarily downgraded to maintain consensus</li>
-                    <li>Crisis resolved within hours</li>
-                    <li>The episode demonstrated the role of off-protocol coordination</li>
-                </ul>
+                <p>
+                    The resolution came entirely from the layer described in
+                    Remark 37.13. Developers, major mining pools, and businesses converged
+                    on IRC within the hour; the pools mining the 0.8 chain voluntarily
+                    downgraded to 0.7, deliberately abandoning the longer chain and
+                    forfeiting their own block rewards on it; the 0.7 chain overtook
+                    within hours, producing a 24-block reorganization (Example 36.1); and
+                    the incident, including a roughly $10,000 double-spend executed
+                    against a payment processor during the window, was documented in
+                    BIP-50. Every element of the trust statement was exercised: a small
+                    identifiable group, acting with discretion, off protocol, against
+                    their immediate economic interest, within hours.
+                </p>
             </div>
 
             <figure>
@@ -541,44 +693,117 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <text x="380" y="249" text-anchor="middle" font-family="Georgia" font-size="9">Social coordination, UASF</text>
                     <text x="380" y="262" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&sect;37.7</text>
                 </svg>
-                <figcaption>Figure 37.4: Defense in depth&mdash;each attack class is met by at least one mitigating mechanism.</figcaption>
+                <figcaption>Figure 37.4: Defense in depth. Each attack class is met by at least one mechanism, and each pairing is a trust trade rather than a free counter: the right column's protection is bought with the trust assumptions itemized in Remarks 37.1, 37.2, 37.5&ndash;37.8, 37.11, and 37.13.</figcaption>
             </figure>
         </section>
 
         <section>
-            <h2 id="s37-8">37.8 Finality Considerations</h2>
+            <h2 id="s37-8">37.8 Finality and the Trust Portfolio</h2>
+
+            <p>
+                Bitcoin's finality is probabilistic: by Definition 26.11 and
+                Theorem 26.3, reversal probability decays exponentially with
+                confirmations but never reaches zero. Some other consensus systems offer
+                a categorically different guarantee.
+            </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 37.6 (Probabilistic vs Deterministic Finality)</p>
+                <p class="definition-title">Definition 37.3 (Deterministic Finality)</p>
                 <p>
-                    <strong>Probabilistic finality</strong> (Bitcoin):
+                    A consensus system provides <strong>deterministic finality</strong>
+                    if, once a designated condition is met (for example, a supermajority
+                    vote by a known validator set), a block cannot be reversed without
+                    violating the protocol itself, rather than merely winning a
+                    probabilistic race.
                 </p>
-                <ul>
-                    <li>Reversal probability decreases exponentially with confirmations</li>
-                    <li>Never reaches zero (theoretically)</li>
-                    <li>Practical finality after sufficient confirmations</li>
-                </ul>
-                <p>
-                    <strong>Deterministic finality</strong> (some other systems):
-                </p>
-                <ul>
-                    <li>Block is final after specific condition met</li>
-                    <li>Cannot be reversed without breaking protocol</li>
-                    <li>Often requires different consensus mechanism</li>
-                </ul>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.12 (Practical Finality)</p>
+                <p class="remark-title">Remark 37.15 (Practical Finality)</p>
                 <p>
-                    For practical purposes, Bitcoin transactions are "final" when:
+                    Deterministic finality is not free of trust either: it relocates trust
+                    into the validator set and its membership rules. Bitcoin's
+                    probabilistic finality becomes practical finality when the cost of
+                    reversal exceeds the value at risk: typically 6 confirmations for
+                    large amounts, fewer for amounts below the attack-cost threshold of
+                    Section 37.6. As always in this chapter, "final" abbreviates a trust
+                    statement: final, assuming the honest-majority hypothesis holds and
+                    the node's view of the network is genuine.
                 </p>
-                <ul>
-                    <li>Cost of reversal exceeds transaction value</li>
-                    <li>Typically 6 confirmations for large amounts</li>
-                    <li>Even fewer for amounts below attack cost threshold</li>
-                </ul>
             </div>
+
+            <p>
+                We can now close the ledger. A node's configuration, which mechanisms it
+                enables and with what parameters, is a portfolio of trust assumptions,
+                and the table below is the portfolio statement. A default Bitcoin Core
+                node holds every row except the snapshot row; a node run with
+                <code>-assumevalid=0</code> returns the AssumeValid row; no configuration
+                returns the first, sixth, or seventh.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mechanism</th>
+                        <th>Trusted party</th>
+                        <th>Scope of trust</th>
+                        <th>Failure mode</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Confirmations (&sect;37.1)</td>
+                        <td>Honest majority of hashrate</td>
+                        <td>Every accepted payment</td>
+                        <td>Reversal despite <span class="math">k</span> confirmations</td>
+                    </tr>
+                    <tr>
+                        <td>Checkpoints (&sect;37.2)</td>
+                        <td>Developers + release review</td>
+                        <td>Deep history only (&le; height 295,000)</td>
+                        <td>Developer-chosen history overrides proof-of-work</td>
+                    </tr>
+                    <tr>
+                        <td>Minimum chain work (&sect;37.3)</td>
+                        <td>Honesty of one recorded work value</td>
+                        <td>Sync-time chain filtering; no chain named</td>
+                        <td>Low-work chain accepted as sync candidate (too low); sync impossible (too high)</td>
+                    </tr>
+                    <tr>
+                        <td>AssumeValid (&sect;37.4)</td>
+                        <td>Release process (and attacker must also out-work network)</td>
+                        <td>Signature checks beneath buried block</td>
+                        <td>Invalid historical signatures accepted</td>
+                    </tr>
+                    <tr>
+                        <td>AssumeUTXO (&sect;37.4)</td>
+                        <td>Snapshot hash in binary</td>
+                        <td>Entire UTXO set, until background validation completes</td>
+                        <td>Arbitrary balances during the validation window</td>
+                    </tr>
+                    <tr>
+                        <td>Peer diversity, Tor (&sect;37.5)</td>
+                        <td>Network topology; seed and gossip honesty</td>
+                        <td>View of best chain, mempool, time</td>
+                        <td>Eclipse: attacker-curated view of the network</td>
+                    </tr>
+                    <tr>
+                        <td>Social layer (&sect;37.7)</td>
+                        <td>Ad hoc coordination of developers, pools, businesses</td>
+                        <td>Emergencies only</td>
+                        <td>Unresolved split; or the same group coordinating rule changes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>
+                Read down the trusted-party column and the portfolio's structure appears:
+                Bitcoin replaces a single trusted party not with nothing, but with many
+                small, bounded, mostly auditable trust assumptions, each falsifiable in a
+                different way. The largest position in the portfolio, the honest-majority
+                hypothesis, is also the only one that must be continuously paid for;
+                whether the payment remains sufficient is the subject of Chapter 38.
+            </p>
         </section>
 
         <section class="exercises">
@@ -614,6 +839,18 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                 <p>
                     Compare Bitcoin's probabilistic finality to Ethereum's Casper finality
                     gadget. What are the tradeoffs of each approach?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 37.5</p>
+                <p>
+                    Write the trust portfolio of a node run with default settings
+                    (checkpoints, minimum chain work, and AssumeValid enabled; AssumeUTXO
+                    not used): for each enabled mechanism, state the trusted party, the
+                    scope, and the failure mode, in the format of the table of
+                    Section 37.8. Which single row of the portfolio would you eliminate
+                    first if you could, and what would eliminating it cost?
                 </p>
             </div>
         </section>
