@@ -238,7 +238,7 @@
                 <ul>
                     <li><strong>Soft fork:</strong> R<sub>new</sub> ⊂ R<sub>old</sub> (new rules are stricter)</li>
                     <li><strong>Hard fork:</strong> R<sub>old</sub> ⊂ R<sub>new</sub> (new rules are looser)</li>
-                    <li><strong>Bilateral fork:</strong> R<sub>old</sub> ∩ R<sub>new</sub> = ∅ (each rule set rejects the other's blocks)</li>
+                    <li><strong>Bilateral fork:</strong> no block <em>extending the fork point</em> is valid under both rule sets (each side rejects the other's new blocks; the shared pre-fork history is of course valid under both)</li>
                 </ul>
                 <p>
                     In practice, "hard forks" generally satisfy the weaker condition
@@ -285,7 +285,7 @@
                     new rules R<sub>new</sub>, then:
                 </p>
                 <ol>
-                    <li>The longest chain follows R<sub>new</sub> rules with high probability</li>
+                    <li>The most-work chain eventually follows R<sub>new</sub> rules (with probability 1)</li>
                     <li>Nodes following R<sub>old</sub> remain on this chain (since R<sub>new</sub> ⊂ R<sub>old</sub>)</li>
                     <li>No permanent chain split occurs</li>
                 </ol>
@@ -296,10 +296,12 @@
                 <p>
                     Blocks valid under R<sub>new</sub> are valid under R<sub>old</sub> by definition.
                     Thus, the chain built by the majority (enforcing R<sub>new</sub>) is accepted
-                    by all nodes. Any competing chain violating R<sub>new</sub> will have less cumulative
-                    work in expectation (built by minority hash power) and be rejected by upgraded
-                    nodes. Old nodes might temporarily follow the invalid chain during propagation
-                    delays, but will converge once they see the valid chain with more work. □
+                    by all nodes. A chain violating R<sub>new</sub> can only be extended by the minority
+                    (fraction 1 − f &lt; 0.5). The work race between the two chains is a biased
+                    random walk: by the gambler's-ruin argument of Theorem 14.4, the enforcing
+                    majority's chain takes and keeps the cumulative-work lead with probability 1.
+                    Old nodes might temporarily follow an invalid chain (as in the 2015 BIP-66
+                    incident), but converge once the valid chain has more work. □
                 </p>
             </div>
 
@@ -806,8 +808,8 @@
                 <p class="exercise-title">Exercise 26.1</p>
                 <p>
                     Prove that if hash power is distributed such that no miner has more than
-                    1/n of the total, the expected time to natural fork resolution is bounded
-                    by 2·T<sub>block</sub> with high probability. What assumptions are needed?
+                    1/n of the total, the expected time to natural fork resolution satisfies
+                    E[T] ≤ 2·T<sub>block</sub>. What assumptions are needed?
                 </p>
             </div>
 

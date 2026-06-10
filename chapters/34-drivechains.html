@@ -146,7 +146,11 @@ Withdrawal process:
                 </p>
                 <ol>
                     <li>Create a fraudulent withdrawal bundle</li>
-                    <li>Accumulate 13,150 ACKs within the 26,300-block (~6-month) window (a bare-majority coalition takes ~6 months; ~3 months requires near-unanimous ACKing)</li>
+                    <li>Accumulate 13,150 ACKs within the 26,300-block (~6-month) window. With other
+                        miners abstaining, a bare majority takes ~6 months and ~3 months requires
+                        near-unanimous ACKing; if defending miners actively NACK (the score moves
+                        +1/0/−1 per block), the coalition needs about 75% of blocks to reach the
+                        threshold inside the window at all</li>
                     <li>Maintain >50% hashrate commitment throughout</li>
                 </ol>
                 <p>

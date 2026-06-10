@@ -98,11 +98,12 @@
             </figure>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 31.1 (Peg Security Tradeoff)</p>
+                <p class="theorem-title">Proposition 31.1 (Peg Security Tradeoff)</p>
                 <p>
                     Without changes to Bitcoin's consensus rules, a trustless two-way peg is
-                    impossible. Bitcoin cannot verify sidechain state, so peg-outs require
-                    either:
+                    impossible: Bitcoin Script has no opcode that can verify sidechain
+                    consensus, so some extrinsic trust (or a new opcode) must authorize
+                    peg-outs. The options are:
                 </p>
                 <ul>
                     <li>Trusted custodians (federation)</li>

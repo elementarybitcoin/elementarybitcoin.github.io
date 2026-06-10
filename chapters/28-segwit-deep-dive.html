@@ -250,16 +250,18 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
             </figure>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 28.2 (SegWit Malleability Fix)</p>
+                <p class="theorem-title">Theorem 28.1 (SegWit Malleability Fix)</p>
                 <p>
-                    For SegWit transactions, the txid is computed excluding witness data:
+                    For transactions whose inputs all spend witness programs, the txid is
+                    computed excluding witness data:
                 </p>
                 <p class="math-block">
                     txid = SHA256d(version || inputs || outputs || locktime)
                 </p>
                 <p>
-                    Since signatures are in the witness (not included), third-party
-                    malleability is impossible. The transaction creator can still
+                    Since all signatures are in the witness (not included), third-party
+                    malleability is impossible. (A transaction with even one legacy input
+                    keeps that input's malleable scriptSig inside the txid.) The transaction creator can still
                     change their own signatures, but this is by design.
                 </p>
             </div>
@@ -331,18 +333,20 @@ where:
             </figure>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 28.3 (Script Versioning Benefit)</p>
+                <p class="theorem-title">Theorem 28.2 (Script Versioning Benefit)</p>
                 <p>
                     Witness versions enable future soft forks:
                 </p>
                 <ol>
                     <li>Old nodes see "OP_n &lt;data&gt;" as anyone-can-spend (but don't relay)</li>
                     <li>New nodes interpret based on version number</li>
-                    <li>No consensus rules need changing for new versions</li>
+                    <li>New versions can be given semantics by a <em>tightening</em> soft
+                        fork without breaking old nodes&mdash;an activation is still required
+                        (Taproot activated witness v1 via Speedy Trial), but never a hard fork</li>
                 </ol>
                 <p>
-                    Versions 2-16 are reserved for future upgrades without requiring
-                    new soft fork activation mechanisms.
+                    Versions 2-16 are reserved for future upgrades that remain
+                    backwards-compatible with existing nodes.
                 </p>
             </div>
         </section>
@@ -580,7 +584,7 @@ commitment = SHA256(SHA256(witness_root || witness_nonce))
             </p>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 28.5 (SegWit as Soft Fork)</p>
+                <p class="theorem-title">Theorem 28.3 (SegWit as Soft Fork)</p>
                 <p>
                     SegWit outputs (OP_0 &lt;data&gt;) are valid under old rules because:
                 </p>
@@ -835,7 +839,7 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
             </p>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 28.7 (Lightning Network Prerequisite)</p>
+                <p class="theorem-title">Theorem 28.4 (Lightning Network Prerequisite)</p>
                 <p>
                     Lightning Network channels require non-malleable transaction IDs because:
                 </p>
@@ -843,7 +847,7 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
                     <li>Funding transaction creates 2-of-2 multisig output</li>
                     <li>Commitment transactions spend this output (reference funding txid)</li>
                     <li>If funding txid could be malleated, commitments become invalid</li>
-                    <li>Both parties would lose funds locked in channel</li>
+                    <li>Funds locked in the channel become hostage to the counterparty's cooperation</li>
                 </ol>
                 <p>
                     SegWit's fixed txid makes channels safe to open before funding confirms.
