@@ -252,8 +252,9 @@ code {
 }
 
 pre {
-    background: #2d2d2d;
-    color: #f8f8f2;
+    background: #f8f8f5;
+    color: #2f4f4f;
+    border: 1px solid #ddd;
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;

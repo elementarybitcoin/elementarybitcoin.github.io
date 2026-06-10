@@ -46,7 +46,7 @@
                     only by the 32 MB network message limit, then set to 1 MB in 2010
                     (commit 172f006):
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.9rem; overflow-x: auto;">
+                <pre>
 if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
     return error("CheckBlock(): size limits failed");</pre>
                 <p>
@@ -283,7 +283,7 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
                     The <strong>Emergency Difficulty Adjustment</strong> reduced difficulty by
                     20% if fewer than 6 blocks were mined in 12 hours:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 if (timeSince6Blocks > 12 hours):
     difficulty = difficulty * 0.8</pre>
             </div>
