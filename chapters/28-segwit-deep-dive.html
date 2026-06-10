@@ -119,7 +119,7 @@
                     An ECDSA signature is a pair <span class="math">(r, s)</span> where <span class="math">s</span> can be replaced with <span class="math">n − s</span>
                     <span class="math">(mod n)</span> to produce an equivalent valid signature:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 Original:  sig = (r, s)       where s < n/2
 Malleated: sig = (r, n − s)   where n − s > n/2
 
@@ -172,7 +172,7 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
                 <p>
                     A SegWit transaction has the following serialization:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 [version]     4 bytes
 [marker]      1 byte  (0x00) - indicates SegWit
 [flag]        1 byte  (0x01)
@@ -285,7 +285,7 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
                 <p>
                     A <strong>witness program</strong> is a scriptPubKey of the form:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 OP_n &lt;data&gt;
 
 where:
@@ -520,7 +520,7 @@ where:
                     The <strong>witness commitment</strong> is placed in an OP_RETURN output
                     of the coinbase transaction:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 OP_RETURN &lt;commitment&gt;
 
 commitment = SHA256(SHA256(witness_root || witness_nonce))
@@ -691,7 +691,7 @@ commitment = SHA256(SHA256(witness_root || witness_nonce))
                 <p>
                     For SegWit inputs, the sighash is computed as:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 SHA256d(
     nVersion           ||
     hashPrevouts       ||  ← SHA256d of all input outpoints
@@ -747,7 +747,7 @@ SHA256d(
                 <p>
                     <strong>P2SH-P2WPKH</strong> wraps a SegWit program in P2SH:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 scriptPubKey: OP_HASH160 &lt;hash&gt; OP_EQUAL
 redeemScript: OP_0 &lt;20-byte-key-hash&gt;
 witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>

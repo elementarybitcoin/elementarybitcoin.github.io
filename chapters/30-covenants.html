@@ -142,7 +142,7 @@
                 <p>
                     The template hash is computed as:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 DefaultCheckTemplateVerifyHash(tx, input_index):
     return SHA256(
         nVersion ||
@@ -266,7 +266,7 @@ DefaultCheckTemplateVerifyHash(tx, input_index):
                 <p>
                     A basic vault with CTV:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 Vault Output (CTV-only; no key can spend it directly):
   &lt;ctv_hash&gt; CTV               // Can only go to the staged withdrawal
 
@@ -322,7 +322,7 @@ during which the owner claws the funds back to cold storage.</pre>
                 <p>
                     <strong>OP_CAT</strong> concatenates two stack elements:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 Stack before: [x] [y]
 OP_CAT
 Stack after:  [x || y]</pre>
@@ -355,7 +355,7 @@ Stack after:  [x || y]</pre>
                 <p>
                     Using CAT to verify transaction outputs:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 // Conceptual (simplified)
 &lt;expected_output_script&gt;
 &lt;actual_output_from_witness&gt;
@@ -534,7 +534,7 @@ OP_CHECKSIG</pre>
                     <strong>OP_CHECKSIGFROMSTACK</strong> verifies a signature against arbitrary
                     data (not the transaction sighash):
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 Stack: [signature] [message] [pubkey]
 OP_CHECKSIGFROMSTACK
 Stack: [1 if valid]</pre>

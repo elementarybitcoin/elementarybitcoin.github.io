@@ -316,7 +316,7 @@
                 <p>
                     To spend via script path, the witness includes a <strong>control block</strong>:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 control_block = leaf_version | parity_bit || internal_pubkey || merkle_path
 
 where:
@@ -389,7 +389,7 @@ where:
                 <p>
                     <strong>OP_CHECKSIGADD</strong> enables efficient threshold signatures:
                 </p>
-                <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <pre style="font-size: 0.85rem;">
 Stack before (top → bottom): [pubkey] [n] [signature]
 Operation:    if sig valid for pubkey: n = n + 1
 Stack after:  [n] (or [n+1] if valid)
