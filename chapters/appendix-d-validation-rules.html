@@ -129,6 +129,42 @@
             </p>
         </section>
 
+        <section>
+            <h2>D.6 Standardness (Policy) Rules</h2>
+            <p>
+                For contrast with D.1&ndash;D.5, this table lists the major <em>policy</em>
+                rules&mdash;Bitcoin Core's defaults for what it will relay and admit to its
+                mempool (Definition 16.2). Three caveats distinguish every row from the
+                consensus rules above: policy is <strong>per-node</strong> (each operator may
+                configure it), <strong>version-dependent</strong> (defaults change between
+                releases without any fork), and <strong>not a security boundary</strong>&mdash;a
+                transaction violating every rule below is still consensus-valid, and miners
+                can and do include such transactions when submitted to them directly.
+            </p>
+            <table>
+                <tr><th>Rule</th><th>Default requirement</th><th>Purpose</th></tr>
+                <tr><td>Standard output types</td><td>Outputs match known templates (P2PKH, P2SH, P2WPKH, P2WSH, P2TR, bare multisig up to 3 keys, OP_RETURN data)</td><td>Predictable validation; upgrade protection</td></tr>
+                <tr><td>Dust threshold</td><td>No output worth less than the cost of spending it (&asymp;546 sats P2PKH, &asymp;294 sats P2WPKH at default rates; Remark 16.2)</td><td>UTXO-set hygiene</td></tr>
+                <tr><td>Minimum relay fee</td><td>At least 1 sat/vB</td><td>DoS protection</td></tr>
+                <tr><td>Maximum standard weight</td><td>Transaction weight at most 400,000 WU (a tenth of a block)</td><td>Keep blocks composable; DoS protection</td></tr>
+                <tr><td>Minimum size</td><td>At least 65 non-witness bytes</td><td>Forbid 64-byte transactions (CVE-2017-12842; Section 35.3)</td></tr>
+                <tr><td>Data carrier</td><td>OP_RETURN payload within the configured limit (historically 80 bytes by default; Section 11.9)</td><td>Network hygiene</td></tr>
+                <tr><td>Low-S signatures</td><td>ECDSA s &le; n/2 (Section 7.8)</td><td>Malleability hygiene</td></tr>
+                <tr><td>Clean stack</td><td>Script execution leaves exactly one stack element</td><td>Malleability hygiene; upgrade protection</td></tr>
+                <tr><td>Discouraged upgrade hooks</td><td>No spends of undefined witness versions or use of OP_SUCCESS opcodes (Section 16.8)</td><td>Soft-fork protection</td></tr>
+                <tr><td>Replacement signaling</td><td>Conflicting-transaction replacement per BIP-125 rules (fee must increase)</td><td>Mempool coherence</td></tr>
+                <tr><td>Package limits</td><td>Bounded counts and sizes of unconfirmed ancestors and descendants</td><td>DoS protection</td></tr>
+            </table>
+            <p>
+                Because these are defaults rather than rules of the system, they drift: the
+                data-carrier limit, replacement signaling, and dust rates have all changed
+                across Bitcoin Core releases, and other implementations choose differently.
+                That drift is harmless precisely because policy violations cannot split the
+                chain&mdash;which is the entire content of the policy/consensus distinction
+                of Section 16.1.
+            </p>
+        </section>
+
         <nav class="chapter-nav">
             <a href="appendix-c-index.html">&larr; Appendix C: Subject Index</a>
             <a href="../index.html">Table of Contents</a>
