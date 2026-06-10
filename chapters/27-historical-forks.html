@@ -284,8 +284,12 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
                     20% if fewer than 6 blocks were mined in 12 hours:
                 </p>
                 <pre style="font-size: 0.85rem;">
-if (timeSince6Blocks > 12 hours):
-    difficulty = difficulty * 0.8</pre>
+if (MTP(tip) − MTP(tip − 6) > 12 hours):
+    difficulty = difficulty × 0.8</pre>
+                <p>
+                    The trigger compared median-time-past values (Definition 13.5), not
+                    raw timestamps.
+                </p>
             </div>
 
             <div class="remark">

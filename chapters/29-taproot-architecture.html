@@ -391,10 +391,11 @@ where:
                 </p>
                 <pre style="font-size: 0.85rem;">
 Stack before (top → bottom): [pubkey] [n] [signature]
-Operation:    if sig valid for pubkey: n = n + 1
-Stack after:  [n] (or [n+1] if valid)
+Operation:    valid signature        → push n + 1
+              empty signature        → push n
+              invalid (non-empty)    → script fails immediately
 
-2-of-3 Tapscript:
+2-of-3 Tapscript (non-signers provide an empty signature):
   &lt;sig_C&gt; &lt;sig_B&gt; &lt;sig_A&gt;
   &lt;pk_A&gt; OP_CHECKSIG
   &lt;pk_B&gt; OP_CHECKSIGADD
