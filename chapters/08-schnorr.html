@@ -53,7 +53,7 @@
         </section>
 
         <section>
-            <h2>8.1 Why Schnorr?</h2>
+            <h2 id="s8-1">8.1 Why Schnorr?</h2>
 
             <p>
                 Before diving into the mathematics, let us understand why Bitcoin adopted
@@ -122,7 +122,7 @@
         </section>
 
         <section>
-            <h2>8.2 The Core Idea: A Zero-Knowledge Proof of Knowledge</h2>
+            <h2 id="s8-2">8.2 The Core Idea: A Zero-Knowledge Proof of Knowledge</h2>
 
             <p>
                 At its heart, a Schnorr signature is a <em>non-interactive zero-knowledge proof</em>
@@ -197,7 +197,7 @@
         </section>
 
         <section>
-            <h2>8.3 The Fiat-Shamir Transform</h2>
+            <h2 id="s8-3">8.3 The Fiat-Shamir Transform</h2>
 
             <p>
                 Digital signatures require non-interactivity: the signer produces the signature
@@ -232,7 +232,7 @@
         </section>
 
         <section>
-            <h2>8.4 BIP-340: Schnorr for Bitcoin</h2>
+            <h2 id="s8-4">8.4 BIP-340: Schnorr for Bitcoin</h2>
 
             <p>
                 BIP-340 specifies Schnorr signatures for Bitcoin, making several design
@@ -278,7 +278,7 @@
         </section>
 
         <section>
-            <h2>8.5 The BIP-340 Signing Algorithm</h2>
+            <h2 id="s8-5">8.5 The BIP-340 Signing Algorithm</h2>
 
             <div class="definition">
                 <p class="definition-title">Algorithm 8.1 (BIP-340 Schnorr Signing)</p>
@@ -395,7 +395,7 @@ Sign(d, m):
         </section>
 
         <section>
-            <h2>8.6 The BIP-340 Verification Algorithm</h2>
+            <h2 id="s8-6">8.6 The BIP-340 Verification Algorithm</h2>
 
             <div class="definition">
                 <p class="definition-title">Algorithm 8.2 (BIP-340 Schnorr Verification)</p>
@@ -467,7 +467,7 @@ Verify(pk, m, sig):
         </section>
 
         <section>
-            <h2>8.7 The Linearity Property</h2>
+            <h2 id="s8-7">8.7 The Linearity Property</h2>
 
             <p>
                 The defining feature that makes Schnorr signatures powerful is <em>linearity</em>:
@@ -569,7 +569,7 @@ Verify(pk, m, sig):
         </section>
 
         <section>
-            <h2>8.8 MuSig: Secure Multi-Signatures</h2>
+            <h2 id="s8-8">8.8 MuSig: Secure Multi-Signatures</h2>
 
             <p>
                 While naive key and signature aggregation is possible, it is vulnerable to
@@ -620,7 +620,7 @@ Verify(pk, m, sig):
         </section>
 
         <section>
-            <h2>8.9 Batch Verification</h2>
+            <h2 id="s8-9">8.9 Batch Verification</h2>
 
             <p>
                 Schnorr's linearity also enables efficient <em>batch verification</em>: checking
@@ -659,7 +659,7 @@ Verify(pk, m, sig):
         </section>
 
         <section>
-            <h2>8.10 Schnorr in Taproot</h2>
+            <h2 id="s8-10">8.10 Schnorr in Taproot</h2>
 
             <p>
                 Schnorr signatures are the foundation of Bitcoin's Taproot upgrade (BIP-341).

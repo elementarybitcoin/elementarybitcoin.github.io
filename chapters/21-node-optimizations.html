@@ -78,7 +78,7 @@
         </section>
 
         <section>
-            <h2>21.1 Initial Block Download (IBD)</h2>
+            <h2 id="s21-1">21.1 Initial Block Download (IBD)</h2>
 
             <p>
                 When a new node joins the network, it must download and validate every
@@ -241,7 +241,7 @@
         </section>
 
         <section>
-            <h2>21.2 AssumeValid</h2>
+            <h2 id="s21-2">21.2 AssumeValid</h2>
 
             <p>
                 The most time-consuming part of IBD is signature validation&mdash;verifying every
@@ -389,7 +389,7 @@ bitcoind -assumevalid=00000000000000000001...</code></pre>
         </section>
 
         <section>
-            <h2>21.3 AssumeUTXO</h2>
+            <h2 id="s21-3">21.3 AssumeUTXO</h2>
 
             <p>
                 While AssumeValid speeds up validation, it does not eliminate the need to
@@ -551,7 +551,7 @@ bitcoin-cli loadtxoutset /path/to/utxo.dat
         </section>
 
         <section>
-            <h2>21.4 Pruning</h2>
+            <h2 id="s21-4">21.4 Pruning</h2>
 
             <p>
                 Pruned nodes discard old block data after validation, keeping only the
@@ -625,7 +625,7 @@ prune=550</code></pre>
         </section>
 
         <section>
-            <h2>21.5 Utreexo</h2>
+            <h2 id="s21-5">21.5 Utreexo</h2>
 
             <p>
                 Utreexo is a cryptographic accumulator that dramatically reduces the storage
@@ -830,7 +830,7 @@ prune=550</code></pre>
         </section>
 
         <section>
-            <h2>21.6 Comparison and Recommendations</h2>
+            <h2 id="s21-6">21.6 Comparison and Recommendations</h2>
 
             <h3>Optimization Summary</h3>
 

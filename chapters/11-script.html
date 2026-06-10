@@ -53,7 +53,7 @@
         </section>
 
         <section>
-            <h2>11.1 The Execution Model</h2>
+            <h2 id="s11-1">11.1 The Execution Model</h2>
 
             <p>
                 Script programs operate on two stacks: the main stack and an auxiliary "alt" stack.
@@ -126,7 +126,7 @@
                 <figcaption>Figure 11.1: Script execution processes elements left-to-right, manipulating the stack.</figcaption>
             </figure>
 
-            <h3>11.1.1 Script Concatenation</h3>
+            <h3 id="s11-1-1">11.1.1 Script Concatenation</h3>
 
             <p>
                 To validate a transaction input, the scriptSig (unlocking script) is concatenated
@@ -159,7 +159,7 @@
         </section>
 
         <section>
-            <h2>11.2 Data Push Operations</h2>
+            <h2 id="s11-2">11.2 Data Push Operations</h2>
 
             <p>
                 Non-opcode bytes in a script represent data to be pushed onto the stack.
@@ -226,7 +226,7 @@
         </section>
 
         <section>
-            <h2>11.3 Stack Manipulation Opcodes</h2>
+            <h2 id="s11-3">11.3 Stack Manipulation Opcodes</h2>
 
             <p>
                 These opcodes rearrange elements on the stack without performing computation.
@@ -325,7 +325,7 @@
         </section>
 
         <section>
-            <h2>11.4 Arithmetic Opcodes</h2>
+            <h2 id="s11-4">11.4 Arithmetic Opcodes</h2>
 
             <p>
                 Script supports limited arithmetic on 32-bit signed integers.
@@ -414,13 +414,13 @@
         </section>
 
         <section>
-            <h2>11.5 Cryptographic Opcodes</h2>
+            <h2 id="s11-5">11.5 Cryptographic Opcodes</h2>
 
             <p>
                 The most important opcodes perform cryptographic operations.
             </p>
 
-            <h3>11.5.1 Hash Functions</h3>
+            <h3 id="s11-5-1">11.5.1 Hash Functions</h3>
 
             <table class="data-table">
                 <thead>
@@ -459,7 +459,7 @@
                 </tbody>
             </table>
 
-            <h3>11.5.2 Signature Verification</h3>
+            <h3 id="s11-5-2">11.5.2 Signature Verification</h3>
 
             <table class="data-table">
                 <thead>
@@ -505,7 +505,7 @@
         </section>
 
         <section>
-            <h2>11.6 Flow Control</h2>
+            <h2 id="s11-6">11.6 Flow Control</h2>
 
             <p>
                 Script supports conditional execution (but not loops).
@@ -569,7 +569,7 @@ OP_CHECKSIG</pre>
         </section>
 
         <section>
-            <h2>11.7 Time Lock Opcodes</h2>
+            <h2 id="s11-7">11.7 Time Lock Opcodes</h2>
 
             <p>
                 BIP-65 and BIP-112 introduced opcodes for time-based spending conditions.
@@ -615,14 +615,14 @@ OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
         </section>
 
         <section>
-            <h2>11.8 Standard Script Templates</h2>
+            <h2 id="s11-8">11.8 Standard Script Templates</h2>
 
             <p>
                 While Script allows arbitrary programs, nodes relay only "standard" transactions
                 using recognized templates.
             </p>
 
-            <h3>11.8.1 P2PKH (Pay-to-Public-Key-Hash)</h3>
+            <h3 id="s11-8-1">11.8.1 P2PKH (Pay-to-Public-Key-Hash)</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 11.4 (P2PKH Scripts)</p>
@@ -701,7 +701,7 @@ OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
                 <figcaption>Figure 11.3: Step-by-step execution of a P2PKH script.</figcaption>
             </figure>
 
-            <h3>11.8.2 P2SH (Pay-to-Script-Hash)</h3>
+            <h3 id="s11-8-2">11.8.2 P2SH (Pay-to-Script-Hash)</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 11.5 (P2SH Execution)</p>
@@ -722,7 +722,7 @@ OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
                 <pre class="code-block">&lt;...signatures...&gt; &lt;redeem_script&gt;</pre>
             </div>
 
-            <h3>11.8.3 Multisignature</h3>
+            <h3 id="s11-8-3">11.8.3 Multisignature</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 11.6 (m-of-n Multisig)</p>
@@ -744,7 +744,7 @@ OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
         </section>
 
         <section>
-            <h2>11.9 OP_RETURN and Data Embedding</h2>
+            <h2 id="s11-9">11.9 OP_RETURN and Data Embedding</h2>
 
             <p>
                 <code>OP_RETURN</code> creates a provably unspendable output, useful for
@@ -778,7 +778,7 @@ OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
         </section>
 
         <section>
-            <h2>11.10 SegWit Script Execution</h2>
+            <h2 id="s11-10">11.10 SegWit Script Execution</h2>
 
             <p>
                 Native SegWit outputs use a different execution model. The scriptPubKey
@@ -825,7 +825,7 @@ OP_DUP OP_HASH160 &lt;pubkey_hash&gt; OP_EQUALVERIFY OP_CHECKSIG</pre>
         </section>
 
         <section>
-            <h2>11.11 Tapscript</h2>
+            <h2 id="s11-11">11.11 Tapscript</h2>
 
             <p>
                 Taproot (BIP-341, BIP-342) introduces Tapscript, an upgraded Script with
@@ -862,7 +862,7 @@ OP_2 OP_NUMEQUAL</pre>
         </section>
 
         <section>
-            <h2>11.12 Script Limitations</h2>
+            <h2 id="s11-12">11.12 Script Limitations</h2>
 
             <p>
                 Script's restrictions are intentional, ensuring predictable validation.

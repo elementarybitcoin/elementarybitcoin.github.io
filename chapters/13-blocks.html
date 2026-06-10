@@ -51,7 +51,7 @@
         </section>
 
         <section>
-            <h2>13.1 Block Structure</h2>
+            <h2 id="s13-1">13.1 Block Structure</h2>
 
             <p>
                 A Bitcoin block consists of two parts: a compact header and a list of transactions.
@@ -112,7 +112,7 @@
         </section>
 
         <section>
-            <h2>13.2 The Block Header</h2>
+            <h2 id="s13-2">13.2 The Block Header</h2>
 
             <p>
                 The block header is the most critical 80 bytes in Bitcoin. It contains
@@ -203,7 +203,7 @@
                 <figcaption>Figure 13.2: The six fields of a block header, all stored in little-endian format.</figcaption>
             </figure>
 
-            <h3>13.2.1 Version</h3>
+            <h3 id="s13-2-1">13.2.1 Version</h3>
 
             <p>
                 The version field signals support for consensus rule changes and soft forks.
@@ -218,7 +218,7 @@
                 </p>
             </div>
 
-            <h3>13.2.2 Previous Block Hash</h3>
+            <h3 id="s13-2-2">13.2.2 Previous Block Hash</h3>
 
             <p>
                 This field creates the chain structure by referencing the parent block.
@@ -246,13 +246,13 @@
                 </p>
             </div>
 
-            <h3>13.2.3 Merkle Root</h3>
+            <h3 id="s13-2-3">13.2.3 Merkle Root</h3>
 
             <p>
                 The Merkle root commits to all transactions in the block, as detailed in Chapter 12.
             </p>
 
-            <h3>13.2.4 Timestamp</h3>
+            <h3 id="s13-2-4">13.2.4 Timestamp</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 13.5 (Block Timestamp)</p>
@@ -273,7 +273,7 @@
                 </ul>
             </div>
 
-            <h3>13.2.5 Bits (Difficulty Target)</h3>
+            <h3 id="s13-2-5">13.2.5 Bits (Difficulty Target)</h3>
 
             <p>
                 The <code>bits</code> field encodes the difficulty target in a compact format.
@@ -305,7 +305,7 @@ target = 0x00ffff × 256^(29-3)
        = 0x00000000ffff0000...0000 (with many trailing zeros)</pre>
             </div>
 
-            <h3>13.2.6 Nonce</h3>
+            <h3 id="s13-2-6">13.2.6 Nonce</h3>
 
             <p>
                 The nonce is the "free" field that miners vary to search for a valid proof of work.
@@ -330,7 +330,7 @@ target = 0x00ffff × 256^(29-3)
         </section>
 
         <section>
-            <h2>13.3 Block Hashing and the Chain</h2>
+            <h2 id="s13-3">13.3 Block Hashing and the Chain</h2>
 
             <p>
                 The blockchain is formed by each block referencing its predecessor's hash.
@@ -403,13 +403,13 @@ target = 0x00ffff × 256^(29-3)
         </section>
 
         <section>
-            <h2>13.4 Block Size and Weight</h2>
+            <h2 id="s13-4">13.4 Block Size and Weight</h2>
 
             <p>
                 Bitcoin limits block size to prevent resource exhaustion attacks.
             </p>
 
-            <h3>13.4.1 Legacy Block Size Limit</h3>
+            <h3 id="s13-4-1">13.4.1 Legacy Block Size Limit</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 13.8 (Block Size Limit)</p>
@@ -421,7 +421,7 @@ target = 0x00ffff × 256^(29-3)
                 </p>
             </div>
 
-            <h3>13.4.2 Block Weight (SegWit)</h3>
+            <h3 id="s13-4-2">13.4.2 Block Weight (SegWit)</h3>
 
             <p>
                 SegWit replaced the size limit with a weight limit, providing a discount
@@ -475,7 +475,7 @@ target = 0x00ffff × 256^(29-3)
         </section>
 
         <section>
-            <h2>13.5 Block Validation Rules</h2>
+            <h2 id="s13-5">13.5 Block Validation Rules</h2>
 
             <p>
                 A block must satisfy numerous rules to be considered valid.
@@ -523,7 +523,7 @@ target = 0x00ffff × 256^(29-3)
         </section>
 
         <section>
-            <h2>13.6 The Genesis Block</h2>
+            <h2 id="s13-6">13.6 The Genesis Block</h2>
 
             <p>
                 The blockchain begins with a special hardcoded block: the genesis block.
@@ -593,7 +593,7 @@ target = 0x00ffff × 256^(29-3)
         </section>
 
         <section>
-            <h2>13.7 Block Height and Depth</h2>
+            <h2 id="s13-7">13.7 Block Height and Depth</h2>
 
             <div class="definition">
                 <p class="definition-title">Definition 13.12 (Block Height)</p>
@@ -646,7 +646,7 @@ target = 0x00ffff × 256^(29-3)
         </section>
 
         <section>
-            <h2>13.8 Orphan and Stale Blocks</h2>
+            <h2 id="s13-8">13.8 Orphan and Stale Blocks</h2>
 
             <p>
                 Not all valid blocks become part of the main chain.
@@ -705,7 +705,7 @@ target = 0x00ffff × 256^(29-3)
         </section>
 
         <section>
-            <h2>13.9 Block Propagation</h2>
+            <h2 id="s13-9">13.9 Block Propagation</h2>
 
             <p>
                 For the network to function, new blocks must propagate quickly to all nodes.

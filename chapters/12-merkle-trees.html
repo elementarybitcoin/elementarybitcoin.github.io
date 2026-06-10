@@ -53,7 +53,7 @@
         </section>
 
         <section>
-            <h2>12.1 Binary Hash Trees</h2>
+            <h2 id="s12-1">12.1 Binary Hash Trees</h2>
 
             <p>
                 A Merkle tree is a binary tree where each leaf node contains a hash of data,
@@ -154,7 +154,7 @@
         </section>
 
         <section>
-            <h2>12.2 Computing the Merkle Root</h2>
+            <h2 id="s12-2">12.2 Computing the Merkle Root</h2>
 
             <p>
                 The Merkle root is computed bottom-up, starting from the transaction hashes.
@@ -267,7 +267,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
         </section>
 
         <section>
-            <h2>12.3 Merkle Proofs</h2>
+            <h2 id="s12-3">12.3 Merkle Proofs</h2>
 
             <p>
                 The key insight of Merkle trees is that the inclusion of any element can be proven
@@ -399,7 +399,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
         </section>
 
         <section>
-            <h2>12.4 Verifying Merkle Proofs</h2>
+            <h2 id="s12-4">12.4 Verifying Merkle Proofs</h2>
 
             <p>
                 Given a transaction, a Merkle proof, and the expected root, verification
@@ -455,7 +455,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
         </section>
 
         <section>
-            <h2>12.5 Transaction Merkle Tree in Bitcoin</h2>
+            <h2 id="s12-5">12.5 Transaction Merkle Tree in Bitcoin</h2>
 
             <p>
                 Every Bitcoin block contains a Merkle root that commits to all transactions
@@ -538,7 +538,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
         </section>
 
         <section>
-            <h2>12.6 Witness Commitment</h2>
+            <h2 id="s12-6">12.6 Witness Commitment</h2>
 
             <p>
                 SegWit introduced a second Merkle tree that commits to witness data.
@@ -586,7 +586,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
         </section>
 
         <section>
-            <h2>12.7 SPV and Merkle Proofs</h2>
+            <h2 id="s12-7">12.7 SPV and Merkle Proofs</h2>
 
             <p>
                 Merkle proofs enable Simplified Payment Verification (SPV), where a lightweight
@@ -633,9 +633,9 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
         </section>
 
         <section>
-            <h2>12.8 Security Considerations</h2>
+            <h2 id="s12-8">12.8 Security Considerations</h2>
 
-            <h3>12.8.1 CVE-2012-2459: Merkle Tree Malleability</h3>
+            <h3 id="s12-8-1">12.8.1 CVE-2012-2459: Merkle Tree Malleability</h3>
 
             <p>
                 A vulnerability in Bitcoin's original implementation allowed malformed blocks
@@ -651,7 +651,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
                 </p>
             </div>
 
-            <h3>12.8.2 Leaf vs. Internal Node Ambiguity</h3>
+            <h3 id="s12-8-2">12.8.2 Leaf vs. Internal Node Ambiguity</h3>
 
             <p>
                 Bitcoin's Merkle tree does not distinguish leaves from internal nodes: an
@@ -669,20 +669,20 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
         </section>
 
         <section>
-            <h2>12.9 Generalized Merkle Trees</h2>
+            <h2 id="s12-9">12.9 Generalized Merkle Trees</h2>
 
             <p>
                 Several Bitcoin proposals extend the basic Merkle tree concept.
             </p>
 
-            <h3>12.9.1 Merkle Mountain Ranges</h3>
+            <h3 id="s12-9-1">12.9.1 Merkle Mountain Ranges</h3>
 
             <p>
                 Merkle Mountain Ranges (MMRs) allow efficient append-only commitment, useful
                 for UTXOs and chain state.
             </p>
 
-            <h3>12.9.2 Merkle-ized Abstract Syntax Trees (MAST)</h3>
+            <h3 id="s12-9-2">12.9.2 Merkle-ized Abstract Syntax Trees (MAST)</h3>
 
             <p>
                 MAST (now realized through Taproot) allows committing to multiple spending

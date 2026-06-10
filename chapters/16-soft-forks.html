@@ -48,7 +48,7 @@
         </section>
 
         <section>
-            <h2>16.1 Policy vs Consensus</h2>
+            <h2 id="s16-1">16.1 Policy vs Consensus</h2>
 
             <p>
                 Bitcoin nodes enforce two distinct sets of rules, and understanding their
@@ -159,7 +159,7 @@
         </section>
 
         <section>
-            <h2>16.2 Hard Forks vs Soft Forks</h2>
+            <h2 id="s16-2">16.2 Hard Forks vs Soft Forks</h2>
 
             <p>
                 Protocol changes are categorized by their compatibility properties.
@@ -236,14 +236,14 @@
         </section>
 
         <section>
-            <h2>16.3 Activation Mechanisms</h2>
+            <h2 id="s16-3">16.3 Activation Mechanisms</h2>
 
             <p>
                 Soft forks require coordination to activate safely. Several mechanisms
                 have been developed.
             </p>
 
-            <h3>16.3.1 Flag Day Activation</h3>
+            <h3 id="s16-3-1">16.3.1 Flag Day Activation</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 16.5 (Flag Day)</p>
@@ -253,7 +253,7 @@
                 </p>
             </div>
 
-            <h3>16.3.2 BIP-9: Miner Signaling</h3>
+            <h3 id="s16-3-2">16.3.2 BIP-9: Miner Signaling</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 16.6 (BIP-9 Version Bits)</p>
@@ -302,7 +302,7 @@
                 <figcaption>Figure 16.3: BIP-9 state machine for soft fork activation.</figcaption>
             </figure>
 
-            <h3>16.3.3 BIP-8: Mandatory Activation</h3>
+            <h3 id="s16-3-3">16.3.3 BIP-8: Mandatory Activation</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 16.7 (BIP-8)</p>
@@ -313,7 +313,7 @@
                 </p>
             </div>
 
-            <h3>16.3.4 Speedy Trial</h3>
+            <h3 id="s16-3-4">16.3.4 Speedy Trial</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 16.8 (Speedy Trial)</p>
@@ -325,7 +325,7 @@
         </section>
 
         <section>
-            <h2>16.4 Major Soft Forks in Bitcoin History</h2>
+            <h2 id="s16-4">16.4 Major Soft Forks in Bitcoin History</h2>
 
             <table class="data-table">
                 <thead>
@@ -376,7 +376,7 @@
                 </tbody>
             </table>
 
-            <h3>16.4.1 P2SH (BIP-16)</h3>
+            <h3 id="s16-4-1">16.4.1 P2SH (BIP-16)</h3>
 
             <div class="remark">
                 <p class="remark-title">Remark 16.2 (P2SH Soft Fork)</p>
@@ -388,7 +388,7 @@
                 </p>
             </div>
 
-            <h3>16.4.2 Segregated Witness (BIP-141)</h3>
+            <h3 id="s16-4-2">16.4.2 Segregated Witness (BIP-141)</h3>
 
             <div class="remark">
                 <p class="remark-title">Remark 16.3 (SegWit Soft Fork)</p>
@@ -407,7 +407,7 @@
                 </p>
             </div>
 
-            <h3>16.4.3 Taproot (BIP-341)</h3>
+            <h3 id="s16-4-3">16.4.3 Taproot (BIP-341)</h3>
 
             <div class="remark">
                 <p class="remark-title">Remark 16.4 (Taproot Soft Fork)</p>
@@ -427,7 +427,7 @@
         </section>
 
         <section>
-            <h2>16.5 The Soft Fork Design Pattern</h2>
+            <h2 id="s16-5">16.5 The Soft Fork Design Pattern</h2>
 
             <p>
                 Most soft forks follow a common pattern: redefine outputs that old nodes
@@ -483,7 +483,7 @@
         </section>
 
         <section>
-            <h2>16.6 Standardness as Soft Fork Preparation</h2>
+            <h2 id="s16-6">16.6 Standardness as Soft Fork Preparation</h2>
 
             <p>
                 Policy rules often prepare the ground for future consensus changes.
@@ -531,9 +531,9 @@
         </section>
 
         <section>
-            <h2>16.7 Risks and Challenges</h2>
+            <h2 id="s16-7">16.7 Risks and Challenges</h2>
 
-            <h3>16.7.1 Chain Split Risk</h3>
+            <h3 id="s16-7-1">16.7.1 Chain Split Risk</h3>
 
             <div class="theorem">
                 <p class="theorem-title">Theorem 16.3 (Soft Fork Split Conditions)</p>
@@ -551,7 +551,7 @@
                 </p>
             </div>
 
-            <h3>16.7.2 Coordination Challenges</h3>
+            <h3 id="s16-7-2">16.7.2 Coordination Challenges</h3>
 
             <div class="remark">
                 <p class="remark-title">Remark 16.6 (Upgrade Coordination)</p>
@@ -570,7 +570,7 @@
                 </p>
             </div>
 
-            <h3>16.7.3 Irreversibility</h3>
+            <h3 id="s16-7-3">16.7.3 Irreversibility</h3>
 
             <p>
                 Once a soft fork activates, reversing it would require a hard fork (the
@@ -579,13 +579,13 @@
         </section>
 
         <section>
-            <h2>16.8 Future Upgrade Paths</h2>
+            <h2 id="s16-8">16.8 Future Upgrade Paths</h2>
 
             <p>
                 Bitcoin's design includes provisions for future upgrades.
             </p>
 
-            <h3>16.8.1 Witness Versions</h3>
+            <h3 id="s16-8-1">16.8.1 Witness Versions</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 16.10 (Witness Versions)</p>
@@ -599,7 +599,7 @@
                 </ul>
             </div>
 
-            <h3>16.8.2 Taproot's OP_SUCCESS</h3>
+            <h3 id="s16-8-2">16.8.2 Taproot's OP_SUCCESS</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 16.11 (OP_SUCCESS)</p>
@@ -610,7 +610,7 @@
                 </p>
             </div>
 
-            <h3>16.8.3 Proposed Soft Forks</h3>
+            <h3 id="s16-8-3">16.8.3 Proposed Soft Forks</h3>
 
             <p>
                 Several soft forks are under discussion (as of 2024):
@@ -624,7 +624,7 @@
         </section>
 
         <section>
-            <h2>16.9 The Social Layer</h2>
+            <h2 id="s16-9">16.9 The Social Layer</h2>
 
             <p>
                 Technical mechanisms are necessary but not sufficient for upgrades.

@@ -52,7 +52,7 @@
         </section>
 
         <section>
-            <h2>10.1 The UTXO Model</h2>
+            <h2 id="s10-1">10.1 The UTXO Model</h2>
 
             <p>
                 Bitcoin does not track account balances. Instead, it tracks individual
@@ -144,7 +144,7 @@
         </section>
 
         <section>
-            <h2>10.2 Transaction Structure</h2>
+            <h2 id="s10-2">10.2 Transaction Structure</h2>
 
             <p>
                 A Bitcoin transaction consists of four main components, serialized in a
@@ -203,7 +203,7 @@
                 <figcaption>Figure 10.2: High-level transaction structure.</figcaption>
             </figure>
 
-            <h3>10.2.1 Version Field</h3>
+            <h3 id="s10-2-1">10.2.1 Version Field</h3>
 
             <p>
                 The version field indicates which transaction validation rules apply.
@@ -233,7 +233,7 @@
                 <code>01000000</code> in hex; version 2 is <code>02000000</code>.
             </p>
 
-            <h3>10.2.2 Locktime</h3>
+            <h3 id="s10-2-2">10.2.2 Locktime</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 10.3 (Locktime)</p>
@@ -255,7 +255,7 @@
         </section>
 
         <section>
-            <h2>10.3 Transaction Inputs</h2>
+            <h2 id="s10-3">10.3 Transaction Inputs</h2>
 
             <p>
                 Each input references a specific output from a previous transaction and
@@ -309,7 +309,7 @@
                 <figcaption>Figure 10.3: Structure of a transaction input.</figcaption>
             </figure>
 
-            <h3>10.3.1 The Outpoint</h3>
+            <h3 id="s10-3-1">10.3.1 The Outpoint</h3>
 
             <p>
                 An outpoint uniquely identifies a UTXO by specifying which transaction created
@@ -331,7 +331,7 @@ efcdab78563412...f6e5d4c3b2a1
 01000000</pre>
             </div>
 
-            <h3>10.3.2 Sequence Numbers</h3>
+            <h3 id="s10-3-2">10.3.2 Sequence Numbers</h3>
 
             <p>
                 Originally intended for transaction replacement, sequence numbers now serve
@@ -363,7 +363,7 @@ efcdab78563412...f6e5d4c3b2a1
         </section>
 
         <section>
-            <h2>10.4 Transaction Outputs</h2>
+            <h2 id="s10-4">10.4 Transaction Outputs</h2>
 
             <p>
                 Each output specifies an amount and a locking condition.
@@ -425,7 +425,7 @@ efcdab78563412...f6e5d4c3b2a1
         </section>
 
         <section>
-            <h2>10.5 Standard ScriptPubKey Types</h2>
+            <h2 id="s10-5">10.5 Standard ScriptPubKey Types</h2>
 
             <p>
                 While Bitcoin Script allows arbitrary programs, most outputs use one of
@@ -434,7 +434,7 @@ efcdab78563412...f6e5d4c3b2a1
                 Chapter 11; here we only need their names.)
             </p>
 
-            <h3>10.5.1 P2PKH (Pay-to-Public-Key-Hash)</h3>
+            <h3 id="s10-5-1">10.5.1 P2PKH (Pay-to-Public-Key-Hash)</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 10.7 (P2PKH ScriptPubKey)</p>
@@ -447,7 +447,7 @@ efcdab78563412...f6e5d4c3b2a1
                 </p>
             </div>
 
-            <h3>10.5.2 P2SH (Pay-to-Script-Hash)</h3>
+            <h3 id="s10-5-2">10.5.2 P2SH (Pay-to-Script-Hash)</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 10.8 (P2SH ScriptPubKey)</p>
@@ -460,7 +460,7 @@ efcdab78563412...f6e5d4c3b2a1
                 </p>
             </div>
 
-            <h3>10.5.3 Native SegWit (P2WPKH, P2WSH)</h3>
+            <h3 id="s10-5-3">10.5.3 Native SegWit (P2WPKH, P2WSH)</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 10.9 (Witness Program)</p>
@@ -474,7 +474,7 @@ efcdab78563412...f6e5d4c3b2a1
                 </p>
             </div>
 
-            <h3>10.5.4 Taproot (P2TR)</h3>
+            <h3 id="s10-5-4">10.5.4 Taproot (P2TR)</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 10.10 (P2TR ScriptPubKey)</p>
@@ -526,7 +526,7 @@ efcdab78563412...f6e5d4c3b2a1
         </section>
 
         <section>
-            <h2>10.6 Segregated Witness</h2>
+            <h2 id="s10-6">10.6 Segregated Witness</h2>
 
             <p>
                 Segregated Witness (SegWit), activated in August 2017, separates signature
@@ -543,7 +543,7 @@ efcdab78563412...f6e5d4c3b2a1
                 </p>
             </div>
 
-            <h3>10.6.1 SegWit Transaction Format</h3>
+            <h3 id="s10-6-1">10.6.1 SegWit Transaction Format</h3>
 
             <p>
                 A SegWit transaction includes additional marker, flag, and witness fields:
@@ -594,7 +594,7 @@ efcdab78563412...f6e5d4c3b2a1
                 <figcaption>Figure 10.5: SegWit transaction structure with marker, flag, and witness fields.</figcaption>
             </figure>
 
-            <h3>10.6.2 Transaction IDs</h3>
+            <h3 id="s10-6-2">10.6.2 Transaction IDs</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 10.12 (Txid and Wtxid)</p>
@@ -615,7 +615,7 @@ efcdab78563412...f6e5d4c3b2a1
         </section>
 
         <section>
-            <h2>10.7 Signature Hash Types</h2>
+            <h2 id="s10-7">10.7 Signature Hash Types</h2>
 
             <p>
                 When signing an input, the signer commits to a specific subset of the transaction
@@ -682,7 +682,7 @@ efcdab78563412...f6e5d4c3b2a1
         </section>
 
         <section>
-            <h2>10.8 Transaction Fees</h2>
+            <h2 id="s10-8">10.8 Transaction Fees</h2>
 
             <p>
                 Transaction fees incentivize miners and prevent spam.
@@ -702,7 +702,7 @@ efcdab78563412...f6e5d4c3b2a1
                 </p>
             </div>
 
-            <h3>10.8.1 Virtual Size</h3>
+            <h3 id="s10-8-1">10.8.1 Virtual Size</h3>
 
             <p>
                 SegWit introduced <em>weight units</em> to discount witness data.
@@ -735,7 +735,7 @@ efcdab78563412...f6e5d4c3b2a1
         </section>
 
         <section>
-            <h2>10.9 A Complete Transaction Example</h2>
+            <h2 id="s10-9">10.9 A Complete Transaction Example</h2>
 
             <div class="example">
                 <p class="example-title">Example 10.4 (Parsing a Raw Transaction)</p>
@@ -762,7 +762,7 @@ efcdab78563412...f6e5d4c3b2a1
         </section>
 
         <section>
-            <h2>10.10 The Coinbase Transaction</h2>
+            <h2 id="s10-10">10.10 The Coinbase Transaction</h2>
 
             <p>
                 Every block contains exactly one special transaction: the coinbase.
