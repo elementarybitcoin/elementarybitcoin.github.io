@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elementary Bitcoin | A Mathematical Introduction</title>
-    <meta name="description" content="A rigorous mathematical introduction to Bitcoin from first principles. Covering elliptic curves, cryptographic protocols, and scaling technologies.">
+    <meta name="description" content="A rigorous mathematical introduction to Bitcoin from first principles. Volumes I-V covering elliptic curves, cryptographic protocols, scaling technologies, forks, and the path to a sustainable future.">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Elementary Bitcoin">
     <meta property="og:title" content="Elementary Bitcoin | A Mathematical Introduction">
-    <meta property="og:description" content="A rigorous mathematical introduction to Bitcoin from first principles. Covering elliptic curves, cryptographic protocols, and scaling technologies.">
+    <meta property="og:description" content="A rigorous mathematical introduction to Bitcoin from first principles. Volumes I-V covering elliptic curves, cryptographic protocols, scaling technologies, forks, and the path to a sustainable future.">
     <meta property="og:url" content="https://elementarybitcoin.org/">
     <meta property="og:image" content="https://elementarybitcoin.org/og-image.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Elementary Bitcoin | A Mathematical Introduction">
-    <meta name="twitter:description" content="A rigorous mathematical introduction to Bitcoin from first principles. Covering elliptic curves, cryptographic protocols, and scaling technologies.">
+    <meta name="twitter:description" content="A rigorous mathematical introduction to Bitcoin from first principles. Volumes I-V covering elliptic curves, cryptographic protocols, scaling technologies, forks, and the path to a sustainable future.">
     <meta name="twitter:image" content="https://elementarybitcoin.org/og-image.png">
 
     <link rel="stylesheet" href="style.css">
@@ -57,6 +57,18 @@
             margin: 2rem auto;
             line-height: 1.8;
             color: #555;
+        }
+        .draft-notice {
+            background: #fff3cd;
+            border: 2px solid #8b4513;
+            padding: 1rem;
+            margin: 1rem auto;
+            max-width: 600px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .draft-notice strong {
+            color: #c87f0a;
         }
         .epigraph {
             max-width: 450px;
@@ -104,6 +116,14 @@
             font-size: 0.85rem;
             color: #888;
             margin-left: 1rem;
+        }
+        .volume-list .vol-draft {
+            background: #fff3cd;
+            color: #c87f0a;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
         }
         .current-volume {
             background: #fff8f0;
@@ -183,13 +203,15 @@
         <h1>Elementary Bitcoin</h1>
         <p class="subtitle">A Mathematical Introduction from First Principles</p>
         <p class="ornament">✦ ✦ ✦</p>
-        <p class="volume">Volumes I, II & III</p>
+        <p class="volume">Volumes I, II, III, IV & V</p>
         <p class="description">
             Being a rigorous exposition of the algebraic structures, elliptic curves,
-            cryptographic protocols, protocol architecture, and scaling technologies
-            upon which Bitcoin is founded, presented in the manner of classical
-            mathematical texts for the edification of the diligent reader.
+            cryptographic protocols, protocol architecture, scaling technologies,
+            forks, security, and monetary futures upon which Bitcoin is founded.
         </p>
+        <div class="draft-notice">
+            <strong>DRAFT:</strong> Volumes IV & V are included below as drafts undergoing revision.
+        </div>
     </div>
 
     <div class="epigraph">
@@ -206,7 +228,7 @@
                 <li class="current-volume">
                     <span class="vol-num">Volume I:</span>
                     <span class="vol-title">Mathematical Foundations</span>
-                    <span class="vol-status">— this volume</span>
+                    <span class="vol-status">— complete</span>
                 </li>
                 <li>
                     <span class="vol-num">Volume II:</span>
@@ -217,6 +239,16 @@
                     <span class="vol-num">Volume III:</span>
                     <span class="vol-title">Scaling and Verification</span>
                     <span class="vol-status">— complete</span>
+                </li>
+                <li>
+                    <span class="vol-num">Volume IV:</span>
+                    <span class="vol-title">Forks and Futures</span>
+                    <span class="vol-draft">DRAFT</span>
+                </li>
+                <li>
+                    <span class="vol-num">Volume V:</span>
+                    <span class="vol-title">The Path to a Sustainable Future</span>
+                    <span class="vol-draft">DRAFT</span>
                 </li>
             </ul>
         </section>
@@ -231,19 +263,15 @@
             </p>
             <p>
                 Each concept builds upon those that precede it, forming a complete chain of
-                understanding—much like the blockchain itself. The reader who masters Volume I
-                will possess the tools necessary to verify, from first principles, every
+                understanding—much like the blockchain itself. The reader who masters these
+                volumes will possess the tools necessary to verify, from first principles, every
                 cryptographic claim made about Bitcoin.
-            </p>
-            <p>
-                We follow the tradition of classical mathematical exposition: definition, theorem,
-                proof, example. This approach, though demanding, rewards the patient reader with
-                genuine comprehension rather than mere familiarity.
             </p>
         </section>
 
         <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 2rem;">Contents</h2>
 
+        <!-- Volume I -->
         <section class="toc-section">
             <h3>Part I · Algebraic Foundations</h3>
 
@@ -289,7 +317,7 @@
                 <span class="ch-num">6.</span>
                 <span class="ch-title"><a href="chapters/06-hash-functions.html">Hash Functions</a></span>
             </div>
-            <p class="toc-desc">Cryptographic hash functions · SHA-256 internals · RIPEMD-160 · Double hashing (HASH256, HASH160) · Tagged hashes · The random oracle model</p>
+            <p class="toc-desc">Cryptographic hash functions · SHA-256 internals · RIPEMD-160 · Double hashing · Tagged hashes · The random oracle model</p>
 
             <div class="toc-chapter">
                 <span class="ch-num">7.</span>
@@ -301,9 +329,10 @@
                 <span class="ch-num">8.</span>
                 <span class="ch-title"><a href="chapters/08-schnorr.html">Digital Signatures: Schnorr</a></span>
             </div>
-            <p class="toc-desc">The Schnorr identification protocol · BIP-340 signatures · Batch verification · Key aggregation · MuSig and MuSig2 · Adaptor signatures</p>
+            <p class="toc-desc">The Schnorr identification protocol · BIP-340 signatures · Batch verification · Key aggregation · MuSig and MuSig2</p>
         </section>
 
+        <!-- Volume II -->
         <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 1rem; color: #8b4513;">Volume II · Protocol Architecture</h2>
 
         <section class="toc-section">
@@ -313,19 +342,19 @@
                 <span class="ch-num">9.</span>
                 <span class="ch-title"><a href="chapters/09-keys-addresses.html">Keys and Addresses</a></span>
             </div>
-            <p class="toc-desc">Private keys · Public key derivation · Address formats (P2PKH, P2SH, P2WPKH, P2TR) · Base58Check · Bech32 and Bech32m · WIF encoding</p>
+            <p class="toc-desc">Private keys · Public key derivation · Address formats · Base58Check · Bech32 and Bech32m · WIF encoding</p>
 
             <div class="toc-chapter">
                 <span class="ch-num">10.</span>
                 <span class="ch-title"><a href="chapters/10-transactions.html">Transactions</a></span>
             </div>
-            <p class="toc-desc">The UTXO model · Transaction structure · Inputs and outputs · Segregated Witness · Sighash types · Transaction fees · The coinbase</p>
+            <p class="toc-desc">The UTXO model · Transaction structure · Inputs and outputs · Segregated Witness · Sighash types · Transaction fees</p>
 
             <div class="toc-chapter">
                 <span class="ch-num">11.</span>
                 <span class="ch-title"><a href="chapters/11-script.html">Script</a></span>
             </div>
-            <p class="toc-desc">Stack-based execution · Opcodes · Standard templates (P2PKH, P2SH, multisig) · Time locks · OP_RETURN · Tapscript</p>
+            <p class="toc-desc">Stack-based execution · Opcodes · Standard templates · Time locks · OP_RETURN · Tapscript</p>
         </section>
 
         <section class="toc-section">
@@ -366,25 +395,7 @@
             <p class="toc-desc">Policy vs consensus · Hard forks vs soft forks · Activation mechanisms (BIP-9, BIP-8) · Major soft forks · Future upgrade paths</p>
         </section>
 
-        <section class="toc-section">
-            <h3>Appendices</h3>
-
-            <div class="toc-chapter">
-                <span class="ch-num">A.</span>
-                <span class="ch-title"><a href="chapters/appendix-a-notation.html">Mathematical Notation</a></span>
-            </div>
-
-            <div class="toc-chapter">
-                <span class="ch-num">B.</span>
-                <span class="ch-title not-yet">Selected Proofs</span>
-            </div>
-
-            <div class="toc-chapter">
-                <span class="ch-num">C.</span>
-                <span class="ch-title not-yet">Reference Implementations</span>
-            </div>
-        </section>
-
+        <!-- Volume III -->
         <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 1rem; color: #2e7d32;">Volume III · Scaling and Verification</h2>
 
         <section class="toc-section">
@@ -457,12 +468,151 @@
             <p class="toc-desc">SPV security myths · Scaling misconceptions · Cryptographic concerns · Consensus myths · Economic fallacies · Methodology for evaluation</p>
         </section>
 
+        <!-- Volume IV (Draft) -->
+        <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 1rem; color: #8b4513;">Volume IV · Forks and Futures <span style="background: #fff3cd; color: #c87f0a; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.6em; vertical-align: middle;">DRAFT</span></h2>
+
+        <section class="toc-section">
+            <h3>Part XI · Fork Theory and History</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">26.</span>
+                <span class="ch-title"><a href="chapters/26-fork-theory.html">Fork Theory</a></span>
+            </div>
+            <p class="toc-desc">Chain divergence mathematics · Soft vs hard forks · Game theory of adoption · Replay protection · Fork choice rules</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">27.</span>
+                <span class="ch-title"><a href="chapters/27-historical-forks.html">Historical Hard Forks</a></span>
+            </div>
+            <p class="toc-desc">Block size debate · Bitcoin Cash · Bitcoin SV · Bitcoin Gold · SegWit2x · Lessons and patterns</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part XII · Major Upgrades Deep Dive</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">28.</span>
+                <span class="ch-title"><a href="chapters/28-segwit-deep-dive.html">SegWit Deep Dive</a></span>
+            </div>
+            <p class="toc-desc">Transaction malleability · Witness structure · Block weight · BIP-143 sighash · The soft fork mechanism</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">29.</span>
+                <span class="ch-title"><a href="chapters/29-taproot-architecture.html">Taproot Architecture</a></span>
+            </div>
+            <p class="toc-desc">BIP-340 Schnorr · Key tweaking · Script trees (MAST) · Tapscript · MuSig2 · Adaptor signatures</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part XIII · Proposed Upgrades</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">30.</span>
+                <span class="ch-title"><a href="chapters/30-covenants.html">Covenant Proposals</a></span>
+            </div>
+            <p class="toc-desc">CTV (BIP-119) · OP_CAT · OP_VAULT · SIGHASH_ANYPREVOUT · TXHASH · Recursive covenants · Use cases and concerns</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">31.</span>
+                <span class="ch-title"><a href="chapters/31-sidechains.html">Sidechains</a></span>
+            </div>
+            <p class="toc-desc">Two-way pegs · Federated sidechains · Liquid Network · RSK · SPV and validity proofs · Stacks</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">32.</span>
+                <span class="ch-title"><a href="chapters/32-beyond-lightning.html">Beyond Lightning</a></span>
+            </div>
+            <p class="toc-desc">Ark protocol · Statechains · Channel factories · LN-Symmetry (Eltoo) · Comparison of L2 approaches</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part XIV · Governance and Philosophy</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">33.</span>
+                <span class="ch-title"><a href="chapters/33-governance.html">Bitcoin Governance</a></span>
+            </div>
+            <p class="toc-desc">Stakeholder groups · BIP process · Consensus formation · Soft fork activation · Bitcoin Core's role · Ossification debate</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part XV · Protocol Evolution</h3>
+
+
+            <div class="toc-chapter">
+                <span class="ch-num">34.</span>
+                <span class="ch-title"><a href="chapters/34-drivechains.html">Drivechains (BIP-300/301)</a></span>
+            </div>
+            <p class="toc-desc">Hashrate escrow · Blind merged mining · Sidechain activation · Security model · Criticism and debate</p>
+
+
+            <div class="toc-chapter">
+                <span class="ch-num">35.</span>
+                <span class="ch-title"><a href="chapters/35-consensus-cleanup.html">Great Consensus Cleanup</a></span>
+            </div>
+            <p class="toc-desc">Timewarp attack · 64-byte transaction vulnerability · Merkle tree CVE · Legacy validation costs · Proposed fixes</p>
+        </section>
+
+        <!-- Volume V (Draft) -->
+        <h2 style="text-align: center; font-variant: small-caps; letter-spacing: 0.15em; margin: 3rem 0 1rem; color: #2f4f4f;">Volume V · The Path to a Sustainable Future <span style="background: #fff3cd; color: #c87f0a; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.6em; vertical-align: middle;">DRAFT</span></h2>
+
+        <section class="toc-section">
+            <h3>Part XVI · Long-Term Security</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">36.</span>
+                <span class="ch-title"><a href="chapters/36-security-threats.html">Security Threats</a></span>
+            </div>
+            <p class="toc-desc">51% attacks · Double-spend analysis · Chain reorganizations · Selfish mining · Eclipse attacks · Network-level vulnerabilities</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">37.</span>
+                <span class="ch-title"><a href="chapters/37-defense-mechanisms.html">Defense Mechanisms</a></span>
+            </div>
+            <p class="toc-desc">Checkpoints · AssumeValid · AssumeUTXO · Minimum chain work · Confirmation requirements · Social layer defense</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">38.</span>
+                <span class="ch-title"><a href="chapters/38-security-budget.html">The Security Budget Problem</a></span>
+            </div>
+            <p class="toc-desc">Subsidy decline · Fee market dynamics · Economic models · Game theory · Proposed solutions · Timeline analysis</p>
+
+            <div class="toc-chapter">
+                <span class="ch-num">39.</span>
+                <span class="ch-title"><a href="chapters/39-quantum-resistance.html">Quantum Resistance</a></span>
+            </div>
+            <p class="toc-desc">Shor's algorithm · Grover's algorithm · Post-quantum cryptography · NIST standards · Migration strategies · Timeline estimates</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Part XVII · The Road Ahead</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">40.</span>
+                <span class="ch-title"><a href="chapters/40-monetary-future.html">Bitcoin's Monetary Future</a></span>
+            </div>
+            <p class="toc-desc">Adoption stages · Nation-state game theory · Future scenarios · Hyperbitcoinization · Economic implications · The money of the future</p>
+        </section>
+
+        <section class="toc-section">
+            <h3>Appendices</h3>
+
+            <div class="toc-chapter">
+                <span class="ch-num">A.</span>
+                <span class="ch-title"><a href="chapters/appendix-a-notation.html">Mathematical Notation</a></span>
+            </div>
+            <p class="toc-desc">Symbols and conventions by topic · The secp256k1 constants · Overloaded-symbol disambiguation · House conventions</p>
+        </section>
+
     </main>
 
     <footer class="colophon">
-        <p>Elementary Bitcoin · Volumes I, II & III</p>
+        <p>Elementary Bitcoin · Volumes I–V</p>
         <p style="font-style: italic; margin-top: 1rem;">
             "We build understanding link by link, block by block."
+        </p>
+        <p style="margin-top: 1rem; font-size: 0.8rem; color: #aaa;">
+            Volumes IV & V are drafts undergoing revision
         </p>
     </footer>
 </body>
