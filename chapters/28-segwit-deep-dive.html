@@ -521,11 +521,13 @@ where:
                     of the coinbase transaction:
                 </p>
                 <pre style="font-size: 0.85rem;">
-OP_RETURN &lt;commitment&gt;
+scriptPubKey = 0x6a 0x24 0xaa21a9ed || commitment
+               │    │    │
+               │    │    └─ 4-byte commitment header
+               │    └─ push of 36 bytes
+               └─ OP_RETURN
 
-commitment = SHA256(SHA256(witness_root || witness_nonce))
-            |
-            0x6a24aa21a9ed  (commitment header)</pre>
+commitment = SHA256(SHA256(witness_root || witness_reserved_value))</pre>
             </div>
 
             <figure>

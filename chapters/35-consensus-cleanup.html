@@ -298,11 +298,13 @@ timestamp(block[h]) >= timestamp(block[h-1]) - 2 hours</pre>
             <div class="remark">
                 <p class="remark-title">Remark 35.4 (Proposed Fix: 64-Byte Transactions)</p>
                 <p>
-                    Ban transactions that serialize to exactly 64 bytes:
+                    Ban transactions whose witness-stripped serialization is exactly
+                    64 bytes (the stripped form is what feeds the txid and the Merkle
+                    leaf):
                 </p>
                 <pre style="font-size: 0.85rem;">
 // New consensus rule:
-if (tx.GetSerializeSize() == 64)
+if (tx.GetSerializeSize(WITHOUT_WITNESS) == 64)
     return Invalid("64-byte-tx")</pre>
                 <p>
                     No legitimate use of 64-byte transactions is known.

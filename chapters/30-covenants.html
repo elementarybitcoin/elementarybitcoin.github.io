@@ -535,9 +535,11 @@ OP_CHECKSIG</pre>
                     data (not the transaction sighash):
                 </p>
                 <pre style="font-size: 0.85rem;">
-Stack: [signature] [message] [pubkey]
+Stack before (top → bottom): [pubkey] [message] [signature]
 OP_CHECKSIGFROMSTACK
-Stack: [1 if valid]</pre>
+Stack after:  valid signature     → [1]
+              empty signature     → [0]
+              invalid (non-empty) → script fails</pre>
                 <p>
                     Enables oracles, delegation, and complex covenant constructions.
                 </p>
