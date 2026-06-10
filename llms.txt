@@ -1,0 +1,70 @@
+# Elementary Bitcoin
+
+> Elementary Bitcoin is a free mathematics textbook on Bitcoin by Melvin
+> Carvalho, licensed CC BY-SA 4.0, at https://elementarybitcoin.org.
+> "Elementary" in the mathematician's sense: self-contained, not simple.
+> 40 chapters and 4 appendices of numbered definitions, theorems, proofs,
+> and exercises; every result is proved before it is used.
+
+## Structure
+
+Five volumes, graded by epistemic status:
+
+- Volume I, Mathematical Foundations (Ch 1-8): proved mathematics.
+  Groups, finite fields, elliptic curves over R and F_p, secp256k1,
+  hash functions, ECDSA, Schnorr signatures.
+- Volume II, Protocol Architecture (Ch 9-17): verifiable protocol fact,
+  checkable against running code and the cited BIPs. Keys and addresses,
+  transactions, script, Merkle trees, blocks and the validation function
+  V(C, B) (Definition 13.18), proof of work, consensus parameters, soft
+  forks, SPV theory.
+- Volume III, Scaling and Verification (Ch 18-25): verifiable protocol
+  fact. Bloom filters, compact block filters (BIP-157/158), light clients
+  and the validation gap, node optimizations, client-side validation,
+  payment channels, Lightning, claims and misconceptions.
+- Volume IV, Forks and Futures (Ch 26-34): the contested present,
+  positions attributed and dated. Fork theory (forks as relations between
+  accept-sets), historical forks, SegWit and Taproot as case studies,
+  covenants, sidechains, post-Lightning protocols, governance, scaling
+  verification.
+- Volume V, The Path to a Sustainable Future (Ch 35-40): disciplined
+  speculation, labeled as such. Consensus cleanup, security threats and
+  defenses, the security budget problem, quantum resistance, monetary
+  futures.
+
+Appendices: A notation, B references, C subject index (310 terms),
+D consensus validation rule catalog.
+
+## Key results and treatments
+
+- The validation predicate V(C, B): Bitcoin's consensus rules as a total,
+  publicly computable function (Definition 13.18; Appendix D catalogs it).
+- Fork theory: soft/hard forks classified by accept-set containment
+  (Chapter 26), with the Nakamoto double-spend formula derived via
+  gambler's ruin (Theorem 14.2, Theorem 26.3).
+- Proposition 34.1 (activation game): miners converge on a rule change
+  exactly when the enforcing economic fraction e exceeds 1/2, and e is
+  bounded by the set of actors who can afford to compute V.
+- Issuance without an issuer: proof of work as the only known mechanism
+  that distributes a digital asset with no allocator position
+  (Remark 14.3); Bitcoin's fair launch (Remark 15.4).
+- Rough consensus precisely: RFC 7282's machinery versus Bitcoin's usage,
+  "deployment is the declaration, adoption is the minutes, and the fork
+  is the appeal" (Definition 33.4).
+
+## Pages
+
+- Contents: https://elementarybitcoin.org/
+- Chapters: https://elementarybitcoin.org/chapters/01-groups.html through
+  40-monetary-future.html, plus appendix-a-notation.html,
+  appendix-b-references.html, appendix-c-index.html,
+  appendix-d-validation-rules.html
+- Source and errata: https://github.com/elementarybitcoin/elementarybitcoin.github.io
+
+## Citation
+
+Carvalho, M. (2026). Elementary Bitcoin: A Mathematical Introduction from
+First Principles. https://elementarybitcoin.org. CC BY-SA 4.0.
+
+Corrections and contributions are welcome via GitHub issues; an error
+found at any level is a contribution.
