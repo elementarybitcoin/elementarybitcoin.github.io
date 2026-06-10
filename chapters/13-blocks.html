@@ -736,6 +736,102 @@ target = 0x00ffff × 256^(29-3)
             </p>
         </section>
 
+        <section>
+            <h2 id="s13-10">13.10 The Validation Function</h2>
+
+            <p>
+                The validation rules of Section 13.5 are more than a checklist: collectively
+                they define a mathematical object that the rest of this book builds on. Every
+                statement about consensus&mdash;and, in Chapter 26, the entire theory of
+                forks&mdash;reduces to questions about a single predicate.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.18 (Validation Predicate)</p>
+                <p>
+                    The <strong>validation predicate</strong> is a function
+                </p>
+                <p class="math-block">
+                    V(C, B) &isin; {accept, reject}
+                </p>
+                <p>
+                    where <span class="math">B</span> is a candidate block and
+                    <span class="math">C</span> is the chain state it would extend: the header
+                    chain (which fixes the height, the expected difficulty, and the median time
+                    past), the UTXO set, and the set of rules active at that height. The
+                    <strong>set of valid blocks</strong> at state <span class="math">C</span> is
+                </p>
+                <p class="math-block">
+                    R(C) = { B : V(C, B) = accept }.
+                </p>
+                <p>
+                    <span class="math">V</span> must be a <em>pure, deterministic</em> function:
+                    identical inputs must produce identical verdicts on every node, regardless
+                    of hardware, operating system, or local configuration. Consensus is exactly
+                    the property that all participants compute the same <span class="math">V</span>.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.19 (The Validation Pipeline)</p>
+                <p>
+                    In practice <span class="math">V</span> decomposes into four phases, ordered
+                    so that cheap, context-free checks reject invalid blocks before expensive,
+                    state-dependent ones run:
+                </p>
+                <ol>
+                    <li><strong>Header validation:</strong> the proof of work meets the target
+                        encoded in <span class="math">bits</span>; that target equals the value
+                        prescribed by the difficulty adjustment; the timestamp exceeds the median
+                        time past and does not run more than two hours ahead of network-adjusted
+                        time; the version satisfies any height-gated minimum.</li>
+                    <li><strong>Transaction validation (context-free):</strong> each transaction
+                        has inputs and outputs, respects size and value bounds, and contains no
+                        duplicate inputs; checks that need no knowledge of the chain.</li>
+                    <li><strong>Block-structure validation:</strong> the Merkle root matches the
+                        transaction list, the first and only the first transaction is a coinbase,
+                        the block respects the weight and signature-operation limits, and the
+                        transaction list admits no duplicate-subtree mutation.</li>
+                    <li><strong>Contextual validation and connection:</strong> the
+                        state-dependent rules&mdash;transaction finality, the coinbase height
+                        commitment, the witness commitment, existence and maturity of every
+                        spent output, value conservation, sequence locks, and script execution
+                        under the flags active at this height.</li>
+                </ol>
+                <p>
+                    The complete rule catalog, phase by phase with activation heights, is
+                    collected in Appendix D.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 13.5 (Height-Gated Rules)</p>
+                <p>
+                    Each rule carries an activation condition: BIP-34's height commitment binds
+                    from height 227,931, SegWit's witness commitment from 481,824, Taproot's
+                    script rules from 709,632. The predicate <span class="math">V</span> is
+                    therefore a function of height as well as content, and the valid set
+                    <span class="math">R(C)</span> <em>shrinks</em> at every soft-fork
+                    activation&mdash;the formal content of Chapter 16's definition of a soft
+                    fork, and the foundation of the rule-set analysis in Chapter 26.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 13.6 (Determinism as a Consensus Requirement)</p>
+                <p>
+                    The purity requirement in Definition 13.18 is not a stylistic preference.
+                    Any input to <span class="math">V</span> beyond <span class="math">(C, B)</span>&mdash;a
+                    database resource limit, available memory, an environment-dependent code
+                    path&mdash;is a latent consensus failure: two honest nodes can disagree
+                    about <span class="math">R(C)</span> without either being modified. Exactly
+                    this happened in March 2013, when an implicit resource limit acted as an
+                    unwritten validation rule (Section 33.9 examines the episode as a
+                    specification failure).
+                </p>
+            </div>
+        </section>
+
         <section class="exercises">
             <h2>Exercises</h2>
 

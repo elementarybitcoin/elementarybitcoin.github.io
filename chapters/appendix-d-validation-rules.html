@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appendix D: Consensus Validation Rules | Elementary Bitcoin</title>
+    <meta name="description" content="Appendix D: Consensus Validation Rules - The block validation pipeline as a rule catalog, phase by phase with activation heights">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Elementary Bitcoin">
+    <meta property="og:title" content="Appendix D: Consensus Validation Rules | Elementary Bitcoin">
+    <meta property="og:description" content="The block validation pipeline as a rule catalog, phase by phase with activation heights">
+    <meta property="og:url" content="https://elementarybitcoin.org/chapters/appendix-d-validation-rules.html">
+    <meta property="og:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Appendix D: Consensus Validation Rules | Elementary Bitcoin">
+    <meta name="twitter:description" content="The block validation pipeline as a rule catalog, phase by phase with activation heights">
+    <meta name="twitter:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Appendix D</span>
+        <h1 class="chapter-title">Consensus Validation Rules</h1>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                This appendix catalogs the consensus rules that constitute the validation
+                predicate <span class="math">V(C, B)</span> of Definition 13.18, organized by
+                the four phases of Definition 13.19. Only <em>consensus</em> rules appear:
+                violating any rule below makes a block invalid for every node. Relay-policy
+                rules (standardness, minimum fee rates, the default OP_RETURN limit) are
+                deliberately excluded; the distinction is developed in Section 16.1.
+            </p>
+            <p>
+                Two cautions. First, heights and flags describe Bitcoin mainnet. Second, this
+                catalog is a faithful description, not a normative specification&mdash;per the
+                specification problem of Section 33.9, the rules are ultimately defined by the
+                behavior of deployed implementations (Bitcoin Core's
+                <code>src/validation.cpp</code> and <code>src/consensus/</code> are the
+                de facto reference; declarative restatements such as the Hornet DSL are cited
+                in Appendix B).
+            </p>
+        </section>
+
+        <section>
+            <h2>D.1 Phase 1 &mdash; Header Validation</h2>
+            <table>
+                <tr><th>Rule</th><th>Requirement</th><th>Active since</th></tr>
+                <tr><td>Connection</td><td>The previous-block hash refers to a known, valid header</td><td>Genesis</td></tr>
+                <tr><td>Proof of work</td><td>The block hash, as a 256-bit integer, does not exceed the target encoded in the bits field</td><td>Genesis</td></tr>
+                <tr><td>Difficulty</td><td>The bits field equals the value prescribed by the difficulty adjustment algorithm for this height (Section 14.4)</td><td>Genesis</td></tr>
+                <tr><td>Timestamp, lower bound</td><td>Strictly greater than the median of the previous 11 block timestamps (MTP)</td><td>Genesis</td></tr>
+                <tr><td>Timestamp, upper bound</td><td>At most 2 hours ahead of network-adjusted time</td><td>Genesis</td></tr>
+                <tr><td>Version minimum</td><td>Version &ge; 2 (BIP-34), &ge; 3 (BIP-66), &ge; 4 (BIP-65)</td><td>Heights 227,931 / 363,725 / 388,381</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>D.2 Phase 2 &mdash; Transaction Validation (Context-Free)</h2>
+            <p>Applied to every transaction in the block, with no reference to chain state.</p>
+            <table>
+                <tr><th>Rule</th><th>Requirement</th><th>Active since</th></tr>
+                <tr><td>Non-empty</td><td>At least one input and at least one output</td><td>Genesis</td></tr>
+                <tr><td>Size bound</td><td>Serialized size without witness data, times 4, does not exceed 4,000,000 weight units</td><td>Genesis (in weight form since SegWit)</td></tr>
+                <tr><td>Output range</td><td>Each output value in [0, 21,000,000 &times; 10&#8312;] satoshis; the running sum stays in range</td><td>Genesis</td></tr>
+                <tr><td>No duplicate inputs</td><td>No two inputs of the transaction reference the same outpoint</td><td>Genesis</td></tr>
+                <tr><td>Coinbase script size</td><td>For a coinbase: scriptSig length between 2 and 100 bytes</td><td>Genesis</td></tr>
+                <tr><td>No null prevouts</td><td>For a non-coinbase: no input references the null (coinbase-style) outpoint</td><td>Genesis</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>D.3 Phase 3 &mdash; Block-Structure Validation</h2>
+            <table>
+                <tr><th>Rule</th><th>Requirement</th><th>Active since</th></tr>
+                <tr><td>Merkle root</td><td>The header's Merkle root equals the root computed from the transaction list (Chapter 12)</td><td>Genesis</td></tr>
+                <tr><td>Mutation check</td><td>The transaction list does not exhibit the duplicate-subtree malleation of CVE-2012-2459</td><td>Detection since Bitcoin Core 0.6.2 (2012)</td></tr>
+                <tr><td>Coinbase position</td><td>The first transaction is a coinbase and no other transaction is</td><td>Genesis</td></tr>
+                <tr><td>Block weight</td><td>Total weight at most 4,000,000 WU (Definition 13.9)</td><td>Genesis (1 MB size form); weight form since SegWit, height 481,824</td></tr>
+                <tr><td>Signature operations</td><td>Total signature-operation cost at most 80,000</td><td>Genesis (limit restated in cost form at SegWit)</td></tr>
+                <tr><td>Per-transaction checks</td><td>Every transaction passes Phase 2</td><td>&mdash;</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>D.4 Phase 4 &mdash; Contextual Validation and Connection</h2>
+            <p>State-dependent rules, evaluated against the chain state <span class="math">C</span>.</p>
+            <table>
+                <tr><th>Rule</th><th>Requirement</th><th>Active since</th></tr>
+                <tr><td>Finality</td><td>Every transaction is final: locktime satisfied relative to block height or median time past</td><td>Genesis; MTP comparison since BIP-113, height 419,328</td></tr>
+                <tr><td>Coinbase height</td><td>The coinbase scriptSig begins with the block height (BIP-34)</td><td>Height 227,931</td></tr>
+                <tr><td>Witness commitment</td><td>If any transaction has witness data, the coinbase commits to the witness Merkle root (BIP-141; Section 12.6)</td><td>Height 481,824</td></tr>
+                <tr><td>No txid overwrite</td><td>No transaction's txid duplicates that of an earlier transaction with unspent outputs (BIP-30; made unreachable for new blocks by BIP-34)</td><td>March 2012</td></tr>
+                <tr><td>Inputs exist</td><td>Every input references an existing unspent output in the UTXO set</td><td>Genesis</td></tr>
+                <tr><td>Coinbase maturity</td><td>Spent coinbase outputs have at least 100 confirmations</td><td>Genesis</td></tr>
+                <tr><td>Value conservation</td><td>For each transaction, total input value &ge; total output value; the difference is the fee</td><td>Genesis</td></tr>
+                <tr><td>Subsidy bound</td><td>Coinbase output total at most subsidy(height) + total fees (Theorem 10.2, Definition 15.2)</td><td>Genesis</td></tr>
+                <tr><td>Sequence locks</td><td>Relative lock-times encoded in sequence numbers are satisfied (BIP-68)</td><td>Height 419,328</td></tr>
+                <tr><td>Script execution</td><td>Every input's script verifies under the flags active at this height (Chapter 11)</td><td>See D.5</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>D.5 Height-Gated Script Verification Flags</h2>
+            <p>
+                The script-execution rule of Phase 4 is itself height-parameterized: each soft
+                fork added verification flags that apply from its activation height.
+            </p>
+            <table>
+                <tr><th>Flag / rules</th><th>Soft fork</th><th>Mainnet activation height</th></tr>
+                <tr><td>P2SH evaluation</td><td>BIP-16</td><td>173,805</td></tr>
+                <tr><td>Strict DER signatures</td><td>BIP-66</td><td>363,725</td></tr>
+                <tr><td>OP_CHECKLOCKTIMEVERIFY</td><td>BIP-65</td><td>388,381</td></tr>
+                <tr><td>OP_CHECKSEQUENCEVERIFY</td><td>BIP-112 (with 68/113)</td><td>419,328</td></tr>
+                <tr><td>Witness program evaluation (v0)</td><td>BIP-141/143</td><td>481,824</td></tr>
+                <tr><td>Taproot and Tapscript (v1)</td><td>BIP-341/342</td><td>709,632</td></tr>
+            </table>
+            <p>
+                Together, D.1&ndash;D.5 are the concrete content of Remark 13.5: the valid set
+                <span class="math">R(C)</span> contracted at each of these heights, and every
+                contraction was a soft fork in the sense of Definition 26.5.
+            </p>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="appendix-c-index.html">&larr; Appendix C: Subject Index</a>
+            <a href="../index.html">Table of Contents</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> &middot; A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>
