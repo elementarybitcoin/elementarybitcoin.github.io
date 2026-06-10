@@ -149,11 +149,11 @@
 
                     <!-- Phase 1 -->
                     <g transform="translate(30, 50)">
-                        <rect x="0" y="0" width="140" height="80" fill="#e3f2fd" stroke="#1976d2" rx="5"/>
+                        <rect x="0" y="0" width="140" height="80" fill="#f0f5f8" stroke="#4a90d9" rx="5"/>
                         <text x="70" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 1</text>
                         <text x="70" y="45" text-anchor="middle" font-size="9">Header Download</text>
-                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~65 MB</text>
-                        <text x="70" y="73" text-anchor="middle" font-size="8" fill="#666">~minutes</text>
+                        <text x="70" y="60" text-anchor="middle" font-size="9" fill="#666">~65 MB</text>
+                        <text x="70" y="73" text-anchor="middle" font-size="9" fill="#666">~minutes</text>
                     </g>
 
                     <!-- Arrow -->
@@ -161,11 +161,11 @@
 
                     <!-- Phase 2 -->
                     <g transform="translate(205, 50)">
-                        <rect x="0" y="0" width="140" height="80" fill="#fff3e0" stroke="#ff9800" rx="5"/>
+                        <rect x="0" y="0" width="140" height="80" fill="#fff8f0" stroke="#8b4513" rx="5"/>
                         <text x="70" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 2</text>
                         <text x="70" y="45" text-anchor="middle" font-size="9">Block Download</text>
-                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~550 GB</text>
-                        <text x="70" y="73" text-anchor="middle" font-size="8" fill="#666">Parallel from peers</text>
+                        <text x="70" y="60" text-anchor="middle" font-size="9" fill="#666">~550 GB</text>
+                        <text x="70" y="73" text-anchor="middle" font-size="9" fill="#666">Parallel from peers</text>
                     </g>
 
                     <!-- Arrow -->
@@ -173,11 +173,11 @@
 
                     <!-- Phase 3 -->
                     <g transform="translate(380, 50)">
-                        <rect x="0" y="0" width="140" height="80" fill="#e8f5e9" stroke="#4caf50" rx="5"/>
+                        <rect x="0" y="0" width="140" height="80" fill="#f5f8f0" stroke="#5a8f5a" rx="5"/>
                         <text x="70" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 3</text>
                         <text x="70" y="45" text-anchor="middle" font-size="9">Validation</text>
-                        <text x="70" y="60" text-anchor="middle" font-size="8" fill="#666">~900M signatures</text>
-                        <text x="70" y="73" text-anchor="middle" font-size="8" fill="#666">CPU-intensive</text>
+                        <text x="70" y="60" text-anchor="middle" font-size="9" fill="#666">~900M signatures</text>
+                        <text x="70" y="73" text-anchor="middle" font-size="9" fill="#666">CPU-intensive</text>
                     </g>
 
                     <!-- Arrow -->
@@ -185,11 +185,11 @@
 
                     <!-- Phase 4 -->
                     <g transform="translate(555, 50)">
-                        <rect x="0" y="0" width="110" height="80" fill="#fce4ec" stroke="#e91e63" rx="5"/>
+                        <rect x="0" y="0" width="110" height="80" fill="#ffe8e8" stroke="#c44" rx="5"/>
                         <text x="55" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 4</text>
                         <text x="55" y="45" text-anchor="middle" font-size="9">UTXO Build</text>
-                        <text x="55" y="60" text-anchor="middle" font-size="8" fill="#666">~8 GB</text>
-                        <text x="55" y="73" text-anchor="middle" font-size="8" fill="#666">I/O-intensive</text>
+                        <text x="55" y="60" text-anchor="middle" font-size="9" fill="#666">~8 GB</text>
+                        <text x="55" y="73" text-anchor="middle" font-size="9" fill="#666">I/O-intensive</text>
                     </g>
 
                     <!-- Bottlenecks -->
@@ -414,54 +414,54 @@ bitcoind -assumevalid=00000000000000000001...</code></pre>
                     </text>
 
                     <!-- Timeline -->
-                    <line x1="50" y1="80" x2="650" y2="80" stroke="#333" stroke-width="2"/>
+                    <line x1="50" y1="80" x2="650" y2="80" stroke="#2f4f4f" stroke-width="2"/>
 
                     <!-- Genesis -->
-                    <circle cx="50" cy="80" r="6" fill="#333"/>
-                    <text x="50" y="100" text-anchor="middle" font-size="9">Genesis</text>
-                    <text x="50" y="112" text-anchor="middle" font-size="8" fill="#666">Block 0</text>
+                    <circle cx="50" cy="80" r="6" fill="#2f4f4f"/>
+                    <text x="60" y="100" font-size="9">Genesis</text>
+                    <text x="60" y="112" font-size="9" fill="#666">Block 0</text>
 
                     <!-- Snapshot point -->
-                    <circle cx="400" cy="80" r="8" fill="#ff9800"/>
-                    <text x="400" y="100" text-anchor="middle" font-size="9" font-weight="bold">Snapshot</text>
-                    <text x="400" y="112" text-anchor="middle" font-size="8" fill="#666">Block ~800,000</text>
+                    <circle cx="400" cy="80" r="8" fill="#8b4513"/>
+                    <text x="390" y="100" text-anchor="end" font-size="9" font-weight="bold">Snapshot</text>
+                    <text x="390" y="112" text-anchor="end" font-size="9" fill="#666">Block ~800,000</text>
 
                     <!-- Current tip -->
-                    <circle cx="650" cy="80" r="6" fill="#4caf50"/>
+                    <circle cx="650" cy="80" r="6" fill="#5a8f5a"/>
                     <text x="650" y="100" text-anchor="middle" font-size="9">Current</text>
-                    <text x="650" y="112" text-anchor="middle" font-size="8" fill="#666">Tip</text>
+                    <text x="650" y="112" text-anchor="middle" font-size="9" fill="#666">Tip</text>
 
                     <!-- Phase 1: Foreground -->
                     <g transform="translate(400, 130)">
-                        <rect x="0" y="0" width="250" height="70" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="250" height="70" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2" rx="5"/>
                         <text x="125" y="20" text-anchor="middle" font-size="11" font-weight="bold">Phase 1: Foreground</text>
                         <text x="125" y="38" text-anchor="middle" font-size="9">Load UTXO snapshot</text>
                         <text x="125" y="52" text-anchor="middle" font-size="9">Sync from snapshot to tip</text>
-                        <text x="125" y="66" text-anchor="middle" font-size="8" fill="#666">~minutes (functional node)</text>
+                        <text x="125" y="66" text-anchor="middle" font-size="9" fill="#666">~minutes (functional node)</text>
                     </g>
 
                     <!-- Arrow from snapshot to foreground -->
-                    <path d="M 400 88 L 400 125" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow-or)"/>
+                    <path d="M 400 88 L 400 125" stroke="#8b4513" stroke-width="2" marker-end="url(#arrow-or)"/>
 
                     <!-- Phase 2: Background -->
                     <g transform="translate(50, 220)">
-                        <rect x="0" y="0" width="350" height="70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="350" height="70" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2" rx="5"/>
                         <text x="175" y="20" text-anchor="middle" font-size="11" font-weight="bold">Phase 2: Background Validation</text>
                         <text x="175" y="38" text-anchor="middle" font-size="9">Download and validate blocks 0 → snapshot</text>
                         <text x="175" y="52" text-anchor="middle" font-size="9">Rebuild UTXO set from scratch</text>
-                        <text x="175" y="66" text-anchor="middle" font-size="8" fill="#666">~hours/days (runs in background)</text>
+                        <text x="175" y="66" text-anchor="middle" font-size="9" fill="#666">~hours/days (runs in background)</text>
                     </g>
 
                     <!-- Arrow from genesis -->
-                    <path d="M 50 88 L 50 130 L 50 215" stroke="#1976d2" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-bl)"/>
+                    <path d="M 50 88 L 50 130 L 50 215" stroke="#4a90d9" stroke-width="2" stroke-dasharray="5" marker-end="url(#arrow-bl)"/>
 
                     <!-- Verification -->
                     <g transform="translate(420, 220)">
-                        <rect x="0" y="0" width="230" height="70" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="230" height="70" fill="#fff8f0" stroke="#8b4513" stroke-width="2" rx="5"/>
                         <text x="115" y="20" text-anchor="middle" font-size="11" font-weight="bold">Verification Complete</text>
                         <text x="115" y="38" text-anchor="middle" font-size="9">Background catches up to snapshot</text>
                         <text x="115" y="52" text-anchor="middle" font-size="9">UTXO sets must match exactly</text>
-                        <text x="115" y="66" text-anchor="middle" font-size="8" fill="#666">Node is now fully validated</text>
+                        <text x="115" y="66" text-anchor="middle" font-size="9" fill="#666">Node is now fully validated</text>
                     </g>
 
                     <!-- Arrow from background to verification -->
@@ -469,10 +469,10 @@ bitcoind -assumevalid=00000000000000000001...</code></pre>
 
                     <defs>
                         <marker id="arrow-or" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/>
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#8b4513"/>
                         </marker>
                         <marker id="arrow-bl" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4a90d9"/>
                         </marker>
                         <marker id="arrow-g3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                             <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
@@ -667,7 +667,7 @@ prune=550</code></pre>
             </p>
 
             <figure>
-                <svg viewBox="0 0 650 280" style="max-width: 650px; margin: 2rem auto; display: block;">
+                <svg viewBox="0 0 650 300" style="max-width: 650px; margin: 2rem auto; display: block;">
                     <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold">
                         Utreexo Forest Structure
                     </text>
@@ -675,14 +675,14 @@ prune=550</code></pre>
                     <!-- Tree 1 (height 3) -->
                     <g transform="translate(50, 50)">
                         <!-- Root -->
-                        <circle cx="100" cy="20" r="15" fill="#4caf50" stroke="#2e7d32"/>
-                        <text x="100" y="25" text-anchor="middle" font-size="8" fill="white">R₃</text>
+                        <circle cx="100" cy="20" r="15" fill="#5a8f5a" stroke="#2f4f4f"/>
+                        <text x="100" y="25" text-anchor="middle" font-size="9" fill="white">R₃</text>
 
                         <!-- Level 1 -->
                         <line x1="100" y1="35" x2="50" y2="60" stroke="#666"/>
                         <line x1="100" y1="35" x2="150" y2="60" stroke="#666"/>
-                        <circle cx="50" cy="70" r="12" fill="#81c784"/>
-                        <circle cx="150" cy="70" r="12" fill="#81c784"/>
+                        <circle cx="50" cy="70" r="12" fill="#5a8f5a" fill-opacity="0.75"/>
+                        <circle cx="150" cy="70" r="12" fill="#5a8f5a" fill-opacity="0.75"/>
 
                         <!-- Level 2 -->
                         <line x1="50" y1="82" x2="25" y2="110" stroke="#666"/>
@@ -690,16 +690,16 @@ prune=550</code></pre>
                         <line x1="150" y1="82" x2="125" y2="110" stroke="#666"/>
                         <line x1="150" y1="82" x2="175" y2="110" stroke="#666"/>
 
-                        <circle cx="25" cy="120" r="10" fill="#a5d6a7"/>
-                        <circle cx="75" cy="120" r="10" fill="#a5d6a7"/>
-                        <circle cx="125" cy="120" r="10" fill="#a5d6a7"/>
-                        <circle cx="175" cy="120" r="10" fill="#a5d6a7"/>
+                        <circle cx="25" cy="120" r="10" fill="#5a8f5a" fill-opacity="0.5"/>
+                        <circle cx="75" cy="120" r="10" fill="#5a8f5a" fill-opacity="0.5"/>
+                        <circle cx="125" cy="120" r="10" fill="#5a8f5a" fill-opacity="0.5"/>
+                        <circle cx="175" cy="120" r="10" fill="#5a8f5a" fill-opacity="0.5"/>
 
                         <!-- Leaves -->
                         <line x1="25" y1="130" x2="15" y2="155" stroke="#666"/>
                         <line x1="25" y1="130" x2="35" y2="155" stroke="#666"/>
-                        <rect x="5" y="155" width="20" height="15" fill="#c8e6c9" stroke="#666"/>
-                        <rect x="25" y="155" width="20" height="15" fill="#c8e6c9" stroke="#666"/>
+                        <rect x="5" y="155" width="20" height="15" fill="#f5f8f0" stroke="#666"/>
+                        <rect x="25" y="155" width="20" height="15" fill="#f5f8f0" stroke="#666"/>
 
                         <!-- More leaves (abbreviated) -->
                         <text x="100" y="175" text-anchor="middle" font-size="9" fill="#666">8 UTXOs</text>
@@ -707,32 +707,32 @@ prune=550</code></pre>
 
                     <!-- Tree 2 (height 1) -->
                     <g transform="translate(300, 100)">
-                        <circle cx="40" cy="20" r="15" fill="#2196f3" stroke="#1565c0"/>
-                        <text x="40" y="25" text-anchor="middle" font-size="8" fill="white">R₁</text>
+                        <circle cx="40" cy="20" r="15" fill="#4a90d9" stroke="#2f4f4f"/>
+                        <text x="40" y="25" text-anchor="middle" font-size="9" fill="white">R₁</text>
 
                         <line x1="40" y1="35" x2="20" y2="60" stroke="#666"/>
                         <line x1="40" y1="35" x2="60" y2="60" stroke="#666"/>
 
-                        <rect x="10" y="60" width="20" height="15" fill="#bbdefb" stroke="#666"/>
-                        <rect x="50" y="60" width="20" height="15" fill="#bbdefb" stroke="#666"/>
+                        <rect x="10" y="60" width="20" height="15" fill="#f0f5f8" stroke="#666"/>
+                        <rect x="50" y="60" width="20" height="15" fill="#f0f5f8" stroke="#666"/>
 
                         <text x="40" y="95" text-anchor="middle" font-size="9" fill="#666">2 UTXOs</text>
                     </g>
 
                     <!-- Tree 3 (single leaf) -->
                     <g transform="translate(450, 120)">
-                        <circle cx="40" cy="20" r="15" fill="#ff9800" stroke="#e65100"/>
-                        <text x="40" y="25" text-anchor="middle" font-size="8" fill="white">R₀</text>
+                        <circle cx="40" cy="20" r="15" fill="#8b4513" stroke="#2f4f4f"/>
+                        <text x="40" y="25" text-anchor="middle" font-size="9" fill="white">R₀</text>
 
                         <line x1="40" y1="35" x2="40" y2="55" stroke="#666"/>
-                        <rect x="30" y="55" width="20" height="15" fill="#ffe0b2" stroke="#666"/>
+                        <rect x="30" y="55" width="20" height="15" fill="#f8f5f0" stroke="#666"/>
 
                         <text x="40" y="90" text-anchor="middle" font-size="9" fill="#666">1 UTXO</text>
                     </g>
 
                     <!-- Accumulator state -->
-                    <g transform="translate(50, 210)">
-                        <rect x="0" y="0" width="550" height="50" fill="#f5f5f5" stroke="#333" rx="4"/>
+                    <g transform="translate(50, 235)">
+                        <rect x="0" y="0" width="550" height="50" fill="#f8f5f0" stroke="#2f4f4f" rx="4"/>
                         <text x="275" y="20" text-anchor="middle" font-size="11" font-weight="bold">
                             Utreexo Accumulator State
                         </text>

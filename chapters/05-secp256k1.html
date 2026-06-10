@@ -57,31 +57,31 @@
             <figure>
                 <svg class="diagram" width="500" height="120" viewBox="0 0 500 120">
                     <!-- The name broken down -->
-                    <text x="250" y="30" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="#2f4f4f">secp256k1</text>
+                    <text x="94" y="30" font-family="monospace" font-size="28" font-weight="bold" letter-spacing="20" fill="#2f4f4f">secp256k1</text>
 
                     <!-- Brackets and labels -->
-                    <path d="M 122 45 L 122 55 L 157 55 L 157 45" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
-                    <text x="140" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#4a90d9">SEC</text>
-                    <text x="140" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Standards for</text>
-                    <text x="140" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Efficient Crypto</text>
+                    <path d="M 94 45 L 94 55 L 184 55 L 184 45" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="139" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#4a90d9">SEC</text>
+                    <text x="139" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Standards for</text>
+                    <text x="139" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Efficient Crypto</text>
 
-                    <path d="M 162 45 L 162 55 L 185 55 L 185 45" fill="none" stroke="#8b4513" stroke-width="1.5"/>
-                    <text x="174" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#8b4513">p</text>
-                    <text x="174" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Prime field</text>
+                    <path d="M 204 45 L 204 55 L 221 55 L 221 45" fill="none" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="212" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#8b4513">p</text>
+                    <text x="212" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Prime field</text>
 
-                    <path d="M 190 45 L 190 55 L 250 55 L 250 45" fill="none" stroke="#5a8f5a" stroke-width="1.5"/>
-                    <text x="220" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">256</text>
-                    <text x="220" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">256-bit</text>
-                    <text x="220" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">field size</text>
+                    <path d="M 241 45 L 241 55 L 332 55 L 332 45" fill="none" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="286" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">256</text>
+                    <text x="286" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">256-bit</text>
+                    <text x="286" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">field size</text>
 
-                    <path d="M 255 45 L 255 55 L 285 55 L 285 45" fill="none" stroke="#c44" stroke-width="1.5"/>
-                    <text x="270" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">k</text>
-                    <text x="270" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">"Koblitz" type</text>
+                    <path d="M 352 45 L 352 55 L 368 55 L 368 45" fill="none" stroke="#c44" stroke-width="1.5"/>
+                    <text x="356" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">k</text>
+                    <text x="356" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">"Koblitz" type</text>
 
-                    <path d="M 290 45 L 290 55 L 320 55 L 320 45" fill="none" stroke="#666" stroke-width="1.5"/>
-                    <text x="305" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">1</text>
-                    <text x="305" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">First in</text>
-                    <text x="305" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">category</text>
+                    <path d="M 388 45 L 388 55 L 405 55 L 405 45" fill="none" stroke="#666" stroke-width="1.5"/>
+                    <text x="408" y="75" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">1</text>
+                    <text x="408" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">First in</text>
+                    <text x="408" y="102" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">category</text>
                 </svg>
                 <figcaption>Figure 5.1: Decoding the secp256k1 name.</figcaption>
             </figure>
@@ -139,17 +139,16 @@
 
                     <!-- Axis labels -->
                     <text x="360" y="155" font-family="Georgia" font-size="12" font-style="italic">x</text>
-                    <text x="125" y="25" font-family="Georgia" font-size="12" font-style="italic">y</text>
+                    <text x="127" y="45" font-family="Georgia" font-size="12" font-style="italic">y</text>
 
                     <!-- The curve y² = x³ + 7 -->
                     <!-- This curve exists only for x ≥ -∛7 ≈ -1.91 -->
-                    <path d="M 95 270 Q 100 200, 105 160 Q 115 100, 140 60 Q 180 20, 220 0
-                             M 95 30 Q 100 100, 105 140 Q 115 200, 140 240 Q 180 280, 220 300"
+                    <path d="M 95 150 Q 95 128, 104 106 Q 116 78, 142 58 Q 172 42, 220 34
+                             M 95 150 Q 95 172, 104 194 Q 116 222, 142 242 Q 172 258, 220 266"
                           fill="none" stroke="#5a8f5a" stroke-width="3"/>
 
                     <!-- Annotation for x = -∛7 -->
-                    <line x1="95" y1="150" x2="95" y2="160" stroke="#666" stroke-width="1"/>
-                    <text x="95" y="175" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">−∛7</text>
+                    <text x="78" y="167" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">−∛7</text>
 
                     <!-- Annotation for the shape -->
                     <text x="280" y="100" font-family="Georgia" font-size="11" fill="#666">Single</text>
@@ -251,13 +250,13 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
 
                     <!-- Arrow: × d -->
                     <path d="M 110 100 L 200 100" stroke="#8b4513" stroke-width="2" marker-end="url(#arrowMult)"/>
-                    <text x="155" y="90" text-anchor="middle" font-family="Georgia" font-size="13" fill="#8b4513">× d</text>
+                    <text x="132" y="90" text-anchor="middle" font-family="Georgia" font-size="13" fill="#8b4513">× d</text>
                     <text x="155" y="120" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">scalar mult</text>
 
                     <!-- d (private key) above -->
                     <rect x="130" y="50" width="50" height="25" rx="4" fill="#fff8f0" stroke="#c44" stroke-width="1"/>
                     <text x="155" y="67" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">d</text>
-                    <path d="M 155 75 L 155 87" stroke="#c44" stroke-width="1" marker-end="url(#arrowRed2)"/>
+                    <path d="M 155 75 L 155 92" stroke="#c44" stroke-width="1" marker-end="url(#arrowRed2)"/>
 
                     <!-- P = dG -->
                     <circle cx="240" cy="100" r="25" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
@@ -280,8 +279,8 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                         <marker id="arrowMult" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                             <polygon points="0 0, 10 3.5, 0 7" fill="#8b4513"/>
                         </marker>
-                        <marker id="arrowRed2" markerWidth="8" markerHeight="6" refX="4" refY="5" orient="auto">
-                            <polygon points="0 0, 4 6, 8 0" fill="#c44"/>
+                        <marker id="arrowRed2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#c44"/>
                         </marker>
                     </defs>
                 </svg>
@@ -511,7 +510,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Public Key Encoding Formats</text>
 
                     <!-- Uncompressed -->
-                    <g transform="translate(50, 50)">
+                    <g transform="translate(90, 50)">
                         <text x="0" y="15" font-family="Georgia" font-size="12" font-weight="bold">Uncompressed (65 bytes):</text>
                         <rect x="0" y="25" width="30" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
                         <text x="15" y="45" text-anchor="middle" font-family="monospace" font-size="11">04</text>
@@ -522,7 +521,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     </g>
 
                     <!-- Compressed -->
-                    <g transform="translate(50, 120)">
+                    <g transform="translate(90, 120)">
                         <text x="0" y="15" font-family="Georgia" font-size="12" font-weight="bold">Compressed (33 bytes):</text>
                         <rect x="0" y="25" width="45" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
                         <text x="22" y="45" text-anchor="middle" font-family="monospace" font-size="11">02/03</text>

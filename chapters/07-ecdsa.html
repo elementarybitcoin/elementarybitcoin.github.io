@@ -75,7 +75,7 @@
             </div>
 
             <figure>
-                <svg class="diagram" width="550" height="250" viewBox="0 0 550 250">
+                <svg class="diagram" width="550" height="225" viewBox="0 0 550 225">
                     <text x="275" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Digital Signature: Sign and Verify</text>
 
                     <!-- SIGNING SIDE -->
@@ -402,8 +402,8 @@ Verify(P, m, (r, s)):
                     <text x="260" y="210" text-anchor="middle" font-family="Georgia" font-size="12" fill="#5a8f5a">Valid if equal ✓</text>
 
                     <defs>
-                        <marker id="arr73g" markerWidth="8" markerHeight="6" refX="4" refY="5" orient="auto">
-                            <polygon points="0 0, 4 6, 8 0" fill="#5a8f5a"/>
+                        <marker id="arr73g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
                         </marker>
                     </defs>
                 </svg>
@@ -511,7 +511,7 @@ Verify(P, m, (r, s)):
             </div>
 
             <figure>
-                <svg class="diagram" width="450" height="150" viewBox="0 0 450 150">
+                <svg class="diagram" width="450" height="165" viewBox="0 0 450 165">
                     <text x="225" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold" fill="#c44">Nonce Reuse: Catastrophic Failure</text>
 
                     <!-- Two signatures with same k -->
@@ -520,20 +520,20 @@ Verify(P, m, (r, s)):
                         <text x="75" y="17" text-anchor="middle" font-family="Georgia" font-size="10">Sign(m₁) with k</text>
                         <text x="75" y="32" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">→ (r, s₁)</text>
 
-                        <rect x="0" y="50" width="150" height="40" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
-                        <text x="75" y="67" text-anchor="middle" font-family="Georgia" font-size="10">Sign(m₂) with k</text>
-                        <text x="75" y="82" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">→ (r, s₂)</text>
+                        <rect x="0" y="58" width="150" height="40" fill="#fff8f0" stroke="#c44" stroke-width="1.5"/>
+                        <text x="75" y="75" text-anchor="middle" font-family="Georgia" font-size="10">Sign(m₂) with k</text>
+                        <text x="75" y="90" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic">→ (r, s₂)</text>
 
-                        <text x="75" y="45" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">same k!</text>
+                        <text x="75" y="52" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">same k!</text>
                     </g>
 
                     <!-- Arrow -->
-                    <path d="M 220 90 L 270 90" stroke="#c44" stroke-width="2" marker-end="url(#arr74r)"/>
-                    <text x="245" y="80" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">⚠</text>
+                    <path d="M 220 99 L 270 99" stroke="#c44" stroke-width="2" marker-end="url(#arr74r)"/>
+                    <text x="245" y="89" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">⚠</text>
 
                     <!-- Result: key recovered -->
-                    <g transform="translate(280, 50)">
-                        <rect x="0" y="15" width="140" height="50" fill="#fee" stroke="#c44" stroke-width="2" rx="5"/>
+                    <g transform="translate(280, 59)">
+                        <rect x="0" y="15" width="140" height="50" fill="#ffe8e8" stroke="#c44" stroke-width="2" rx="5"/>
                         <text x="70" y="38" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">Private key d</text>
                         <text x="70" y="55" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c44">RECOVERED!</text>
                     </g>

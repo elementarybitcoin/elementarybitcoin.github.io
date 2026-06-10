@@ -81,25 +81,25 @@
                     <text x="240" y="175" text-anchor="middle" font-family="Georgia" font-size="11" fill="#4a90d9">Consensus Valid</text>
 
                     <!-- Policy set (smaller, inside) -->
-                    <ellipse cx="240" cy="100" rx="120" ry="50" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="2"/>
-                    <text x="240" y="105" text-anchor="middle" font-family="Georgia" font-size="11" fill="#5a8f5a">Standard (Policy)</text>
+                    <ellipse cx="240" cy="100" rx="120" ry="50" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="240" y="135" text-anchor="middle" font-family="Georgia" font-size="11" fill="#5a8f5a">Standard (Policy)</text>
 
                     <!-- Labels -->
-                    <text x="380" y="90" font-family="Georgia" font-size="10" fill="#4a90d9">Valid but</text>
-                    <text x="380" y="105" font-family="Georgia" font-size="10" fill="#4a90d9">non-standard</text>
+                    <text x="366" y="78" font-family="Georgia" font-size="10" fill="#4a90d9">Valid but</text>
+                    <text x="366" y="93" font-family="Georgia" font-size="10" fill="#4a90d9">non-standard</text>
 
                     <!-- Example transactions -->
                     <circle cx="240" cy="100" r="5" fill="#5a8f5a"/>
-                    <text x="255" y="95" font-family="Georgia" font-size="8">P2PKH</text>
+                    <text x="255" y="95" font-family="Georgia" font-size="9">P2PKH</text>
 
                     <circle cx="200" cy="85" r="5" fill="#5a8f5a"/>
-                    <text x="175" y="80" font-family="Georgia" font-size="8">P2WPKH</text>
+                    <text x="175" y="80" font-family="Georgia" font-size="9">P2WPKH</text>
 
                     <circle cx="370" cy="120" r="5" fill="#4a90d9"/>
-                    <text x="355" y="140" font-family="Georgia" font-size="8">Bare multisig</text>
+                    <text x="355" y="140" font-family="Georgia" font-size="9">Bare multisig</text>
 
                     <circle cx="110" cy="130" r="5" fill="#4a90d9"/>
-                    <text x="95" y="150" font-family="Georgia" font-size="8">Large OP_RETURN</text>
+                    <text x="95" y="150" font-family="Georgia" font-size="9">Large OP_RETURN</text>
                 </svg>
                 <figcaption>Figure 16.1: Policy (standardness) is a subset of consensus validity.</figcaption>
             </figure>
@@ -198,7 +198,7 @@
                     <!-- Soft Fork -->
                     <text x="375" y="20" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold">Soft Fork</text>
 
-                    <ellipse cx="375" cy="100" rx="100" ry="70" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <ellipse cx="375" cy="100" rx="100" ry="70" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="375" y="155" text-anchor="middle" font-family="Georgia" font-size="10">Old rules</text>
 
                     <ellipse cx="375" cy="90" rx="70" ry="45" fill="#d4ecd4" stroke="#5a8f5a" stroke-width="2"/>
@@ -277,27 +277,27 @@
                     <!-- Start time -->
                     <line x1="80" y1="70" x2="80" y2="90" stroke="#5a8f5a" stroke-width="2"/>
                     <text x="80" y="60" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Start</text>
-                    <text x="80" y="105" text-anchor="middle" font-family="Georgia" font-size="8">DEFINED</text>
+                    <text x="80" y="105" text-anchor="middle" font-family="Georgia" font-size="9">DEFINED</text>
 
                     <!-- Signaling period -->
-                    <rect x="85" y="75" width="200" height="10" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <rect x="85" y="75" width="200" height="10" fill="#f5f8f0" stroke="#5a8f5a"/>
                     <text x="185" y="125" text-anchor="middle" font-family="Georgia" font-size="9">STARTED (signaling)</text>
 
                     <!-- Threshold reached -->
                     <line x1="290" y1="70" x2="290" y2="90" stroke="#4a90d9" stroke-width="2"/>
                     <text x="290" y="60" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">95% reached</text>
-                    <text x="290" y="105" text-anchor="middle" font-family="Georgia" font-size="8">LOCKED_IN</text>
+                    <text x="290" y="105" text-anchor="middle" font-family="Georgia" font-size="9">LOCKED_IN</text>
 
                     <!-- Activation -->
                     <line x1="360" y1="70" x2="360" y2="90" stroke="#c44" stroke-width="2"/>
                     <text x="360" y="60" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Activate</text>
-                    <text x="395" y="105" text-anchor="middle" font-family="Georgia" font-size="8">ACTIVE</text>
+                    <text x="395" y="105" text-anchor="middle" font-family="Georgia" font-size="9">ACTIVE</text>
 
                     <!-- Active period -->
                     <rect x="365" y="75" width="70" height="10" fill="#ffe8e8" stroke="#c44"/>
 
                     <!-- Timeout -->
-                    <text x="420" y="145" text-anchor="middle" font-family="Georgia" font-size="8" fill="#888">(or FAILED if timeout)</text>
+                    <text x="420" y="145" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(or FAILED if timeout)</text>
                 </svg>
                 <figcaption>Figure 16.3: BIP-9 state machine for soft fork activation.</figcaption>
             </figure>
@@ -449,28 +449,28 @@
             <figure>
                 <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
                     <!-- Old node view -->
-                    <rect x="30" y="40" width="180" height="100" rx="6" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <rect x="30" y="40" width="180" height="100" rx="6" fill="#f8f5f0" stroke="#666" stroke-width="1.5"/>
                     <text x="120" y="30" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Old Node View</text>
 
-                    <rect x="45" y="60" width="150" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="120" y="80" text-anchor="middle" font-family="Georgia" font-size="10">scriptPubKey: 0014{hash}</text>
+                    <rect x="45" y="60" width="150" height="30" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="120" y="80" text-anchor="middle" font-family="monospace" font-size="9">scriptPubKey: 0014{hash}</text>
 
                     <text x="120" y="115" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">"Anyone can spend"</text>
-                    <text x="120" y="130" text-anchor="middle" font-family="Georgia" font-size="9" fill="#888">(but miners won't relay invalid)</text>
+                    <text x="120" y="130" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(but miners won't relay invalid)</text>
 
                     <!-- New node view -->
                     <rect x="270" y="40" width="180" height="100" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
                     <text x="360" y="30" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">New Node View</text>
 
-                    <rect x="285" y="60" width="150" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="360" y="80" text-anchor="middle" font-family="Georgia" font-size="10">scriptPubKey: 0014{hash}</text>
+                    <rect x="285" y="60" width="150" height="30" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="360" y="80" text-anchor="middle" font-family="monospace" font-size="9">scriptPubKey: 0014{hash}</text>
 
                     <text x="360" y="110" text-anchor="middle" font-family="Georgia" font-size="10" fill="#4a90d9">"P2WPKH output"</text>
                     <text x="360" y="125" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">Requires valid witness</text>
 
                     <!-- Arrow -->
                     <path d="M 215 90 L 265 90" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray16)"/>
-                    <text x="240" y="80" text-anchor="middle" font-family="Georgia" font-size="8">upgrade</text>
+                    <text x="240" y="80" text-anchor="middle" font-family="Georgia" font-size="9">upgrade</text>
 
                     <defs>
                         <marker id="arrowGray16" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">

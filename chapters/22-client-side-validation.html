@@ -228,7 +228,7 @@
 
                     <!-- UTXO (Seal) -->
                     <g transform="translate(50, 60)">
-                        <rect x="0" y="0" width="150" height="80" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="150" height="80" fill="#fff8f0" stroke="#8b4513" stroke-width="2" rx="5"/>
                         <text x="75" y="25" text-anchor="middle" font-size="11" font-weight="bold">UTXO (Seal)</text>
                         <text x="75" y="45" text-anchor="middle" font-size="9" font-family="monospace">abc123...:0</text>
                         <text x="75" y="65" text-anchor="middle" font-size="9" fill="#666">State: OPEN</text>
@@ -241,15 +241,15 @@
 
                     <!-- Spending Transaction -->
                     <g transform="translate(265, 50)">
-                        <rect x="0" y="0" width="180" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="180" height="100" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2" rx="5"/>
                         <text x="90" y="20" text-anchor="middle" font-size="10" font-weight="bold">Spending Transaction</text>
 
-                        <rect x="10" y="30" width="160" height="25" fill="#bbdefb" rx="3"/>
-                        <text x="90" y="48" text-anchor="middle" font-size="8">Input: spends abc123...:0</text>
+                        <rect x="10" y="30" width="160" height="25" fill="#fff" rx="3"/>
+                        <text x="90" y="48" text-anchor="middle" font-size="9">Input: spends abc123...:0</text>
 
-                        <rect x="10" y="60" width="160" height="30" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
-                        <text x="90" y="75" text-anchor="middle" font-size="8" font-weight="bold">OP_RETURN / Taproot commit</text>
-                        <text x="90" y="86" text-anchor="middle" font-size="7" fill="#666">Hash(message)</text>
+                        <rect x="10" y="60" width="160" height="30" fill="#f5f8f0" stroke="#5a8f5a" rx="3"/>
+                        <text x="90" y="75" text-anchor="middle" font-size="9" font-weight="bold">OP_RETURN / Taproot commit</text>
+                        <text x="90" y="86" text-anchor="middle" font-size="9" fill="#666">Hash(message)</text>
                     </g>
 
                     <!-- Arrow to closed state -->
@@ -257,22 +257,22 @@
 
                     <!-- Closed seal -->
                     <g transform="translate(510, 60)">
-                        <rect x="0" y="0" width="120" height="80" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="120" height="80" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2" rx="5"/>
                         <text x="60" y="25" text-anchor="middle" font-size="10" font-weight="bold">Seal</text>
-                        <text x="60" y="45" text-anchor="middle" font-size="9" fill="#4caf50">CLOSED</text>
-                        <text x="60" y="65" text-anchor="middle" font-size="8" fill="#666">over message m</text>
+                        <text x="60" y="45" text-anchor="middle" font-size="9" fill="#5a8f5a">CLOSED</text>
+                        <text x="60" y="65" text-anchor="middle" font-size="9" fill="#666">over message m</text>
                     </g>
 
                     <!-- Double-spend attempt -->
                     <g transform="translate(50, 180)">
-                        <rect x="0" y="0" width="550" height="70" fill="#ffebee" stroke="#c62828" stroke-dasharray="5" rx="5"/>
-                        <text x="275" y="20" text-anchor="middle" font-size="10" font-weight="bold" fill="#c62828">
+                        <rect x="0" y="0" width="550" height="70" fill="#ffe8e8" stroke="#c44" stroke-dasharray="5" rx="5"/>
+                        <text x="275" y="20" text-anchor="middle" font-size="10" font-weight="bold" fill="#c44">
                             Double-Close Attempt (Impossible)
                         </text>
-                        <text x="275" y="40" text-anchor="middle" font-size="9" fill="#c62828">
+                        <text x="275" y="40" text-anchor="middle" font-size="9" fill="#c44">
                             Cannot create second valid spending tx for same UTXO
                         </text>
-                        <text x="275" y="55" text-anchor="middle" font-size="9" fill="#c62828">
+                        <text x="275" y="55" text-anchor="middle" font-size="9" fill="#c44">
                             Bitcoin consensus guarantees UTXO uniqueness
                         </text>
                     </g>
@@ -376,7 +376,7 @@
 
                     <!-- Bitcoin Layer -->
                     <g transform="translate(50, 300)">
-                        <rect x="0" y="0" width="600" height="70" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="600" height="70" fill="#fff8f0" stroke="#8b4513" stroke-width="2" rx="5"/>
                         <text x="300" y="25" text-anchor="middle" font-size="12" font-weight="bold">Bitcoin Layer</text>
                         <text x="300" y="45" text-anchor="middle" font-size="10">UTXOs (seals) + Taproot commitments (anchors)</text>
                         <text x="300" y="60" text-anchor="middle" font-size="9" fill="#666">Public, validates ordering and uniqueness only</text>
@@ -384,49 +384,49 @@
 
                     <!-- RGB Layer -->
                     <g transform="translate(50, 180)">
-                        <rect x="0" y="0" width="600" height="100" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="600" height="100" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2" rx="5"/>
                         <text x="300" y="25" text-anchor="middle" font-size="12" font-weight="bold">RGB State Layer</text>
 
                         <!-- Contract -->
-                        <rect x="20" y="40" width="150" height="50" fill="#c8e6c9" stroke="#4caf50" rx="3"/>
+                        <rect x="20" y="40" width="150" height="50" fill="#fff" stroke="#5a8f5a" rx="3"/>
                         <text x="95" y="60" text-anchor="middle" font-size="9" font-weight="bold">Contract Schema</text>
-                        <text x="95" y="75" text-anchor="middle" font-size="8">Defines state + transitions</text>
+                        <text x="95" y="75" text-anchor="middle" font-size="9">Defines state + transitions</text>
 
                         <!-- State -->
-                        <rect x="190" y="40" width="150" height="50" fill="#c8e6c9" stroke="#4caf50" rx="3"/>
+                        <rect x="190" y="40" width="150" height="50" fill="#fff" stroke="#5a8f5a" rx="3"/>
                         <text x="265" y="60" text-anchor="middle" font-size="9" font-weight="bold">State (Off-chain)</text>
-                        <text x="265" y="75" text-anchor="middle" font-size="8">Asset ownership, data</text>
+                        <text x="265" y="75" text-anchor="middle" font-size="9">Asset ownership, data</text>
 
                         <!-- Transitions -->
-                        <rect x="360" y="40" width="150" height="50" fill="#c8e6c9" stroke="#4caf50" rx="3"/>
+                        <rect x="360" y="40" width="150" height="50" fill="#fff" stroke="#5a8f5a" rx="3"/>
                         <text x="435" y="60" text-anchor="middle" font-size="9" font-weight="bold">State Transitions</text>
-                        <text x="435" y="75" text-anchor="middle" font-size="8">Transfers, operations</text>
+                        <text x="435" y="75" text-anchor="middle" font-size="9">Transfers, operations</text>
 
                         <!-- Consignments -->
-                        <rect x="530" y="40" width="55" height="50" fill="#a5d6a7" stroke="#4caf50" rx="3"/>
-                        <text x="557" y="60" text-anchor="middle" font-size="8" font-weight="bold">Consign</text>
-                        <text x="557" y="75" text-anchor="middle" font-size="7">Proofs</text>
+                        <rect x="530" y="40" width="55" height="50" fill="#fff" stroke="#5a8f5a" rx="3"/>
+                        <text x="557" y="60" text-anchor="middle" font-size="9" font-weight="bold">Consign</text>
+                        <text x="557" y="75" text-anchor="middle" font-size="9">Proofs</text>
                     </g>
 
                     <!-- Client Layer -->
                     <g transform="translate(50, 60)">
-                        <rect x="0" y="0" width="600" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="600" height="100" fill="#f0f5f8" stroke="#4a90d9" stroke-width="2" rx="5"/>
                         <text x="300" y="25" text-anchor="middle" font-size="12" font-weight="bold">Client Validation Layer</text>
 
                         <!-- Sender -->
-                        <rect x="50" y="40" width="120" height="50" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <rect x="50" y="40" width="120" height="50" fill="#fff" stroke="#4a90d9" rx="3"/>
                         <text x="110" y="60" text-anchor="middle" font-size="9" font-weight="bold">Sender</text>
-                        <text x="110" y="75" text-anchor="middle" font-size="8">Creates transition</text>
+                        <text x="110" y="75" text-anchor="middle" font-size="9">Creates transition</text>
 
                         <!-- Arrow -->
-                        <path d="M 175 65 L 325 65" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow-bl2)"/>
-                        <text x="250" y="55" text-anchor="middle" font-size="8">Consignment</text>
-                        <text x="250" y="80" text-anchor="middle" font-size="8">(state proof)</text>
+                        <path d="M 175 65 L 325 65" stroke="#4a90d9" stroke-width="2" marker-end="url(#arrow-bl2)"/>
+                        <text x="250" y="55" text-anchor="middle" font-size="9">Consignment</text>
+                        <text x="250" y="80" text-anchor="middle" font-size="9">(state proof)</text>
 
                         <!-- Receiver -->
-                        <rect x="330" y="40" width="120" height="50" fill="#bbdefb" stroke="#1976d2" rx="3"/>
+                        <rect x="330" y="40" width="120" height="50" fill="#fff" stroke="#4a90d9" rx="3"/>
                         <text x="390" y="60" text-anchor="middle" font-size="9" font-weight="bold">Receiver</text>
-                        <text x="390" y="75" text-anchor="middle" font-size="8">Validates proof</text>
+                        <text x="390" y="75" text-anchor="middle" font-size="9">Validates proof</text>
 
                         <!-- Note -->
                         <text x="530" y="65" text-anchor="middle" font-size="9" fill="#666">Private</text>
@@ -439,7 +439,7 @@
 
                     <defs>
                         <marker id="arrow-bl2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4a90d9"/>
                         </marker>
                         <marker id="arrow-g5" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                             <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
@@ -579,7 +579,7 @@
 
                     <!-- Taproot output -->
                     <g transform="translate(225, 50)">
-                        <rect x="0" y="0" width="200" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <rect x="0" y="0" width="200" height="50" fill="#fff8f0" stroke="#8b4513" stroke-width="2" rx="5"/>
                         <text x="100" y="20" text-anchor="middle" font-size="10" font-weight="bold">Taproot Output</text>
                         <text x="100" y="38" text-anchor="middle" font-size="9">P = Internal + H(Internal||root)·G</text>
                     </g>
@@ -589,41 +589,41 @@
                         <text x="100" y="0" text-anchor="middle" font-size="10" font-weight="bold">Script Tree</text>
 
                         <!-- Root -->
-                        <circle cx="100" cy="30" r="15" fill="#e3f2fd" stroke="#1976d2"/>
-                        <text x="100" y="35" text-anchor="middle" font-size="8">Root</text>
+                        <circle cx="100" cy="30" r="15" fill="#f0f5f8" stroke="#4a90d9"/>
+                        <text x="100" y="35" text-anchor="middle" font-size="9">Root</text>
 
                         <!-- Branches -->
                         <line x1="100" y1="45" x2="50" y2="75" stroke="#666"/>
                         <line x1="100" y1="45" x2="150" y2="75" stroke="#666"/>
 
                         <!-- Regular script -->
-                        <rect x="20" y="75" width="60" height="35" fill="#e3f2fd" stroke="#1976d2" rx="3"/>
-                        <text x="50" y="92" text-anchor="middle" font-size="8">Regular</text>
-                        <text x="50" y="103" text-anchor="middle" font-size="7">Scripts</text>
+                        <rect x="20" y="75" width="60" height="35" fill="#f0f5f8" stroke="#4a90d9" rx="3"/>
+                        <text x="50" y="92" text-anchor="middle" font-size="9">Regular</text>
+                        <text x="50" y="103" text-anchor="middle" font-size="9">Scripts</text>
 
                         <!-- Asset commitment -->
-                        <rect x="120" y="75" width="60" height="35" fill="#e8f5e9" stroke="#4caf50" rx="3"/>
-                        <text x="150" y="92" text-anchor="middle" font-size="8" font-weight="bold">Asset</text>
-                        <text x="150" y="103" text-anchor="middle" font-size="7">Commit</text>
+                        <rect x="120" y="75" width="60" height="35" fill="#f5f8f0" stroke="#5a8f5a" rx="3"/>
+                        <text x="150" y="92" text-anchor="middle" font-size="9" font-weight="bold">Asset</text>
+                        <text x="150" y="103" text-anchor="middle" font-size="9">Commit</text>
                     </g>
 
                     <!-- Asset tree detail -->
-                    <g transform="translate(420, 100)">
-                        <rect x="0" y="0" width="180" height="100" fill="#f5f5f5" stroke="#666" rx="4"/>
+                    <g transform="translate(440, 130)">
+                        <rect x="0" y="0" width="180" height="100" fill="#f8f5f0" stroke="#666" rx="4"/>
                         <text x="90" y="20" text-anchor="middle" font-size="9" font-weight="bold">Asset Commitment</text>
 
-                        <text x="10" y="40" font-size="8">• Asset ID</text>
-                        <text x="10" y="55" font-size="8">• Amount</text>
-                        <text x="10" y="70" font-size="8">• Script key</text>
-                        <text x="10" y="85" font-size="8">• Version, metadata</text>
+                        <text x="10" y="40" font-size="9">• Asset ID</text>
+                        <text x="10" y="55" font-size="9">• Amount</text>
+                        <text x="10" y="70" font-size="9">• Script key</text>
+                        <text x="10" y="85" font-size="9">• Version, metadata</text>
                     </g>
 
                     <!-- Arrow -->
-                    <path d="M 180 147 L 220 147" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow-gr2)"/>
+                    <path d="M 410 212 L 436 212" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrow-gr2)"/>
 
                     <defs>
                         <marker id="arrow-gr2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#5a8f5a"/>
                         </marker>
                     </defs>
                 </svg>

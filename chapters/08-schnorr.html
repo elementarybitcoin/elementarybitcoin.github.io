@@ -361,7 +361,7 @@ Sign(d, m):
                     <!-- Arrows to s -->
                     <path d="M 355 195 L 290 210" stroke="#666" stroke-width="1"/>
                     <path d="M 190 120 Q 160 170, 210 210" stroke="#666" stroke-width="1" fill="none"/>
-                    <path d="M 65 85 Q 80 170, 180 225" stroke="#c44" stroke-width="1" fill="none"/>
+                    <path d="M 40 85 C 10 110, 10 175, 180 225" stroke="#c44" stroke-width="1" fill="none"/>
 
                     <!-- Final signature -->
                     <rect x="360" y="220" width="120" height="35" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
@@ -547,9 +547,9 @@ Verify(pk, m, sig):
 
                     <!-- Aggregated key -->
                     <g transform="translate(310, 50)">
-                        <circle cx="50" cy="30" r="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
+                        <circle cx="50" cy="30" r="34" fill="#f8f5f0" stroke="#8b4513" stroke-width="2"/>
                         <text x="50" y="28" text-anchor="middle" font-family="Georgia" font-size="12">P</text>
-                        <text x="50" y="42" text-anchor="middle" font-family="Georgia" font-size="10">= P₁+P₂+P₃</text>
+                        <text x="50" y="42" text-anchor="middle" font-family="Georgia" font-size="9">= P₁+P₂+P₃</text>
                         <text x="50" y="75" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Single key!</text>
                     </g>
 
