@@ -17,14 +17,15 @@
     <header class="chapter-header">
         <p class="chapter-number">Chapter 28</p>
         <h1>Segregated Witness Deep Dive</h1>
-        <p class="chapter-subtitle">Anatomy of Bitcoin's Largest Soft Fork</p>
+        <p class="chapter-subtitle">Transaction Format, Block Limit, and Upgrade Path</p>
     </header>
 
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                Segregated Witness (SegWit), activated in August 2017, represents the most
-                significant upgrade in Bitcoin's history. It fixed the long-standing transaction
+                Segregated Witness (SegWit), activated in August 2017, changed the transaction
+                format, the block limit, and the upgrade path simultaneously; no other soft
+                fork has touched as many consensus structures at once. It fixed the long-standing transaction
                 malleability bug, increased effective block capacity, enabled second-layer
                 protocols, and established a framework for future upgrades. This chapter provides
                 a comprehensive technical analysis of SegWit's design, implementation, and
@@ -332,13 +333,13 @@ where:
                 <figcaption>Figure 28.3: SegWit witness program types by version.</figcaption>
             </figure>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 28.2 (Script Versioning Benefit)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 28.3 (Script Versioning and Future Soft Forks)</p>
                 <p>
                     Witness versions enable future soft forks:
                 </p>
                 <ol>
-                    <li>Old nodes see "OP_n &lt;data&gt;" as anyone-can-spend (but don't relay)</li>
+                    <li>Old nodes see "OP_n &lt;data&gt;" as anyone-can-spend (but do not relay)</li>
                     <li>New nodes interpret based on version number</li>
                     <li>New versions can be given semantics by a <em>tightening</em> soft
                         fork without breaking old nodes&mdash;an activation is still required
@@ -457,7 +458,7 @@ where:
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.3 (SegWit Capacity Increase)</p>
+                <p class="remark-title">Remark 28.4 (SegWit Capacity Increase)</p>
                 <p>
                     SegWit increases effective block capacity:
                 </p>
@@ -473,7 +474,7 @@ where:
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.4 (Discount Rationale)</p>
+                <p class="remark-title">Remark 28.5 (Discount Rationale)</p>
                 <p>
                     The 75% witness discount serves multiple purposes:
                 </p>
@@ -584,25 +585,40 @@ commitment = SHA256(SHA256(witness_root || witness_nonce))
             </p>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 28.3 (SegWit as Soft Fork)</p>
+                <p class="theorem-title">Proposition 28.1 (SegWit as Soft Fork)</p>
                 <p>
-                    SegWit outputs (OP_0 &lt;data&gt;) are valid under old rules because:
-                </p>
-                <ol>
-                    <li>Old nodes parse this as: push version, push data</li>
-                    <li>Script evaluates to: two items on stack</li>
-                    <li>Non-zero top element → script succeeds</li>
-                    <li>Result: "anyone can spend" to old nodes</li>
-                </ol>
-                <p>
-                    However, miners (with majority hash power) enforce new rules,
-                    rejecting invalid SegWit spends. Old nodes accept the resulting
-                    chain since all blocks are technically valid.
+                    SegWit is a soft fork in the sense of Definition 26.5: every block valid
+                    under SegWit rules is valid under pre-SegWit rules, so
+                    <span class="math">R<sub>new</sub> ⊂ R<sub>old</sub></span>.
                 </p>
             </div>
 
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    As seen by a pre-SegWit node (which receives blocks with witness data
+                    stripped), a SegWit-valid block differs from a pre-SegWit block only in
+                    two places. First, spends of witness programs (OP_0 &lt;data&gt;) carry an
+                    empty scriptSig; the old node evaluates the scriptPubKey as two pushes,
+                    leaving a non-zero top stack element, so the script succeeds
+                    ("anyone can spend"). Second, the witness commitment is an OP_RETURN
+                    output in the coinbase, which old rules permit. Since SegWit rules only
+                    add constraints (a valid witness must be supplied; weight ≤ 4,000,000 WU
+                    implies base size ≤ 1,000,000 bytes), every SegWit-valid block satisfies
+                    all old rules: <span class="math">R<sub>new</sub> ⊆ R<sub>old</sub></span>. The containment is
+                    strict because a block spending a witness program without a valid witness
+                    lies in <span class="math">R<sub>old</sub></span> but not <span class="math">R<sub>new</sub></span>. □
+                </p>
+            </div>
+
+            <p>
+                Miners with majority hash power enforce the new rules, rejecting invalid
+                SegWit spends; old nodes accept the resulting chain since all of its blocks
+                are valid under the old rules (Theorem 26.2).
+            </p>
+
             <div class="remark">
-                <p class="remark-title">Remark 28.5 (Policy Protection)</p>
+                <p class="remark-title">Remark 28.6 (Policy Protection)</p>
                 <p>
                     Before SegWit activation, Bitcoin Core made SegWit outputs non-standard
                     as <em>policy</em>. This prevented anyone from claiming "anyone can spend"
@@ -677,7 +693,7 @@ SHA256d(
     hashSequence       ||  ← SHA256d of all input sequences
     outpoint           ||  ← this input's outpoint
     scriptCode         ||  ← spending script
-    amount             ||  ← value being spent (NEW!)
+    amount             ||  ← value being spent (not committed pre-SegWit)
     nSequence          ||  ← this input's sequence
     hashOutputs        ||  ← SHA256d of all outputs
     nLocktime          ||
@@ -686,7 +702,7 @@ SHA256d(
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.6 (BIP-143 Improvements)</p>
+                <p class="remark-title">Remark 28.7 (BIP-143 Improvements)</p>
                 <p>
                     BIP-143 sighash fixes multiple issues:
                 </p>
@@ -736,7 +752,7 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.7 (Wrapped vs Native Efficiency)</p>
+                <p class="remark-title">Remark 28.8 (Wrapped vs Native Efficiency)</p>
                 <p>
                     Wrapped SegWit is less efficient than native:
                 </p>
@@ -814,15 +830,20 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
                         </tr>
                     </tbody>
                 </table>
+                <p>
+                    Percentages are approximate, per transactionfee.info (accessed 2026).
+                </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.8 (Adoption Drivers)</p>
+                <p class="remark-title">Remark 28.9 (Adoption Drivers)</p>
                 <p>
                     SegWit adoption accelerated due to:
                 </p>
                 <ul>
-                    <li><strong>Fee savings:</strong> 40&ndash;70% reduction in fees</li>
+                    <li><strong>Fee savings:</strong> ~26&ndash;38% reduction for single-signature
+                        transactions at equal feerate (from the vbyte figures of Remark 28.8),
+                        up to ~70% for multisig-heavy usage</li>
                     <li><strong>Exchange adoption:</strong> Major exchanges added bech32</li>
                     <li><strong>Wallet updates:</strong> Most wallets now default to SegWit</li>
                     <li><strong>Lightning requirement:</strong> LN channels require SegWit</li>
@@ -838,8 +859,8 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
                 Beyond malleability fixes, SegWit was essential for second-layer protocols.
             </p>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 28.4 (Lightning Network Prerequisite)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 28.10 (Lightning Network Prerequisite)</p>
                 <p>
                     Lightning Network channels require non-malleable transaction IDs because:
                 </p>
@@ -855,7 +876,7 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.9 (Other Layer 2 Benefits)</p>
+                <p class="remark-title">Remark 28.11 (Other Layer 2 Benefits)</p>
                 <p>
                     SegWit enables multiple second-layer constructions:
                 </p>

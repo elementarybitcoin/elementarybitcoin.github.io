@@ -163,7 +163,7 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
                     <li><strong>Insufficient miner signaling:</strong> Never approached 75% threshold</li>
                     <li><strong>Community opposition:</strong> Perceived as hostile takeover</li>
                     <li><strong>Technical concerns:</strong> Exponential growth criticized as reckless</li>
-                    <li><strong>DDoS attacks:</strong> XT nodes were targeted (controversial)</li>
+                    <li><strong>DDoS attacks:</strong> XT nodes were targeted by denial-of-service attacks whose origin was never attributed</li>
                 </ol>
                 <p>
                     Peak XT node share: ~12% (late 2015), then rapid decline.
@@ -202,7 +202,7 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
             <div class="remark">
                 <p class="remark-title">Remark 27.3 (Emergent Consensus Critique)</p>
                 <p>
-                    The "Emergent Consensus" model has a game-theoretic flaw: without a
+                    Critics of "Emergent Consensus" identified a game-theoretic objection: without a
                     Schelling point (hard limit), miners have incentive to produce maximum-size
                     blocks to:
                 </p>
@@ -220,8 +220,7 @@ if (block.GetSerializeSize() > MAX_BLOCK_SIZE)
             <h2 id="s27-3">27.3 Bitcoin Cash (BCH)</h2>
 
             <p>
-                Bitcoin Cash represents the most successful Bitcoin hard fork, creating a
-                persistent alternative chain.
+                Bitcoin Cash is the largest persistent Bitcoin hard fork by market value.
             </p>
 
             <div class="definition">
@@ -508,14 +507,14 @@ if (timeSince6Blocks > 12 hours):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.7 (ASIC Resistance Futility)</p>
+                <p class="remark-title">Remark 27.7 (Limits of ASIC Resistance)</p>
                 <p>
                     Changing the proof-of-work algorithm to be "ASIC-resistant" provides only
                     temporary protection:
                 </p>
                 <ol>
-                    <li>Any fixed algorithm can eventually have ASICs designed for it</li>
-                    <li>GPU mining leads to botnet participation (stolen compute)</li>
+                    <li>No fixed algorithm is known to resist ASIC implementation indefinitely</li>
+                    <li>GPU-mineable algorithms have historically attracted botnet hash power (stolen compute)</li>
                     <li>Algorithm changes cause disruptive hard forks</li>
                     <li>Smaller hash rate increases 51% attack vulnerability</li>
                 </ol>
@@ -574,8 +573,14 @@ if (timeSince6Blocks > 12 hours):
                     <li>X13 proof-of-work algorithm</li>
                     <li>Encrypted transaction amounts (claimed)</li>
                 </ul>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 27.8 (Bitcoin Diamond Reception)</p>
                 <p>
-                    It is largely considered a "fork for profit" with minimal development.
+                    Contemporary press coverage characterized Bitcoin Diamond as a
+                    "fork for profit"; development activity declined to minimal levels
+                    within a few years of launch.
                 </p>
             </div>
 
@@ -592,7 +597,8 @@ if (timeSince6Blocks > 12 hours):
                     <li>Equihash algorithm</li>
                 </ul>
                 <p>
-                    An investigation later revealed 2.04 million secretly premined coins.
+                    A CoinMetrics analysis (December 2018) identified approximately
+                    2.04 million covertly premined coins.
                 </p>
             </div>
 
@@ -612,7 +618,7 @@ if (timeSince6Blocks > 12 hours):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.8 (The Long Tail of Forks)</p>
+                <p class="remark-title">Remark 27.9 (The Long Tail of Forks)</p>
                 <p>
                     Dozens of Bitcoin forks have been created. Most share characteristics:
                 </p>
@@ -652,7 +658,7 @@ if (timeSince6Blocks > 12 hours):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.9 (SegWit2x Failure Factors)</p>
+                <p class="remark-title">Remark 27.10 (SegWit2x Failure Factors)</p>
                 <p>
                     SegWit2x failed despite ~90% miner signaling because:
                 </p>
@@ -665,14 +671,14 @@ if (timeSince6Blocks > 12 hours):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.10 (Lessons from SegWit2x)</p>
+                <p class="remark-title">Remark 27.11 (Lessons from SegWit2x)</p>
                 <p>
-                    SegWit2x demonstrated that:
+                    The episode is widely read as showing:
                 </p>
                 <ul>
                     <li>Miner signaling is necessary but not sufficient</li>
                     <li>Users (economic nodes) have effective veto power</li>
-                    <li>Futures markets can reveal true preferences</li>
+                    <li>Futures prices provided one public signal of relative valuation (though the B2X futures market was thin)</li>
                     <li>Hard forks require broader social consensus than soft forks</li>
                 </ul>
                 <p>
@@ -725,14 +731,14 @@ if (timeSince6Blocks > 12 hours):
                         <td>Commercial</td>
                         <td>~1%</td>
                         <td>~0.0002%</td>
-                        <td>Zombie</td>
+                        <td>Inactive development</td>
                     </tr>
                     <tr>
                         <td>Bitcoin Private</td>
                         <td>Commercial</td>
                         <td>~1%</td>
                         <td>N/A</td>
-                        <td>Dead</td>
+                        <td>Defunct</td>
                     </tr>
                     <tr>
                         <td>SegWit2x</td>
@@ -745,7 +751,7 @@ if (timeSince6Blocks > 12 hours):
             </table>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.11 (Fork Value Decay)</p>
+                <p class="remark-title">Remark 27.12 (Fork Value Decay)</p>
                 <p>
                     Empirically, Bitcoin forks exhibit value decay relative to BTC following
                     a pattern consistent with:
@@ -754,7 +760,9 @@ if (timeSince6Blocks > 12 hours):
                     V<sub>fork</sub>(t) / V<sub>BTC</sub>(t) ∝ e^(−λt)
                 </p>
                 <p>
-                    where <span class="math">λ</span> varies by fork (BCH: ~0.4/year, BTG: ~0.7/year).
+                    where <span class="math">λ</span> varies by fork; the endpoint ratios imply average
+                    decay rates of approximately <span class="math">λ ≈ 0.4</span>/year for BCH and
+                    <span class="math">λ ≈ 0.7</span>/year for BTG.
                 </p>
                 <p>
                     This suggests that network effects compound over time, increasingly
@@ -767,7 +775,7 @@ if (timeSince6Blocks > 12 hours):
             <h2 id="s27-9">27.9 Lessons and Principles</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.12 (Fork Success Factors)</p>
+                <p class="remark-title">Remark 27.13 (Fork Success Factors)</p>
                 <p>
                     Analysis of historical forks suggests success factors:
                 </p>
@@ -781,7 +789,7 @@ if (timeSince6Blocks > 12 hours):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.13 (Why Hard Forks Rarely Succeed)</p>
+                <p class="remark-title">Remark 27.14 (Why Hard Forks Rarely Succeed)</p>
                 <p>
                     The historical record suggests hard forks face structural disadvantages:
                 </p>
@@ -798,7 +806,7 @@ if (timeSince6Blocks > 12 hours):
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 27.14 (The Fork Right)</p>
+                <p class="remark-title">Remark 27.15 (The Fork Right)</p>
                 <p>
                     Despite their typically poor outcomes, the ability to fork remains
                     important:
@@ -810,8 +818,9 @@ if (timeSince6Blocks > 12 hours):
                     <li>Historical forks strengthened BTC's Schelling point</li>
                 </ul>
                 <p>
-                    The freedom to fork, even if rarely exercised successfully, is a
-                    feature, not a bug.
+                    The ability to fork, though rarely exercised successfully, serves a
+                    structural function: it bounds what any majority can impose (the exit
+                    option of Chapter 26).
                 </p>
             </div>
         </section>

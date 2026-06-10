@@ -20,10 +20,9 @@
         <h1>The Security Budget Problem</h1>
         <p class="chapter-subtitle">Will Bitcoin Remain Secure as the Subsidy Diminishes?</p>
         <p class="chapter-epigraph">
-            "The security of Bitcoin depends on the total hashpower, which depends on miner
+            The security of Bitcoin depends on total hashpower, which depends on miner
             revenue. As the block subsidy decreases, transaction fees must increase to
-            maintain security&mdash;but will they?"
-            <br>&mdash; The central question of Bitcoin's long-term sustainability
+            maintain security. Whether they will is the central question of this chapter.
         </p>
     </header>
 
@@ -161,10 +160,11 @@
             </div>
 
             <p>
-                By 2032, the block subsidy will be just 0.78125 BTC&mdash;less than the total
-                fees a single block has sometimes collected during high-demand periods. By
-                2048, it will be negligible. The transition to a fee-based security model
-                is not a distant concern; it is already underway.
+                By 2032 the block subsidy will be 0.78125 BTC per block&mdash;less than the
+                total fees a single block has sometimes collected during high-demand
+                periods. The transition to a fee-based security model is scheduled, and
+                its first-order effects are already measurable in the fee share of miner
+                revenue (Remark 38.3).
             </p>
 
             <figure>
@@ -303,7 +303,7 @@
                     <text x="150" y="82" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold" fill="#5a8f5a">Secure</text>
                     <text x="150" y="97" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">cost of attack exceeds</text>
                     <text x="150" y="110" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">extractable value</text>
-                    <text x="230" y="247" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold" fill="#c44">Insecure &#8212; attack pays</text>
+                    <text x="230" y="247" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold" fill="#c44">attack profitable (in this model)</text>
 
                     <!-- Budget-determined attack cost levels -->
                     <line x1="70" y1="140" x2="420" y2="140" stroke="#4a90d9" stroke-width="1.5" stroke-dasharray="6 4"/>
@@ -328,7 +328,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 38.2: The security condition&mdash;the network is secure only while the cost of attack, set by the security budget, exceeds the value an attacker can extract.</figcaption>
+                <figcaption>Figure 38.2: The security condition&mdash;in this model, the network is secure only while the cost of attack, set by the security budget, exceeds the value an attacker can extract.</figcaption>
             </figure>
         </section>
 
@@ -392,7 +392,7 @@
                 <ul>
                     <li><strong>December 2017:</strong> $55 average fee during bull market peak</li>
                     <li><strong>April 2021:</strong> $62 average fee during institutional adoption wave</li>
-                    <li><strong>May 2023:</strong> $31 average fee during BRC-20 inscription mania</li>
+                    <li><strong>May 2023:</strong> $31 average fee during the BRC-20 inscription demand surge</li>
                     <li><strong>April 2024:</strong> $127 peak fee during Runes launch</li>
                 </ul>
             </div>
@@ -636,8 +636,8 @@ Fee-Only Mining Game Theory:
 │
 └── Empty Block Mining
     ├── In fee-only regime, empty blocks forfeit all revenue
-    ├── Actually improves fee market health
-    └── But indicates something wrong if common
+    ├── Rare empty blocks are economically self-punishing
+    └── Frequent occurrence would indicate a structural problem
 </pre>
 
             <div class="remark">
@@ -683,7 +683,7 @@ if (GetRandInt(10) == 0)
 
             <h3 id="s38-7-1">38.7.1 Rely on the Fee Market</h3>
 
-            <p>The dominant view among Bitcoin maximalists:</p>
+            <p>The position most common among Bitcoin's long-term proponents:</p>
 
             <ul>
                 <li>Bitcoin's value will increase enough that fees in dollar terms remain sufficient</li>
@@ -740,8 +740,8 @@ if (GetRandInt(10) == 0)
                     researchers&mdash;most prominently Peter Todd (2022), who argues that a
                     fixed linear emission is asymptotically non-inflationary because coin
                     loss offsets it&mdash;contend that Bitcoin needs something similar. This would fundamentally change
-                    Bitcoin's monetary properties and is considered a non-starter by most of
-                    the community.
+                    Bitcoin's monetary properties and has attracted no meaningful support
+                    among Bitcoin developers or users to date; no BIP proposes it.
                 </p>
             </div>
 
@@ -757,7 +757,7 @@ if (GetRandInt(10) == 0)
             <ul>
                 <li>Breaks social contract of 21 million cap</li>
                 <li>Sets precedent for further monetary changes</li>
-                <li>Fee market should handle this&mdash;if it can't, that's valuable information</li>
+                <li>The fee market is expected to price this; if it does not, that outcome itself would be informative</li>
                 <li>Would require extremely contentious hard fork</li>
             </ul>
 
@@ -820,54 +820,61 @@ Layer 2 Fee Model:
             <div class="remark">
                 <p class="remark-title">Remark 38.11 (Threat Models)</p>
                 <p>
-                    Security requirements depend on the threat model (defense levels assume
-                    the attacker must sustain a multi-week 51% attack to profit):
+                    Security requirements depend on the threat model. Suppose the attacker
+                    must sustain a 51% attack for two weeks (14 days) to profit. By the
+                    heuristic of Remark 38.2, such an attack costs approximately
+                    <span class="math">Budget × 14/365 ≈ Budget/26</span>, so deterring an attacker willing to commit
+                    resources <span class="math">R</span> requires an annual security budget
+                    of roughly <span class="math">26R</span>. Taking the upper end of each
+                    resource range:
                 </p>
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Attacker</th>
-                            <th>Budget</th>
-                            <th>Required Defense</th>
+                            <th>Resources committed</th>
+                            <th>Deterrent budget (≈ 26 × resources)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Individual criminal</td>
                             <td>$1-10M</td>
-                            <td>~$50M/year security budget</td>
+                            <td>~$260M/year</td>
                         </tr>
                         <tr>
                             <td>Criminal organization</td>
                             <td>$10-100M</td>
-                            <td>~$500M/year security budget</td>
+                            <td>~$2.6B/year</td>
                         </tr>
                         <tr>
                             <td>Corporation</td>
                             <td>$100M-1B</td>
-                            <td>~$5B/year security budget</td>
+                            <td>~$26B/year</td>
                         </tr>
                         <tr>
                             <td>Nation state</td>
                             <td>$1-100B</td>
-                            <td>~$50B+/year security budget</td>
+                            <td>beyond this heuristic (Remark 38.12)</td>
                         </tr>
                     </tbody>
                 </table>
+                <p>
+                    The figures inherit every limitation of the heuristic&mdash;in
+                    particular, they ignore the hardware-acquisition and opportunity costs
+                    of Remark 38.13, which raise the effective cost of attack.
+                </p>
             </div>
 
             <div class="remark">
                 <p class="remark-title">Remark 38.12 (Nation-State Resistance)</p>
                 <p>
                     If Bitcoin becomes a global reserve asset holding $10+ trillion in
-                    value, it must resist nation-state attacks. This requires:
-                </p>
-                <p class="math-block">
-                    Attack cost &gt; Nation GDP × Political will coefficient
-                </p>
-                <p>
-                    For major powers with $20T+ GDP, Bitcoin likely needs a $50B+ annual
-                    security budget to provide meaningful deterrence.
+                    value, it must resist nation-state attacks. Deterrence against a state
+                    actor requires the attack cost to be large relative to the resources
+                    such an actor would commit&mdash;a quantity that is political rather
+                    than computable. Published estimates of the budget required for
+                    state-level deterrence vary by more than an order of magnitude.
                 </p>
             </div>
 
@@ -913,7 +920,7 @@ Layer 2 Fee Model:
                     </tr>
                     <tr>
                         <td>Q2 2023</td>
-                        <td>BRC-20 mania</td>
+                        <td>BRC-20 demand surge</td>
                         <td>$30+ average fees</td>
                     </tr>
                     <tr>
@@ -950,7 +957,7 @@ Security Budget Timeline:
 │
 ├── 2024-2028: Subsidy = 3.125 BTC
 │   ├── Fees typically 5-15% of revenue
-│   ├── Plenty of runway
+│   ├── Substantial margin remains
 │   └── Problem visible but not urgent
 │
 ├── 2028-2032: Subsidy = 1.5625 BTC
@@ -965,8 +972,8 @@ Security Budget Timeline:
 │
 └── 2040+: Subsidy negligible
     ├── Fees are ~100% of revenue
-    ├── All theoretical concerns become practical
-    └── Network has either adapted or hasn't
+    ├── The theoretical concerns of Section 38.6 become operative
+    └── By this point the network has adapted, or the concerns have materialized
 </pre>
 
             <div class="remark">
@@ -978,7 +985,7 @@ Security Budget Timeline:
                 <ul>
                     <li><strong>2012:</strong> First halving, hashrate continued growing</li>
                     <li><strong>2016:</strong> Second halving, hashrate 10x higher than pre-halving</li>
-                    <li><strong>2020:</strong> Third halving, hashrate reached new ATH within months</li>
+                    <li><strong>2020:</strong> Third halving, hashrate reached a new all-time high within months</li>
                     <li><strong>2024:</strong> Fourth halving, network remains secure</li>
                 </ul>
                 <p>
@@ -990,6 +997,8 @@ Security Budget Timeline:
 
         <section>
             <h2 id="s38-11">38.11 Future Scenarios</h2>
+
+            <p>These are scenarios, not forecasts (the convention of Chapter 40).</p>
 
             <h3 id="s38-11-1">38.11.1 Scenario 1: Fee Market Success</h3>
 
@@ -1041,7 +1050,7 @@ Security Budget Timeline:
             <h3 id="s38-12-2">38.12.2 Alternative Security Models</h3>
 
             <ul>
-                <li><strong>Proof of Stake:</strong> Different security economics (not for Bitcoin)</li>
+                <li><strong>Proof of Stake:</strong> Different security economics (no serious proposal exists to adopt it for Bitcoin)</li>
                 <li><strong>Hybrid models:</strong> PoW + PoS combinations</li>
                 <li><strong>Checkpointing:</strong> Social consensus as security layer</li>
             </ul>
@@ -1069,9 +1078,9 @@ Security Budget Timeline:
             </ul>
 
             <p>
-                The security budget problem is perhaps Bitcoin's most significant long-term
-                uncertainty. It cannot be solved with clever cryptography&mdash;it requires
-                sustainable economics. The next two decades will determine whether
+                The security budget problem is among Bitcoin's most significant long-term
+                uncertainties. It is economic rather than cryptographic: no signature
+                scheme supplies miner revenue. The next two decades will determine whether
                 Bitcoin's fee market can support a global settlement layer, or whether
                 more fundamental changes become necessary.
             </p>

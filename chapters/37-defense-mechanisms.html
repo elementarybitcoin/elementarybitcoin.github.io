@@ -59,7 +59,13 @@
             </div>
 
             <div class="example">
-                <p class="example-title">Example 37.1 (Industry Standards)</p>
+                <p class="example-title">Example 37.1 (Published Confirmation Policies)</p>
+                <p>
+                    Typical published exchange and merchant confirmation policies
+                    (approximate, mid-2026). Read against the reversal-probability table
+                    of Theorem 36.1, the policies scale the confirmation count with the
+                    value at risk.
+                </p>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -133,13 +139,13 @@
                 <p class="definition-title">Definition 37.2 (Checkpoint)</p>
                 <p>
                     A <strong>checkpoint</strong> is a hardcoded (block height, block hash)
-                    pair in node software. The node rejects any chain that doesn't include
+                    pair in node software. The node rejects any chain that does not include
                     the checkpoint block.
                 </p>
             </div>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.3 (Historical Checkpoints)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 37.2 (Historical Checkpoints)</p>
                 <p>
                     Bitcoin Core historically included checkpoints:
                 </p>
@@ -155,7 +161,7 @@ checkpointData = {
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.2 (Checkpoint Security)</p>
+                <p class="remark-title">Remark 37.3 (Checkpoint Security)</p>
                 <p>
                     Checkpoints provide:
                 </p>
@@ -170,7 +176,7 @@ checkpointData = {
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.3 (Checkpoint Controversy)</p>
+                <p class="remark-title">Remark 37.4 (Checkpoint Controversy)</p>
                 <p>
                     Checkpoints are controversial because they:
                 </p>
@@ -194,7 +200,7 @@ checkpointData = {
             <h2 id="s37-3">37.3 Minimum Chain Work</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 37.4 (Minimum Chain Work)</p>
+                <p class="definition-title">Definition 37.3 (Minimum Chain Work)</p>
                 <p>
                     <strong>nMinimumChainWork</strong> is a hardcoded minimum cumulative
                     proof-of-work a chain must have to be considered valid:
@@ -209,17 +215,17 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.4 (Minimum Work Protection)</p>
+                <p class="remark-title">Remark 37.5 (Minimum Work Protection)</p>
                 <p>
                     Minimum chain work provides:
                 </p>
                 <ul>
                     <li>Protection against low-work attack chains</li>
-                    <li>Faster sync (reject obviously fake chains early)</li>
+                    <li>Faster sync (reject low-work chains early)</li>
                     <li>No checkpoint-style trust (only requires past work exists)</li>
                 </ul>
                 <p>
-                    An attacker must match the minimum work to even be considered.
+                    A chain below the minimum work is rejected without further validation.
                 </p>
             </div>
         </section>
@@ -228,7 +234,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             <h2 id="s37-4">37.4 AssumeValid and AssumeUTXO</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 37.5 (AssumeValid)</p>
+                <p class="definition-title">Definition 37.4 (AssumeValid)</p>
                 <p>
                     <strong>AssumeValid</strong> skips signature verification for blocks
                     before a known "valid" block:
@@ -236,13 +242,13 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                 <ul>
                     <li>Still validates all other consensus rules</li>
                     <li>Still builds UTXO set</li>
-                    <li>Just skips signature checks (most CPU-intensive part)</li>
+                    <li>Skips signature checks (the most CPU-intensive part)</li>
                     <li>Can be disabled with -assumevalid=0</li>
                 </ul>
             </div>
 
             <div class="definition">
-                <p class="definition-title">Definition 37.6 (AssumeUTXO)</p>
+                <p class="definition-title">Definition 37.5 (AssumeUTXO)</p>
                 <p>
                     <strong>AssumeUTXO</strong> allows instant sync by assuming a UTXO
                     set snapshot is valid:
@@ -295,8 +301,8 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
         <section>
             <h2 id="s37-5">37.5 Node Hardening</h2>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.7 (Eclipse Attack Mitigations)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 37.6 (Eclipse Attack Mitigations)</p>
                 <p>
                     Bitcoin Core includes multiple eclipse attack defenses:
                 </p>
@@ -327,7 +333,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
 
                     <!-- Node -->
                     <rect x="30" y="105" width="90" height="44" fill="#f0f5f8" stroke="#2f4f4f" rx="4"/>
-                    <text x="75" y="124" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Your node</text>
+                    <text x="75" y="124" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Local node</text>
                     <text x="75" y="138" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">outbound slots</text>
 
                     <!-- Attacker netgroup -->
@@ -363,8 +369,8 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                 <figcaption>Figure 37.3: Outbound diversity limits an attacker's /16 netgroup to a single connection slot, while anchor and feeler connections preserve honest links.</figcaption>
             </figure>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.8 (Tor and Privacy)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 37.7 (Tor and Privacy)</p>
                 <p>
                     Running over Tor provides additional protection:
                 </p>
@@ -383,7 +389,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             <h2 id="s37-6">37.6 Economic Security</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.5 (Security Budget)</p>
+                <p class="remark-title">Remark 37.8 (Security Budget)</p>
                 <p>
                     Bitcoin's security is funded by:
                 </p>
@@ -395,17 +401,21 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                 </p>
             </div>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.9 (Attack Cost Asymmetry)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 37.9 (Attack-Cost Asymmetry)</p>
                 <p>
-                    A key security property: attacking costs more than defending because:
+                    Under current conditions, attacking is more expensive than defending:
                 </p>
                 <ul>
-                    <li>Attacker must match honest hashrate + some margin</li>
-                    <li>Attacker pays for hardware, electricity, opportunity cost</li>
+                    <li>An attacker must match the honest hashrate plus some margin</li>
+                    <li>The attacker pays for hardware, electricity, and opportunity cost</li>
                     <li>Honest miners are paid (block rewards)</li>
                     <li>Attacker gains are self-limiting: the double-spend value plus any block rewards earned, whose value tends to collapse if the attack undermines confidence</li>
                 </ul>
+                <p>
+                    Chapter 38 examines the conditions under which this asymmetry could
+                    fail.
+                </p>
             </div>
 
             <div class="example">
@@ -447,8 +457,8 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
         <section>
             <h2 id="s37-7">37.7 Social Layer Defenses</h2>
 
-            <div class="definition">
-                <p class="definition-title">Definition 37.10 (Social Consensus)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 37.10 (Social Consensus)</p>
                 <p>
                     Beyond technical rules, Bitcoin has social defenses:
                 </p>
@@ -461,7 +471,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.6 (The 2013 Fork Response)</p>
+                <p class="remark-title">Remark 37.11 (The 2013 Fork Response)</p>
                 <p>
                     When a bug caused a 24-block reorg in 2013:
                 </p>
@@ -469,7 +479,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <li>Developers, miners, and businesses coordinated on IRC</li>
                     <li>Miners voluntarily downgraded to maintain consensus</li>
                     <li>Crisis resolved within hours</li>
-                    <li>Demonstrated social layer's importance</li>
+                    <li>The episode demonstrated the role of off-protocol coordination</li>
                 </ul>
             </div>
 
@@ -531,7 +541,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                     <text x="380" y="249" text-anchor="middle" font-family="Georgia" font-size="9">Social coordination, UASF</text>
                     <text x="380" y="262" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&sect;37.7</text>
                 </svg>
-                <figcaption>Figure 37.4: Defense in depth&mdash;each attack class is countered by at least one mechanism in this chapter.</figcaption>
+                <figcaption>Figure 37.4: Defense in depth&mdash;each attack class is met by at least one mitigating mechanism.</figcaption>
             </figure>
         </section>
 
@@ -539,7 +549,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             <h2 id="s37-8">37.8 Finality Considerations</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 37.11 (Probabilistic vs Deterministic Finality)</p>
+                <p class="definition-title">Definition 37.6 (Probabilistic vs Deterministic Finality)</p>
                 <p>
                     <strong>Probabilistic finality</strong> (Bitcoin):
                 </p>
@@ -559,7 +569,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 37.7 (Practical Finality)</p>
+                <p class="remark-title">Remark 37.12 (Practical Finality)</p>
                 <p>
                     For practical purposes, Bitcoin transactions are "final" when:
                 </p>

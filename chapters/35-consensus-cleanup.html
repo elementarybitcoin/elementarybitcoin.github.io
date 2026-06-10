@@ -53,9 +53,9 @@
                 </p>
                 <ul>
                     <li>Satoshi worked alone with limited review</li>
-                    <li>Some edge cases weren't anticipated</li>
+                    <li>Some edge cases were not anticipated</li>
                     <li>Fixing bugs post-launch risks breaking consensus</li>
-                    <li>Conservative approach: don't fix unless necessary</li>
+                    <li>Conservative approach: do not fix unless necessary</li>
                 </ul>
             </div>
 
@@ -63,7 +63,7 @@
                 <thead>
                     <tr>
                         <th>Bug</th>
-                        <th>Risk Level</th>
+                        <th>Assessed severity</th>
                         <th>Exploited?</th>
                         <th>Fix Complexity</th>
                     </tr>
@@ -95,13 +95,20 @@
                     </tr>
                 </tbody>
             </table>
+
+            <p>
+                Severity in this table is as assessed in the Consensus Cleanup proposal,
+                not an independent measurement; the remaining columns record what is
+                publicly documented.
+            </p>
         </section>
 
         <section>
             <h2 id="s35-2">35.2 The Timewarp Attack</h2>
 
             <p>
-                The timewarp attack is the most serious unfixed vulnerability in Bitcoin's consensus rules.
+                The timewarp attack is widely regarded as the most consequential unfixed
+                weakness in the difficulty-adjustment rules.
             </p>
 
             <div class="definition">
@@ -163,8 +170,8 @@ where:
                 <figcaption>Figure 35.1: The retarget window never measures the gap between periods, enabling the timewarp attack.</figcaption>
             </figure>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 35.1 (Timewarp Exploitation)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 35.2 (Attack Procedure)</p>
                 <p>
                     With <span class="math">&gt;50%</span> hashrate, an attacker can perform a two-phase timestamp
                     manipulation each retarget period:
@@ -179,15 +186,18 @@ where:
                         <code>actual_time</code> (future minus past), causing
                         difficulty to decrease (subject to the 4× clamp per period)</li>
                     <li>Repeat: each period reduces difficulty by up to 4×</li>
-                    <li>After ~24 periods (<span class="math">log₄ of current difficulty ≈ 10¹⁴</span>), difficulty approaches the minimum</li>
+                    <li>Mainnet difficulty is roughly <span class="math">10<sup>14</sup></span> times
+                        the minimum, and <span class="math">log<sub>4</sub>(10<sup>14</sup>) &asymp; 23</span>,
+                        so about 24 fourfold reductions bring difficulty to its floor</li>
                 </ol>
                 <p>
-                    Theoretical outcome: Mine all remaining Bitcoin in weeks.
+                    In this model the attacker drives difficulty to its minimum and could
+                    mine the remaining subsidy within weeks.
                 </p>
             </div>
 
-            <div class="definition">
-                <p class="definition-title">Definition 35.4 (Proposed Fix)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 35.3 (Proposed Fix: Timewarp)</p>
                 <p>
                     The cleanup proposes constraining the first block of each
                     <em>retarget period</em> specifically (not all blocks, since MTP rules
@@ -206,7 +216,7 @@ timestamp(block[h]) >= timestamp(block[h-1]) - 2 hours</pre>
             <h2 id="s35-3">35.3 The 64-Byte Transaction Vulnerability</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 35.5 (64-Byte Transaction)</p>
+                <p class="definition-title">Definition 35.4 (64-Byte Transaction)</p>
                 <p>
                     A transaction serializes to exactly 64 bytes when:
                 </p>
@@ -218,16 +228,35 @@ timestamp(block[h]) >= timestamp(block[h-1]) - 2 hours</pre>
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 35.2 (Merkle Tree Ambiguity)</p>
+                <p class="theorem-title">Proposition 35.1 (Merkle Tree Ambiguity)</p>
                 <p>
-                    64-byte transactions create ambiguity because:
+                    A 64-byte transaction is bytewise indistinguishable from an interior
+                    Merkle node: hashed as a leaf and hashed as an interior node, it
+                    yields the same value, so a Merkle proof cannot establish which role
+                    its 64 bytes play.
                 </p>
-                <ul>
-                    <li>SHA256 operates on 64-byte blocks</li>
-                    <li>A 64-byte tx looks identical to a Merkle node (two 32-byte hashes)</li>
-                    <li>Attacker could construct "inner node" that's also valid tx</li>
-                    <li>Creates potential for SPV proof attacks</li>
-                </ul>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    An interior node of Bitcoin's Merkle tree (Definition 12.2) is
+                    <span class="math">SHA256d(L || R)</span>, where
+                    <span class="math">L</span> and <span class="math">R</span> are the
+                    32-byte child hashes&mdash;the hash of an arbitrary-looking 64-byte
+                    string. A transaction serializing to exactly 64 bytes presents the
+                    same input: splitting it at byte 32 yields a "left child" and a
+                    "right child," and its txid (the leaf hash) is the same
+                    <span class="math">SHA256d</span> of the same 64 bytes. The tree has
+                    no domain separation between leaves and interior nodes, so nothing in
+                    the hash distinguishes the two readings. An attacker who finds a
+                    64-byte string that is simultaneously a valid transaction and a
+                    plausible pair of child hashes can therefore forge SPV inclusion
+                    proofs; Theorem 12.2 estimates the cost at roughly
+                    <span class="math">2⁷⁰</span>&ndash;<span class="math">2⁷⁵</span>
+                    work, far below the <span class="math">2¹²⁸</span> collision bound.
+                    <span class="qed"></span>
+                </p>
             </div>
 
             <figure>
@@ -266,8 +295,8 @@ timestamp(block[h]) >= timestamp(block[h-1]) - 2 hours</pre>
                 <figcaption>Figure 35.2: 64-byte transaction creates merkle tree ambiguity.</figcaption>
             </figure>
 
-            <div class="definition">
-                <p class="definition-title">Definition 35.6 (Proposed Fix)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 35.4 (Proposed Fix: 64-Byte Transactions)</p>
                 <p>
                     Ban transactions that serialize to exactly 64 bytes:
                 </p>
@@ -276,7 +305,7 @@ timestamp(block[h]) >= timestamp(block[h-1]) - 2 hours</pre>
 if (tx.GetSerializeSize() == 64)
     return Invalid("64-byte-tx")</pre>
                 <p>
-                    Such transactions have no legitimate use case.
+                    No legitimate use of 64-byte transactions is known.
                 </p>
             </div>
         </section>
@@ -285,7 +314,7 @@ if (tx.GetSerializeSize() == 64)
             <h2 id="s35-4">35.4 Merkle Tree CVE-2012-2459</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 35.7 (Duplicate Txid Vulnerability)</p>
+                <p class="definition-title">Definition 35.5 (Duplicate Txid Vulnerability)</p>
                 <p>
                     Bitcoin's merkle tree construction has a flaw:
                 </p>
@@ -309,13 +338,13 @@ Block with txs: [A, B, C, C]  // Duplicate C
 Merkle construction:
   Level 0: [H(A), H(B), H(C), H(C)]
   Level 1: [H(H(A)||H(B)), H(H(C)||H(C))]
-  Root: H(...)  // SAME ROOT!
+  Root: H(...)  // identical root
 
 Different blocks, same merkle root → attack vector</pre>
             </div>
 
-            <div class="definition">
-                <p class="definition-title">Definition 35.8 (Fix Status)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 35.5 (Mitigation Status)</p>
                 <p>
                     Mitigations:
                 </p>
@@ -334,7 +363,7 @@ Different blocks, same merkle root → attack vector</pre>
             <h2 id="s35-5">35.5 Legacy Script Validation Issues</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 35.9 (FindAndDelete)</p>
+                <p class="definition-title">Definition 35.6 (FindAndDelete)</p>
                 <p>
                     <code>FindAndDelete</code> is a legacy operation that removes signature
                     data from scripts during verification. It has unexpected edge cases:
@@ -347,15 +376,16 @@ Different blocks, same merkle root → attack vector</pre>
             </div>
 
             <div class="definition">
-                <p class="definition-title">Definition 35.10 (OP_CODESEPARATOR)</p>
+                <p class="definition-title">Definition 35.7 (OP_CODESEPARATOR)</p>
                 <p>
                     <code>OP_CODESEPARATOR</code> marks where the signed portion of a script begins.
-                    In legacy scripts, it has confusing semantics and is rarely used legitimately.
+                    In legacy scripts, it has semantics that interact unexpectedly with
+                    signature hashing, and appears in very few non-test transactions.
                 </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 35.2 (Cleanup Proposals)</p>
+                <p class="remark-title">Remark 35.6 (Cleanup Proposals)</p>
                 <p>
                     The Great Consensus Cleanup proposes:
                 </p>
@@ -375,7 +405,7 @@ Different blocks, same merkle root → attack vector</pre>
             <h2 id="s35-6">35.6 Validation Time Limits</h2>
 
             <div class="definition">
-                <p class="definition-title">Definition 35.11 (Quadratic Hashing)</p>
+                <p class="definition-title">Definition 35.8 (Quadratic Hashing)</p>
                 <p>
                     Some operations in legacy Bitcoin have <span class="math">O(n²)</span> complexity:
                 </p>
@@ -386,8 +416,8 @@ Different blocks, same merkle root → attack vector</pre>
                 </ul>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Proposition 35.3 (Block Validation Attack)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 35.7 (Worst-Case Validation as an Attack)</p>
                 <p>
                     An attacker with sufficient hashrate could:
                 </p>
@@ -399,8 +429,8 @@ Different blocks, same merkle root → attack vector</pre>
                 </ol>
             </div>
 
-            <div class="definition">
-                <p class="definition-title">Definition 35.12 (Proposed Time Limits)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 35.8 (Proposed Validation Limits)</p>
                 <p>
                     Proposed fixes:
                 </p>
@@ -416,29 +446,40 @@ Different blocks, same merkle root → attack vector</pre>
             <h2 id="s35-7">35.7 Activation and Status</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 35.3 (Current Status)</p>
+                <p class="remark-title">Remark 35.9 (Current Status)</p>
                 <p>
-                    As of 2024:
+                    As of mid-2026:
                 </p>
                 <ul>
-                    <li>Proposal documented (by Matt Corallo and others)</li>
-                    <li>Technical review ongoing</li>
-                    <li>Generally less controversial than feature additions</li>
-                    <li>No activation attempt yet</li>
-                    <li>May be bundled with other soft forks</li>
+                    <li>The cleanup was proposed by Matt Corallo in 2019 and revived by
+                        Antoine Poinsot in 2024&ndash;2025 as a draft BIP</li>
+                    <li>The revival includes the timewarp fix, the 64-byte-transaction
+                        fix, and limits on worst-case validation cost</li>
+                    <li>Technical review is ongoing; the proposal is generally less
+                        contested than feature additions</li>
+                    <li>No activation parameters have been set, and the fork is not
+                        activated</li>
                 </ul>
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Proposition 35.4 (Soft Fork Compatibility)</p>
+                <p class="theorem-title">Proposition 35.2 (Soft Fork Compatibility)</p>
                 <p>
-                    All proposed fixes are soft forks because they:
+                    Each fix proposed in this chapter is a soft fork.
                 </p>
-                <ul>
-                    <li>Make previously valid blocks invalid</li>
-                    <li>Do not make previously invalid blocks valid</li>
-                    <li>Old nodes accept new-rules chain</li>
-                </ul>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    Each proposed rule rejects blocks the current rules accept (boundary
+                    timestamps, 64-byte transactions, pathological scripts) and accepts
+                    nothing the current rules reject, so the new accept-set satisfies
+                    <span class="math">R<sub>new</sub> ⊂ R<sub>old</sub></span>&mdash;a
+                    soft fork by Definition 26.5. By Theorem 26.2, activation by a hash
+                    power majority produces no permanent split: old nodes accept the
+                    new-rules chain. <span class="qed"></span>
+                </p>
             </div>
         </section>
 

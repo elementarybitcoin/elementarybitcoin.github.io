@@ -88,10 +88,10 @@
                     No single stakeholder group can unilaterally change Bitcoin:
                 </p>
                 <ul>
-                    <li><strong>Developers:</strong> Write code but can't force adoption</li>
+                    <li><strong>Developers:</strong> Write code but cannot force adoption</li>
                     <li><strong>Miners:</strong> Produce blocks but users can reject them</li>
                     <li><strong>Users:</strong> Choose software but need developer support</li>
-                    <li><strong>Businesses:</strong> Influence but don't control consensus</li>
+                    <li><strong>Businesses:</strong> Influence but do not control consensus</li>
                 </ul>
                 <p>
                     Changes require implicit or explicit agreement across groups.
@@ -183,7 +183,7 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 33.2: BIP lifecycle from draft to final/active.</figcaption>
+                <figcaption>Figure 33.2: BIP lifecycle from Draft to Deployed.</figcaption>
             </figure>
 
             <div class="example">
@@ -375,7 +375,9 @@
                     <li><strong>Middle ground:</strong> Only changes with overwhelming consensus</li>
                 </ul>
                 <p>
-                    The bar for consensus has risen significantly since 2017.
+                    Participants across the debate describe the threshold for activating
+                    changes as having risen since 2017 (four years between SegWit and
+                    Taproot; none since).
                 </p>
             </div>
         </section>
@@ -483,7 +485,7 @@
                     <li>BIP-9 signaling deployed (2016)</li>
                     <li>Signaling stalled at ~30% for months</li>
                     <li>BIP-148 (UASF) announced August 1, 2017 deadline</li>
-                    <li>Miners rapidly signaled to avoid split</li>
+                    <li>Miner signaling rose rapidly in July 2017, concurrent with both the BIP-148 deadline and the New York Agreement's BIP-91 deployment; the relative contribution of each remains debated</li>
                     <li>95% reached; SegWit activated August 2017</li>
                 </ol>
             </div>
@@ -645,7 +647,7 @@
                     <li><strong>Innovation:</strong> NFT-like assets on Bitcoin</li>
                     <li><strong>Criticism:</strong> "Spam," increased fees, not intended use</li>
                     <li><strong>Defense:</strong> Permissionless use, valid transactions</li>
-                    <li><strong>Outcome:</strong> No consensus to filter; market decides</li>
+                    <li><strong>Outcome:</strong> No general agreement to filter emerged; default relay policy was unchanged (see Section 33.7.4 for the 2025 sequel)</li>
                 </ul>
             </div>
 
@@ -655,15 +657,17 @@
                 <p class="example-title">Example 33.6 (The OP_RETURN Default)</p>
                 <p>
                     In 2025 a dispute over Bitcoin Core's default data-carrier policy&mdash;the
-                    relay limit on OP_RETURN payloads (Section 11.9, Appendix D.6)&mdash;became
-                    the most heated governance episode since the block size war. One side
+                    relay limit on OP_RETURN payloads (Section 11.9, Appendix D.6)&mdash;became,
+                    by common description on both sides, the most contentious policy
+                    dispute since the block size war. One side
                     argued that relay defaults should track what miners demonstrably include,
                     since a filter that no longer predicts confirmation only degrades fee
                     estimation and pushes transactions to private submission channels; the
                     other argued that defaults are normative whatever their technical effect,
                     and that relaxing them signaled endorsement of non-monetary data on the
-                    chain. A substantial minority of node operators switched to an
-                    alternative implementation with stricter defaults.
+                    chain. A minority of reachable listening nodes switched to an
+                    alternative implementation with stricter defaults (a share that is
+                    measurable but inflatable by Sybil nodes).
                 </p>
                 <p>
                     The book's apparatus classifies the episode without adjudicating it.
@@ -710,7 +714,7 @@
                     <li><strong>2009-2014:</strong> Satoshi-led, then core developers</li>
                     <li><strong>2015-2017:</strong> Contested, stakeholder conflict</li>
                     <li><strong>2017-present:</strong> Higher bar for changes, user power demonstrated</li>
-                    <li><strong>Future:</strong> Likely continued ossification trend</li>
+                    <li><strong>Future:</strong> Contested (Remark 33.4)</li>
                 </ul>
             </div>
         </section>

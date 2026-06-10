@@ -27,8 +27,8 @@
                 problem: a <em>fork</em>. This chapter develops the mathematical theory of chain
                 divergence&mdash;temporary forks that resolve naturally, intentional hard forks that
                 create new currencies, and soft forks that tighten rules while maintaining
-                compatibility. We analyze fork dynamics through game theory, information theory,
-                and network economics.
+                compatibility. We analyze fork dynamics through game theory and network
+                economics.
             </p>
         </section>
 
@@ -137,8 +137,10 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 26.1 (Fork Probability Bound)</p>
                 <p>
-                    Let <span class="math">λ</span> be the block arrival rate (blocks per second) and <span class="math">δ</span> be the network
-                    propagation delay. The probability of a natural fork is approximately:
+                    Assume blocks arrive as a Poisson process with rate <span class="math">λ</span> (for Bitcoin,
+                    <span class="math">λ = 1/T</span> with <span class="math">T = 600</span> seconds) and that each block reaches all
+                    other miners after a uniform propagation delay <span class="math">δ</span>&mdash;the model of
+                    Decker and Wattenhofer (2013). Then the probability of a natural fork is approximately:
                 </p>
                 <p class="math-block">
                     P(fork) ≈ 1 − e^(−λδ) ≈ λδ for small λδ
@@ -476,7 +478,7 @@
 
                     <!-- Replay arrow -->
                     <path d="M 310 65 L 310 115" stroke="#c44" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrowRed26)"/>
-                    <text x="330" y="95" font-family="Georgia" font-size="9" fill="#c44">Replay!</text>
+                    <text x="330" y="95" font-family="Georgia" font-size="9" fill="#c44">replay</text>
 
                     <!-- Protection -->
                     <rect x="400" y="70" width="80" height="40" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
@@ -561,7 +563,8 @@
                     <li><strong>Casper FFG:</strong> Finality gadget with economic guarantees</li>
                 </ul>
                 <p>
-                    Bitcoin's simplicity (pure cumulative work) provides strong security guarantees.
+                    Bitcoin retains the pure cumulative-work rule; its security properties
+                    under an honest majority are those analyzed in Chapter 14.
                 </p>
             </div>
         </section>
@@ -659,21 +662,25 @@
                 Creating a successful fork requires overcoming significant economic barriers.
             </p>
 
-            <div class="definition">
-                <p class="definition-title">Definition 26.12 (Fork Viability Criteria)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 26.9 (Empirical Viability Factors)</p>
                 <p>
-                    A fork becomes economically viable when:
+                    Observed persistent forks have shared several features:
                 </p>
                 <ol>
-                    <li><strong>Hash power:</strong> Sufficient mining to maintain security</li>
+                    <li><strong>Hash power:</strong> Sustained mining adequate to keep the chain moving</li>
                     <li><strong>Liquidity:</strong> Exchange listings and trading pairs</li>
                     <li><strong>Utility:</strong> Merchants, services, and use cases</li>
-                    <li><strong>Community:</strong> Developers, advocates, and users</li>
+                    <li><strong>Community:</strong> Active developers and users</li>
                 </ol>
+                <p>
+                    These are observed regularities, not sufficient conditions; Chapter 27
+                    surveys forks that satisfied several of them and still declined.
+                </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.9 (Difficulty Death Spiral)</p>
+                <p class="remark-title">Remark 26.10 (Difficulty Death Spiral)</p>
                 <p>
                     A minority fork sharing Bitcoin's difficulty adjustment algorithm faces a
                     potential "death spiral":
@@ -716,16 +723,16 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 26.13 (Fork Contention Spectrum)</p>
+                <p class="definition-title">Definition 26.12 (Fork Contention Spectrum)</p>
                 <ul>
-                    <li><strong>Non-contentious:</strong> Near-universal agreement (e.g., Taproot)</li>
-                    <li><strong>Mildly contentious:</strong> Disagreement on timing/details (e.g., SegWit activation)</li>
+                    <li><strong>Non-contentious:</strong> Near-universal agreement on both substance and deployment (e.g., the 2015 BIP-66 strict-DER soft fork)</li>
+                    <li><strong>Mildly contentious:</strong> Disagreement on timing/details (e.g., SegWit activation; Taproot, whose substance was broadly supported while its activation mechanism was disputed&mdash;see Section 33.7.2)</li>
                     <li><strong>Highly contentious:</strong> Fundamental disagreement (e.g., block size debate)</li>
                 </ul>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.10 (Contentious Fork Outcomes)</p>
+                <p class="remark-title">Remark 26.11 (Contentious Fork Outcomes)</p>
                 <p>
                     Historical patterns for contentious forks:
                 </p>
@@ -778,7 +785,7 @@
                         <tr>
                             <td>Taproot (soft)</td>
                             <td>2021</td>
-                            <td>None</td>
+                            <td>Low (substance broadly supported; activation mechanism disputed&mdash;Section 33.7.2)</td>
                             <td>Universal adoption</td>
                         </tr>
                     </tbody>
@@ -786,7 +793,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 26.11 (Schelling Point Preservation)</p>
+                <p class="remark-title">Remark 26.12 (Schelling Point Preservation)</p>
                 <p>
                     Non-contentious soft forks preserve the Schelling point (focal point for
                     coordination) because:
@@ -852,7 +859,7 @@
         </section>
 
         <nav class="chapter-navigation">
-            <a href="25-debunking-myths.html" class="prev-chapter">← Chapter 25: Debunking Myths</a>
+            <a href="25-debunking-myths.html" class="prev-chapter">← Chapter 25: Claims and Misconceptions</a>
             <a href="27-historical-forks.html" class="next-chapter">Chapter 27: Historical Hard Forks →</a>
         </nav>
     </main>
