@@ -370,6 +370,29 @@
                     to develop a sustainable fee market.
                 </p>
             </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 15.4 (A Fair Launch)</p>
+                <p>
+                    The theorems above concern the schedule; one further property concerns
+                    its history. Every bitcoin in existence was issued through the coinbase
+                    subsidy of Definition 15.2, under rules public from the first block:
+                    there was no allocation before the chain began, no founder or investor
+                    tranche outside the consensus rules, and no sale. The openness of the
+                    rules did not produce equality of outcome&mdash;participation in early
+                    mining was sparse, and early participants, the protocol's designer among
+                    them, accumulated large holdings at negligible cost (estimates attribute
+                    roughly one million never-spent BTC to mining in 2009&ndash;2010). The
+                    property is narrower and stronger: the terms were identical for everyone
+                    who chose to participate, because the issuance function contains no
+                    privileged branch (Remark 14.3). Most later cryptocurrencies launched
+                    otherwise, with premined allocations, founder rewards, or token sales
+                    preceding public availability; Chapter 27 records examples among
+                    Bitcoin's own forks. The distinction is structural: an asset whose
+                    initial supply is allocated has, by construction, an allocator.
+                    Definition 15.2 contains no such position.
+                </p>
+            </div>
         </section>
 
         <section>
@@ -395,7 +418,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 15.4 (Why 10 Minutes?)</p>
+                <p class="remark-title">Remark 15.5 (Why 10 Minutes?)</p>
                 <p>
                     Satoshi chose 10 minutes as a balance between:
                 </p>
@@ -490,7 +513,7 @@ Time between halvings: 210,000 × 10 min = 2,100,000 min
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 15.5 (Why 100 Blocks?)</p>
+                <p class="remark-title">Remark 15.6 (Why 100 Blocks?)</p>
                 <p>
                     Coinbase maturity prevents issues if a block is later orphaned:
                 </p>
@@ -515,7 +538,7 @@ Time between halvings: 210,000 × 10 min = 2,100,000 min
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 15.6 (Protocol Rule: Consensus Incompatibility)</p>
+                <p class="remark-title">Remark 15.7 (Protocol Rule: Consensus Incompatibility)</p>
                 <p>
                     A change that <em>expands</em> the set of valid blocks (for example,
                     raising the block weight limit or altering the supply schedule) is a
