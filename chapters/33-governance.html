@@ -302,8 +302,8 @@
                     A growing tension in Bitcoin governance:
                 </p>
                 <ul>
-                    <li><strong>Pro-change:</strong> Bitcoin needs features (covenants, etc.) to remain competitive</li>
-                    <li><strong>Pro-stability:</strong> Changes risk breaking what works; ossification protects value</li>
+                    <li><strong>Pro-change</strong> (common among application and Layer 2 developers): Bitcoin needs features (covenants, etc.) to remain competitive</li>
+                    <li><strong>Pro-stability</strong> (common among long-term holders and some senior contributors): Changes risk breaking what works; ossification protects value</li>
                     <li><strong>Middle ground:</strong> Only changes with overwhelming consensus</li>
                 </ul>
                 <p>
@@ -379,12 +379,31 @@
                     <li>Descended from Satoshi's original code</li>
                     <li>Most widely run full node software</li>
                     <li>Open source, permissively licensed</li>
-                    <li>Maintained by ~30 active contributors</li>
+                    <li>Maintained by ~30 active contributors (as of 2025)</li>
                 </ul>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.6 (Core is Not Bitcoin)</p>
+                <p class="remark-title">Remark 33.6 (The Developer-Power Critique)</p>
+                <p>
+                    Critics&mdash;from legal scholars such as Angela Walch to veterans of the
+                    block size war&mdash;argue that the formal power map of Remark 33.1
+                    understates developer influence. Maintainers control commit access to the
+                    software the economy runs by default, and defaults are sticky: "users can
+                    reject a release" is true in principle but rarely exercised. Agenda
+                    setting&mdash;which proposals receive review at all&mdash;is itself a form
+                    of power, and contributor funding is concentrated among a handful of
+                    sponsors. On this view, Section 33.9's code-as-specification argument
+                    cuts against the customary reassurance rather than for it: if the rules
+                    are the code, those who write the code write the rules. Walch presses
+                    the point furthest, arguing that core developers function as de facto
+                    fiduciaries&mdash;exercising trusted power without accountability. The
+                    rebuttals follow.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 33.7 (Core is Not Bitcoin)</p>
                 <p>
                     Bitcoin Core has significant influence but not control:
                 </p>
@@ -397,7 +416,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.7 (Core Development Process)</p>
+                <p class="remark-title">Remark 33.8 (Core Development Process)</p>
                 <p>
                     Bitcoin Core changes require:
                 </p>
@@ -445,7 +464,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.8 (Schelling Point Preservation)</p>
+                <p class="remark-title">Remark 33.9 (Schelling Point Preservation)</p>
                 <p>
                     Bitcoin's value partially derives from being a Schelling point:
                 </p>
@@ -474,7 +493,7 @@
                     <li><strong>Issue:</strong> How to scale Bitcoin (blocks vs layers)</li>
                     <li><strong>Camps:</strong> Big blockers vs small blockers</li>
                     <li><strong>Resolution:</strong> SegWit activated; BCH forked away</li>
-                    <li><strong>Lesson:</strong> Users, not just miners, determine consensus</li>
+                    <li><strong>Lesson widely drawn:</strong> Users, not just miners, determine consensus&mdash;though some observers attribute the outcome more narrowly to exchanges and large economic nodes, and note that the UASF ultimatum was never carried to a contested split</li>
                 </ul>
             </div>
 
@@ -513,7 +532,7 @@
             <h2 id="s33-8">33.8 Future Governance Challenges</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.9 (Open Questions)</p>
+                <p class="remark-title">Remark 33.10 (Open Questions)</p>
                 <p>
                     Bitcoin governance faces unresolved challenges:
                 </p>
@@ -527,7 +546,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.10 (Governance Evolution)</p>
+                <p class="remark-title">Remark 33.11 (Governance Evolution)</p>
                 <p>
                     Bitcoin's governance has evolved:
                 </p>
@@ -553,7 +572,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.11 (Code as Specification)</p>
+                <p class="remark-title">Remark 33.12 (Code as Specification)</p>
                 <p>
                     Section 13.10 defined validation as a pure predicate
                     <span class="math">V(C, B)</span>. The specification problem is that no
@@ -589,7 +608,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.12 (The Client Diversity Dilemma)</p>
+                <p class="remark-title">Remark 33.13 (The Client Diversity Dilemma)</p>
                 <p>
                     The specification problem shapes the debate over implementation diversity.
                     With a single dominant implementation, its bugs are uniform&mdash;everyone
@@ -604,7 +623,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.13 (Toward Executable Specifications)</p>
+                <p class="remark-title">Remark 33.14 (Toward Executable Specifications)</p>
                 <p>
                     The emerging response is to make the specification <em>executable</em>:
                     a statement of <span class="math">V</span> precise enough to run, so that

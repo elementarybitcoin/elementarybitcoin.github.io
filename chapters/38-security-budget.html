@@ -32,7 +32,8 @@
             <p class="chapter-intro">
                 Bitcoin's security model faces a fundamental challenge: the block subsidy
                 that currently funds most mining operations is designed to eventually reach
-                zero. This creates what critics call the "security budget problem"&mdash;will
+                zero. This creates what critics&mdash;most formally Eric Budish (2018) and
+                Rapha&euml;l Auer (2019)&mdash;call the "security budget problem"&mdash;will
                 transaction fees alone provide sufficient incentive for miners to secure the
                 network? This chapter examines the mathematics, economics, and game theory
                 of Bitcoin's long-term security budget, analyzing whether the network can
@@ -512,7 +513,7 @@ if (GetRandInt(10) == 0)
         <section>
             <h2 id="s38-7">38.7 Proposed Solutions</h2>
 
-            <h3 id="s38-7-1">38.7.1 Do Nothing (Market Will Provide)</h3>
+            <h3 id="s38-7-1">38.7.1 Rely on the Fee Market</h3>
 
             <p>The dominant view among Bitcoin maximalists:</p>
 
@@ -524,12 +525,22 @@ if (GetRandInt(10) == 0)
             </ul>
 
             <div class="remark">
-                <p class="remark-title">Remark 38.9 (The "It Will Work Out" Argument)</p>
+                <p class="remark-title">Remark 38.9 (The Market-Sufficiency Argument)</p>
                 <p>
                     On this view, Bitcoin has survived every challenge so far. The fee market, while
                     imperfect, has functioned for more than fifteen years. As Bitcoin
                     becomes more valuable, rational users will pay appropriate fees for the
                     security they require.
+                </p>
+                <p>
+                    A stronger version of the position disputes the premise of the models in
+                    Section 38.5 outright: what attack cost must exceed is the value an
+                    attacker can actually capture&mdash;the double-spendable <em>flow</em> of
+                    transactions&mdash;not Bitcoin's market capitalization, a <em>stock</em>.
+                    Combined with the hardware realities of Remark 38.13 (SHA-256 hashrate
+                    cannot be rented at scale, and an attacker's ASICs lose their value if
+                    the attack succeeds), the budget required for deterrence may be far
+                    smaller than any fixed percentage of market cap implies.
                 </p>
             </div>
 
@@ -558,7 +569,9 @@ if (GetRandInt(10) == 0)
                 <p class="remark-title">Remark 38.10 (The Tail Emission Debate)</p>
                 <p>
                     Monero implements tail emission (0.6 XMR per block forever). Some
-                    researchers argue that Bitcoin needs something similar. This would fundamentally change
+                    researchers&mdash;most prominently Peter Todd (2022), who argues that a
+                    fixed linear emission is asymptotically non-inflationary because coin
+                    loss offsets it&mdash;contend that Bitcoin needs something similar. This would fundamentally change
                     Bitcoin's monetary properties and is considered a non-starter by most of
                     the community.
                 </p>

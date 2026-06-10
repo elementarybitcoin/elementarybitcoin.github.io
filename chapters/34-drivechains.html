@@ -266,7 +266,10 @@ OP_RETURN &lt;BMM_TAG&gt; &lt;sidechain_id&gt; &lt;block_hash&gt;
                     Bitcoin-level criterion for distinguishing legitimate bundles from
                     illegitimate ones. Users of a drivechain therefore trust <em>two</em>
                     parties the base layer never asks them to trust: a miner majority and
-                    a software maintainer.
+                    a software maintainer. (Proponents respond that the latter is the
+                    ordinary trust any user places in opt-in software&mdash;a wallet, a
+                    Lightning node; the asymmetry critics point to is that here the
+                    maintainer sits behind a peg holding other people's deposits.)
                 </p>
             </div>
 
@@ -450,7 +453,16 @@ OP_RETURN &lt;BMM_TAG&gt; &lt;sidechain_id&gt; &lt;block_hash&gt;
                     asks users to trust a miner majority with custody (Definition 34.6) and
                     a software maintainer with the rules (Remark 34.3), and many reviewers
                     judged "miners can vote to take the deposits, slowly and in public" to
-                    be a description of the design rather than an attack on it.
+                    be a description of the design rather than an attack on it. The
+                    proposal's author, Paul Sztorc, replied that this reading inverts the
+                    design: the multi-month, fully public withdrawal process exists
+                    precisely so that an attempted theft can be seen and punished&mdash;up
+                    to a user-activated soft fork rejecting the fraudulent bundle&mdash;and
+                    that miners already hold reorg and censorship power over the base
+                    layer, so hashrate escrow adds no party users do not already trust.
+                    The objection that stuck is that this defense relies on exactly the
+                    kind of extraordinary social coordination Bitcoin's design otherwise
+                    avoids needing.
                 </p>
             </div>
 
