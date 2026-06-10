@@ -132,33 +132,33 @@ where:
             </div>
 
             <figure>
-                <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
+                <svg class="diagram" width="500" height="192" viewBox="0 0 500 192">
                     <!-- Difficulty period -->
-                    <rect x="30" y="50" width="200" height="40" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <rect x="30" y="50" width="200" height="40" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
                     <text x="130" y="75" text-anchor="middle" font-family="Georgia" font-size="9">Period N (blocks 0-2015)</text>
 
-                    <rect x="250" y="50" width="200" height="40" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <rect x="250" y="50" width="200" height="40" rx="4" fill="#fff8f0" stroke="#8b4513"/>
                     <text x="350" y="75" text-anchor="middle" font-family="Georgia" font-size="9">Period N+1 (blocks 2016-4031)</text>
 
                     <!-- Block markers -->
                     <circle cx="40" cy="70" r="6" fill="#5a8f5a"/>
-                    <text x="40" y="110" text-anchor="middle" font-family="Georgia" font-size="7">Block 0</text>
+                    <text x="40" y="110" text-anchor="middle" font-family="Georgia" font-size="9">Block 0</text>
 
-                    <circle cx="220" cy="70" r="8" fill="#c44" stroke="#a33" stroke-width="2"/>
-                    <text x="220" y="110" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">Block 2015</text>
-                    <text x="220" y="123" text-anchor="middle" font-family="Georgia" font-size="6" fill="#c44">(future-dated)</text>
+                    <circle cx="220" cy="70" r="8" fill="#c44" stroke="#c44" stroke-width="2"/>
+                    <text x="220" y="110" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Block 2015</text>
+                    <text x="220" y="123" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">(future-dated)</text>
 
                     <circle cx="260" cy="70" r="6" fill="#5a8f5a"/>
-                    <text x="265" y="135" text-anchor="middle" font-family="Georgia" font-size="7">Block 2016</text>
-                    <text x="265" y="148" text-anchor="middle" font-family="Georgia" font-size="6" fill="#666">(snaps back)</text>
+                    <text x="265" y="135" text-anchor="middle" font-family="Georgia" font-size="9">Block 2016</text>
+                    <text x="265" y="148" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(snaps back)</text>
 
                     <!-- Calculation -->
                     <path d="M 40 70 Q 130 20 220 70" stroke="#c44" stroke-width="2" stroke-dasharray="4,2" fill="none"/>
-                    <text x="130" y="35" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Retarget measures only this span</text>
+                    <text x="130" y="35" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Retarget measures only this span</text>
 
                     <!-- Correct comparison -->
-                    <text x="400" y="165" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Measured: block[0] to block[2015] (2015 intervals)</text>
-                    <text x="400" y="178" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Never measured: block[2015] → block[2016] gap</text>
+                    <text x="375" y="165" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Measured: block[0] to block[2015] (2015 intervals)</text>
+                    <text x="375" y="178" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Never measured: block[2015] → block[2016] gap</text>
                 </svg>
                 <figcaption>Figure 35.1: The retarget window never measures the gap between periods, enabling the timewarp attack.</figcaption>
             </figure>
@@ -236,32 +236,32 @@ timestamp(block[h]) >= timestamp(block[h-1]) - 2 hours</pre>
                     <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Merkle Tree Ambiguity</text>
 
                     <!-- Root -->
-                    <rect x="200" y="40" width="100" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="250" y="60" text-anchor="middle" font-family="Georgia" font-size="8">Root</text>
+                    <rect x="200" y="40" width="100" height="30" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="250" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Root</text>
 
                     <!-- Level 1 -->
-                    <rect x="100" y="90" width="100" height="30" rx="4" fill="#fff3cd" stroke="#f39c12"/>
-                    <text x="150" y="110" text-anchor="middle" font-family="Georgia" font-size="8">H(A||B) = 64 bytes</text>
+                    <rect x="100" y="90" width="100" height="30" rx="4" fill="#fff8f0" stroke="#8b4513"/>
+                    <text x="150" y="110" text-anchor="middle" font-family="Georgia" font-size="9">H(A||B) = 64 bytes</text>
 
-                    <rect x="300" y="90" width="100" height="30" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="350" y="110" text-anchor="middle" font-family="Georgia" font-size="8">H(C||D)</text>
+                    <rect x="300" y="90" width="100" height="30" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="350" y="110" text-anchor="middle" font-family="Georgia" font-size="9">H(C||D)</text>
 
                     <!-- Level 2 -->
-                    <rect x="50" y="140" width="50" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="75" y="157" text-anchor="middle" font-family="Georgia" font-size="7">TxA</text>
+                    <rect x="50" y="140" width="50" height="25" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="75" y="157" text-anchor="middle" font-family="Georgia" font-size="9">TxA</text>
 
-                    <rect x="120" y="140" width="50" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="145" y="157" text-anchor="middle" font-family="Georgia" font-size="7">TxB</text>
+                    <rect x="120" y="140" width="50" height="25" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="145" y="157" text-anchor="middle" font-family="Georgia" font-size="9">TxB</text>
 
                     <!-- Connections -->
                     <line x1="230" y1="70" x2="180" y2="90" stroke="#5a8f5a"/>
                     <line x1="270" y1="70" x2="320" y2="90" stroke="#5a8f5a"/>
-                    <line x1="130" y1="120" x2="90" y2="140" stroke="#f39c12"/>
-                    <line x1="170" y1="120" x2="150" y2="140" stroke="#f39c12"/>
+                    <line x1="130" y1="120" x2="90" y2="140" stroke="#8b4513"/>
+                    <line x1="170" y1="120" x2="150" y2="140" stroke="#8b4513"/>
 
                     <!-- Note -->
-                    <text x="350" y="155" font-family="Georgia" font-size="8" fill="#c44">If H(A||B) is valid 64-byte tx,</text>
-                    <text x="350" y="168" font-family="Georgia" font-size="8" fill="#c44">tree becomes ambiguous</text>
+                    <text x="350" y="155" font-family="Georgia" font-size="9" fill="#c44">If H(A||B) is valid 64-byte tx,</text>
+                    <text x="350" y="168" font-family="Georgia" font-size="9" fill="#c44">tree becomes ambiguous</text>
                 </svg>
                 <figcaption>Figure 35.2: 64-byte transaction creates merkle tree ambiguity.</figcaption>
             </figure>

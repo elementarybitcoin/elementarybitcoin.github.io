@@ -87,7 +87,7 @@
                     <text x="45" y="145" font-family="Georgia" font-size="9">• No adaptor signatures</text>
 
                     <!-- Schnorr -->
-                    <rect x="290" y="40" width="180" height="120" rx="6" fill="#d4edda" stroke="#28a745" stroke-width="1.5"/>
+                    <rect x="290" y="40" width="180" height="120" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="380" y="60" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Schnorr (BIP-340)</text>
 
                     <text x="305" y="85" font-family="Georgia" font-size="9">• 64-byte signatures</text>
@@ -98,7 +98,7 @@
 
                     <!-- Arrow -->
                     <path d="M 210 100 L 290 100" stroke="#666" stroke-width="2" marker-end="url(#arrow29)"/>
-                    <text x="250" y="90" text-anchor="middle" font-family="Georgia" font-size="8">Upgrade</text>
+                    <text x="250" y="90" text-anchor="middle" font-family="Georgia" font-size="9">Upgrade</text>
 
                     <defs>
                         <marker id="arrow29" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
@@ -201,33 +201,33 @@
             <figure>
                 <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
                     <!-- Internal key -->
-                    <ellipse cx="100" cy="60" rx="60" ry="35" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <ellipse cx="100" cy="60" rx="60" ry="35" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="100" y="55" text-anchor="middle" font-family="Georgia" font-size="10">Internal Key</text>
                     <text x="100" y="70" text-anchor="middle" font-family="Georgia" font-size="9" font-style="italic">P</text>
 
                     <!-- Script tree -->
-                    <rect x="200" y="30" width="100" height="60" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <rect x="200" y="30" width="100" height="60" rx="4" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
                     <text x="250" y="55" text-anchor="middle" font-family="Georgia" font-size="9">Script Tree</text>
-                    <text x="250" y="70" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(optional)</text>
+                    <text x="250" y="70" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(optional)</text>
 
                     <!-- Tweak computation -->
-                    <rect x="130" y="120" width="140" height="40" rx="4" fill="#f5f5f5" stroke="#999"/>
+                    <rect x="130" y="120" width="140" height="40" rx="4" fill="#f8f5f0" stroke="#666"/>
                     <text x="200" y="140" text-anchor="middle" font-family="Georgia" font-size="9">t = H(P || root)</text>
-                    <text x="200" y="155" text-anchor="middle" font-family="monospace" font-size="7">TapTweak</text>
+                    <text x="200" y="155" text-anchor="middle" font-family="monospace" font-size="9">TapTweak</text>
 
                     <line x1="100" y1="95" x2="170" y2="120" stroke="#5a8f5a" stroke-width="1.5"/>
-                    <line x1="250" y1="90" x2="230" y2="120" stroke="#f39c12" stroke-width="1.5"/>
+                    <line x1="250" y1="90" x2="230" y2="120" stroke="#8b4513" stroke-width="1.5"/>
 
                     <!-- Output key -->
-                    <ellipse cx="380" cy="140" rx="70" ry="40" fill="#d4edda" stroke="#28a745" stroke-width="2"/>
+                    <ellipse cx="380" cy="140" rx="70" ry="40" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
                     <text x="380" y="130" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Output Key</text>
                     <text x="380" y="150" text-anchor="middle" font-family="Georgia" font-size="10">Q = P + t·G</text>
 
                     <line x1="270" y1="140" x2="310" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow29b)"/>
 
                     <!-- On-chain appearance -->
-                    <rect x="310" y="190" width="140" height="25" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="380" y="207" text-anchor="middle" font-family="monospace" font-size="8">OP_1 &lt;Q&gt;</text>
+                    <rect x="310" y="190" width="140" height="25" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="380" y="207" text-anchor="middle" font-family="monospace" font-size="9">OP_1 &lt;Q&gt;</text>
 
                     <line x1="380" y1="180" x2="380" y2="190" stroke="#5a8f5a" stroke-width="1"/>
 
@@ -273,48 +273,48 @@
             </div>
 
             <figure>
-                <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
+                <svg class="diagram" width="500" height="240" viewBox="0 0 500 240">
                     <!-- Root -->
-                    <circle cx="250" cy="40" r="20" fill="#28a745" stroke="#1e7b34" stroke-width="2"/>
+                    <circle cx="250" cy="40" r="20" fill="#5a8f5a" stroke="#5a8f5a" stroke-width="2"/>
                     <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">root</text>
 
                     <!-- Level 1 -->
-                    <circle cx="150" cy="100" r="18" fill="#5a8f5a" stroke="#3a6f3a" stroke-width="1.5"/>
-                    <text x="150" y="105" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">H₁</text>
+                    <circle cx="150" cy="100" r="18" fill="#5a8f5a" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="150" y="105" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">H₁</text>
 
-                    <circle cx="350" cy="100" r="18" fill="#5a8f5a" stroke="#3a6f3a" stroke-width="1.5"/>
-                    <text x="350" y="105" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">H₂</text>
+                    <circle cx="350" cy="100" r="18" fill="#5a8f5a" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="350" y="105" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">H₂</text>
 
                     <!-- Level 2 -->
-                    <rect x="60" y="160" width="80" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
-                    <text x="100" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script A</text>
-                    <text x="100" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">2-of-3 multisig</text>
+                    <rect x="60" y="160" width="80" height="35" rx="4" fill="#fff8f0" stroke="#8b4513"/>
+                    <text x="100" y="175" text-anchor="middle" font-family="Georgia" font-size="9">Script A</text>
+                    <text x="100" y="188" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2-of-3 multisig</text>
 
-                    <rect x="160" y="160" width="80" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
-                    <text x="200" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script B</text>
-                    <text x="200" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Timelock + key</text>
+                    <rect x="160" y="160" width="80" height="35" rx="4" fill="#fff8f0" stroke="#8b4513"/>
+                    <text x="200" y="175" text-anchor="middle" font-family="Georgia" font-size="9">Script B</text>
+                    <text x="200" y="188" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Timelock + key</text>
 
                     <rect x="270" y="160" width="80" height="35" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
-                    <text x="310" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script C</text>
-                    <text x="310" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Recovery key</text>
+                    <text x="310" y="175" text-anchor="middle" font-family="Georgia" font-size="9">Script C</text>
+                    <text x="310" y="188" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Recovery key</text>
 
-                    <rect x="370" y="160" width="80" height="35" rx="4" fill="#fff3cd" stroke="#f39c12"/>
-                    <text x="410" y="175" text-anchor="middle" font-family="Georgia" font-size="8">Script D</text>
-                    <text x="410" y="188" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Hashlock</text>
+                    <rect x="370" y="160" width="80" height="35" rx="4" fill="#fff8f0" stroke="#8b4513"/>
+                    <text x="410" y="175" text-anchor="middle" font-family="Georgia" font-size="9">Script D</text>
+                    <text x="410" y="188" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Hashlock</text>
 
                     <!-- Connections -->
-                    <line x1="235" y1="55" x2="165" y2="85" stroke="#3a6f3a" stroke-width="1.5"/>
-                    <line x1="265" y1="55" x2="335" y2="85" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <line x1="235" y1="55" x2="165" y2="85" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <line x1="265" y1="55" x2="335" y2="85" stroke="#5a8f5a" stroke-width="1.5"/>
 
-                    <line x1="140" y1="115" x2="110" y2="160" stroke="#3a6f3a" stroke-width="1.5"/>
-                    <line x1="160" y1="115" x2="190" y2="160" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <line x1="140" y1="115" x2="110" y2="160" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <line x1="160" y1="115" x2="190" y2="160" stroke="#5a8f5a" stroke-width="1.5"/>
 
                     <line x1="340" y1="115" x2="310" y2="160" stroke="#c44" stroke-width="2"/>
-                    <line x1="360" y1="115" x2="400" y2="160" stroke="#3a6f3a" stroke-width="1.5"/>
+                    <line x1="360" y1="115" x2="400" y2="160" stroke="#5a8f5a" stroke-width="1.5"/>
 
                     <!-- Proof path highlight -->
-                    <text x="310" y="215" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">To spend via Script C:</text>
-                    <text x="310" y="228" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">Reveal C, prove with H(D) and H₁</text>
+                    <text x="310" y="215" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">To spend via Script C:</text>
+                    <text x="310" y="228" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Reveal C, prove with H(D) and H₁</text>
                 </svg>
                 <figcaption>Figure 29.3: TapTree with four scripts; spending Script C requires proving inclusion.</figcaption>
             </figure>
@@ -498,22 +498,22 @@ Stack after:  [n] (or [n+1] if valid)
             <figure>
                 <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
                     <!-- Participants -->
-                    <rect x="30" y="40" width="80" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <rect x="30" y="40" width="80" height="50" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
                     <text x="70" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Alice</text>
-                    <text x="70" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P<tspan baseline-shift="sub" font-size="6">A</tspan>, d<tspan baseline-shift="sub" font-size="6">A</tspan></text>
+                    <text x="70" y="78" text-anchor="middle" font-family="Georgia" font-size="9">P<tspan baseline-shift="sub" font-size="9">A</tspan>, d<tspan baseline-shift="sub" font-size="9">A</tspan></text>
 
-                    <rect x="130" y="40" width="80" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <rect x="130" y="40" width="80" height="50" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
                     <text x="170" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Bob</text>
-                    <text x="170" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P<tspan baseline-shift="sub" font-size="6">B</tspan>, d<tspan baseline-shift="sub" font-size="6">B</tspan></text>
+                    <text x="170" y="78" text-anchor="middle" font-family="Georgia" font-size="9">P<tspan baseline-shift="sub" font-size="9">B</tspan>, d<tspan baseline-shift="sub" font-size="9">B</tspan></text>
 
-                    <rect x="230" y="40" width="80" height="50" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
+                    <rect x="230" y="40" width="80" height="50" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
                     <text x="270" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Carol</text>
-                    <text x="270" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P<tspan baseline-shift="sub" font-size="6">C</tspan>, d<tspan baseline-shift="sub" font-size="6">C</tspan></text>
+                    <text x="270" y="78" text-anchor="middle" font-family="Georgia" font-size="9">P<tspan baseline-shift="sub" font-size="9">C</tspan>, d<tspan baseline-shift="sub" font-size="9">C</tspan></text>
 
                     <!-- Aggregation -->
-                    <rect x="350" y="40" width="120" height="50" rx="4" fill="#d4edda" stroke="#28a745" stroke-width="2"/>
+                    <rect x="350" y="40" width="120" height="50" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
                     <text x="410" y="60" text-anchor="middle" font-family="Georgia" font-size="9" font-weight="bold">Aggregate</text>
-                    <text x="410" y="78" text-anchor="middle" font-family="Georgia" font-size="8">P = Σ a<tspan baseline-shift="sub" font-size="6">i</tspan>P<tspan baseline-shift="sub" font-size="6">i</tspan></text>
+                    <text x="410" y="78" text-anchor="middle" font-family="Georgia" font-size="9">P = Σ a<tspan baseline-shift="sub" font-size="9">i</tspan>P<tspan baseline-shift="sub" font-size="9">i</tspan></text>
 
                     <!-- Arrows -->
                     <path d="M 110 65 L 350 65" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,2"/>
@@ -521,11 +521,11 @@ Stack after:  [n] (or [n+1] if valid)
                     <path d="M 310 65 L 350 65" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,2"/>
 
                     <!-- On-chain appearance -->
-                    <rect x="150" y="130" width="200" height="50" rx="4" fill="#fff3cd" stroke="#f39c12"/>
+                    <rect x="150" y="130" width="200" height="50" rx="4" fill="#fff8f0" stroke="#8b4513"/>
                     <text x="250" y="150" text-anchor="middle" font-family="Georgia" font-size="9">On-chain: bc1p...</text>
-                    <text x="250" y="168" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">Looks like single-key output!</text>
+                    <text x="250" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Looks like single-key output!</text>
 
-                    <line x1="410" y1="90" x2="300" y2="130" stroke="#f39c12" stroke-width="1.5"/>
+                    <line x1="410" y1="90" x2="300" y2="130" stroke="#8b4513" stroke-width="1.5"/>
                 </svg>
                 <figcaption>Figure 29.4: MuSig2 aggregates n keys into one indistinguishable key.</figcaption>
             </figure>

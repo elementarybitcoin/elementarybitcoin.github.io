@@ -72,31 +72,31 @@
             <figure>
                 <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
                     <!-- Original transaction -->
-                    <rect x="30" y="30" width="180" height="70" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <rect x="30" y="30" width="180" height="70" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="120" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Original TX</text>
-                    <text x="120" y="70" text-anchor="middle" font-family="monospace" font-size="8">txid: abc123...</text>
-                    <text x="120" y="85" text-anchor="middle" font-family="Georgia" font-size="8">sig: (r, s)</text>
+                    <text x="120" y="70" text-anchor="middle" font-family="monospace" font-size="9">txid: abc123...</text>
+                    <text x="120" y="85" text-anchor="middle" font-family="Georgia" font-size="9">sig: (r, s)</text>
 
                     <!-- Malleated transaction -->
                     <rect x="290" y="30" width="180" height="70" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
                     <text x="380" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Malleated TX</text>
-                    <text x="380" y="70" text-anchor="middle" font-family="monospace" font-size="8">txid: def456...</text>
-                    <text x="380" y="85" text-anchor="middle" font-family="Georgia" font-size="8">sig: (r, n-s)</text>
+                    <text x="380" y="70" text-anchor="middle" font-family="monospace" font-size="9">txid: def456...</text>
+                    <text x="380" y="85" text-anchor="middle" font-family="Georgia" font-size="9">sig: (r, n-s)</text>
 
                     <!-- Arrow -->
                     <path d="M 210 65 L 290 65" stroke="#666" stroke-width="1.5" marker-end="url(#arrow28)"/>
-                    <text x="250" y="55" text-anchor="middle" font-family="Georgia" font-size="8">Malleable</text>
+                    <text x="250" y="55" text-anchor="middle" font-family="Georgia" font-size="9">Malleable</text>
 
                     <!-- Same effect -->
                     <text x="250" y="130" text-anchor="middle" font-family="Georgia" font-size="10">Both valid, same effect</text>
                     <text x="250" y="145" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">Different txid → breaks dependent transactions</text>
 
                     <!-- Child transaction problem -->
-                    <rect x="100" y="160" width="100" height="30" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
-                    <text x="150" y="180" text-anchor="middle" font-family="Georgia" font-size="8">Child TX (broken)</text>
-                    <text x="150" y="195" text-anchor="middle" font-family="monospace" font-size="7">input: abc123...</text>
+                    <rect x="95" y="155" width="110" height="40" rx="4" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="150" y="171" text-anchor="middle" font-family="Georgia" font-size="9">Child TX (broken)</text>
+                    <text x="150" y="186" text-anchor="middle" font-family="monospace" font-size="9">input: abc123...</text>
 
-                    <path d="M 120 100 L 130 160" stroke="#f39c12" stroke-width="1" stroke-dasharray="3,2"/>
+                    <path d="M 120 100 L 130 155" stroke="#8b4513" stroke-width="1" stroke-dasharray="3,2"/>
 
                     <defs>
                         <marker id="arrow28" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
@@ -183,23 +183,23 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
                     <!-- Legacy Transaction -->
                     <text x="130" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Legacy Transaction</text>
 
-                    <rect x="30" y="30" width="200" height="110" rx="4" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <rect x="30" y="30" width="200" height="110" rx="4" fill="#f8f5f0" stroke="#666" stroke-width="1.5"/>
 
-                    <rect x="40" y="40" width="80" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="80" y="54" text-anchor="middle" font-family="Georgia" font-size="8">version</text>
+                    <rect x="40" y="40" width="80" height="20" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="80" y="54" text-anchor="middle" font-family="Georgia" font-size="9">version</text>
 
-                    <rect x="130" y="40" width="90" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="175" y="54" text-anchor="middle" font-family="Georgia" font-size="8">inputs</text>
+                    <rect x="130" y="40" width="90" height="20" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="175" y="54" text-anchor="middle" font-family="Georgia" font-size="9">inputs</text>
 
                     <rect x="40" y="70" width="90" height="30" fill="#ffe8e8" stroke="#c44"/>
-                    <text x="85" y="85" text-anchor="middle" font-family="Georgia" font-size="8">scriptSig</text>
-                    <text x="85" y="95" text-anchor="middle" font-family="Georgia" font-size="7" fill="#c44">(includes sig)</text>
+                    <text x="85" y="85" text-anchor="middle" font-family="Georgia" font-size="9">scriptSig</text>
+                    <text x="85" y="95" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">(includes sig)</text>
 
-                    <rect x="140" y="70" width="80" height="30" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="180" y="90" text-anchor="middle" font-family="Georgia" font-size="8">outputs</text>
+                    <rect x="140" y="70" width="80" height="30" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="180" y="90" text-anchor="middle" font-family="Georgia" font-size="9">outputs</text>
 
-                    <rect x="40" y="110" width="180" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="130" y="124" text-anchor="middle" font-family="Georgia" font-size="8">locktime</text>
+                    <rect x="40" y="110" width="180" height="20" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="130" y="124" text-anchor="middle" font-family="Georgia" font-size="9">locktime</text>
 
                     <!-- txid computation -->
                     <text x="130" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">txid = hash(all of above)</text>
@@ -207,42 +207,42 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
                     <!-- SegWit Transaction -->
                     <text x="390" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">SegWit Transaction</text>
 
-                    <rect x="290" y="30" width="200" height="180" rx="4" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <rect x="290" y="30" width="200" height="180" rx="4" fill="#f8f5f0" stroke="#666" stroke-width="1.5"/>
 
-                    <rect x="300" y="40" width="60" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="330" y="54" text-anchor="middle" font-family="Georgia" font-size="8">version</text>
+                    <rect x="300" y="40" width="60" height="20" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="330" y="54" text-anchor="middle" font-family="Georgia" font-size="9">version</text>
 
-                    <rect x="370" y="40" width="50" height="20" fill="#fff3cd" stroke="#f39c12"/>
-                    <text x="395" y="54" text-anchor="middle" font-family="Georgia" font-size="7">marker/flag</text>
+                    <rect x="366" y="40" width="58" height="20" fill="#fff8f0" stroke="#8b4513"/>
+                    <text x="395" y="54" text-anchor="middle" font-family="Georgia" font-size="9">marker/flag</text>
 
-                    <rect x="430" y="40" width="50" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="455" y="54" text-anchor="middle" font-family="Georgia" font-size="8">inputs</text>
+                    <rect x="430" y="40" width="50" height="20" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="455" y="54" text-anchor="middle" font-family="Georgia" font-size="9">inputs</text>
 
-                    <rect x="300" y="70" width="90" height="25" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="345" y="85" text-anchor="middle" font-family="Georgia" font-size="7">scriptSig (empty)</text>
+                    <rect x="300" y="70" width="90" height="25" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="345" y="85" text-anchor="middle" font-family="Georgia" font-size="9">scriptSig (empty)</text>
 
-                    <rect x="400" y="70" width="80" height="25" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="440" y="87" text-anchor="middle" font-family="Georgia" font-size="8">outputs</text>
+                    <rect x="400" y="70" width="80" height="25" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="440" y="87" text-anchor="middle" font-family="Georgia" font-size="9">outputs</text>
 
                     <!-- Witness section -->
-                    <rect x="300" y="105" width="180" height="50" fill="#d4edda" stroke="#28a745" stroke-width="2"/>
-                    <text x="390" y="125" text-anchor="middle" font-family="Georgia" font-size="9" fill="#28a745" font-weight="bold">WITNESS</text>
-                    <text x="390" y="145" text-anchor="middle" font-family="Georgia" font-size="8">(signatures here)</text>
+                    <rect x="300" y="105" width="180" height="50" fill="#5a8f5a" fill-opacity="0.18" stroke="#5a8f5a" stroke-width="2"/>
+                    <text x="390" y="125" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a" font-weight="bold">WITNESS</text>
+                    <text x="390" y="145" text-anchor="middle" font-family="Georgia" font-size="9">(signatures here)</text>
 
-                    <rect x="300" y="165" width="180" height="20" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="390" y="179" text-anchor="middle" font-family="Georgia" font-size="8">locktime</text>
+                    <rect x="300" y="165" width="180" height="20" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="390" y="179" text-anchor="middle" font-family="Georgia" font-size="9">locktime</text>
 
                     <!-- txid computation -->
-                    <text x="390" y="210" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">txid = hash(non-witness data)</text>
-                    <text x="390" y="225" text-anchor="middle" font-family="Georgia" font-size="9" fill="#28a745">wtxid = hash(everything)</text>
+                    <text x="390" y="226" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">txid = hash(non-witness data)</text>
+                    <text x="390" y="241" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">wtxid = hash(everything)</text>
 
                     <!-- Arrow showing segregation -->
-                    <path d="M 240 90 L 290 130" stroke="#28a745" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrowGreen28)"/>
-                    <text x="245" y="120" font-family="Georgia" font-size="7" fill="#28a745">segregate</text>
+                    <path d="M 240 90 L 290 130" stroke="#5a8f5a" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrowGreen28)"/>
+                    <text x="255" y="137" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">segregate</text>
 
                     <defs>
                         <marker id="arrowGreen28" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                            <polygon points="0 0, 8 3, 0 6" fill="#28a745"/>
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
                         </marker>
                     </defs>
                 </svg>
@@ -307,27 +307,27 @@ where:
             <figure>
                 <svg class="diagram" width="500" height="180" viewBox="0 0 500 180">
                     <!-- P2WPKH -->
-                    <rect x="30" y="30" width="200" height="60" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <rect x="30" y="30" width="200" height="60" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="130" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">P2WPKH</text>
-                    <text x="130" y="70" text-anchor="middle" font-family="monospace" font-size="8">OP_0 &lt;20 bytes&gt;</text>
-                    <text x="130" y="85" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= HASH160(pubkey)</text>
+                    <text x="130" y="70" text-anchor="middle" font-family="monospace" font-size="9">OP_0 &lt;20 bytes&gt;</text>
+                    <text x="130" y="85" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">= HASH160(pubkey)</text>
 
                     <!-- P2WSH -->
-                    <rect x="270" y="30" width="200" height="60" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <rect x="270" y="30" width="200" height="60" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="370" y="50" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">P2WSH</text>
-                    <text x="370" y="70" text-anchor="middle" font-family="monospace" font-size="8">OP_0 &lt;32 bytes&gt;</text>
-                    <text x="370" y="85" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= SHA256(witnessScript)</text>
+                    <text x="370" y="70" text-anchor="middle" font-family="monospace" font-size="9">OP_0 &lt;32 bytes&gt;</text>
+                    <text x="370" y="85" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">= SHA256(witnessScript)</text>
 
                     <!-- P2TR -->
-                    <rect x="150" y="110" width="200" height="60" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
+                    <rect x="150" y="110" width="200" height="60" rx="4" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
                     <text x="250" y="130" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">P2TR (Taproot)</text>
-                    <text x="250" y="150" text-anchor="middle" font-family="monospace" font-size="8">OP_1 &lt;32 bytes&gt;</text>
-                    <text x="250" y="165" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= x-only tweaked pubkey</text>
+                    <text x="250" y="150" text-anchor="middle" font-family="monospace" font-size="9">OP_1 &lt;32 bytes&gt;</text>
+                    <text x="250" y="165" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">= x-only tweaked pubkey</text>
 
                     <!-- Version labels -->
-                    <text x="130" y="20" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">v0</text>
-                    <text x="370" y="20" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">v0</text>
-                    <text x="250" y="100" text-anchor="middle" font-family="Georgia" font-size="8" fill="#f39c12">v1</text>
+                    <text x="130" y="20" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">v0</text>
+                    <text x="370" y="20" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">v0</text>
+                    <text x="250" y="100" text-anchor="middle" font-family="Georgia" font-size="9" fill="#8b4513">v1</text>
                 </svg>
                 <figcaption>Figure 28.3: SegWit witness program types by version.</figcaption>
             </figure>
@@ -527,47 +527,47 @@ commitment = SHA256(SHA256(witness_root || witness_nonce))
                     <!-- Transaction Merkle Tree -->
                     <text x="130" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Transaction Merkle Tree</text>
 
-                    <rect x="100" y="30" width="60" height="25" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="130" y="47" text-anchor="middle" font-family="Georgia" font-size="8">Root</text>
+                    <rect x="100" y="30" width="60" height="25" rx="3" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="130" y="47" text-anchor="middle" font-family="Georgia" font-size="9">Root</text>
 
                     <line x1="115" y1="55" x2="85" y2="70" stroke="#5a8f5a"/>
                     <line x1="145" y1="55" x2="175" y2="70" stroke="#5a8f5a"/>
 
-                    <rect x="55" y="70" width="50" height="20" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="80" y="84" text-anchor="middle" font-family="Georgia" font-size="7">txid₁</text>
+                    <rect x="55" y="70" width="50" height="20" rx="3" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="80" y="84" text-anchor="middle" font-family="Georgia" font-size="9">txid₁</text>
 
-                    <rect x="155" y="70" width="50" height="20" rx="3" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="180" y="84" text-anchor="middle" font-family="Georgia" font-size="7">txid₂</text>
+                    <rect x="155" y="70" width="50" height="20" rx="3" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="180" y="84" text-anchor="middle" font-family="Georgia" font-size="9">txid₂</text>
 
-                    <text x="130" y="115" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(in block header)</text>
+                    <text x="130" y="115" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(in block header)</text>
 
                     <!-- Witness Merkle Tree -->
                     <text x="370" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Witness Merkle Tree</text>
 
-                    <rect x="340" y="30" width="60" height="25" rx="3" fill="#d4edda" stroke="#28a745"/>
-                    <text x="370" y="42" text-anchor="middle" font-family="Georgia" font-size="7">Witness</text>
-                    <text x="370" y="52" text-anchor="middle" font-family="Georgia" font-size="7">Root</text>
+                    <rect x="340" y="30" width="60" height="25" rx="3" fill="#5a8f5a" fill-opacity="0.18" stroke="#5a8f5a"/>
+                    <text x="370" y="42" text-anchor="middle" font-family="Georgia" font-size="9">Witness</text>
+                    <text x="370" y="52" text-anchor="middle" font-family="Georgia" font-size="9">Root</text>
 
-                    <line x1="355" y1="55" x2="325" y2="70" stroke="#28a745"/>
-                    <line x1="385" y1="55" x2="415" y2="70" stroke="#28a745"/>
+                    <line x1="355" y1="55" x2="325" y2="70" stroke="#5a8f5a"/>
+                    <line x1="385" y1="55" x2="415" y2="70" stroke="#5a8f5a"/>
 
-                    <rect x="295" y="70" width="50" height="20" rx="3" fill="#d4edda" stroke="#28a745"/>
-                    <text x="320" y="84" text-anchor="middle" font-family="Georgia" font-size="7">wtxid₁</text>
+                    <rect x="295" y="70" width="50" height="20" rx="3" fill="#5a8f5a" fill-opacity="0.18" stroke="#5a8f5a"/>
+                    <text x="320" y="84" text-anchor="middle" font-family="Georgia" font-size="9">wtxid₁</text>
 
-                    <rect x="395" y="70" width="50" height="20" rx="3" fill="#d4edda" stroke="#28a745"/>
-                    <text x="420" y="84" text-anchor="middle" font-family="Georgia" font-size="7">wtxid₂</text>
+                    <rect x="395" y="70" width="50" height="20" rx="3" fill="#5a8f5a" fill-opacity="0.18" stroke="#5a8f5a"/>
+                    <text x="420" y="84" text-anchor="middle" font-family="Georgia" font-size="9">wtxid₂</text>
 
                     <!-- Commitment -->
-                    <rect x="290" y="120" width="160" height="40" rx="4" fill="#fff3cd" stroke="#f39c12" stroke-width="1.5"/>
-                    <text x="370" y="140" text-anchor="middle" font-family="Georgia" font-size="8">SHA256(witness_root || nonce)</text>
-                    <text x="370" y="155" text-anchor="middle" font-family="Georgia" font-size="7" fill="#666">= witness commitment</text>
+                    <rect x="290" y="120" width="160" height="40" rx="4" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
+                    <text x="370" y="140" text-anchor="middle" font-family="Georgia" font-size="9">SHA256(witness_root || nonce)</text>
+                    <text x="370" y="155" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">= witness commitment</text>
 
-                    <line x1="370" y1="55" x2="370" y2="120" stroke="#f39c12" stroke-width="1.5"/>
+                    <line x1="370" y1="55" x2="370" y2="120" stroke="#8b4513" stroke-width="1.5"/>
 
                     <!-- Coinbase -->
-                    <rect x="290" y="175" width="160" height="35" rx="4" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="370" y="190" text-anchor="middle" font-family="Georgia" font-size="8">Coinbase OP_RETURN</text>
-                    <text x="370" y="203" text-anchor="middle" font-family="monospace" font-size="7">6a24aa21a9ed...</text>
+                    <rect x="290" y="175" width="160" height="35" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="370" y="190" text-anchor="middle" font-family="Georgia" font-size="9">Coinbase OP_RETURN</text>
+                    <text x="370" y="203" text-anchor="middle" font-family="monospace" font-size="9">6a24aa21a9ed...</text>
 
                     <line x1="370" y1="160" x2="370" y2="175" stroke="#5a8f5a" stroke-width="1.5"/>
                 </svg>

@@ -94,7 +94,7 @@
             </div>
 
             <figure>
-                <svg class="diagram" width="500" height="160" viewBox="0 0 500 160">
+                <svg class="diagram" width="500" height="166" viewBox="0 0 500 166">
                     <!-- Security vs confirmations -->
                     <text x="250" y="20" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Reversal Probability vs Confirmations</text>
 
@@ -102,25 +102,25 @@
                     <line x1="80" y1="130" x2="420" y2="130" stroke="#666"/>
                     <line x1="80" y1="130" x2="80" y2="40" stroke="#666"/>
 
-                    <text x="250" y="150" text-anchor="middle" font-family="Georgia" font-size="8">Confirmations</text>
-                    <text x="60" y="85" text-anchor="middle" font-family="Georgia" font-size="8" transform="rotate(-90, 60, 85)">P(reversal)</text>
+                    <text x="250" y="159" text-anchor="middle" font-family="Georgia" font-size="9">Confirmations</text>
+                    <text x="60" y="85" text-anchor="middle" font-family="Georgia" font-size="9" transform="rotate(-90, 60, 85)">P(reversal)</text>
 
                     <!-- Curve for q=25% -->
                     <path d="M 80 50 Q 120 80 160 100 T 280 120 T 400 128" stroke="#c44" stroke-width="2" fill="none"/>
-                    <text x="420" y="125" font-family="Georgia" font-size="7" fill="#c44">q=25%</text>
+                    <text x="420" y="125" font-family="Georgia" font-size="9" fill="#c44">q=25%</text>
 
                     <!-- Curve for q=10% -->
-                    <path d="M 80 50 Q 100 100 130 122 T 200 130" stroke="#f39c12" stroke-width="2" fill="none"/>
-                    <text x="220" y="125" font-family="Georgia" font-size="7" fill="#f39c12">q=10%</text>
+                    <path d="M 80 50 C 95 100, 110 118, 130 124 S 170 129, 200 129" stroke="#8b4513" stroke-width="2" fill="none"/>
+                    <text x="110" y="100" font-family="Georgia" font-size="9" fill="#8b4513">q=10%</text>
 
                     <!-- Markers -->
-                    <text x="80" y="143" font-family="Georgia" font-size="7">0</text>
-                    <text x="136" y="143" font-family="Georgia" font-size="7">1</text>
-                    <text x="192" y="143" font-family="Georgia" font-size="7">2</text>
-                    <text x="248" y="143" font-family="Georgia" font-size="7">3</text>
-                    <text x="304" y="143" font-family="Georgia" font-size="7">4</text>
-                    <text x="360" y="143" font-family="Georgia" font-size="7">5</text>
-                    <text x="400" y="143" font-family="Georgia" font-size="7">6</text>
+                    <text x="80" y="143" font-family="Georgia" font-size="9">0</text>
+                    <text x="136" y="143" font-family="Georgia" font-size="9">1</text>
+                    <text x="192" y="143" font-family="Georgia" font-size="9">2</text>
+                    <text x="248" y="143" font-family="Georgia" font-size="9">3</text>
+                    <text x="304" y="143" font-family="Georgia" font-size="9">4</text>
+                    <text x="360" y="143" font-family="Georgia" font-size="9">5</text>
+                    <text x="416" y="143" font-family="Georgia" font-size="9">6</text>
                 </svg>
                 <figcaption>Figure 37.1: Reversal probability drops exponentially with confirmations.</figcaption>
             </figure>
@@ -262,31 +262,31 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
 
                     <!-- Genesis -->
                     <circle cx="70" cy="90" r="8" fill="#5a8f5a"/>
-                    <text x="70" y="115" text-anchor="middle" font-family="Georgia" font-size="7">Genesis</text>
+                    <text x="70" y="115" text-anchor="middle" font-family="Georgia" font-size="9">Genesis</text>
 
                     <!-- AssumeValid point -->
-                    <circle cx="250" cy="90" r="8" fill="#f39c12"/>
-                    <text x="250" y="75" text-anchor="middle" font-family="Georgia" font-size="7" fill="#f39c12">AssumeValid</text>
-                    <text x="250" y="115" text-anchor="middle" font-family="Georgia" font-size="7">Skip sigs</text>
+                    <circle cx="250" cy="90" r="8" fill="#8b4513"/>
+                    <text x="250" y="75" text-anchor="middle" font-family="Georgia" font-size="9" fill="#8b4513">AssumeValid</text>
+                    <text x="250" y="115" text-anchor="middle" font-family="Georgia" font-size="9">Skip sigs</text>
 
                     <!-- AssumeUTXO point -->
-                    <circle cx="350" cy="90" r="8" fill="#3498db"/>
-                    <text x="350" y="75" text-anchor="middle" font-family="Georgia" font-size="7" fill="#3498db">AssumeUTXO</text>
-                    <text x="350" y="115" text-anchor="middle" font-family="Georgia" font-size="7">Snapshot</text>
+                    <circle cx="350" cy="90" r="8" fill="#4a90d9"/>
+                    <text x="350" y="75" text-anchor="middle" font-family="Georgia" font-size="9" fill="#4a90d9">AssumeUTXO</text>
+                    <text x="350" y="115" text-anchor="middle" font-family="Georgia" font-size="9">Snapshot</text>
 
                     <!-- Current tip -->
-                    <circle cx="430" cy="90" r="8" fill="#28a745"/>
-                    <text x="430" y="115" text-anchor="middle" font-family="Georgia" font-size="7">Tip</text>
+                    <circle cx="430" cy="90" r="8" fill="#5a8f5a"/>
+                    <text x="430" y="115" text-anchor="middle" font-family="Georgia" font-size="9">Tip</text>
 
                     <!-- Regions -->
                     <rect x="70" y="130" width="180" height="20" fill="#ffe8e8" stroke="#c44"/>
-                    <text x="160" y="145" text-anchor="middle" font-family="Georgia" font-size="7">Skip signature verification</text>
+                    <text x="160" y="145" text-anchor="middle" font-family="Georgia" font-size="9">Skip signature verification</text>
 
-                    <rect x="350" y="130" width="80" height="20" fill="#d4edda" stroke="#28a745"/>
-                    <text x="390" y="145" text-anchor="middle" font-family="Georgia" font-size="7">Full validation</text>
+                    <rect x="350" y="130" width="80" height="20" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="390" y="145" text-anchor="middle" font-family="Georgia" font-size="9">Full validation</text>
 
-                    <rect x="70" y="155" width="280" height="15" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="210" y="167" text-anchor="middle" font-family="Georgia" font-size="6">Background validation (AssumeUTXO)</text>
+                    <rect x="70" y="155" width="280" height="15" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="210" y="167" text-anchor="middle" font-family="Georgia" font-size="9">Background validation (AssumeUTXO)</text>
                 </svg>
                 <figcaption>Figure 37.2: AssumeValid and AssumeUTXO sync optimization.</figcaption>
             </figure>

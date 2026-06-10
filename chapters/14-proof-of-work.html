@@ -86,12 +86,12 @@
                     <text x="225" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(the proof)</text>
 
                     <!-- Verifier side -->
-                    <rect x="300" y="40" width="120" height="60" rx="6" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <rect x="300" y="40" width="120" height="60" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="360" y="65" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Verifier (Node)</text>
                     <text x="360" y="82" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">~1 ms to verify</text>
 
                     <!-- Asymmetry annotation -->
-                    <text x="240" y="125" text-anchor="middle" font-family="Georgia" font-size="10" fill="#888">Asymmetric: hard to create, easy to check</text>
+                    <text x="240" y="125" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Asymmetric: hard to create, easy to check</text>
 
                     <defs>
                         <marker id="arrowGreen14" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -171,31 +171,31 @@
             <figure>
                 <svg class="diagram" width="480" height="180" viewBox="0 0 480 180">
                     <!-- Hash space representation -->
-                    <rect x="40" y="30" width="400" height="120" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.5"/>
+                    <rect x="40" y="30" width="400" height="120" rx="0" fill="#f8f5f0" stroke="#666" stroke-width="1.5"/>
                     <text x="240" y="22" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">256-bit Hash Space</text>
 
                     <!-- Target zone -->
-                    <rect x="40" y="30" width="20" height="120" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
-                    <text x="50" y="165" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Valid</text>
+                    <rect x="40" y="30" width="20" height="120" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="50" y="164" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Valid</text>
 
                     <!-- Invalid zone label -->
-                    <text x="260" y="95" text-anchor="middle" font-family="Georgia" font-size="12" fill="#888">Invalid (hash ≥ target)</text>
+                    <text x="260" y="95" text-anchor="middle" font-family="Georgia" font-size="12" fill="#666">Invalid (hash ≥ target)</text>
 
                     <!-- Target line -->
                     <line x1="60" y1="30" x2="60" y2="150" stroke="#c44" stroke-width="2" stroke-dasharray="4,2"/>
-                    <text x="60" y="170" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Target</text>
+                    <text x="70" y="164" text-anchor="start" font-family="Georgia" font-size="9" fill="#c44">Target</text>
 
                     <!-- Hash attempts -->
-                    <circle cx="150" cy="60" r="4" fill="#999"/>
-                    <circle cx="280" cy="90" r="4" fill="#999"/>
-                    <circle cx="350" cy="120" r="4" fill="#999"/>
-                    <circle cx="200" cy="130" r="4" fill="#999"/>
-                    <circle cx="50" cy="80" r="5" fill="#5a8f5a" stroke="#333"/>
-                    <text x="50" y="65" text-anchor="middle" font-family="Georgia" font-size="8" fill="#5a8f5a">✓</text>
+                    <circle cx="150" cy="60" r="4" fill="#666"/>
+                    <circle cx="320" cy="60" r="4" fill="#666"/>
+                    <circle cx="350" cy="120" r="4" fill="#666"/>
+                    <circle cx="200" cy="130" r="4" fill="#666"/>
+                    <circle cx="50" cy="80" r="5" fill="#5a8f5a" stroke="#1a1a1a"/>
+                    <text x="50" y="65" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">✓</text>
 
                     <!-- Scale indicator -->
-                    <text x="40" y="15" font-family="monospace" font-size="8">0x00...</text>
-                    <text x="440" y="15" text-anchor="end" font-family="monospace" font-size="8">0xFF...</text>
+                    <text x="40" y="15" font-family="monospace" font-size="9">0x00...</text>
+                    <text x="440" y="15" text-anchor="end" font-family="monospace" font-size="9">0xFF...</text>
                 </svg>
                 <figcaption>Figure 14.2: Mining searches for a hash in the narrow valid region below the target.</figcaption>
             </figure>
@@ -317,7 +317,7 @@
 
                     <!-- Target line (10 min) -->
                     <line x1="50" y1="90" x2="450" y2="90" stroke="#5a8f5a" stroke-width="1" stroke-dasharray="5,3"/>
-                    <text x="460" y="93" font-family="Georgia" font-size="9" fill="#5a8f5a">10 min target</text>
+                    <text x="448" y="84" text-anchor="end" font-family="Georgia" font-size="9" fill="#5a8f5a">10 min target</text>
 
                     <!-- Hash rate increase scenario -->
                     <path d="M 50 120 L 120 120 L 120 80 L 190 80 L 190 60 L 260 60 L 260 50 L 330 50" stroke="#4a90d9" stroke-width="2" fill="none"/>
@@ -334,9 +334,9 @@
                     <line x1="190" y1="145" x2="190" y2="155" stroke="#666"/>
                     <line x1="260" y1="145" x2="260" y2="155" stroke="#666"/>
                     <line x1="330" y1="145" x2="330" y2="155" stroke="#666"/>
-                    <text x="120" y="165" text-anchor="middle" font-family="Georgia" font-size="8">2016</text>
-                    <text x="190" y="165" text-anchor="middle" font-family="Georgia" font-size="8">4032</text>
-                    <text x="260" y="165" text-anchor="middle" font-family="Georgia" font-size="8">6048</text>
+                    <text x="120" y="165" text-anchor="middle" font-family="Georgia" font-size="9">2016</text>
+                    <text x="190" y="165" text-anchor="middle" font-family="Georgia" font-size="9">4032</text>
+                    <text x="260" y="165" text-anchor="middle" font-family="Georgia" font-size="9">6048</text>
                 </svg>
                 <figcaption>Figure 14.3: Difficulty adjusts to maintain 10-minute blocks as hash rate changes.</figcaption>
             </figure>
@@ -390,7 +390,7 @@ new_difficulty = old_difficulty / 0.857
             <figure>
                 <svg class="diagram" width="400" height="280" viewBox="0 0 400 280">
                     <!-- Start -->
-                    <ellipse cx="200" cy="25" rx="50" ry="20" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <ellipse cx="200" cy="25" rx="50" ry="20" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="200" y="30" text-anchor="middle" font-family="Georgia" font-size="10">Build Block</text>
 
                     <path d="M 200 45 L 200 60" stroke="#666" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
@@ -402,14 +402,14 @@ new_difficulty = old_difficulty / 0.857
                     <path d="M 200 100 L 200 120" stroke="#666" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
 
                     <!-- Decision -->
-                    <polygon points="200,125 270,155 200,185 130,155" fill="#fff8e8" stroke="#d4a574" stroke-width="1.5"/>
+                    <polygon points="200,125 270,155 200,185 130,155" fill="#fff8f0" stroke="#8b4513" stroke-width="1.5"/>
                     <text x="200" y="158" text-anchor="middle" font-family="Georgia" font-size="10">hash < target?</text>
 
                     <!-- Yes path -->
-                    <path d="M 270 155 L 340 155" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
-                    <text x="305" y="148" font-family="Georgia" font-size="9" fill="#5a8f5a">Yes</text>
+                    <path d="M 270 155 L 293 155" stroke="#5a8f5a" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+                    <text x="273" y="148" font-family="Georgia" font-size="9" fill="#5a8f5a">Yes</text>
 
-                    <ellipse cx="340" cy="155" rx="45" ry="20" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="2"/>
+                    <ellipse cx="340" cy="155" rx="45" ry="20" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="2"/>
                     <text x="340" y="160" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Broadcast!</text>
 
                     <!-- No path -->
@@ -417,7 +417,7 @@ new_difficulty = old_difficulty / 0.857
                     <text x="210" y="200" font-family="Georgia" font-size="9" fill="#c44">No</text>
 
                     <!-- Increment -->
-                    <rect x="130" y="215" width="140" height="35" rx="4" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+                    <rect x="130" y="215" width="140" height="35" rx="4" fill="#f8f5f0" stroke="#666" stroke-width="1.5"/>
                     <text x="200" y="237" text-anchor="middle" font-family="Georgia" font-size="10">nonce++</text>
 
                     <!-- Loop back -->
@@ -426,7 +426,7 @@ new_difficulty = old_difficulty / 0.857
                     <!-- New block interrupt -->
                     <rect x="280" y="220" width="100" height="30" rx="4" fill="#ffe8e8" stroke="#c44" stroke-dasharray="3,2"/>
                     <text x="330" y="240" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">New block?</text>
-                    <text x="330" y="260" text-anchor="middle" font-family="Georgia" font-size="8" fill="#888">→ Restart</text>
+                    <text x="330" y="260" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">→ Restart</text>
 
                     <defs>
                         <marker id="arrowFlow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">

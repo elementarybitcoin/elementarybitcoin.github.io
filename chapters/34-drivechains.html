@@ -65,28 +65,28 @@
             <figure>
                 <svg class="diagram" width="500" height="220" viewBox="0 0 500 220">
                     <!-- Bitcoin mainchain -->
-                    <rect x="30" y="30" width="180" height="50" rx="4" fill="#f39c12" stroke="#c87f0a" stroke-width="2"/>
+                    <rect x="30" y="30" width="180" height="50" rx="4" fill="#8b4513" stroke="#8b4513" stroke-width="2"/>
                     <text x="120" y="55" text-anchor="middle" font-family="Georgia" font-size="10" fill="white" font-weight="bold">Bitcoin Mainchain</text>
-                    <text x="120" y="70" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">+ BIP-300/301 opcodes</text>
+                    <text x="120" y="70" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">+ BIP-300/301 opcodes</text>
 
                     <!-- Drivechain -->
-                    <rect x="290" y="30" width="180" height="50" rx="4" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+                    <rect x="290" y="30" width="180" height="50" rx="4" fill="#4a90d9" stroke="#4a90d9" stroke-width="2"/>
                     <text x="380" y="55" text-anchor="middle" font-family="Georgia" font-size="10" fill="white" font-weight="bold">Drivechain</text>
-                    <text x="380" y="70" text-anchor="middle" font-family="Georgia" font-size="8" fill="white">(any rules)</text>
+                    <text x="380" y="70" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">(any rules)</text>
 
                     <!-- Peg-in -->
-                    <path d="M 210 40 L 290 40" stroke="#28a745" stroke-width="2" marker-end="url(#arrowGreen34)"/>
-                    <text x="250" y="32" text-anchor="middle" font-family="Georgia" font-size="8" fill="#28a745">Peg-in (fast)</text>
+                    <path d="M 210 40 L 290 40" stroke="#5a8f5a" stroke-width="2" marker-end="url(#arrowGreen34)"/>
+                    <text x="250" y="32" text-anchor="middle" font-family="Georgia" font-size="9" fill="#5a8f5a">Peg-in (fast)</text>
 
                     <!-- Peg-out -->
                     <path d="M 290 70 L 210 70" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed34)"/>
-                    <text x="250" y="88" text-anchor="middle" font-family="Georgia" font-size="8" fill="#c44">Peg-out (~3-6 months)</text>
+                    <text x="250" y="88" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">Peg-out (~3-6 months)</text>
 
                     <!-- Miners -->
-                    <rect x="150" y="120" width="200" height="70" rx="4" fill="#e8f4e8" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <rect x="150" y="120" width="200" height="70" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
                     <text x="250" y="145" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Bitcoin Miners</text>
-                    <text x="250" y="165" text-anchor="middle" font-family="Georgia" font-size="8">Vote on withdrawals in coinbase</text>
-                    <text x="250" y="180" text-anchor="middle" font-family="Georgia" font-size="8" fill="#666">(hashrate escrow)</text>
+                    <text x="250" y="165" text-anchor="middle" font-family="Georgia" font-size="9">Vote on withdrawals in coinbase</text>
+                    <text x="250" y="180" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(hashrate escrow)</text>
 
                     <!-- Connections -->
                     <line x1="120" y1="80" x2="200" y2="120" stroke="#5a8f5a" stroke-width="1.5" stroke-dasharray="4,2"/>
@@ -94,7 +94,7 @@
 
                     <defs>
                         <marker id="arrowGreen34" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                            <polygon points="0 0, 8 3, 0 6" fill="#28a745"/>
+                            <polygon points="0 0, 8 3, 0 6" fill="#5a8f5a"/>
                         </marker>
                         <marker id="arrowRed34" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
                             <polygon points="0 0, 8 3, 0 6" fill="#c44"/>
@@ -164,22 +164,22 @@ Withdrawal process:
                     <line x1="50" y1="80" x2="450" y2="80" stroke="#666" stroke-width="2"/>
 
                     <!-- Withdrawal proposed -->
-                    <circle cx="80" cy="80" r="8" fill="#f39c12"/>
-                    <text x="80" y="60" text-anchor="middle" font-family="Georgia" font-size="8">Proposed</text>
-                    <text x="80" y="110" text-anchor="middle" font-family="Georgia" font-size="7">Block 0</text>
+                    <circle cx="80" cy="80" r="8" fill="#8b4513"/>
+                    <text x="80" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Proposed</text>
+                    <text x="80" y="110" text-anchor="middle" font-family="Georgia" font-size="9">Block 0</text>
 
                     <!-- Voting period -->
-                    <rect x="100" y="72" width="250" height="16" fill="#e8f4e8" stroke="#5a8f5a"/>
-                    <text x="225" y="84" text-anchor="middle" font-family="Georgia" font-size="8">Miner voting (~13,150 blocks)</text>
+                    <rect x="100" y="72" width="250" height="16" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="225" y="84" text-anchor="middle" font-family="Georgia" font-size="9">Miner voting (~13,150 blocks)</text>
 
                     <!-- Threshold reached -->
-                    <circle cx="370" cy="80" r="8" fill="#28a745"/>
-                    <text x="370" y="60" text-anchor="middle" font-family="Georgia" font-size="8">Threshold</text>
-                    <text x="370" y="110" text-anchor="middle" font-family="Georgia" font-size="7">~3-6 months</text>
+                    <circle cx="370" cy="80" r="8" fill="#5a8f5a"/>
+                    <text x="370" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Threshold</text>
+                    <text x="370" y="110" text-anchor="middle" font-family="Georgia" font-size="9">~3-6 months</text>
 
                     <!-- Execution -->
-                    <circle cx="420" cy="80" r="8" fill="#3498db"/>
-                    <text x="420" y="60" text-anchor="middle" font-family="Georgia" font-size="8">Execute</text>
+                    <circle cx="420" cy="80" r="8" fill="#4a90d9"/>
+                    <text x="420" y="60" text-anchor="middle" font-family="Georgia" font-size="9">Execute</text>
 
                     <!-- ACK counter -->
                     <text x="225" y="140" text-anchor="middle" font-family="Georgia" font-size="9">ACK score: 0 → 13,150 (threshold)</text>
