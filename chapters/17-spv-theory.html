@@ -399,6 +399,45 @@
                 </ul>
             </div>
 
+            <div class="example">
+                <p class="example-title">Example 17.1 (The Price of Six Fake Confirmations)</p>
+                <p>
+                    Suppose an attacker has eclipsed an SPV client and wants it to accept a
+                    fabricated payment with <span class="math">k = 6</span> confirmations. The
+                    six headers must satisfy real proof of work at the network's current
+                    difficulty (the client checks this&mdash;see the caveat below), so producing
+                    them costs, in expectation, the same work as honestly mining six blocks.
+                    The economic cost is therefore the forgone honest revenue:
+                </p>
+                <p class="math-block">
+                    cost &asymp; k &times; (subsidy + fees) &asymp; 6 &times; (3.125 + 0.05) &asymp; 19 BTC
+                </p>
+                <p>
+                    &mdash;on the order of millions of dollars at recent prices, spent on blocks
+                    the rest of the network will never accept. The defense is purely economic:
+                    six confirmations protect a payment <em>smaller</em> than this cost even
+                    against a fully eclipsed client, and fail to protect a larger one. This is
+                    why "wait for more confirmations" scales with payment size, and why an
+                    eclipsed SPV client is not unconditionally lost: deceiving it still costs
+                    real work.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 17.3 (The Difficulty Caveat)</p>
+                <p>
+                    Example 17.1's arithmetic silently assumes the client verifies that each
+                    header's difficulty target follows the adjustment rules (Phase 1 of the
+                    validation pipeline, Definition 13.19)&mdash;not merely that each header
+                    meets <em>its own stated</em> target. A client that skips this check can be
+                    fed a chain of trivial-difficulty headers fabricated for fractions of a
+                    cent. Verifying the retarget schedule forces the attacker to either pay
+                    full price per block or fork far enough back to "grind down" the
+                    difficulty across multiple retarget periods&mdash;a chain that minimum
+                    accumulated-work checks reject (Section 37.3).
+                </p>
+            </div>
+
             <h3 id="s17-5-2">17.5.2 Eclipse Attacks</h3>
 
             <div class="definition">
@@ -517,7 +556,7 @@
             </table>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.3 (Same Security as Full Nodes)</p>
+                <p class="remark-title">Remark 17.4 (Same Security as Full Nodes)</p>
                 <p>
                     Importantly, these probabilities are <em>identical</em> for SPV clients and
                     full nodes. The confirmation security against double-spends depends only on
@@ -551,7 +590,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.4 (Fraud Proofs Don't Exist Yet)</p>
+                <p class="remark-title">Remark 17.5 (Fraud Proofs Don't Exist Yet)</p>
                 <p>
                     Despite years of research, general-purpose fraud proofs for Bitcoin do not
                     exist. The problem is that proving a transaction is invalid requires proving
@@ -634,7 +673,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.5 (SPV Use Cases)</p>
+                <p class="remark-title">Remark 17.6 (SPV Use Cases)</p>
                 <p>
                     <strong>SPV is appropriate when:</strong>
                 </p>
@@ -670,7 +709,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.6 (SPV in Practice)</p>
+                <p class="remark-title">Remark 17.7 (SPV in Practice)</p>
                 <p>
                     The original SPV concept assumed:
                 </p>
@@ -687,6 +726,37 @@
                     <li>Trusted servers (Electrum model)&mdash;not SPV at all (Chapter 20)</li>
                     <li>Compact block filters (BIP-157)&mdash;improved privacy (Chapter 19)</li>
                 </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 17.2 (July 2015: The Assumption Fails Without an Attacker)</p>
+                <p>
+                    The honest-majority assumption of Theorem 17.4 failed observably once, and
+                    no adversary was needed. When the BIP-66 soft fork activated in early July
+                    2015, a substantial fraction of the network's hashrate&mdash;by
+                    contemporaneous estimates, roughly half&mdash;was engaged in
+                    <em>SPV mining</em> (also called validationless mining): building on new
+                    block headers immediately upon receipt, before downloading and validating
+                    the blocks themselves, to avoid losing seconds of mining time.
+                </p>
+                <p>
+                    On 4 July 2015, a miner produced a block invalid under the just-activated
+                    rules. The SPV-mining pools, never having validated it, extended it&mdash;to
+                    a chain six blocks long before the error was noticed and abandoned. A
+                    second, shorter invalid chain formed the next day. During those windows,
+                    an SPV client could observe a transaction with up to six confirmations on
+                    a chain that every validating node had already rejected; bitcoin.org
+                    issued an alert advising SPV users to wait roughly thirty additional
+                    confirmations for large payments.
+                </p>
+                <p>
+                    The lesson sharpens the theorem's hypothesis: SPV security rests not on a
+                    majority of hashrate being <em>honest</em>, but on a majority being honest
+                    <em>and validating</em>. Hashrate that follows headers without checking
+                    blocks counts toward proof of work but not toward the enforcement of
+                    <span class="math">V</span> (Definition 13.18)&mdash;and in July 2015 the
+                    two quantities visibly came apart.
+                </p>
             </div>
         </section>
 
@@ -732,6 +802,18 @@
                 <p>
                     Design a protocol where SPV clients share headers with each other to
                     resist eclipse attacks. What are the limitations of your design?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 17.6</p>
+                <p>
+                    An eclipsed SPV client requires <span class="math">k</span> confirmations
+                    before treating a payment as settled. With the block subsidy at
+                    3.125 BTC and average fees of 0.05 BTC per block, what is the largest
+                    payment for which <span class="math">k = 3</span> is economically safe
+                    against fabrication? How does your answer change if the client does not
+                    verify difficulty-adjustment rules in the headers it receives?
                 </p>
             </div>
         </section>

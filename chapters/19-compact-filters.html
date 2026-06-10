@@ -919,6 +919,32 @@
                 </p>
             </div>
 
+            <div class="example">
+                <p><strong>Example 19.5</strong> (A Day in the Life of a Light Client)</p>
+                <p>
+                    Consider a wallet watching <span class="math">100</span> scripts,
+                    staying synced through one day (<span class="math">144</span> blocks):
+                </p>
+                <ul>
+                    <li>Block headers: <span class="math">144 &times; 80 B &asymp; 11.5 KB</span></li>
+                    <li>Filter headers: <span class="math">144 &times; 32 B &asymp; 4.6 KB</span></li>
+                    <li>Filters: <span class="math">144 &times; ~18 KB &asymp; 2.6 MB</span></li>
+                    <li>False-positive block downloads: expected
+                        <span class="math">144 &times; 100 / 784,931 &asymp; 0.02</span>
+                        blocks per day&mdash;essentially never</li>
+                    <li>Genuine matches: one block per own transaction, ~2 MB each</li>
+                </ul>
+                <p>
+                    Total: roughly <span class="math">3&ndash;5 MB</span> per day, dominated
+                    by the filters themselves&mdash;against ~245 MB per day for downloading
+                    full blocks, and a few tens of kilobytes for BIP-37, which purchased its
+                    frugality with the privacy catastrophe of Chapter 18. The factor-of-fifty
+                    saving over full blocks, at near-zero privacy cost, is the design's whole
+                    argument; the residual 2.6 MB of filters is the price of the server
+                    learning nothing.
+                </p>
+            </div>
+
             <h3>Bandwidth Comparison</h3>
 
             <table class="bitcoin-table">
