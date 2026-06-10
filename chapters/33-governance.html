@@ -23,12 +23,17 @@
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                How does a protocol with no central authority evolve? Bitcoin's governance
-                is often called "rough consensus and running code," a process where changes
-                require broad agreement across developers, miners, users, and businesses.
-                This chapter examines Bitcoin's governance model: the BIP process,
-                the dynamics of soft fork activation, and the philosophical tensions that
-                shape protocol development.
+                How does a protocol with no central authority evolve? Part of what makes
+                the question hard is that Bitcoin uses the word "consensus" for three
+                different things: the rules enforced by software, the social threshold for
+                changing those rules, and the looser sense that most participants agree
+                (Remark 33.2). Much of Bitcoin's governance conflict is conflict over which
+                meaning is being invoked. The process is often called "rough consensus and
+                running code," a phrase borrowed from the IETF (Definition 33.4); in
+                practice, durable consensus-rule changes require at least passive acceptance
+                across the economically relevant parts of the network. This chapter examines
+                Bitcoin's governance model: the BIP process, the dynamics of soft fork
+                activation, and the specification problem that underlies both.
             </p>
         </section>
 
@@ -90,11 +95,13 @@
                 <ul>
                     <li><strong>Developers:</strong> Write code but cannot force adoption</li>
                     <li><strong>Miners:</strong> Produce blocks but users can reject them</li>
-                    <li><strong>Users:</strong> Choose software but need developer support</li>
+                    <li><strong>Users:</strong> Can reject rules by choosing validating software, but the power is effective only when coordinated with economically meaningful counterparties</li>
+                    <li><strong>Economic nodes:</strong> Exchanges, custodians, merchants, and payment processors, whose validation choices determine which chain carries market liquidity</li>
                     <li><strong>Businesses:</strong> Influence but do not control rule changes</li>
                 </ul>
                 <p>
-                    Changes require implicit or explicit agreement across groups.
+                    Durable consensus-rule changes require at least passive acceptance
+                    across the economically relevant parts of the network.
                 </p>
             </div>
         </section>
@@ -120,7 +127,7 @@
             <div class="definition">
                 <p class="definition-title">Definition 33.3 (BIP Types)</p>
                 <p>
-                    Under BIP-3 (the current process BIP, deployed 2025), BIPs have three types:
+                    Under BIP-3 (the 2025 revision of the process), BIPs have three types:
                 </p>
                 <p>
                     <strong>Specification:</strong> Changes affecting implementations
@@ -134,6 +141,16 @@
                     <strong>Process:</strong> Changes to BIP process itself
                 </p>
             </div>
+
+            <p>
+                The bips repository is curated by a small group of BIP editors, who assign
+                numbers and judge whether a submission meets the process criteria; under
+                BIP-3, new editors are added by agreement of the existing ones. The editors'
+                jurisdiction ends at the catalog: a BIP number is neither necessary nor
+                sufficient for deployment, and nothing prevents code from shipping without
+                one. The catalog binds no one, which is precisely why disputes over what it
+                admits are usually disputes about something else.
+            </p>
 
             <figure>
                 <svg class="diagram" width="500" height="160" viewBox="0 0 500 160">
@@ -338,15 +355,22 @@
             <div class="definition">
                 <p class="definition-title">Definition 33.4 (Rough Consensus)</p>
                 <p>
-                    <strong>Rough consensus</strong> (from IETF) means:
+                    <strong>Rough consensus</strong> is a term of art from the IETF
+                    (RFC 7282): a working-group chair declares rough consensus when the
+                    objections raised have been addressed on the record, answered rather
+                    than outvoted, even if not everyone is persuaded. The IETF can operate
+                    this way because it is an organization, with working groups, chairs
+                    accountable for the declaration, and an appeals path.
                 </p>
-                <ul>
-                    <li>General agreement exists, though not unanimous</li>
-                    <li>Objections have been considered and addressed</li>
-                    <li>Remaining disagreement is not fundamental</li>
-                </ul>
                 <p>
-                    In Bitcoin: most participants accept a change, even if some disagree.
+                    Bitcoin's use of the phrase is more radical. There is no chair to
+                    declare consensus, no procedure obliging anyone to answer an objection,
+                    and no appeal, because the second half of the slogan does all of the
+                    work. Running code either attracts the economy or it does not:
+                    deployment is the declaration, adoption is the minutes, and the fork is
+                    the appeal. Whether that is a stronger discipline than the IETF's or a
+                    weaker one is a question that each of this chapter's case studies
+                    (Section 33.7) puts to the record.
                 </p>
             </div>
 
@@ -360,8 +384,15 @@
                     <li><strong>Implementation:</strong> Multiple independent implementations</li>
                     <li><strong>Testing:</strong> Deployment on testnet/signet</li>
                     <li><strong>Support statements:</strong> Companies and developers</li>
-                    <li><strong>Futures markets:</strong> Price signals for contentious forks (where such markets exist)</li>
+                    <li><strong>Futures markets:</strong> Price signals for contentious forks (where liquid markets exist)</li>
                 </ul>
+                <p>
+                    Each of these signals is read off a venue, and every venue has an
+                    operator: mailing lists are moderated, conference programs are curated,
+                    and platform feeds are ranked. An observation of social consensus
+                    therefore inherits the admission rules of the channel through which it
+                    was observed.
+                </p>
             </div>
 
             <div class="remark">
@@ -509,7 +540,21 @@
                 As of 2025, Bitcoin Core is the most widely run full-node implementation
                 by listening-node share. Its development involves a handful of maintainers
                 with merge access, a few dozen regular contributors, and over a hundred
-                occasional contributors in a typical year.
+                occasional contributors in a typical year. Merge access is granted, and
+                occasionally relinquished, by agreement among the existing maintainers;
+                there is no external appointment, no term, and no election. The check on
+                the maintainer set is the same as the check on the code itself: the
+                repository can be forked by anyone, and the name "Bitcoin Core" attaches
+                to whichever repository the economy continues to treat as canonical.
+            </p>
+
+            <p>
+                Most full-time contributors are paid not by the project, which has no
+                treasury, but by grants from a small number of nonprofit and corporate
+                sponsors, each of which decides independently whom to fund, for what work,
+                and for how long. No protocol mechanism allocates these funds and no
+                stakeholder vote reviews the allocations; the grants, like the commits they
+                pay for, are public.
             </p>
 
             <div class="remark">
@@ -561,6 +606,19 @@
                 </ul>
                 <p>
                     Consensus changes require much more scrutiny than other PRs.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">The Release Pipeline</p>
+                <p>
+                    Between the repository and the network sits one further mechanism:
+                    releases are built reproducibly (the Guix build system), so that anyone
+                    can compile the source and verify that the published binaries match it,
+                    and release binaries are signed by multiple parties whose keys are
+                    public. Verification is open to anyone; it is one of the few checks in
+                    this chapter that requires trusting no group at all, only performing
+                    the check.
                 </p>
             </div>
         </section>
@@ -754,7 +812,8 @@
                     large parts of it (the original rules, accumulated bug-for-bug behaviors,
                     serialization edge cases) are documented nowhere except in code. The
                     practical consequence: "valid" means "accepted by the software the economy
-                    runs," and a bug in that software is not a bug at all: it is a rule.
+                    runs," and a consensus bug, once economically relied upon, can become
+                    indistinguishable from a rule.
                 </p>
             </div>
 
