@@ -156,6 +156,23 @@
                     <li><strong>Future flexibility:</strong> Reserve space for future soft forks</li>
                 </ul>
             </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 16.2 (The Dust Threshold)</p>
+                <p>
+                    The policy rule most often encountered in practice is the <strong>dust
+                    threshold</strong>: an output is <em>dust</em> if its value is less than
+                    what it would cost in fees to spend it (Bitcoin Core's default deems an
+                    output dust when spending it would cost more than a third of its value at
+                    the minimum relay fee&mdash;about 546 satoshis for a P2PKH output and
+                    294 satoshis for P2WPKH). Transactions creating dust outputs are not
+                    relayed by default. Like all policy, this is a per-node default, not
+                    consensus: dust outputs are perfectly valid in a block, and the threshold
+                    exists to discourage bloating the UTXO set with entries that are
+                    uneconomical ever to spend. Appendix D.6 catalogs this and the other
+                    major standardness rules.
+                </p>
+            </div>
         </section>
 
         <section>
@@ -379,7 +396,7 @@
             <h3 id="s16-4-1">16.4.1 P2SH (BIP-16)</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.2 (P2SH Soft Fork)</p>
+                <p class="remark-title">Remark 16.3 (P2SH Soft Fork)</p>
                 <p>
                     Pay-to-Script-Hash (2012) made <code>OP_HASH160 &lt;hash&gt; OP_EQUAL</code>
                     outputs special. Old nodes see a simple hash check passing; new nodes
@@ -391,7 +408,7 @@
             <h3 id="s16-4-2">16.4.2 Segregated Witness (BIP-141)</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.3 (SegWit Soft Fork)</p>
+                <p class="remark-title">Remark 16.4 (SegWit Soft Fork)</p>
                 <p>
                     SegWit (2017) was the largest soft fork, adding:
                 </p>
@@ -410,7 +427,7 @@
             <h3 id="s16-4-3">16.4.3 Taproot (BIP-341)</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.4 (Taproot Soft Fork)</p>
+                <p class="remark-title">Remark 16.5 (Taproot Soft Fork)</p>
                 <p>
                     Taproot (2021) added:
                 </p>
@@ -514,7 +531,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.5 (Standardness Changes)</p>
+                <p class="remark-title">Remark 16.6 (Standardness Changes)</p>
                 <p>
                     Notable standardness changes that were <em>not</em> soft forks:
                 </p>
@@ -554,7 +571,7 @@
             <h3 id="s16-7-2">16.7.2 Coordination Challenges</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.6 (Upgrade Coordination)</p>
+                <p class="remark-title">Remark 16.7 (Upgrade Coordination)</p>
                 <p>
                     Soft fork deployment requires coordinating:
                 </p>
@@ -633,7 +650,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.7 (Consensus Beyond Code)</p>
+                <p class="remark-title">Remark 16.8 (Consensus Beyond Code)</p>
                 <p>
                     "Consensus" in Bitcoin has two meanings:
                 </p>
