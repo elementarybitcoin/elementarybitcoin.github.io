@@ -74,7 +74,7 @@
             <h4>Privacy Advantage</h4>
             <p>
                 <strong>The server learns nothing about client interests.</strong> A client that
-                downloads the filter for block N is indistinguishable from any other client downloading
+                downloads the filter for block <span class="math">N</span> is indistinguishable from any other client downloading
                 that filter. When the client requests the full block, the server learns only that
                 "something in this block is interesting"—not which transactions, addresses, or
                 scripts.
@@ -198,8 +198,8 @@
                     cannot distinguish between:
                 </p>
                 <ol>
-                    <li>A client interested in address A</li>
-                    <li>A client interested in address B</li>
+                    <li>A client interested in address <span class="math">A</span></li>
+                    <li>A client interested in address <span class="math">B</span></li>
                     <li>A client with no specific interest, just syncing</li>
                 </ol>
                 <p>
@@ -236,44 +236,44 @@
             <div class="definition">
                 <p><strong>Definition 19.1</strong> (Golomb Coding)</p>
                 <p>
-                    Given a positive integer <var>n</var> and parameter <var>M</var>, Golomb
-                    coding represents <var>n</var> as:
+                    Given a positive integer <span class="math">n</span> and parameter <span class="math">M</span>, Golomb
+                    coding represents <span class="math">n</span> as:
                 </p>
                 <ul>
-                    <li><strong>Quotient:</strong> q = ⌊n / M⌋, encoded in unary (q ones followed by a zero)</li>
-                    <li><strong>Remainder:</strong> r = n mod M, encoded in binary</li>
+                    <li><strong>Quotient:</strong> <span class="math">q = ⌊n / M⌋</span>, encoded in unary (<span class="math">q</span> ones followed by a zero)</li>
+                    <li><strong>Remainder:</strong> <span class="math">r = n mod M</span>, encoded in binary</li>
                 </ul>
             </div>
 
             <div class="definition">
                 <p><strong>Definition 19.2</strong> (Golomb-Rice Coding)</p>
                 <p>
-                    <em>Golomb-Rice coding</em> is Golomb coding where M = 2<sup>P</sup> for
-                    some parameter P. This simplifies the encoding since the remainder is
-                    exactly P bits.
+                    <em>Golomb-Rice coding</em> is Golomb coding where <span class="math">M = 2<sup>P</sup></span> for
+                    some parameter <span class="math">P</span>. This simplifies the encoding since the remainder is
+                    exactly <span class="math">P</span> bits.
                 </p>
                 <p>
-                    For value <var>n</var>:
+                    For value <span class="math">n</span>:
                 </p>
                 <ul>
-                    <li><strong>Quotient:</strong> q = n >> P (right shift by P bits)</li>
-                    <li><strong>Remainder:</strong> <code>r = n &amp; ((1 &lt;&lt; P) - 1)</code> (low P bits)</li>
-                    <li><strong>Encoding:</strong> [q ones] [0] [P-bit remainder]</li>
+                    <li><strong>Quotient:</strong> <span class="math">q = n >> P</span> (right shift by <span class="math">P</span> bits)</li>
+                    <li><strong>Remainder:</strong> <code>r = n &amp; ((1 &lt;&lt; P) - 1)</code> (low <span class="math">P</span> bits)</li>
+                    <li><strong>Encoding:</strong> [<span class="math">q</span> ones] [0] [<span class="math">P</span>-bit remainder]</li>
                 </ul>
             </div>
 
             <div class="example">
-                <p><strong>Example 19.1</strong> (Golomb-Rice Encoding with P=4)</p>
-                <p>Encode n = 25 with P = 4 (M = 16):</p>
+                <p><strong>Example 19.1</strong> (Golomb-Rice Encoding with <span class="math">P=4</span>)</p>
+                <p>Encode <span class="math">n = 25</span> with <span class="math">P = 4</span> (<span class="math">M = 16</span>):</p>
                 <ul>
-                    <li>q = 25 >> 4 = 1</li>
-                    <li><code>r = 25 &amp; 15 = 9</code> = 1001₂</li>
+                    <li><span class="math">q = 25 >> 4 = 1</span></li>
+                    <li><code>r = 25 &amp; 15 = 9</code> = <span class="math">1001₂</span></li>
                     <li>Encoding: <span class="golomb-bits">1</span><span class="golomb-bits">0</span><span class="golomb-bits">1001</span> = "101001"</li>
                 </ul>
-                <p>Encode n = 7 with P = 4:</p>
+                <p>Encode <span class="math">n = 7</span> with <span class="math">P = 4</span>:</p>
                 <ul>
-                    <li>q = 7 >> 4 = 0</li>
-                    <li><code>r = 7 &amp; 15 = 7</code> = 0111₂</li>
+                    <li><span class="math">q = 7 >> 4 = 0</span></li>
+                    <li><code>r = 7 &amp; 15 = 7</code> = <span class="math">0111₂</span></li>
                     <li>Encoding: <span class="golomb-bits">0</span><span class="golomb-bits">0111</span> = "00111"</li>
                 </ul>
             </div>
@@ -283,8 +283,8 @@
             <div class="theorem">
                 <p><strong>Theorem 19.2</strong> (Golomb-Rice Optimality)</p>
                 <p>
-                    For a geometric distribution with parameter p, Golomb coding with
-                    optimal parameter M achieves expected code length within
+                    For a geometric distribution with parameter <span class="math">p</span>, Golomb coding with
+                    optimal parameter <span class="math">M</span> achieves expected code length within
                     at most 1 bit of the entropy bound.
                 </p>
             </div>
@@ -300,14 +300,14 @@
             <div class="definition">
                 <p><strong>Definition 19.3</strong> (Golomb-Coded Set)</p>
                 <p>
-                    A <em>Golomb-Coded Set</em> represents a set S of N elements with target
-                    false positive rate 1/F:
+                    A <em>Golomb-Coded Set</em> represents a set <span class="math">S</span> of <span class="math">N</span> elements with target
+                    false positive rate <span class="math">1/F</span>:
                 </p>
                 <ol>
-                    <li>Hash each element to the range [0, N·F) using a keyed hash function</li>
+                    <li>Hash each element to the range <span class="math">[0, N·F)</span> using a keyed hash function</li>
                     <li>Sort the resulting hash values</li>
                     <li>Compute successive differences (deltas)</li>
-                    <li>Encode deltas using Golomb-Rice with parameter P</li>
+                    <li>Encode deltas using Golomb-Rice with parameter <span class="math">P</span></li>
                 </ol>
             </div>
 
@@ -393,35 +393,35 @@
             <div class="theorem">
                 <p><strong>Theorem 19.3</strong> (GCS Space Efficiency)</p>
                 <p>
-                    A Golomb-Coded Set with N elements and false positive rate 1/F requires
-                    approximately N · (log₂(F) + 2) bits, plus a small constant overhead.
+                    A Golomb-Coded Set with <span class="math">N</span> elements and false positive rate <span class="math">1/F</span> requires
+                    approximately <span class="math">N · (log₂(F) + 2)</span> bits, plus a small constant overhead.
                 </p>
             </div>
 
             <div class="proof">
                 <p><strong>Proof sketch.</strong></p>
                 <p>
-                    Each delta has expected value F (since N elements are spread over range N·F).
-                    Golomb-Rice with P = log₂(F) (so that the divisor M = 2^P ≈ F) encodes
-                    values near F optimally. Each code is a unary quotient (expected
-                    E[q] + 1 ≈ 2 bits when M ≈ F, since E[q] = e^(−M/F)/(1−e^(−M/F)) ≈ 1)
-                    followed by P remainder bits, so the expected length per delta is
-                    approximately P + 2 bits.
-                    With N deltas, total size ≈ N · (log₂(F) + 2) bits. ∎
+                    Each delta has expected value <span class="math">F</span> (since <span class="math">N</span> elements are spread over range <span class="math">N·F</span>).
+                    Golomb-Rice with <span class="math">P = log₂(F)</span> (so that the divisor <span class="math">M = 2<sup>P</sup> ≈ F</span>) encodes
+                    values near <span class="math">F</span> optimally. Each code is a unary quotient (expected
+                    <span class="math">E[q] + 1 ≈ 2</span> bits when <span class="math">M ≈ F</span>, since <span class="math">E[q] = e<sup>−M/F</sup>/(1−e<sup>−M/F</sup>) ≈ 1</span>)
+                    followed by <span class="math">P</span> remainder bits, so the expected length per delta is
+                    approximately <span class="math">P + 2</span> bits.
+                    With <span class="math">N</span> deltas, total size <span class="math">≈ N · (log₂(F) + 2)</span> bits. ∎
                 </p>
             </div>
 
             <div class="example">
                 <p><strong>Example 19.2</strong> (BIP-158 Filter Size)</p>
                 <p>
-                    BIP-158 uses P = 19 (M = 2¹⁹ = 524,288) and false-positive
-                    parameter F = 784,931 (≈ 1.5 × 2¹⁹).
-                    For a block with N = 2000 scriptPubKeys:
+                    BIP-158 uses <span class="math">P = 19</span> (<span class="math">M = 2¹⁹ = 524,288</span>) and false-positive
+                    parameter <span class="math">F = 784,931</span> (<span class="math">≈ 1.5 × 2¹⁹</span>).
+                    For a block with <span class="math">N = 2000</span> scriptPubKeys:
                 </p>
                 <ul>
-                    <li>Filter size ≈ 2000 × (19 + 2) = 42,000 bits ≈ 5,250 bytes</li>
+                    <li>Filter size <span class="math">≈ 2000 × (19 + 2) = 42,000</span> bits ≈ 5,250 bytes</li>
                     <li>Compared to full block: ~1-2 MB</li>
-                    <li>Ratio: ~1/200 to 1/400 for this N; real blocks contain
+                    <li>Ratio: ~1/200 to 1/400 for this <span class="math">N</span>; real blocks contain
                     more filter elements (~5,000&ndash;10,000), giving the
                     ~1/80 ratio quoted elsewhere</li>
                 </ul>
@@ -471,14 +471,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>P</td>
+                            <td><span class="math">P</span></td>
                             <td>19</td>
-                            <td>Golomb-Rice coding parameter (remainder is P bits)</td>
+                            <td>Golomb-Rice coding parameter (remainder is <span class="math">P</span> bits)</td>
                         </tr>
                         <tr>
-                            <td>F</td>
+                            <td><span class="math">F</span></td>
                             <td>784931</td>
-                            <td>False positive rate parameter (target rate ≈ 1/F)</td>
+                            <td>False positive rate parameter (target rate <span class="math">≈ 1/F</span>)</td>
                         </tr>
                         <tr>
                             <td>Hash function</td>
@@ -578,8 +578,8 @@
                     <li>If no match: continue to next block (no download)</li>
                 </ol>
                 <p>
-                    Expected false positive rate: 1/784931 per scriptPubKey per block.
-                    With 50 addresses: ~50/784931 ≈ 1/15699 per block ≈ one false positive every ~109 days
+                    Expected false positive rate: <span class="math">1/784931</span> per scriptPubKey per block.
+                    With 50 addresses: <span class="math">~50/784931 ≈ 1/15699</span> per block ≈ one false positive every ~109 days
                     (at 144 blocks/day).
                 </p>
             </div>
@@ -650,13 +650,13 @@
             <div class="definition">
                 <p><strong>Definition 19.7</strong> (Filter Header)</p>
                 <p>
-                    The filter header for block N is:
+                    The filter header for block <span class="math">N</span> is:
                 </p>
                 <div class="formula">
                     filter_header<sub>N</sub> = SHA256d(SHA256d(filter<sub>N</sub>) || filter_header<sub>N−1</sub>)
                 </div>
                 <p>
-                    Where SHA256d(x) = SHA256(SHA256(x)) (the HASH256 function of Chapter 6), filter<sub>N</sub> is the raw filter bytes, and filter_header<sub>-1</sub> = 0x00...00 (32 zero bytes).
+                    Where <span class="math">SHA256d(x) = SHA256(SHA256(x))</span> (the HASH256 function of Chapter 6), <span class="math">filter<sub>N</sub></span> is the raw filter bytes, and <span class="math">filter_header<sub>−1</sub> = 0x00...00</span> (32 zero bytes).
                 </p>
             </div>
 
@@ -819,14 +819,14 @@
             <div class="theorem">
                 <p><strong>Theorem 19.4</strong> (BIP-158 False Positive Rate)</p>
                 <p>
-                    For a filter with N elements and a query set of size Q, the probability
+                    For a filter with <span class="math">N</span> elements and a query set of size <span class="math">Q</span>, the probability
                     of at least one false positive is:
                 </p>
                 <div class="formula">
                     P(false positive) = 1 − (1 − 1/F)<sup>Q</sup> ≈ Q/F
                 </div>
                 <p>
-                    With F = 784931, a wallet with 100 addresses has approximately 1/7849
+                    With <span class="math">F = 784931</span>, a wallet with 100 addresses has approximately <span class="math">1/7849</span>
                     chance of false positive per block.
                 </p>
             </div>
@@ -851,8 +851,8 @@
                 </p>
                 <ol>
                     <li>Querying multiple independent peers for filter headers</li>
-                    <li>Verifying all peers return identical filter_header<sub>N</sub></li>
-                    <li>Verifying received filter hashes to filter_header<sub>N</sub></li>
+                    <li>Verifying all peers return identical <span class="math">filter_header<sub>N</sub></span></li>
+                    <li>Verifying received filter hashes to <span class="math">filter_header<sub>N</sub></span></li>
                 </ol>
                 <p>
                     If at least one honest peer is among those queried, the manipulation is
@@ -878,8 +878,8 @@
                 <ul>
                     <li><strong>Filter download:</strong> Zero bits (all clients download same filter)</li>
                     <li><strong>Full block request after match:</strong> the server learns
-                        "the client cares about one of this block's N scriptPubKeys"&mdash;an
-                        anonymity set of size N, so a <em>larger</em> block leaks
+                        "the client cares about one of this block's <span class="math">N</span> scriptPubKeys"&mdash;an
+                        anonymity set of size <span class="math">N</span>, so a <em>larger</em> block leaks
                         <em>less</em> about the client</li>
                 </ul>
             </div>
@@ -1054,7 +1054,7 @@
             <div class="exercise">
                 <p><strong>Exercise 19.3</strong></p>
                 <p>
-                    Prove that if a client queries k independent peers for filter headers and
+                    Prove that if a client queries <span class="math">k</span> independent peers for filter headers and
                     at least one is honest, any filter manipulation is detected with
                     certainty (the client observes conflicting headers).
                 </p>
@@ -1105,7 +1105,7 @@
                     data, achieving filter sizes of ~1/80th of full block size.
                 </li>
                 <li>
-                    The false positive rate of 1/784931 per element provides good privacy
+                    The false positive rate of <span class="math">1/784931</span> per element provides good privacy
                     cover while keeping bandwidth overhead minimal.
                 </li>
                 <li>

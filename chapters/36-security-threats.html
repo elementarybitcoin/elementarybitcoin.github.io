@@ -132,20 +132,20 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 36.1 (Attack Success Probability)</p>
                 <p>
-                    Let q be attacker hashrate fraction, p = 1-q honest hashrate, and k
+                    Let <span class="math">q</span> be attacker hashrate fraction,
+                    <span class="math">p = 1 − q</span> honest hashrate, and <span class="math">k</span>
                     the number of confirmations. The exact probability of a successful
                     double-spend (Nakamoto, 2008) is:
                 </p>
                 <p class="math-block">
                     P(success) = 1 if q ≥ 0.5<br>
-                    P(success) = 1 − Σ<sub>m=0</sub><sup>k</sup>
-                    [λ<sup>m</sup>e<sup>−λ</sup>/m! · (1 − (q/p)<sup>k−m</sup>)]
-                    if q &lt; 0.5
+                    P(success) = 1 − Σₘ₌₀ᵏ [λᵐe^(−λ)/m! · (1 − (q/p)^(k−m))] if q &lt; 0.5
                 </p>
                 <p>
-                    where λ = k · (q/p). The simplified approximation (q/p)<sup>k</sup>
+                    where <span class="math">λ = k · (q/p)</span>. The simplified approximation
+                    <span class="math">(q/p)ᵏ</span>
                     underestimates the probability because it ignores the attacker's
-                    Poisson-distributed progress during the k confirmations; the table
+                    Poisson-distributed progress during the <span class="math">k</span> confirmations; the table
                     below uses the exact Poisson formula.
                 </p>
             </div>
@@ -242,12 +242,13 @@
             <div class="theorem">
                 <p class="theorem-title">Proposition 36.2 (Reorg Probability)</p>
                 <p>
-                    Under honest mining with network delay δ and block time T:
+                    Under honest mining with network delay <span class="math">δ</span> and
+                    block time <span class="math">T</span>:
                 </p>
                 <ul>
-                    <li>P(1-block reorg) ≈ δ/T ≈ 0.5-1%</li>
-                    <li>P(2-block reorg) ≈ (δ/T)² ≈ 0.01%</li>
-                    <li>P(k-block reorg) ≈ (δ/T)ᵏ (approximately)</li>
+                    <li><span class="math">P(1-block reorg) ≈ δ/T ≈ 0.5-1%</span></li>
+                    <li><span class="math">P(2-block reorg) ≈ (δ/T)² ≈ 0.01%</span></li>
+                    <li><span class="math">P(k-block reorg) ≈ (δ/T)ᵏ</span> (approximately)</li>
                 </ul>
                 <p>
                     Deep reorgs under honest mining are astronomically unlikely.
@@ -274,14 +275,15 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 36.3 (Selfish Mining Threshold)</p>
                 <p>
-                    Selfish mining is profitable when attacker hashrate q satisfies:
+                    Selfish mining is profitable when attacker hashrate <span class="math">q</span> satisfies:
                 </p>
                 <p class="math-block">
                     q > (1 − γ) / (3 − 2γ)
                 </p>
                 <p>
-                    where γ is the fraction of honest miners who mine on attacker's block
-                    during a race. With γ = 0: q > 1/3 ≈ 33%. With γ = 1: q > 0 (any hashrate suffices).
+                    where <span class="math">γ</span> is the fraction of honest miners who mine on attacker's block
+                    during a race. With <span class="math">γ = 0</span>: <span class="math">q &gt; 1/3 ≈ 33%</span>.
+                    With <span class="math">γ = 1</span>: <span class="math">q &gt; 0</span> (any hashrate suffices).
                 </p>
             </div>
 
@@ -322,7 +324,7 @@
                     Selfish mining has not been observed on Bitcoin mainnet because:
                 </p>
                 <ul>
-                    <li>Requires sustained >25-33% hashrate</li>
+                    <li>Requires sustained <span class="math">&gt;25-33%</span> hashrate</li>
                     <li>Detectable through orphan rate analysis</li>
                     <li>Risk of losing secret chain to honest miners</li>
                     <li>Damages network, potentially harming attacker's investment</li>
@@ -385,7 +387,7 @@
                 </p>
                 <ul>
                     <li><strong>Soft censorship:</strong> Some miners refuse; tx eventually confirms</li>
-                    <li><strong>Hard censorship:</strong> >50% refuse; tx never confirms normally</li>
+                    <li><strong>Hard censorship:</strong> <span class="math">&gt;50%</span> refuse; tx never confirms normally</li>
                 </ul>
             </div>
 
@@ -476,14 +478,14 @@
                 <p class="exercise-title">Exercise 36.1</p>
                 <p>
                     Calculate the probability of a successful double-spend with 30% hashrate
-                    after 6 confirmations. How many confirmations would reduce this to <0.1%?
+                    after 6 confirmations. How many confirmations would reduce this to <span class="math">&lt;0.1%</span>?
                 </p>
             </div>
 
             <div class="exercise">
                 <p class="exercise-title">Exercise 36.2</p>
                 <p>
-                    Model a selfish mining attack with 35% hashrate and γ=0.5. What is the
+                    Model a selfish mining attack with 35% hashrate and <span class="math">γ = 0.5</span>. What is the
                     expected revenue advantage over honest mining?
                 </p>
             </div>

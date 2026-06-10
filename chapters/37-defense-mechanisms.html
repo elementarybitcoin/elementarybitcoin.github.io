@@ -36,8 +36,8 @@
             <div class="definition">
                 <p class="definition-title">Definition 37.1 (Confirmation)</p>
                 <p>
-                    A transaction has <strong>k confirmations</strong> when it is included
-                    in a block with k-1 blocks built on top of it. The first block containing
+                    A transaction has <strong><span class="math">k</span> confirmations</strong> when it is included
+                    in a block with <span class="math">k − 1</span> blocks built on top of it. The first block containing
                     the transaction is confirmation 1.
                 </p>
             </div>
@@ -49,10 +49,10 @@
                 </p>
                 <ul>
                     <li>More confirmations = exponentially lower reversal probability</li>
-                    <li>Against an attacker with hashrate q &lt; 50%, the reversal probability is
+                    <li>Against an attacker with hashrate <span class="math">q &lt; 50%</span>, the reversal probability is
                     given by Nakamoto's formula (Theorem 36.1); it decays roughly geometrically
-                    in k, but the naive catch-up bound (q/(1−q))<sup>k</sup> understates it
-                    (q = 10%, k = 6: about 0.02%, not 0.0002%)</li>
+                    in <span class="math">k</span>, but the naive catch-up bound <span class="math">(q/(1−q))ᵏ</span> understates it
+                    (<span class="math">q = 10%</span>, <span class="math">k = 6</span>: about 0.02%, not 0.0002%)</li>
                     <li>6 confirmations (~1 hour): Standard for large transactions</li>
                     <li>1 confirmation (~10 min): Often sufficient for small amounts</li>
                 </ul>
@@ -463,7 +463,7 @@ nMinimumChainWork = 0x0000000000000000000000000000000000000000
                 <p class="exercise-title">Exercise 37.1</p>
                 <p>
                     A merchant accepts payment of $10,000 with 3 confirmations. Estimate
-                    the minimum hashrate an attacker needs to have >50% chance of successful
+                    the minimum hashrate an attacker needs to have <span class="math">&gt;50%</span> chance of successful
                     double-spend. Is this attack economically rational?
                 </p>
             </div>

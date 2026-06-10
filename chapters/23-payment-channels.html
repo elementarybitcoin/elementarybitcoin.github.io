@@ -129,7 +129,7 @@
                     <li><strong>Off-chain:</strong> Unlimited transactions between parties</li>
                 </ul>
                 <p>
-                    If a channel supports N off-chain payments, throughput multiplies by N/2.
+                    If a channel supports <span class="math">N</span> off-chain payments, throughput multiplies by <span class="math">N/2</span>.
                 </p>
             </div>
         </section>
@@ -484,7 +484,7 @@ OP_ENDIF</code></pre>
                     <li><strong>revocation_pubkey:</strong> Derived from both, known to counterparty after revocation</li>
                 </ul>
                 <p>
-                    To revoke state N, a party reveals the per_commitment_secret for state N.
+                    To revoke state <span class="math">N</span>, a party reveals the per_commitment_secret for state <span class="math">N</span>.
                     This allows the counterparty to compute the revocation private key.
                 </p>
             </div>
@@ -682,7 +682,7 @@ OP_ENDIF</code></pre>
                     A Hash Time-Locked Contract locks funds that can be claimed in two ways:
                 </p>
                 <ul>
-                    <li><strong>Success path:</strong> Recipient provides preimage R where H(R) = hash</li>
+                    <li><strong>Success path:</strong> Recipient provides preimage <span class="math">R</span> where <span class="math">H(R) = hash</span></li>
                     <li><strong>Timeout path:</strong> Sender reclaims after timeout expires</li>
                 </ul>
                 <pre><code>OP_IF

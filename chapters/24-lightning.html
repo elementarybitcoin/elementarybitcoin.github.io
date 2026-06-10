@@ -96,14 +96,14 @@
             <div class="definition">
                 <p><strong>Definition 24.1</strong> (Multi-Hop Payment)</p>
                 <p>
-                    A multi-hop payment from sender S to receiver R through intermediaries I₁, I₂, ..., Iₙ:
+                    A multi-hop payment from sender <span class="math">S</span> to receiver <span class="math">R</span> through intermediaries <span class="math">I₁, I₂, ..., Iₙ</span>:
                 </p>
                 <ol>
-                    <li>R generates secret preimage r and payment_hash H(r)</li>
-                    <li>R sends payment_hash to S (via invoice)</li>
-                    <li>S routes payment through I₁ → I₂ → ... → Iₙ → R</li>
-                    <li>R reveals r to Iₙ to claim payment</li>
-                    <li>r propagates back: Iₙ → ... → I₁ → S</li>
+                    <li><span class="math">R</span> generates secret preimage <span class="math">r</span> and payment_hash <span class="math">H(r)</span></li>
+                    <li><span class="math">R</span> sends payment_hash to <span class="math">S</span> (via invoice)</li>
+                    <li><span class="math">S</span> routes payment through <span class="math">I₁ → I₂ → ... → Iₙ → R</span></li>
+                    <li><span class="math">R</span> reveals <span class="math">r</span> to <span class="math">Iₙ</span> to claim payment</li>
+                    <li><span class="math">r</span> propagates back: <span class="math">Iₙ → ... → I₁ → S</span></li>
                     <li>Each hop atomically settles their HTLC</li>
                 </ol>
             </div>
@@ -212,15 +212,15 @@
             <div class="proof">
                 <p><strong>Proof.</strong></p>
                 <p>
-                    The payment_hash H(r) is identical across all HTLCs. If receiver reveals r
-                    to claim the final HTLC, every intermediate node learns r (from their
+                    The payment_hash <span class="math">H(r)</span> is identical across all HTLCs. If receiver reveals <span class="math">r</span>
+                    to claim the final HTLC, every intermediate node learns <span class="math">r</span> (from their
                     downstream) and can claim their incoming HTLC. Since timeouts decrease
-                    toward the receiver, each node has sufficient time to claim after learning r.
+                    toward the receiver, each node has sufficient time to claim after learning <span class="math">r</span>.
                 </p>
                 <p>
-                    Conversely, if receiver never reveals r, all HTLCs eventually timeout and
+                    Conversely, if receiver never reveals <span class="math">r</span>, all HTLCs eventually timeout and
                     funds return to senders. An intermediate node cannot steal funds because
-                    they cannot claim their outgoing HTLC without r, and cannot keep their
+                    they cannot claim their outgoing HTLC without <span class="math">r</span>, and cannot keep their
                     incoming HTLC without the timeout expiring. ∎
                 </p>
             </div>
@@ -395,7 +395,7 @@
                     A Lightning invoice encodes:
                 </p>
                 <ul>
-                    <li><strong>payment_hash:</strong> H(preimage) to verify payment</li>
+                    <li><strong>payment_hash:</strong> <span class="math">H(preimage)</span> to verify payment</li>
                     <li><strong>amount:</strong> Requested payment (optional)</li>
                     <li><strong>destination:</strong> Receiver's node public key</li>
                     <li><strong>expiry:</strong> Invoice validity period</li>
@@ -453,11 +453,11 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
             <div class="definition">
                 <p><strong>Definition 24.7</strong> (Channel Graph)</p>
                 <p>
-                    The Lightning Network graph G = (V, E) where:
+                    The Lightning Network graph <span class="math">G = (V, E)</span> where:
                 </p>
                 <ul>
-                    <li><strong>Vertices V:</strong> Lightning nodes (public keys)</li>
-                    <li><strong>Edges E:</strong> Payment channels</li>
+                    <li><strong>Vertices <span class="math">V</span>:</strong> Lightning nodes (public keys)</li>
+                    <li><strong>Edges <span class="math">E</span>:</strong> Payment channels</li>
                     <li><strong>Edge weights:</strong> Fees, capacity, reliability metrics</li>
                 </ul>
                 <p>
@@ -476,7 +476,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
                     <li><strong>base_fee:</strong> Fixed fee per forwarded HTLC, in millisatoshis (msat; 1 satoshi = 1,000 msat, Lightning's sub-satoshi accounting unit)</li>
                     <li><strong>fee_rate:</strong> Proportional fee (millionths of amount)</li>
                 </ul>
-                <p>
+                <p class="math-block">
                     Total fee = base_fee + (amount × fee_rate / 1,000,000)
                 </p>
             </div>
@@ -484,11 +484,11 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
             <div class="example">
                 <p><strong>Example 24.2</strong> (Fee Calculation)</p>
                 <p>
-                    Channel with base_fee = 1000 msat, fee_rate = 100:
+                    Channel with <span class="math">base_fee = 1000 msat</span>, <span class="math">fee_rate = 100</span>:
                 </p>
                 <ul>
-                    <li>Forward 100,000 sat: fee = 1000 + (100,000,000 × 100 / 1,000,000) = 1000 + 10,000 = 11,000 msat = 11 sat</li>
-                    <li>Forward 1,000 sat: fee = 1000 + (1,000,000 × 100 / 1,000,000) = 1000 + 100 = 1,100 msat ≈ 1 sat</li>
+                    <li>Forward 100,000 sat: <span class="math">fee = 1000 + (100,000,000 × 100 / 1,000,000) = 1000 + 10,000 = 11,000 msat = 11 sat</span></li>
+                    <li>Forward 1,000 sat: <span class="math">fee = 1000 + (1,000,000 × 100 / 1,000,000) = 1000 + 100 = 1,100 msat ≈ 1 sat</span></li>
                 </ul>
             </div>
 
@@ -780,7 +780,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
                 <p><strong>Exercise 24.1</strong></p>
                 <p>
                     Calculate the minimum total fees to route 0.1 BTC through a 5-hop path
-                    where each node charges base_fee = 1 sat and fee_rate = 1000 (0.1%).
+                    where each node charges <span class="math">base_fee = 1 sat</span> and <span class="math">fee_rate = 1000</span> (0.1%).
                 </p>
             </div>
 
