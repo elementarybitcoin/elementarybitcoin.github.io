@@ -503,7 +503,9 @@ function extended_gcd(a, b):
                 <p>
                     Consider the set <span class="math">S = {a, 2a, 3a, ..., (p−1)a}</span> reduced
                     modulo <span class="math">p</span>. Since <span class="math">gcd(a, p) = 1</span>,
-                    multiplication by <span class="math">a</span> is a bijection on <span class="math">𝔽ₚ*</span>,
+                    multiplication by <span class="math">a</span> is a bijection on the nonzero
+                    elements <span class="math">𝔽ₚ* = {1, 2, ..., p−1}</span> (studied as a group
+                    in Section 2.6),
                     so <span class="math">S</span> is just a permutation of <span class="math">{1, 2, ..., p−1}</span>.
                 </p>
                 <p>
@@ -633,6 +635,18 @@ function power_mod(a, k, n):
                 <p>This is a group of order <span class="math">p − 1</span>.</p>
             </div>
 
+            <div class="definition">
+                <p class="definition-title">Definition 2.7 (Euler's Totient Function)</p>
+                <p>
+                    For a positive integer <span class="math">n</span>, <strong>Euler's totient
+                    function</strong> <span class="math">φ(n)</span> counts the integers in
+                    <span class="math">{1, 2, ..., n}</span> that are coprime to
+                    <span class="math">n</span>. For example, <span class="math">φ(6) = 2</span>
+                    (namely 1 and 5) and <span class="math">φ(p) = p − 1</span> for prime
+                    <span class="math">p</span>.
+                </p>
+            </div>
+
             <div class="theorem">
                 <p class="theorem-title">Theorem 2.4</p>
                 <p>
@@ -653,7 +667,7 @@ function power_mod(a, k, n):
                     let <span class="math">ψ(d)</span> denote the number of elements of order
                     <span class="math">d</span> in <span class="math">𝔽ₚ*</span>.
                     Every element has some order dividing <span class="math">p − 1</span>
-                    (by Lagrange's theorem), so:
+                    (by Corollary 1.1), so:
                 </p>
                 <p style="text-align: center;">
                     <span class="math">∑ ψ(d) = p − 1</span>

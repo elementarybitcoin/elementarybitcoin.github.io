@@ -665,6 +665,8 @@ Verify(pk, m, sig):
                 Schnorr signatures are the foundation of Bitcoin's Taproot upgrade (BIP-341).
                 Taproot combines Schnorr signatures with Merkleized Abstract Syntax Trees (MAST)
                 to enable sophisticated spending conditions that remain private until executed.
+                (Merkle trees and Merkle proofs are developed in Chapter 12; this section can be
+                skimmed now and revisited after that chapter.)
             </p>
 
             <div class="definition">
@@ -724,7 +726,10 @@ Verify(pk, m, sig):
                 <span class="exercise-number">8.1.</span>
                 Prove that the interactive Schnorr protocol is zero-knowledge: the verifier
                 learns nothing about <span class="math">d</span> beyond the fact that the
-                prover knows it.
+                prover knows it. (Hint: build a <em>simulator</em>&mdash;pick
+                <span class="math">s</span> and <span class="math">e</span> at random, set
+                <span class="math">R = sG − eP</span>, and argue the resulting transcript
+                <span class="math">(R, e, s)</span> has the same distribution as a real one.)
             </div>
 
             <div class="exercise">

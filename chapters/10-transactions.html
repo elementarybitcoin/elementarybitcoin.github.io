@@ -137,7 +137,8 @@
                 <p>
                     The difference <span class="math">Σ(inputs) − Σ(outputs)</span> is the
                     <strong>transaction fee</strong>, claimed by the miner who includes the
-                    transaction in a block.
+                    transaction in a block (blocks and mining are developed in
+                    Chapters 13 and 14).
                 </p>
             </div>
         </section>
@@ -428,7 +429,9 @@ efcdab78563412...f6e5d4c3b2a1
 
             <p>
                 While Bitcoin Script allows arbitrary programs, most outputs use one of
-                several standard templates.
+                several standard templates. (The opcodes appearing below&mdash;OP_DUP,
+                OP_HASH160, OP_EQUALVERIFY, OP_CHECKSIG, and friends&mdash;are defined in
+                Chapter 11; here we only need their names.)
             </p>
 
             <h3>10.5.1 P2PKH (Pay-to-Public-Key-Hash)</h3>
@@ -785,6 +788,10 @@ efcdab78563412...f6e5d4c3b2a1
                 </p>
                 <p class="math-block">
                     subsidy + Σ(fees of all transactions in the block)
+                </p>
+                <p>
+                    (The block <em>subsidy</em>&mdash;the schedule of newly minted coins&mdash;is
+                    defined in Chapter 15.)
                 </p>
                 <p>
                     Any value not claimed is permanently lost (burned).
