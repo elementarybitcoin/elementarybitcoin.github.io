@@ -111,18 +111,18 @@
             <div class="definition">
                 <p><strong>Definition 18.1</strong> (Bloom Filter)</p>
                 <p>
-                    A <em>Bloom filter</em> for a set <var>S</var> consists of:
+                    A <em>Bloom filter</em> for a set <span class="math">S</span> consists of:
                 </p>
                 <ol>
-                    <li>A bit array <var>B</var> of <var>m</var> bits, initially all zeros</li>
-                    <li>A family of <var>k</var> independent hash functions <var>h₀, h₁, ..., hₖ₋₁</var>, each mapping elements to {0, 1, ..., m−1}</li>
+                    <li>A bit array <span class="math">B</span> of <span class="math">m</span> bits, initially all zeros</li>
+                    <li>A family of <span class="math">k</span> independent hash functions <span class="math">h₀, h₁, ..., hₖ₋₁</span>, each mapping elements to <span class="math">{0, 1, ..., m−1}</span></li>
                 </ol>
                 <p>
-                    To <em>add</em> element <var>x</var>: set <var>B[hᵢ(x)] = 1</var> for all <var>i ∈ {1, ..., k}</var>.
+                    To <em>add</em> element <span class="math">x</span>: set <span class="math">B[hᵢ(x)] = 1</span> for all <span class="math">i ∈ {1, ..., k}</span>.
                 </p>
                 <p>
-                    To <em>query</em> element <var>x</var>: return "possibly in set" if <var>B[hᵢ(x)] = 1</var>
-                    for all <var>i</var>; return "definitely not in set" otherwise.
+                    To <em>query</em> element <span class="math">x</span>: return "possibly in set" if <span class="math">B[hᵢ(x)] = 1</span>
+                    for all <span class="math">i</span>; return "definitely not in set" otherwise.
                 </p>
             </div>
 
@@ -228,31 +228,31 @@
             <div class="theorem">
                 <p><strong>Theorem 18.1</strong> (False Positive Rate)</p>
                 <p>
-                    For a Bloom filter with <var>m</var> bits and <var>k</var> hash functions,
-                    after inserting <var>n</var> elements, the probability of a false positive is
+                    For a Bloom filter with <span class="math">m</span> bits and <span class="math">k</span> hash functions,
+                    after inserting <span class="math">n</span> elements, the probability of a false positive is
                     approximately:
                 </p>
                 <div class="formula">
-                    p ≈ (1 − e<sup>−kn/m</sup>)<sup>k</sup>
+                    p ≈ (1 − e<sup>−kn/m</sup>)ᵏ
                 </div>
             </div>
 
             <div class="proof">
                 <p><strong>Proof.</strong></p>
                 <p>
-                    After inserting one element, each of the <var>k</var> hash functions sets
+                    After inserting one element, each of the <span class="math">k</span> hash functions sets
                     one bit. The probability that a specific bit is <em>not</em> set by one
-                    hash function is (1 − 1/m). After <var>kn</var> hash operations (from <var>n</var>
+                    hash function is <span class="math">(1 − 1/m)</span>. After <span class="math">kn</span> hash operations (from <span class="math">n</span>
                     elements), the probability a specific bit is still 0 is:
                 </p>
-                <p style="text-align: center;">
+                <p class="math-block">
                     (1 − 1/m)<sup>kn</sup> ≈ e<sup>−kn/m</sup>
                 </p>
                 <p>
-                    Thus the probability a specific bit is 1 is approximately (1 - e<sup>-kn/m</sup>).
-                    A false positive occurs when all <var>k</var> bits checked for a non-member
-                    happen to be 1, giving probability (1 − e<sup>−kn/m</sup>)<sup>k</sup>.
-                    Two approximations are hidden here: the <var>k</var> probed bits are treated
+                    Thus the probability a specific bit is 1 is approximately <span class="math">(1 − e<sup>−kn/m</sup>)</span>.
+                    A false positive occurs when all <span class="math">k</span> bits checked for a non-member
+                    happen to be 1, giving probability <span class="math">(1 − e<sup>−kn/m</sup>)ᵏ</span>.
+                    Two approximations are hidden here: the <span class="math">k</span> probed bits are treated
                     as independent (they are not), and the random set-bit fraction is replaced
                     by its expectation. The classical formula is in fact a slight
                     <em>under</em>estimate of the true rate (Bose et al., 2008)&mdash;about 30%
@@ -264,34 +264,34 @@
             <div class="corollary">
                 <p><strong>Corollary 18.1</strong> (Optimal Number of Hash Functions)</p>
                 <p>
-                    For fixed <var>m</var> and <var>n</var>, the false positive rate is minimized when:
+                    For fixed <span class="math">m</span> and <span class="math">n</span>, the false positive rate is minimized when:
                 </p>
                 <div class="formula">
                     k = (m/n) · ln(2) ≈ 0.693 · (m/n)
                 </div>
                 <p>
-                    With this optimal <var>k</var>, the false positive rate is approximately
-                    (0.6185)<sup>m/n</sup>.
+                    With this optimal <span class="math">k</span>, the false positive rate is approximately
+                    <span class="math">(0.6185)<sup>m/n</sup></span>.
                 </p>
             </div>
 
             <div class="example">
                 <p><strong>Example 18.1</strong> (Filter Sizing)</p>
                 <p>
-                    Suppose an SPV wallet has 100 addresses and wants a 0.1% (10<sup>−3</sup>) false
+                    Suppose an SPV wallet has 100 addresses and wants a 0.1% (<span class="math">10⁻³</span>) false
                     positive rate. We need:
                 </p>
-                <p style="text-align: center;">
-                    (0.6185)<sup>m/100</sup> = 10<sup>−3</sup>
+                <p class="math-block">
+                    (0.6185)<sup>m/100</sup> = 10⁻³
                 </p>
                 <p>
-                    Taking logarithms: m/100 · ln(0.6185) = ln(10<sup>−3</sup>)
+                    Taking logarithms: <span class="math">m/100 · ln(0.6185) = ln(10⁻³)</span>
                 </p>
-                <p style="text-align: center;">
+                <p class="math-block">
                     m = 100 · (−6.908) / (−0.481) ≈ 1,436 bits ≈ 180 bytes
                 </p>
                 <p>
-                    With k = 0.693 · (1436/100) ≈ 10 hash functions.
+                    With <span class="math">k = 0.693 · (1436/100) ≈ 10</span> hash functions.
                 </p>
             </div>
         </section>
@@ -388,7 +388,7 @@
     seed = (i * 0xFBA4C795 + nTweak) mod 2³²
     return MurmurHash3(seed, data) mod (filter_size * 8)</code></pre>
                 <p>
-                    where <var>i</var> ranges from 0 to nHashFuncs - 1, and the constant
+                    where <span class="math">i</span> ranges from 0 to nHashFuncs − 1, and the constant
                     0xFBA4C795 is chosen to provide good distribution.
                 </p>
             </div>
@@ -544,7 +544,7 @@
             <div class="theorem">
                 <p><strong>Theorem 18.2</strong> (Filter Analysis Attack)</p>
                 <p>
-                    Given a Bloom filter with parameters (<var>m</var>, <var>k</var>, <var>nTweak</var>),
+                    Given a Bloom filter with parameters (<span class="math">m</span>, <span class="math">k</span>, <code>nTweak</code>),
                     an attacker can test arbitrary addresses against the filter locally. By testing
                     all addresses that have ever appeared on the blockchain, the attacker recovers
                     the wallet's address set with high probability.
@@ -555,9 +555,9 @@
                 <p><strong>Proof sketch.</strong></p>
                 <p>
                     The attacker knows the hash function construction (Algorithm 18.1). For each
-                    candidate address <var>a</var>, they compute h₀(a), h₁(a), ..., hₖ₋₁(a)
+                    candidate address <span class="math">a</span>, they compute <span class="math">h₀(a), h₁(a), ..., hₖ₋₁(a)</span>
                     and check if all corresponding bits are set. True positives (actual wallet
-                    addresses) will always match. False positives occur at rate p, but with
+                    addresses) will always match. False positives occur at rate <span class="math">p</span>, but with
                     millions of blockchain addresses and typical filter sizes, the number of
                     false positives is small and can often be distinguished through blockchain
                     graph analysis. ∎
@@ -621,14 +621,14 @@
             <div class="theorem">
                 <p><strong>Theorem 18.3</strong> (Intersection Attack)</p>
                 <p>
-                    If a client sends filter versions F₁ and F₂ with different tweaks or sizes,
+                    If a client sends filter versions <span class="math">F₁</span> and <span class="math">F₂</span> with different tweaks or sizes,
                     the intersection of matching addresses has vastly reduced false positive rate:
                 </p>
                 <div class="formula">
-                    p_intersection ≈ p₁ · p₂
+                    p<sub>intersection</sub> ≈ p₁ · p₂
                 </div>
                 <p>
-                    After just 3 filter versions with p = 0.001, the false positive rate drops to 10<sup>−9</sup>.
+                    After just 3 filter versions with <span class="math">p = 0.001</span>, the false positive rate drops to <span class="math">10⁻⁹</span>.
                 </p>
             </div>
 
@@ -985,7 +985,7 @@
                     invite DoS attacks. BIP-37 violated this by requiring:
                 </p>
                 <ul>
-                    <li>O(1) client request → O(block_size) server work</li>
+                    <li><span class="math">O(1)</span> client request → <span class="math">O(block_size)</span> server work</li>
                     <li>No proof-of-work or stake from clients</li>
                     <li>Stateful server resources (stored filters) per connection</li>
                 </ul>
@@ -1038,7 +1038,7 @@
                 <p><strong>Exercise 18.2</strong></p>
                 <p>
                     Prove that the intersection of two independent Bloom filters (different
-                    tweaks) for the same set has false positive rate p₁ · p₂.
+                    tweaks) for the same set has false positive rate <span class="math">p₁ · p₂</span>.
                 </p>
             </div>
 

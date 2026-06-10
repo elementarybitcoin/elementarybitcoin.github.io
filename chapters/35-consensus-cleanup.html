@@ -166,7 +166,7 @@ where:
             <div class="theorem">
                 <p class="theorem-title">Theorem 35.1 (Timewarp Exploitation)</p>
                 <p>
-                    With >50% hashrate, an attacker can perform a two-phase timestamp
+                    With <span class="math">&gt;50%</span> hashrate, an attacker can perform a two-phase timestamp
                     manipulation each retarget period:
                 </p>
                 <ol>
@@ -179,7 +179,7 @@ where:
                         <code>actual_time</code> (future minus past), causing
                         difficulty to decrease (subject to the 4× clamp per period)</li>
                     <li>Repeat: each period reduces difficulty by up to 4×</li>
-                    <li>After ~24 periods (log₄ of current difficulty ≈ 10¹⁴), difficulty approaches the minimum</li>
+                    <li>After ~24 periods (<span class="math">log₄ of current difficulty ≈ 10¹⁴</span>), difficulty approaches the minimum</li>
                 </ol>
                 <p>
                     Theoretical outcome: Mine all remaining Bitcoin in weeks.
@@ -377,7 +377,7 @@ Different blocks, same merkle root → attack vector</pre>
             <div class="definition">
                 <p class="definition-title">Definition 35.11 (Quadratic Hashing)</p>
                 <p>
-                    Some operations in legacy Bitcoin have O(n²) complexity:
+                    Some operations in legacy Bitcoin have <span class="math">O(n²)</span> complexity:
                 </p>
                 <ul>
                     <li>Signature hashing for large transactions</li>

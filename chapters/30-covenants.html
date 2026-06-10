@@ -322,8 +322,8 @@ Stack after:  [x || y]</pre>
                     on-stack sighash construction (the "Schnorr trick"):
                 </p>
                 <ol>
-                    <li>Schnorr signature: (R, s) where s = k + H(R||P||m)·d, with the
-                        nonce fixed to R = G so s is predictable from m</li>
+                    <li>Schnorr signature: <span class="math">(R, s)</span> where <span class="math">s = k + H(R||P||m)·d</span>, with the
+                        nonce fixed to <span class="math">R = G</span> so <span class="math">s</span> is predictable from <span class="math">m</span></li>
                     <li>Script assembles the claimed sighash components from witness data
                         using CAT</li>
                     <li>The assembled signature is passed to CHECKSIG, which only succeeds

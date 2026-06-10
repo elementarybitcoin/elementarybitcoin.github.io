@@ -263,11 +263,11 @@
             <div class="definition">
                 <p><strong>Definition 21.3</strong> (AssumeValid)</p>
                 <p>
-                    Given a hardcoded block hash H (the "assumevalid" block):
+                    Given a hardcoded block hash <span class="math">H</span> (the "assumevalid" block):
                 </p>
                 <ul>
-                    <li>For blocks that are ancestors of H: skip script validation (signature checks)</li>
-                    <li>For blocks after H: perform full validation including signatures</li>
+                    <li>For blocks that are ancestors of <span class="math">H</span>: skip script validation (signature checks)</li>
+                    <li>For blocks after <span class="math">H</span>: perform full validation including signatures</li>
                     <li>All other checks performed for all blocks: amounts, structure, PoW</li>
                 </ul>
             </div>
@@ -654,7 +654,7 @@ prune=550</code></pre>
                     that supports:
                 </p>
                 <ul>
-                    <li><strong>Membership proofs:</strong> Prove element x is in the set</li>
+                    <li><strong>Membership proofs:</strong> Prove element <span class="math">x</span> is in the set</li>
                     <li><strong>Updates:</strong> Add or remove elements efficiently</li>
                     <li><strong>Binding:</strong> Cannot forge proofs for non-members</li>
                 </ul>
@@ -751,11 +751,11 @@ prune=550</code></pre>
             <div class="definition">
                 <p><strong>Definition 21.7</strong> (Utreexo Forest)</p>
                 <p>
-                    For N UTXOs, Utreexo maintains at most ⌈log₂(N)⌉ Merkle tree roots,
-                    one for each set bit in the binary representation of N.
+                    For <span class="math">N</span> UTXOs, Utreexo maintains at most <span class="math">⌈log₂(N)⌉</span> Merkle tree roots,
+                    one for each set bit in the binary representation of <span class="math">N</span>.
                 </p>
                 <p>
-                    With N = 170 million UTXOs:
+                    With <span class="math">N</span> = 170 million UTXOs:
                 </p>
                 <ul>
                     <li>Maximum roots: ~28</li>
@@ -772,8 +772,8 @@ prune=550</code></pre>
                     the UTXO exists in the accumulator:
                 </p>
                 <ul>
-                    <li>Proof size: O(log N) hashes ≈ 28 × 32 = 896 bytes maximum</li>
-                    <li>Verification: O(log N) hash operations</li>
+                    <li>Proof size: <span class="math">O(log N)</span> hashes ≈ 28 × 32 = 896 bytes maximum</li>
+                    <li>Verification: <span class="math">O(log N)</span> hash operations</li>
                 </ul>
             </div>
 
@@ -943,7 +943,7 @@ prune=550</code></pre>
             <div class="exercise">
                 <p><strong>Exercise 21.3</strong></p>
                 <p>
-                    For a UTXO set of size N, calculate the maximum Utreexo accumulator
+                    For a UTXO set of size <span class="math">N</span>, calculate the maximum Utreexo accumulator
                     size and the average proof size per transaction input.
                 </p>
             </div>

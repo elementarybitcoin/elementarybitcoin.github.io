@@ -45,13 +45,13 @@
                 <p>
                     <strong>Transaction malleability</strong> is the ability to modify a
                     transaction's identifier (txid) without invalidating it. A transaction
-                    T' is a <strong>malleated version</strong> of T if:
+                    <span class="math">T'</span> is a <strong>malleated version</strong> of <span class="math">T</span> if:
                 </p>
                 <ul>
-                    <li>T and T' spend the same inputs</li>
-                    <li>T and T' create the same outputs</li>
+                    <li><span class="math">T</span> and <span class="math">T'</span> spend the same inputs</li>
+                    <li><span class="math">T</span> and <span class="math">T'</span> create the same outputs</li>
                     <li>Both are valid according to consensus rules</li>
-                    <li>txid(T) ≠ txid(T')</li>
+                    <li><span class="math">txid(T) ≠ txid(T')</span></li>
                 </ul>
             </div>
 
@@ -62,7 +62,7 @@
                     including signatures. Several malleability vectors existed:
                 </p>
                 <ol>
-                    <li><strong>ECDSA signature malleability:</strong> (r, s) and (r, n-s) are both valid</li>
+                    <li><strong>ECDSA signature malleability:</strong> <span class="math">(r, s)</span> and <span class="math">(r, n−s)</span> are both valid</li>
                     <li><strong>Script push opcodes:</strong> Multiple ways to push same data</li>
                     <li><strong>Extra data in scriptSig:</strong> Additional stack elements</li>
                     <li><strong>SIGHASH_SINGLE bug:</strong> Edge case producing predictable signatures</li>
@@ -110,8 +110,8 @@
             <div class="example">
                 <p class="example-title">Example 28.1 (ECDSA Signature Malleability)</p>
                 <p>
-                    An ECDSA signature is a pair (r, s) where s can be replaced with n - s
-                    (mod n) to produce an equivalent valid signature:
+                    An ECDSA signature is a pair <span class="math">(r, s)</span> where <span class="math">s</span> can be replaced with <span class="math">n − s</span>
+                    <span class="math">(mod n)</span> to produce an equivalent valid signature:
                 </p>
                 <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
 Original:  sig = (r, s)       where s < n/2
@@ -122,7 +122,7 @@ With s' = n − s:        R' = (z·s'⁻¹)·G + (r·s'⁻¹)·P = −R
 Since R'.x = R.x (negation preserves x), both pass.</pre>
                 <p>
                     Bitcoin Core's low-S standardness rule (proposed for consensus as
-                    BIP-146, which never activated) requires s ≤ n/2 as relay policy;
+                    BIP-146, which never activated) requires <span class="math">s ≤ n/2</span> as relay policy;
                     SegWit removed signatures from the txid entirely.
                 </p>
             </div>
@@ -153,11 +153,11 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
                 <p class="definition-title">Definition 28.2 (Witness)</p>
                 <p>
                     The <strong>witness</strong> is a new transaction component containing
-                    signature and script data. For each input i:
+                    signature and script data. For each input <span class="math">i</span>:
                 </p>
                 <ul>
                     <li><strong>Legacy:</strong> Signature in scriptSig</li>
-                    <li><strong>SegWit:</strong> Signature in witness[i], scriptSig empty</li>
+                    <li><strong>SegWit:</strong> Signature in <span class="math">witness[i]</span>, scriptSig empty</li>
                 </ul>
             </div>
 
@@ -386,7 +386,7 @@ where:
                     vbytes = ⌈weight / 4⌉
                 </p>
                 <p>
-                    Maximum block: 4,000,000 / 4 = 1,000,000 vbytes.
+                    Maximum block: <span class="math">4,000,000 / 4 = 1,000,000</span> vbytes.
                 </p>
             </div>
 
@@ -450,7 +450,7 @@ where:
                     </tbody>
                 </table>
                 <p>
-                    vbytes = ⌈441/4⌉ = 111 vbytes (vs 192 actual bytes).
+                    <span class="math">vbytes = ⌈441/4⌉ = 111</span> vbytes (vs 192 actual bytes).
                     (Input/output count varints are omitted for clarity; a complete
                     serialization adds 2 base bytes.)
                 </p>
@@ -504,7 +504,7 @@ where:
                     wtxid = SHA256d(serialized tx with witness)
                 </p>
                 <p>
-                    For the coinbase: wtxid = 0x00...00 (32 zero bytes).
+                    For the coinbase: <span class="math">wtxid = 0x00...00</span> (32 zero bytes).
                 </p>
             </div>
 
@@ -691,7 +691,7 @@ SHA256d(
                     BIP-143 sighash fixes multiple issues:
                 </p>
                 <ol>
-                    <li><strong>O(n²) hashing eliminated:</strong> Pre-computed hashes reused</li>
+                    <li><strong><span class="math">O(n²)</span> hashing eliminated:</strong> Pre-computed hashes reused</li>
                     <li><strong>Amount committed:</strong> Prevents value manipulation attacks</li>
                     <li><strong>Script committed:</strong> Prevents scriptPubKey substitution</li>
                     <li><strong>Consistent algorithm:</strong> Same process for all input types</li>
@@ -702,13 +702,13 @@ SHA256d(
                 <p class="example-title">Example 28.4 (O(n²) Attack Prevention)</p>
                 <p>
                     In legacy sighash, each signature hashes the entire transaction.
-                    A transaction with n inputs requires n signatures, each hashing
-                    O(n) data → O(n²) total hashing.
+                    A transaction with <span class="math">n</span> inputs requires <span class="math">n</span> signatures, each hashing
+                    <span class="math">O(n)</span> data → <span class="math">O(n²)</span> total hashing.
                 </p>
                 <p>
                     An attacker could create transactions with many inputs to DoS nodes.
                     BIP-143 pre-computes hashPrevouts and hashOutputs once, making
-                    the cost O(n).
+                    the cost <span class="math">O(n)</span>.
                 </p>
             </div>
         </section>
@@ -892,8 +892,8 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
             <div class="exercise">
                 <p class="exercise-title">Exercise 28.3</p>
                 <p>
-                    Show that the pre-SegWit sighash algorithm has O(n²) complexity for
-                    n inputs. Then show how BIP-143 achieves O(n).
+                    Show that the pre-SegWit sighash algorithm has <span class="math">O(n²)</span> complexity for
+                    <span class="math">n</span> inputs. Then show how BIP-143 achieves <span class="math">O(n)</span>.
                 </p>
             </div>
 

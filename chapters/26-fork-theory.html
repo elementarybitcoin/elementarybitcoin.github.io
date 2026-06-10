@@ -43,14 +43,14 @@
                 <p class="definition-title">Definition 26.1 (Blockchain Fork)</p>
                 <p>
                     A <strong>fork</strong> occurs when two or more valid blocks share the same
-                    parent block, creating divergent chain histories. Let B<sub>p</sub> be a block
-                    and B<sub>1</sub>, B<sub>2</sub> be distinct blocks such that:
+                    parent block, creating divergent chain histories. Let <span class="math">B<sub>p</sub></span> be a block
+                    and <span class="math">B<sub>1</sub></span>, <span class="math">B<sub>2</sub></span> be distinct blocks such that:
                 </p>
                 <p class="math-block">
                     prev_hash(B<sub>1</sub>) = prev_hash(B<sub>2</sub>) = hash(B<sub>p</sub>)
                 </p>
                 <p>
-                    Then blocks B<sub>1</sub> and B<sub>2</sub> constitute a fork at height h(B<sub>p</sub>) + 1.
+                    Then blocks <span class="math">B<sub>1</sub></span> and <span class="math">B<sub>2</sub></span> constitute a fork at height <span class="math">h(B<sub>p</sub>) + 1</span>.
                 </p>
             </div>
 
@@ -121,7 +121,7 @@
                     W(chain<sub>1</sub>) > W(chain<sub>2</sub>) ⟹ nodes adopt chain<sub>1</sub>
                 </p>
                 <p>
-                    where W(·) denotes cumulative proof-of-work.
+                    where <span class="math">W(·)</span> denotes cumulative proof-of-work.
                 </p>
             </div>
         </section>
@@ -137,11 +137,11 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 26.1 (Fork Probability Bound)</p>
                 <p>
-                    Let λ be the block arrival rate (blocks per second) and δ be the network
+                    Let <span class="math">λ</span> be the block arrival rate (blocks per second) and <span class="math">δ</span> be the network
                     propagation delay. The probability of a natural fork is approximately:
                 </p>
                 <p class="math-block">
-                    P(fork) ≈ 1 − e<sup>−λδ</sup> ≈ λδ for small λδ
+                    P(fork) ≈ 1 − e^(−λδ) ≈ λδ for small λδ
                 </p>
             </div>
 
@@ -150,14 +150,14 @@
                 <p>
                     After a block is found, another block might be found before propagation
                     completes. The inter-arrival time follows an exponential distribution with
-                    rate λ. The probability that another block arrives within time δ is:
+                    rate <span class="math">λ</span>. The probability that another block arrives within time <span class="math">δ</span> is:
                 </p>
                 <p class="math-block">
-                    P(T ≤ δ) = 1 − e<sup>−λδ</sup>
+                    P(T ≤ δ) = 1 − e^(−λδ)
                 </p>
                 <p>
-                    For Bitcoin, λ ≈ 1/600 blocks/second and δ ≈ 1-10 seconds, giving
-                    P(fork) ≈ 0.2% - 1.7%. □
+                    For Bitcoin, <span class="math">λ ≈ 1/600</span> blocks/second and <span class="math">δ ≈ 1–10</span> seconds, giving
+                    <span class="math">P(fork) ≈ 0.2%–1.7%</span>. □
                 </p>
             </div>
 
@@ -232,17 +232,17 @@
             <div class="definition">
                 <p class="definition-title">Definition 26.5 (Rule Sets)</p>
                 <p>
-                    Let R<sub>old</sub> and R<sub>new</sub> be sets of blocks considered valid
+                    Let <span class="math">R<sub>old</sub></span> and <span class="math">R<sub>new</sub></span> be sets of blocks considered valid
                     under old and new rules respectively:
                 </p>
                 <ul>
-                    <li><strong>Soft fork:</strong> R<sub>new</sub> ⊂ R<sub>old</sub> (new rules are stricter)</li>
-                    <li><strong>Hard fork:</strong> R<sub>old</sub> ⊂ R<sub>new</sub> (new rules are looser)</li>
+                    <li><strong>Soft fork:</strong> <span class="math">R<sub>new</sub> ⊂ R<sub>old</sub></span> (new rules are stricter)</li>
+                    <li><strong>Hard fork:</strong> <span class="math">R<sub>old</sub> ⊂ R<sub>new</sub></span> (new rules are looser)</li>
                     <li><strong>Bilateral fork:</strong> no block <em>extending the fork point</em> is valid under both rule sets (each side rejects the other's new blocks; the shared pre-fork history is of course valid under both)</li>
                 </ul>
                 <p>
                     In practice, "hard forks" generally satisfy the weaker condition
-                    R<sub>new</sub> ⊄ R<sub>old</sub> and may simultaneously tighten other
+                    <span class="math">R<sub>new</sub> ⊄ R<sub>old</sub></span> and may simultaneously tighten other
                     rules. Strong replay protection (such as Bitcoin Cash's mandatory
                     SIGHASH_FORKID) deliberately converts an expanding hard fork into a
                     bilateral one.
@@ -281,12 +281,12 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 26.2 (Soft Fork Safety)</p>
                 <p>
-                    If a soft fork activates with fraction f > 0.5 of hash power enforcing
-                    new rules R<sub>new</sub>, then:
+                    If a soft fork activates with fraction <span class="math">f > 0.5</span> of hash power enforcing
+                    new rules <span class="math">R<sub>new</sub></span>, then:
                 </p>
                 <ol>
-                    <li>The most-work chain eventually follows R<sub>new</sub> rules (with probability 1)</li>
-                    <li>Nodes following R<sub>old</sub> remain on this chain (since R<sub>new</sub> ⊂ R<sub>old</sub>)</li>
+                    <li>The most-work chain eventually follows <span class="math">R<sub>new</sub></span> rules (with probability 1)</li>
+                    <li>Nodes following <span class="math">R<sub>old</sub></span> remain on this chain (since <span class="math">R<sub>new</sub> ⊂ R<sub>old</sub></span>)</li>
                     <li>No permanent chain split occurs</li>
                 </ol>
             </div>
@@ -294,10 +294,10 @@
             <div class="proof">
                 <p class="proof-title">Proof.</p>
                 <p>
-                    Blocks valid under R<sub>new</sub> are valid under R<sub>old</sub> by definition.
-                    Thus, the chain built by the majority (enforcing R<sub>new</sub>) is accepted
-                    by all nodes. A chain violating R<sub>new</sub> can only be extended by the minority
-                    (fraction 1 − f &lt; 0.5). The work race between the two chains is a biased
+                    Blocks valid under <span class="math">R<sub>new</sub></span> are valid under <span class="math">R<sub>old</sub></span> by definition.
+                    Thus, the chain built by the majority (enforcing <span class="math">R<sub>new</sub></span>) is accepted
+                    by all nodes. A chain violating <span class="math">R<sub>new</sub></span> can only be extended by the minority
+                    (fraction <span class="math">1 − f &lt; 0.5</span>). The work race between the two chains is a biased
                     random walk: by the gambler's-ruin argument of Theorem 14.4, the enforcing
                     majority's chain takes and keeps the cumulative-work lead with probability 1.
                     Old nodes might temporarily follow an invalid chain (as in the 2015 BIP-66
@@ -311,9 +311,9 @@
                     A hard fork produces a permanent chain split when the new-rules side
                     persistently holds the most-work chain <em>and</em> some hash power keeps
                     extending an old-rules-only chain. Old nodes reject blocks valid only
-                    under R<sub>new</sub> and follow their own chain. If instead old-rules
+                    under <span class="math">R<sub>new</sub></span> and follow their own chain. If instead old-rules
                     miners retain the majority, upgraded nodes (which still accept old-rules
-                    blocks when R<sub>old</sub> ⊂ R<sub>new</sub>) reorg back to the old
+                    blocks when <span class="math">R<sub>old</sub> ⊂ R<sub>new</sub></span>) reorg back to the old
                     chain and the fork simply dies&mdash;which is why expanding hard forks in
                     practice pair with majority hash power, a fork-point checkpoint, or
                     bilateral replay protection.
@@ -331,15 +331,15 @@
             <div class="definition">
                 <p class="definition-title">Definition 26.6 (Fork Adoption Game)</p>
                 <p>
-                    Consider n players who must choose between chains A and B. Let v<sub>A</sub>(k)
-                    and v<sub>B</sub>(n-k) be the value of holding coins on chain A (with k adopters)
-                    and chain B (with n-k adopters) respectively. The payoff exhibits network effects:
+                    Consider <span class="math">n</span> players who must choose between chains A and B. Let <span class="math">v<sub>A</sub>(k)</span>
+                    and <span class="math">v<sub>B</sub>(n−k)</span> be the value of holding coins on chain A (with <span class="math">k</span> adopters)
+                    and chain B (with <span class="math">n−k</span> adopters) respectively. The payoff exhibits network effects:
                 </p>
                 <p class="math-block">
                     v<sub>A</sub>(k) = f(k) · m<sub>A</sub>
                 </p>
                 <p>
-                    where f(k) is an increasing function of adopters and m<sub>A</sub> is the
+                    where <span class="math">f(k)</span> is an increasing function of adopters and <span class="math">m<sub>A</sub></span> is the
                     intrinsic merit of chain A's properties.
                 </p>
             </div>
@@ -529,7 +529,7 @@
                     FCR<sub>Nakamoto</sub>(C) = argmax<sub>c∈C</sub> Σ<sub>b∈c</sub> work(b)
                 </p>
                 <p>
-                    where work(b) = 2<sup>256</sup> / target(b) for block b (approximately; Bitcoin Core uses 2<sup>256</sup> / (target + 1)).
+                    where <span class="math">work(b) = 2²⁵⁶ / target(b)</span> for block <span class="math">b</span> (approximately; Bitcoin Core uses <span class="math">2²⁵⁶ / (target + 1)</span>).
                 </p>
             </div>
 
@@ -540,8 +540,8 @@
                     cumulative work." These differ when difficulty changes:
                 </p>
                 <ul>
-                    <li>Chain A: 10 blocks at difficulty 1 → work = 10</li>
-                    <li>Chain B: 5 blocks at difficulty 3 → work = 15</li>
+                    <li>Chain A: 10 blocks at difficulty 1 → <span class="math">work = 10</span></li>
+                    <li>Chain B: 5 blocks at difficulty 3 → <span class="math">work = 15</span></li>
                 </ul>
                 <p>
                     Chain B wins despite being shorter.
@@ -575,26 +575,26 @@
             <div class="definition">
                 <p class="definition-title">Definition 26.11 (k-Confirmation Security)</p>
                 <p>
-                    A transaction is <strong>k-confirmed</strong> when it is included in a block
-                    with k-1 blocks built on top of it. The probability of reversal decreases
-                    exponentially with k.
+                    A transaction is <strong><span class="math">k</span>-confirmed</strong> when it is included in a block
+                    with <span class="math">k−1</span> blocks built on top of it. The probability of reversal decreases
+                    exponentially with <span class="math">k</span>.
                 </p>
             </div>
 
             <div class="theorem">
                 <p class="theorem-title">Theorem 26.3 (Double-Spend Probability)</p>
                 <p>
-                    Let q be the fraction of hash power controlled by an attacker, p = 1 − q
-                    with q &lt; p, and k be the number of confirmations. The probability that
-                    the attacker, once k blocks behind, ever catches up is (q/p)<sup>k</sup>.
+                    Let <span class="math">q</span> be the fraction of hash power controlled by an attacker, <span class="math">p = 1 − q</span>
+                    with <span class="math">q &lt; p</span>, and <span class="math">k</span> be the number of confirmations. The probability that
+                    the attacker, once <span class="math">k</span> blocks behind, ever catches up is <span class="math">(q/p)ᵏ</span>.
                     Accounting also for blocks the attacker mines during the confirmation
                     period (Theorem 14.4), the probability of a successful double-spend is:
                 </p>
                 <p class="math-block">
-                    P(double-spend) = 1 − Σ<sub>m=0</sub><sup>k</sup> [λ<sup>m</sup>e<sup>−λ</sup>/m! × (1 − (q/p)<sup>k−m</sup>)],&nbsp;&nbsp;λ = k(q/p)
+                    P(double-spend) = 1 − Σₘ₌₀ᵏ [λᵐe^(−λ)/m! × (1 − (q/p)^(k−m))],&nbsp;&nbsp;λ = k(q/p)
                 </p>
                 <p>
-                    For q = 0.1 (10% attacker) and k = 6: P ≈ 0.02%
+                    For <span class="math">q = 0.1</span> (10% attacker) and <span class="math">k = 6</span>: <span class="math">P ≈ 0.02%</span>
                 </p>
             </div>
 
@@ -808,8 +808,8 @@
                 <p class="exercise-title">Exercise 26.1</p>
                 <p>
                     Prove that if hash power is distributed such that no miner has more than
-                    1/n of the total, the expected time to natural fork resolution satisfies
-                    E[T] ≤ 2·T<sub>block</sub>. What assumptions are needed?
+                    <span class="math">1/n</span> of the total, the expected time to natural fork resolution satisfies
+                    <span class="math">E[T] ≤ 2·T<sub>block</sub></span>. What assumptions are needed?
                 </p>
             </div>
 

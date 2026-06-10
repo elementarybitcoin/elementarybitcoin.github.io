@@ -311,7 +311,7 @@
                     and modify internal channels without on-chain transactions:
                 </p>
                 <ol>
-                    <li>N parties create a single on-chain funding output</li>
+                    <li><span class="math">N</span> parties create a single on-chain funding output</li>
                     <li>Off-chain, they create internal Lightning channels</li>
                     <li>Channels can be rebalanced without on-chain txs</li>
                     <li>Only factory open/close needs on-chain presence</li>
@@ -349,12 +349,12 @@
             <div class="remark">
                 <p class="remark-title">Remark 32.4 (Factory Scaling)</p>
                 <p>
-                    For a factory with n participants:
+                    For a factory with <span class="math">n</span> participants:
                 </p>
                 <ul>
-                    <li><strong>On-chain cost:</strong> 1 UTXO (amortized over n users)</li>
-                    <li><strong>Channel creation:</strong> O(n) signatures, no on-chain tx</li>
-                    <li><strong>Complexity:</strong> All n must sign for factory updates</li>
+                    <li><strong>On-chain cost:</strong> 1 UTXO (amortized over <span class="math">n</span> users)</li>
+                    <li><strong>Channel creation:</strong> <span class="math">O(n)</span> signatures, no on-chain tx</li>
+                    <li><strong>Complexity:</strong> All <span class="math">n</span> must sign for factory updates</li>
                 </ul>
             </div>
 

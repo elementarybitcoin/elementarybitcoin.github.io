@@ -43,24 +43,24 @@
             <div class="definition">
                 <p class="definition-title">Definition 29.1 (BIP-340 Schnorr Signature)</p>
                 <p>
-                    Given private key d, public key P = d·G, and message m:
+                    Given private key <span class="math">d</span>, public key <span class="math">P = d·G</span>, and message <span class="math">m</span>:
                 </p>
                 <ol>
-                    <li>Choose random nonce k, compute R = k·G (negating k if R has an odd y-coordinate)</li>
-                    <li>Compute challenge e = H<sub>BIP340/challenge</sub>(x(R) || x(P) || m), hashing the x-only serializations</li>
-                    <li>Compute s = k + e·d (mod n)</li>
-                    <li>Signature is (x(R), s), serialized as 64 bytes</li>
+                    <li>Choose random nonce <span class="math">k</span>, compute <span class="math">R = k·G</span> (negating <span class="math">k</span> if <span class="math">R</span> has an odd <span class="math">y</span>-coordinate)</li>
+                    <li>Compute challenge <span class="math">e = H<sub>BIP340/challenge</sub>(x(R) || x(P) || m)</span>, hashing the x-only serializations</li>
+                    <li>Compute <span class="math">s = k + e·d (mod n)</span></li>
+                    <li>Signature is <span class="math">(x(R), s)</span>, serialized as 64 bytes</li>
                 </ol>
             </div>
 
             <div class="definition">
                 <p class="definition-title">Definition 29.2 (Schnorr Verification)</p>
                 <p>
-                    To verify signature (R, s) on message m with public key P:
+                    To verify signature <span class="math">(R, s)</span> on message <span class="math">m</span> with public key <span class="math">P</span>:
                 </p>
                 <ol>
-                    <li>Compute e = H<sub>BIP340/challenge</sub>(R || P || m)</li>
-                    <li>Check that s·G = R + e·P</li>
+                    <li>Compute <span class="math">e = H<sub>BIP340/challenge</sub>(R || P || m)</span></li>
+                    <li>Check that <span class="math">s·G = R + e·P</span></li>
                 </ol>
             </div>
 
@@ -118,8 +118,8 @@
                     is stored (32 bytes instead of 33). The y-coordinate is implicitly even:
                 </p>
                 <ul>
-                    <li>If P has odd y, negate it: use -P (which has even y)</li>
-                    <li>Adjust private key accordingly: if P has odd y, use n - d</li>
+                    <li>If <span class="math">P</span> has odd <span class="math">y</span>, negate it: use <span class="math">−P</span> (which has even <span class="math">y</span>)</li>
+                    <li>Adjust private key accordingly: if <span class="math">P</span> has odd <span class="math">y</span>, use <span class="math">n − d</span></li>
                 </ul>
             </div>
 
@@ -139,15 +139,15 @@
             <div class="theorem">
                 <p class="theorem-title">Theorem 29.1 (Schnorr Batch Verification)</p>
                 <p>
-                    Given n signatures (R<sub>i</sub>, s<sub>i</sub>) on messages m<sub>i</sub>
-                    with public keys P<sub>i</sub>, batch verify by checking:
+                    Given <span class="math">n</span> signatures <span class="math">(R<sub>i</sub>, s<sub>i</sub>)</span> on messages <span class="math">m<sub>i</sub></span>
+                    with public keys <span class="math">P<sub>i</sub></span>, batch verify by checking:
                 </p>
                 <p class="math-block">
                     (Σ a<sub>i</sub>·s<sub>i</sub>)·G = Σ a<sub>i</sub>·R<sub>i</sub> + Σ a<sub>i</sub>·e<sub>i</sub>·P<sub>i</sub>
                 </p>
                 <p>
-                    where a<sub>i</sub> are random weights. Cost: O(n) point additions, one
-                    multi-scalar multiplication, vs O(n) full verifications individually.
+                    where <span class="math">a<sub>i</sub></span> are random weights. Cost: <span class="math">O(n)</span> point additions, one
+                    multi-scalar multiplication, vs <span class="math">O(n)</span> full verifications individually.
                 </p>
             </div>
 
@@ -171,14 +171,14 @@
             <div class="definition">
                 <p class="definition-title">Definition 29.4 (Tweak)</p>
                 <p>
-                    A <strong>tweaked public key</strong> Q is computed from internal key P
-                    and tweak t:
+                    A <strong>tweaked public key</strong> <span class="math">Q</span> is computed from internal key <span class="math">P</span>
+                    and tweak <span class="math">t</span>:
                 </p>
                 <p class="math-block">
                     Q = P + t·G
                 </p>
                 <p>
-                    The corresponding tweaked private key (if P = d·G):
+                    The corresponding tweaked private key (if <span class="math">P = d·G</span>):
                 </p>
                 <p class="math-block">
                     q = d + t (mod n)
@@ -194,7 +194,7 @@
                     t = H<sub>TapTweak</sub>(P || script_root)
                 </p>
                 <p>
-                    If no scripts: t = H<sub>TapTweak</sub>(P)
+                    If no scripts: <span class="math">t = H<sub>TapTweak</sub>(P)</span>
                 </p>
             </div>
 
@@ -246,7 +246,7 @@
                     A Taproot output (OP_1 &lt;Q&gt;) can be spent two ways:
                 </p>
                 <ol>
-                    <li><strong>Key path:</strong> Provide signature for Q (single 64-byte witness)</li>
+                    <li><strong>Key path:</strong> Provide signature for <span class="math">Q</span> (single 64-byte witness)</li>
                     <li><strong>Script path:</strong> Reveal script, provide Merkle proof, satisfy script</li>
                 </ol>
             </div>
@@ -266,8 +266,8 @@
                     A <strong>TapTree</strong> is a Merkle tree of scripts:
                 </p>
                 <ul>
-                    <li>Leaves: H<sub>TapLeaf</sub>(leaf_version || script)</li>
-                    <li>Branches: H<sub>TapBranch</sub>(left || right) where left ≤ right lexicographically</li>
+                    <li>Leaves: <span class="math">H<sub>TapLeaf</sub>(leaf_version || script)</span></li>
+                    <li>Branches: <span class="math">H<sub>TapBranch</sub>(left || right)</span> where <span class="math">left ≤ right</span> lexicographically</li>
                     <li>Root: becomes part of the tweak</li>
                 </ul>
             </div>
@@ -425,13 +425,13 @@ Stack after:  [n] (or [n+1] if valid)
                     <tbody>
                         <tr>
                             <td>OP_CHECKMULTISIG</td>
-                            <td>O(n) pubkeys</td>
-                            <td>k sigs + dummy</td>
+                            <td><span class="math">O(n)</span> pubkeys</td>
+                            <td><span class="math">k</span> sigs + dummy</td>
                         </tr>
                         <tr>
                             <td>CHECKSIGADD</td>
-                            <td>O(n) pubkeys</td>
-                            <td>n sigs (empty for non-signers)</td>
+                            <td><span class="math">O(n)</span> pubkeys</td>
+                            <td><span class="math">n</span> sigs (empty for non-signers)</td>
                         </tr>
                         <tr>
                             <td>MuSig + key path</td>
@@ -467,12 +467,12 @@ Stack after:  [n] (or [n+1] if valid)
             <div class="definition">
                 <p class="definition-title">Definition 29.10 (MuSig2 Key Aggregation)</p>
                 <p>
-                    Given n public keys P<sub>1</sub>, ..., P<sub>n</sub>:
+                    Given <span class="math">n</span> public keys <span class="math">P<sub>1</sub>, ..., P<sub>n</sub></span>:
                 </p>
                 <ol>
-                    <li>Compute key aggregation coefficient: a<sub>i</sub> = H<sub>agg</sub>(L || P<sub>i</sub>)</li>
-                    <li>where L = H(P<sub>1</sub> || ... || P<sub>n</sub>)</li>
-                    <li>Aggregate key: P = Σ a<sub>i</sub>·P<sub>i</sub></li>
+                    <li>Compute key aggregation coefficient: <span class="math">a<sub>i</sub> = H<sub>agg</sub>(L || P<sub>i</sub>)</span></li>
+                    <li>where <span class="math">L = H(P<sub>1</sub> || ... || P<sub>n</sub>)</span></li>
+                    <li>Aggregate key: <span class="math">P = Σ a<sub>i</sub>·P<sub>i</sub></span></li>
                 </ol>
             </div>
 
@@ -483,15 +483,15 @@ Stack after:  [n] (or [n+1] if valid)
                 </p>
                 <p><strong>Round 1:</strong></p>
                 <ol>
-                    <li>Each signer generates two nonces: R<sub>i,1</sub>, R<sub>i,2</sub></li>
+                    <li>Each signer generates two nonces: <span class="math">R<sub>i,1</sub></span>, <span class="math">R<sub>i,2</sub></span></li>
                     <li>Broadcast nonces</li>
                 </ol>
                 <p><strong>Round 2:</strong></p>
                 <ol>
-                    <li>Compute R = Σ R<sub>i,1</sub> + b·Σ R<sub>i,2</sub> where b = H(agg_nonces || agg_key || msg)</li>
-                    <li>Each signer computes partial: s<sub>i</sub> = k<sub>i,1</sub> + b·k<sub>i,2</sub> + e·a<sub>i</sub>·d<sub>i</sub>, where e = H(R || P || m) is the challenge of Definition 29.1</li>
-                    <li>Aggregate: s = Σ s<sub>i</sub></li>
-                    <li>Final signature: (R, s)</li>
+                    <li>Compute <span class="math">R = Σ R<sub>i,1</sub> + b·Σ R<sub>i,2</sub></span> where <span class="math">b = H(agg_nonces || agg_key || msg)</span></li>
+                    <li>Each signer computes partial: <span class="math">s<sub>i</sub> = k<sub>i,1</sub> + b·k<sub>i,2</sub> + e·a<sub>i</sub>·d<sub>i</sub></span>, where <span class="math">e = H(R || P || m)</span> is the challenge of Definition 29.1</li>
+                    <li>Aggregate: <span class="math">s = Σ s<sub>i</sub></span></li>
+                    <li>Final signature: <span class="math">(R, s)</span></li>
                 </ol>
             </div>
 
@@ -554,13 +554,13 @@ Stack after:  [n] (or [n+1] if valid)
             <div class="definition">
                 <p class="definition-title">Definition 29.12 (Adaptor Signature)</p>
                 <p>
-                    An <strong>adaptor signature</strong> σ' is a "partial" signature that becomes
-                    valid when combined with a secret scalar t:
+                    An <strong>adaptor signature</strong> <span class="math">σ'</span> is a "partial" signature that becomes
+                    valid when combined with a secret scalar <span class="math">t</span>:
                 </p>
                 <ul>
-                    <li>Adaptor point: T = t·G (public)</li>
-                    <li>Adaptor signature: σ' = (R + T, s')</li>
-                    <li>When t is revealed: σ = (R + T, s' + t) is valid</li>
+                    <li>Adaptor point: <span class="math">T = t·G</span> (public)</li>
+                    <li>Adaptor signature: <span class="math">σ' = (R + T, s')</span></li>
+                    <li>When <span class="math">t</span> is revealed: <span class="math">σ = (R + T, s' + t)</span> is valid</li>
                 </ul>
             </div>
 
@@ -570,10 +570,10 @@ Stack after:  [n] (or [n+1] if valid)
                     Adaptor signatures enable atomic swaps without hash preimages:
                 </p>
                 <ol>
-                    <li>Alice gives Bob adaptor σ' (valid when combined with secret t)</li>
-                    <li>Bob broadcasts transaction with σ = (R + T, s' + t)</li>
-                    <li>Alice learns t from the broadcast signature: t = s - s'</li>
-                    <li>Alice uses t to complete her side of the swap</li>
+                    <li>Alice gives Bob adaptor <span class="math">σ'</span> (valid when combined with secret <span class="math">t</span>)</li>
+                    <li>Bob broadcasts transaction with <span class="math">σ = (R + T, s' + t)</span></li>
+                    <li>Alice learns <span class="math">t</span> from the broadcast signature: <span class="math">t = s − s'</span></li>
+                    <li>Alice uses <span class="math">t</span> to complete her side of the swap</li>
                 </ol>
                 <p>
                     Either both transactions happen, or neither does.
@@ -664,7 +664,7 @@ Stack after:  [n] (or [n+1] if valid)
                 </p>
                 <ul>
                     <li><strong>Lightning:</strong> Cooperative closes are indistinguishable</li>
-                    <li><strong>Multisig:</strong> MuSig makes n-of-n look like 1-of-1</li>
+                    <li><strong>Multisig:</strong> MuSig makes <span class="math">n</span>-of-<span class="math">n</span> look like 1-of-1</li>
                     <li><strong>DLCs:</strong> Discreet log contracts with privacy</li>
                     <li><strong>Vaults:</strong> Complex custody with fallback options</li>
                     <li><strong>Inscriptions:</strong> Data embedding via witness</li>
@@ -681,7 +681,7 @@ Stack after:  [n] (or [n+1] if valid)
                 <p>
                     Prove that Schnorr batch verification is sound: if the batch check passes
                     but one signature is invalid, derive a contradiction (with high probability
-                    over random a<sub>i</sub>).
+                    over random <span class="math">a<sub>i</sub></span>).
                 </p>
             </div>
 
