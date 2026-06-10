@@ -332,7 +332,7 @@
                     With an LN-Penalty channel:
                 </p>
                 <ul>
-                    <li><strong>Minimum:</strong> Check the blockchain once per to_self_delay (the CSV delay on revoked commitments, commonly 144&ndash;2016 blocks: 1 day to 2 weeks)</li>
+                    <li><strong>Minimum:</strong> Check the blockchain once per to_self_delay (the OP_CHECKSEQUENCEVERIFY relative-timelock delay on revoked commitments&mdash;not Chapter 22's "CSV" client-side validation&mdash;commonly 144&ndash;2016 blocks: 1 day to 2 weeks)</li>
                     <li><strong>With watchtower:</strong> Watchtower monitors on your behalf</li>
                     <li><strong>eltoo channels:</strong> No punishment needed, just supersede old states</li>
                 </ul>
@@ -771,7 +771,7 @@
                 <p><strong>Exercise 25.5</strong></p>
                 <p>
                     "Layer 2 reduces security because funds aren't on the base layer."
-                    Evaluate this claim for Lightning, sidechains, and custodial solutions.
+                    Evaluate this claim for Lightning, sidechains (Chapter 31), and custodial solutions.
                 </p>
             </div>
 

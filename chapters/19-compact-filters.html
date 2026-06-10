@@ -216,7 +216,7 @@
                     what addresses the client cares about. The filtering operation happens
                     entirely on the client side. The guarantee is scoped to this phase: once a
                     client requests full blocks, the <em>pattern</em> of those requests leaks
-                    information (Theorem 19.6), which is why the claim does not extend to the
+                    information (Theorem 19.6, later in this chapter), which is why the claim does not extend to the
                     protocol as a whole. ∎
                 </p>
             </div>
@@ -394,7 +394,7 @@
                 <p><strong>Theorem 19.3</strong> (GCS Space Efficiency)</p>
                 <p>
                     A Golomb-Coded Set with N elements and false positive rate 1/F requires
-                    approximately N · (1 + log₂(F)) bits, plus a small constant overhead.
+                    approximately N · (log₂(F) + 2) bits, plus a small constant overhead.
                 </p>
             </div>
 
@@ -1020,7 +1020,8 @@
 
             <p>
                 Neutrino enables Lightning Network nodes to operate without a full Bitcoin
-                node, trading some security for reduced resource requirements:
+                node, trading some security for reduced resource requirements (payment
+                channels and HTLCs, referenced below, are developed in Chapters 23-24):
             </p>
 
             <ul>

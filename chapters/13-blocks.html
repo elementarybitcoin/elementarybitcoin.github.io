@@ -712,7 +712,17 @@ target = 0x00ffff × 256^(29-3)
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 13.16 (Compact Blocks)</p>
+                <p class="definition-title">Definition 13.16 (Mempool)</p>
+                <p>
+                    A node's <strong>mempool</strong> (memory pool) is its set of valid,
+                    unconfirmed transactions&mdash;received from the network but not yet
+                    included in a block. Each node maintains its own mempool; there is no
+                    single global one.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 13.17 (Compact Blocks)</p>
                 <p>
                     <strong>Compact block relay</strong> (BIP-152) reduces block propagation
                     bandwidth by sending only short transaction IDs. Receiving nodes

@@ -638,7 +638,7 @@ OP_ENDIF</code></pre>
                 </p>
                 <ol>
                     <li>Either party sends shutdown message</li>
-                    <li>No new HTLCs accepted</li>
+                    <li>No new HTLCs accepted (HTLCs are defined in Definition 23.9 below)</li>
                     <li>Existing HTLCs resolved</li>
                     <li>Parties negotiate closing transaction</li>
                     <li>Simple outputs (no delays, no scripts)</li>
@@ -813,7 +813,8 @@ OP_ENDIF</code></pre>
                 <p><strong>Exercise 23.5</strong></p>
                 <p>
                     Design an HTLC that uses Schnorr signatures instead of hash preimages.
-                    What privacy benefits does this provide? (Hint: adaptor signatures)
+                    What privacy benefits does this provide? (Hint: adaptor signatures,
+                    developed in Chapter 29.)
                 </p>
             </div>
 
