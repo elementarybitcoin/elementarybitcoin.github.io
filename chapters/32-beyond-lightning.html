@@ -104,9 +104,9 @@
             <div class="definition">
                 <p class="definition-title">Definition 32.2 (Ark Round)</p>
                 <p>
-                    The ASP periodically creates a <strong>round</strong>&mdash;the design
+                    The ASP periodically creates a <strong>round</strong> (the design
                     calls for rounds every few seconds; deployed implementations batch
-                    less frequently:
+                    less frequently):
                 </p>
                 <ol>
                     <li>Collects payment intents from users</li>
@@ -170,8 +170,8 @@
                     Tradeoffs:
                 </p>
                 <ul>
-                    <li><strong>ASP trust:</strong> Liveness trust, plus the obligation to refresh before expiry (after expiry, unswept funds are claimable by the ASP)</li>
-                    <li><strong>Expiring vTXOs:</strong> Must refresh before expiry</li>
+                    <li><strong>ASP trust:</strong> Liveness trust before vTXO expiry</li>
+                    <li><strong>Expiring vTXOs:</strong> Must refresh before expiry; afterwards, unswept funds are claimable by the ASP</li>
                     <li><strong>ASP capital:</strong> ASP must lock significant BTC</li>
                 </ul>
             </div>

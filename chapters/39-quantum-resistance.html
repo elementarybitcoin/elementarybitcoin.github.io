@@ -53,7 +53,8 @@
                 </ol>
                 <p>
                     The first threat is severe and requires eventual migration. The second is
-                    less concerning and can be addressed by increasing key sizes.
+                    less concerning: difficulty adjustment compensates, and a larger hash
+                    output would restore the original margin (Remark 39.4).
                 </p>
             </div>
 
@@ -1151,7 +1152,7 @@ One Plausible Sequencing (illustrative):
 
             <ul>
                 <li><strong>Shor's algorithm:</strong> if fault-tolerant quantum computers are built, it breaks ECDSA; on prevailing expert timelines, preparation is prudent</li>
-                <li><strong>Grover's algorithm</strong> halves hash security&mdash;doubling key size fixes it</li>
+                <li><strong>Grover's algorithm</strong> halves effective hash security&mdash;doubling the hash output size would restore the margin (Remark 39.4)</li>
                 <li><strong>Timeline:</strong> Likely 15-25 years, but uncertain</li>
                 <li><strong>NIST standards</strong> (ML-DSA, SPHINCS+) provide ready alternatives</li>
                 <li><strong>Signatures will be larger</strong>&mdash;5-100x current size</li>

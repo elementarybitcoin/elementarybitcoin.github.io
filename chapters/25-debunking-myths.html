@@ -371,7 +371,7 @@
                 leaving base-layer requirements unchanged (Example 25.1). Larger blocks are
                 one scaling instrument among several, with costs concentrated on verification
                 (Chapter 15); the claim that they are the only instrument does not survive the
-                comparison, and the costs of layer 2 itself are recorded in Remark 25.5.
+                comparison, even after layer 2 is charged with the costs of Remark 25.5.
             </p>
 
             <hr>
@@ -450,8 +450,8 @@
             </div>
 
             <p>
-                The risk is real but bounded. Checking more often than the negotiated
-                to_self_delay is sufficient&mdash;once per week comfortably covers a
+                The risk is real but bounded. Checking at intervals shorter than the
+                negotiated to_self_delay is sufficient&mdash;once per week comfortably covers a
                 2016-block (2 week) delay. Watchtowers (Chapter 23) delegate the task, at the
                 cost of assuming the watchtower is online and honest.
             </p>
@@ -500,7 +500,7 @@
                 <ul>
                     <li>Grover's provides only a <span class="math">√N</span> speedup (not exponential)</li>
                     <li>Difficulty adjustment compensates automatically</li>
-                    <li>Script-level uses of SHA-256 could be supplemented by soft fork; replacing the proof-of-work or transaction-identifier hash would be a hard fork requiring the coordination of Chapter 16</li>
+                    <li>Replacing SHA-256 itself, were it ever necessary, is the fork question analyzed under Claim 25.7</li>
                 </ul>
             </div>
 
@@ -589,10 +589,11 @@
                     <li>Spend coins for which it does not hold keys</li>
                     <li>Create coins beyond the subsidy schedule</li>
                     <li>Change consensus rules (full nodes reject invalid blocks)</li>
-                    <li>Prevent users from transacting on a minority chain that changes the
-                        proof-of-work function (Chapter 26), or once the attack ceases&mdash;a
-                        minority chain retaining the same proof-of-work can be reorganized at
-                        low marginal cost for as long as the attack is sustained</li>
+                    <li>Prevent users from transacting on a minority chain&mdash;immediately,
+                        if that chain changes the proof-of-work function (Chapter 26), or once
+                        the attack ceases, if it retains the same proof-of-work; while the
+                        attack is sustained, a same-proof-of-work minority chain can be
+                        reorganized at low marginal cost</li>
                 </ul>
             </div>
 
@@ -846,7 +847,7 @@
                     <li>As long as some miners include a transaction and the majority does not orphan their blocks, it eventually confirms (soft censorship, Definition 36.6): with non-censoring fraction <span class="math">q</span> of hashrate, the expected inclusion delay is <span class="math">1/q</span> blocks&mdash;and censored users can pay higher fees to non-censoring miners</li>
                 </ul>
                 <p>
-                    Two caveats sharpen the claim rather than weaken it. A majority
+                    Two caveats sharpen the analysis rather than weaken it. A majority
                     coalition willing to orphan non-compliant blocks could enforce hard
                     censorship (Definition 36.6)&mdash;at the visible cost of attacking the
                     chain itself. And a soft fork could, in principle, make specific outputs
@@ -1121,7 +1122,7 @@
             <div class="exercise">
                 <p><strong>Exercise 25.1</strong></p>
                 <p>
-                    A claim states: "Bitcoin is deflationary because 21 million coins."
+                    Consider the claim: "Bitcoin is deflationary because 21 million coins."
                     Apply the evaluation procedure (Remark 25.16). Is this technically
                     correct? What nuance is missing?
                 </p>
