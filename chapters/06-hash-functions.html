@@ -539,7 +539,10 @@
             <div class="exercise">
                 <span class="exercise-number">6.2.</span>
                 If a hash function produces 256-bit outputs, approximately how many hashes
-                must be computed before a collision is likely? (Hint: Birthday paradox)
+                must be computed before a collision is likely? (Hint: the birthday paradox:
+                among <span class="math">m</span> random values from <span class="math">N</span>
+                possibilities, a collision becomes likely once
+                <span class="math">m ≈ √N</span>; this is developed in Theorem 9.1.)
             </div>
 
             <div class="exercise">
@@ -557,7 +560,8 @@
             <div class="exercise">
                 <span class="exercise-number">6.5.</span>
                 If SHA-256 were broken such that collisions could be found in <span class="math">2⁸⁰</span>
-                operations, what security level would remain? Would ECDSA signatures still be secure?
+                operations, what security level would remain? Would ECDSA signatures (Chapter 7)
+                still be secure? (Return to this after reading the next chapter.)
             </div>
         </section>
 

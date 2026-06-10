@@ -171,7 +171,7 @@
 
             <p>
                 This computation is the "easy direction" of the trapdoor function we studied
-                in Chapter 1. Given <span class="math">d</span>, computing <span class="math">P</span>
+                in Chapters 3 and 4. Given <span class="math">d</span>, computing <span class="math">P</span>
                 requires only <span class="math">O(log d)</span> group operations via the
                 double-and-add algorithm. The reverse—finding <span class="math">d</span> given
                 <span class="math">P</span>—is the elliptic curve discrete logarithm problem (ECDLP),
@@ -551,7 +551,8 @@
             <p>
                 P2SH addresses, introduced in BIP-16, allow payments to arbitrary scripts
                 rather than simple public key hashes. The script itself is revealed only
-                when spending.
+                when spending. (Bitcoin Script&mdash;including the redeem-script mechanism
+                used here&mdash;is the subject of Chapter 11.)
             </p>
 
             <div class="definition">
@@ -629,7 +630,7 @@
             <ol>
                 <li><strong>Human-readable part (HRP):</strong> <code>bc</code> for mainnet, <code>tb</code> for testnet</li>
                 <li><strong>Separator:</strong> always <code>1</code></li>
-                <li><strong>Data part:</strong> witness version + witness program + checksum</li>
+                <li><strong>Data part:</strong> witness version + witness program + checksum (the witness is defined in Chapter 10; witness programs in Chapter 11)</li>
             </ol>
 
             <div class="definition">

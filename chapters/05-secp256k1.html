@@ -484,7 +484,8 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
 
             <p>
                 A public key is a point <span class="math">(x, y)</span> on the curve. There
-                are several ways to encode this point as a byte sequence.
+                are several ways to encode this point as a byte sequence (throughout,
+                <span class="math">||</span> denotes concatenation of byte strings).
             </p>
 
             <div class="definition">
@@ -546,6 +547,14 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     <li>Compute <span class="math">y = (y²)^{(p+1)/4} mod p</span> (valid since <span class="math">p ≡ 3 (mod 4)</span>)</li>
                     <li>If the parity of <span class="math">y</span> doesn't match the prefix, use <span class="math">p − y</span></li>
                 </ol>
+                <p>
+                    Step 2 works by Euler's criterion: a nonzero <span class="math">a</span> is a
+                    square mod <span class="math">p</span> exactly when
+                    <span class="math">a^((p−1)/2) ≡ 1 (mod p)</span>, and when
+                    <span class="math">p ≡ 3 (mod 4)</span> the exponent
+                    <span class="math">(p+1)/4</span> is an integer with
+                    <span class="math">(a^((p+1)/4))² = a^((p+1)/2) = a · a^((p−1)/2) ≡ a</span>.
+                </p>
             </div>
 
             <div class="remark">
@@ -682,7 +691,8 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
             <div class="exercise">
                 <span class="exercise-number">5.3.</span>
                 The prime <span class="math">p</span> satisfies <span class="math">p ≡ 3 (mod 4)</span>.
-                Verify this and explain why it enables efficient square root computation.
+                Verify this and explain why it enables efficient square root computation
+                (use Euler's criterion from Proposition 5.2's discussion).
             </div>
 
             <div class="exercise">

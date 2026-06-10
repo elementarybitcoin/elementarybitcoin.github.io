@@ -642,7 +642,9 @@ Verify(P, m, (r, s)):
             <p>
                 In Bitcoin, ECDSA signatures authorize the spending of funds. A transaction
                 input includes a signature proving the spender controls the private key
-                corresponding to the output's public key.
+                corresponding to the output's public key. (Transaction structure&mdash;inputs,
+                outputs, and sighash flags&mdash;is developed in Chapter 10; this section
+                previews how signatures fit in.)
             </p>
 
             <div class="definition">
@@ -672,9 +674,14 @@ Verify(P, m, (r, s)):
 
             <div class="exercise">
                 <span class="exercise-number">7.1.</span>
-                Trace through the ECDSA signing algorithm with small numbers:
-                <span class="math">n = 17</span>, <span class="math">z = 5</span>,
-                <span class="math">d = 7</span>, <span class="math">k = 3</span>.
+                Trace through the ECDSA signing algorithm with small numbers on the toy
+                curve <span class="math">y² = x³ + 2x + 2</span> over
+                <span class="math">𝔽₁₇</span>, with generator
+                <span class="math">G = (5, 1)</span> of order <span class="math">n = 19</span>.
+                Use <span class="math">z = 5</span>, <span class="math">d = 7</span>,
+                <span class="math">k = 3</span>. (Multiples of <span class="math">G</span>:
+                <span class="math">2G = (6, 3)</span>, <span class="math">3G = (10, 6)</span>,
+                <span class="math">4G = (3, 1)</span>, <span class="math">7G = (0, 6)</span>.)
             </div>
 
             <div class="exercise">

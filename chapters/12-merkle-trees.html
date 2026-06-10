@@ -594,7 +594,7 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
                 <ul>
                     <li>A transaction <span class="math">tx</span></li>
                     <li>A Merkle proof <span class="math">π</span></li>
-                    <li>A block header <span class="math">H</span> (from the longest chain)</li>
+                    <li>A block header <span class="math">H</span> (from the chain with the most work&mdash;block headers and chain selection are defined in Chapter 13)</li>
                 </ul>
                 <p>
                     An SPV client can verify that <span class="math">tx</span> is included in the
@@ -604,8 +604,8 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
             </div>
 
             <p>
-                The SPV security model assumes the longest chain represents honest consensus.
-                We will examine this assumption critically in Volume III.
+                The SPV security model assumes the most-work chain (Chapter 13) represents
+                honest consensus. We will examine this assumption critically in Volume III.
             </p>
 
             <div class="example">
