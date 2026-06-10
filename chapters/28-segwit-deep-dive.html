@@ -254,7 +254,7 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
                 <p>
                     For SegWit transactions, the txid is computed excluding witness data:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     txid = SHA256d(version || inputs || outputs || locktime)
                 </p>
                 <p>
@@ -359,13 +359,13 @@ where:
                 <p>
                     <strong>Block weight</strong> is calculated as:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     weight = 3 × base_size + total_size
                 </p>
                 <p>
                     Equivalently:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     weight = base_size × 4 + witness_size × 1
                 </p>
                 <p>
@@ -378,7 +378,7 @@ where:
                 <p>
                     <strong>Virtual bytes</strong> (vbytes) convert weight to a size metric:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     vbytes = ⌈weight / 4⌉
                 </p>
                 <p>
@@ -496,7 +496,7 @@ where:
                     The <strong>witness root</strong> is a Merkle root computed from wtxids
                     (witness transaction IDs), which include witness data:
                 </p>
-                <p style="text-align: center; font-family: 'Times New Roman', serif;">
+                <p class="math-block">
                     wtxid = SHA256d(serialized tx with witness)
                 </p>
                 <p>
@@ -724,7 +724,7 @@ SHA256d(
                 </p>
                 <pre style="background: #f5f5f5; padding: 1rem; font-family: monospace; font-size: 0.85rem;">
 scriptPubKey: OP_HASH160 &lt;hash&gt; OP_EQUAL
-redeemScript: OP_0 <20-byte-key-hash>
+redeemScript: OP_0 &lt;20-byte-key-hash&gt;
 witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
                 <p>
                     Address format: starts with '3' (vs 'bc1' for native).

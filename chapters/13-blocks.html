@@ -285,7 +285,7 @@
                     The <strong>compact target</strong> format encodes a 256-bit target in 4 bytes:
                 </p>
                 <p class="math-block">
-                    target = coefficient × 256^(exponent - 3)
+                    target = coefficient × 256^(exponent − 3)
                 </p>
                 <p>
                     where <code>bits = exponent || coefficient</code> (1 byte + 3 bytes).
@@ -383,21 +383,21 @@ target = 0x00ffff × 256^(29-3)
             <div class="theorem">
                 <p class="theorem-title">Theorem 13.2 (Chain Integrity)</p>
                 <p>
-                    If block <span class="math">B_n</span> contains <code>prev_hash = H(B_{n-1})</code>,
-                    then any modification to <span class="math">B_{n-1}</span> (including its transactions)
-                    invalidates <span class="math">B_n</span> and all subsequent blocks.
+                    If block <span class="math">Bₙ</span> contains <code>prev_hash = H(B[n-1])</code>,
+                    then any modification to <span class="math">Bₙ₋₁</span> (including its transactions)
+                    invalidates <span class="math">Bₙ</span> and all subsequent blocks.
                 </p>
             </div>
 
             <div class="proof">
                 <p class="proof-title">Proof.</p>
                 <p>
-                    Modifying any data in <span class="math">B_{n-1}</span> changes its header (via the
+                    Modifying any data in <span class="math">Bₙ₋₁</span> changes its header (via the
                     Merkle root if transactions change, or directly if header fields change). Assuming
                     <span class="math">H</span> is collision-resistant, this changes
-                    <span class="math">H(B_{n-1})</span> except with negligible probability. Since <span class="math">B_n</span> commits to
+                    <span class="math">H(Bₙ₋₁)</span> except with negligible probability. Since <span class="math">Bₙ</span> commits to
                     the original hash, the link breaks. Repairing requires new proof of work for
-                    <span class="math">B_n</span> and all descendants. □
+                    <span class="math">Bₙ</span> and all descendants. □
                 </p>
             </div>
         </section>

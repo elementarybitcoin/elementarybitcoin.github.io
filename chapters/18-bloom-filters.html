@@ -233,7 +233,7 @@
                     approximately:
                 </p>
                 <div class="formula">
-                    p ≈ (1 - e<sup>-kn/m</sup>)<sup>k</sup>
+                    p ≈ (1 − e<sup>−kn/m</sup>)<sup>k</sup>
                 </div>
             </div>
 
@@ -242,16 +242,16 @@
                 <p>
                     After inserting one element, each of the <var>k</var> hash functions sets
                     one bit. The probability that a specific bit is <em>not</em> set by one
-                    hash function is (1 - 1/m). After <var>kn</var> hash operations (from <var>n</var>
+                    hash function is (1 − 1/m). After <var>kn</var> hash operations (from <var>n</var>
                     elements), the probability a specific bit is still 0 is:
                 </p>
                 <p style="text-align: center;">
-                    (1 - 1/m)<sup>kn</sup> ≈ e<sup>-kn/m</sup>
+                    (1 − 1/m)<sup>kn</sup> ≈ e<sup>−kn/m</sup>
                 </p>
                 <p>
                     Thus the probability a specific bit is 1 is approximately (1 - e<sup>-kn/m</sup>).
                     A false positive occurs when all <var>k</var> bits checked for a non-member
-                    happen to be 1, giving probability (1 - e<sup>-kn/m</sup>)<sup>k</sup>.
+                    happen to be 1, giving probability (1 − e<sup>−kn/m</sup>)<sup>k</sup>.
                     Two approximations are hidden here: the <var>k</var> probed bits are treated
                     as independent (they are not), and the random set-bit fraction is replaced
                     by its expectation. The classical formula is in fact a slight
@@ -278,17 +278,17 @@
             <div class="example">
                 <p><strong>Example 18.1</strong> (Filter Sizing)</p>
                 <p>
-                    Suppose an SPV wallet has 100 addresses and wants a 0.1% (10<sup>-3</sup>) false
+                    Suppose an SPV wallet has 100 addresses and wants a 0.1% (10<sup>−3</sup>) false
                     positive rate. We need:
                 </p>
                 <p style="text-align: center;">
-                    (0.6185)<sup>m/100</sup> = 10<sup>-3</sup>
+                    (0.6185)<sup>m/100</sup> = 10<sup>−3</sup>
                 </p>
                 <p>
-                    Taking logarithms: m/100 · ln(0.6185) = ln(10<sup>-3</sup>)
+                    Taking logarithms: m/100 · ln(0.6185) = ln(10<sup>−3</sup>)
                 </p>
                 <p style="text-align: center;">
-                    m = 100 · (-6.908) / (-0.481) ≈ 1,436 bits ≈ 180 bytes
+                    m = 100 · (−6.908) / (−0.481) ≈ 1,436 bits ≈ 180 bytes
                 </p>
                 <p>
                     With k = 0.693 · (1436/100) ≈ 10 hash functions.
@@ -555,7 +555,7 @@
                 <p><strong>Proof sketch.</strong></p>
                 <p>
                     The attacker knows the hash function construction (Algorithm 18.1). For each
-                    candidate address <var>a</var>, they compute h₀(a), h₁(a), ..., h<sub>k-1</sub>(a)
+                    candidate address <var>a</var>, they compute h₀(a), h₁(a), ..., hₖ₋₁(a)
                     and check if all corresponding bits are set. True positives (actual wallet
                     addresses) will always match. False positives occur at rate p, but with
                     millions of blockchain addresses and typical filter sizes, the number of
@@ -625,10 +625,10 @@
                     the intersection of matching addresses has vastly reduced false positive rate:
                 </p>
                 <div class="formula">
-                    p<sub>intersection</sub> ≈ p₁ · p₂
+                    p_intersection ≈ p₁ · p₂
                 </div>
                 <p>
-                    After just 3 filter versions with p = 0.001, the false positive rate drops to 10<sup>-9</sup>.
+                    After just 3 filter versions with p = 0.001, the false positive rate drops to 10<sup>−9</sup>.
                 </p>
             </div>
 

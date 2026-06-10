@@ -315,10 +315,10 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
 
             <p>
                 The fact that <span class="math">n < p</span> might seem surprising. Hasse's
-                theorem guarantees that <span class="math">|n - (p+1)| ≤ 2√p</span>, but it
+                theorem guarantees that <span class="math">|n − (p+1)| ≤ 2√p</span>, but it
                 doesn't specify whether <span class="math">n</span> is slightly above or
                 below <span class="math">p + 1</span>. For secp256k1, we have
-                <span class="math">n ≈ p - 4.3 × 10³⁸</span>.
+                <span class="math">n ≈ p − 4.3 × 10³⁸</span>.
             </p>
 
             <div class="theorem">
@@ -544,7 +544,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                 </p>
                 <ol>
                     <li>Compute <span class="math">y² = x³ + 7 mod p</span></li>
-                    <li>Compute <span class="math">y = (y²)^{(p+1)/4} mod p</span> (valid since <span class="math">p ≡ 3 (mod 4)</span>)</li>
+                    <li>Compute <span class="math">y = (y²)^((p+1)/4) mod p</span> (valid since <span class="math">p ≡ 3 (mod 4)</span>)</li>
                     <li>If the parity of <span class="math">y</span> doesn't match the prefix, use <span class="math">p − y</span></li>
                 </ol>
                 <p>
