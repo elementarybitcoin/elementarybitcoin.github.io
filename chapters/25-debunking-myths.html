@@ -264,6 +264,19 @@
                 </p>
             </div>
 
+            <div class="nuance-box">
+                <h4>Nuance: Layer 2 has costs of its own</h4>
+                <p>
+                    The comparison is not free. Lightning requires inbound liquidity before
+                    a user can receive (Section 24.6), pathfinding can fail for large
+                    payments (Section 24.4), and every channel open or close is itself an
+                    on-chain transaction&mdash;so onboarding users onto layer 2 remains
+                    bounded by base-layer capacity. The honest claim is comparative: layer 2
+                    multiplies the value of each on-chain byte; it does not make block space
+                    irrelevant.
+                </p>
+            </div>
+
             <hr>
 
             <div class="myth-box">
@@ -334,7 +347,7 @@
                 <ul>
                     <li><strong>Minimum:</strong> Check the blockchain once per to_self_delay (the OP_CHECKSEQUENCEVERIFY relative-timelock delay on revoked commitments&mdash;not Chapter 22's "CSV" client-side validation&mdash;commonly 144&ndash;2016 blocks: 1 day to 2 weeks)</li>
                     <li><strong>With watchtower:</strong> Watchtower monitors on your behalf</li>
-                    <li><strong>eltoo channels:</strong> No punishment needed, just supersede old states</li>
+                    <li><strong>eltoo/LN-Symmetry channels (proposed; requires SIGHASH_ANYPREVOUT, Section 24.7):</strong> no punishment needed, old states simply superseded</li>
                 </ul>
             </div>
 
@@ -414,7 +427,7 @@
             <div class="remark">
                 <p><strong>Remark 25.7</strong> (SHA-256 Security Status)</p>
                 <p>
-                    As of 2024:
+                    As of early 2026:
                 </p>
                 <ul>
                     <li><strong>Collision resistance:</strong> <span class="math">2¹²⁸</span> operations (birthday bound); no attacks on full SHA-256 significantly better than this</li>
@@ -638,7 +651,7 @@
             </div>
 
             <div class="reality-box">
-                <h4>Reality: Protocol-level blacklisting is technically impossible</h4>
+                <h4>Reality: The protocol has no freeze mechanism; imposing one would require a consensus change the economy accepts</h4>
             </div>
 
             <div class="remark">
@@ -648,14 +661,19 @@
                 </p>
                 <ul>
                     <li>Anyone can generate unlimited addresses without permission</li>
-                    <li>Coins can be mixed, making tracking uncertain</li>
-                    <li>Any miner not censoring will include censored transactions</li>
-                    <li>Users can run their own miners to include their transactions</li>
+                    <li>No transaction field carries identity, and nothing in <span class="math">V(C, B)</span> (Definition 13.18) references a blacklist</li>
+                    <li>As long as some miners include a transaction and the majority does not orphan their blocks, it eventually confirms (soft censorship, Definition 36.6)&mdash;and censored users can pay higher fees to non-censoring miners</li>
                 </ul>
                 <p>
-                    Censorship requires <em>all</em> miners to cooperate&mdash;a coordination
-                    problem with economic incentives against cooperation (censored users
-                    pay higher fees to non-censoring miners).
+                    Two honest caveats sharpen the claim rather than weaken it. A majority
+                    coalition willing to orphan non-compliant blocks could enforce hard
+                    censorship (Definition 36.6)&mdash;at the visible cost of attacking the
+                    chain itself. And a soft fork could, in principle, make specific outputs
+                    unspendable: freezing is not "technically impossible," it is a rule
+                    change&mdash;and a rule change must win the fork game of Chapter 26
+                    against the economic weight that rejects it. That is a stronger defense
+                    than impossibility: it does not depend on no one trying, only on the
+                    economy declining to follow.
                 </p>
             </div>
 
