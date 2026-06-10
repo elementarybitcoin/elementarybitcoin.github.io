@@ -526,6 +526,40 @@
                     <li><strong>Outcome:</strong> No consensus to filter; market decides</li>
                 </ul>
             </div>
+
+            <h3 id="s33-7-4">33.7.4 The Relay-Policy Dispute (2025)</h3>
+
+            <div class="example">
+                <p class="example-title">Example 33.6 (The OP_RETURN Default)</p>
+                <p>
+                    In 2025 a dispute over Bitcoin Core's default data-carrier policy&mdash;the
+                    relay limit on OP_RETURN payloads (Section 11.9, Appendix D.6)&mdash;became
+                    the most heated governance episode since the block size war. One side
+                    argued that relay defaults should track what miners demonstrably include,
+                    since a filter that no longer predicts confirmation only degrades fee
+                    estimation and pushes transactions to private submission channels; the
+                    other argued that defaults are normative whatever their technical effect,
+                    and that relaxing them signaled endorsement of non-monetary data on the
+                    chain. A substantial minority of node operators switched to an
+                    alternative implementation with stricter defaults.
+                </p>
+                <p>
+                    The book's apparatus classifies the episode without adjudicating it.
+                    The disputed rules are policy, not consensus (Definition 16.2): no
+                    setting of them can split the chain (Appendix D.6), and both sides'
+                    blocks remained valid to all. Claims that one side or the other
+                    "lacked consensus" exhibited precisely the ambiguity of Remark 33.2&mdash;the
+                    rules permitted both behaviors (sense 1), while neither near-unanimity
+                    (sense 2) nor general agreement (sense 3) existed for either default.
+                    And the migration of operators between implementations was the client
+                    diversity trade-off of Remark 33.13 operating in real time: an exercise
+                    of the exit option that is harmless at the policy layer&mdash;and would
+                    be a chain split at the consensus layer. What the episode demonstrates
+                    is that defaults are a governance surface even when they govern nothing
+                    consensus-critical: the fight was over what Bitcoin is <em>for</em>,
+                    conducted in the only venue available.
+                </p>
+            </div>
         </section>
 
         <section>
@@ -587,7 +621,7 @@
             </div>
 
             <div class="example">
-                <p class="example-title">Example 33.6 (March 2013: A Specification Failure)</p>
+                <p class="example-title">Example 33.7 (March 2013: A Specification Failure)</p>
                 <p>
                     Chapters 26 and 36 treat the March 2013 fork as an accidental chain split.
                     Reread it as a statement about specification. Bitcoin Core 0.7 stored the
@@ -693,7 +727,7 @@
 
         <nav class="chapter-navigation">
             <a href="32-beyond-lightning.html" class="prev-chapter">← Chapter 32: Beyond Lightning</a>
-            <a href="34-drivechains.html" class="next-chapter">Chapter 34: Drivechains →</a>
+            <a href="34-scaling-verification.html" class="next-chapter">Chapter 34: Scaling Verification →</a>
         </nav>
     </main>
 

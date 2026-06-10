@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 34: Scaling Verification | Elementary Bitcoin</title>
+    <meta name="description" content="Chapter 34: Scaling Verification - Verification cost as the binding constraint on Bitcoin's reach, governance, and monetary ambitions">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Elementary Bitcoin">
+    <meta property="og:title" content="Chapter 34: Scaling Verification | Elementary Bitcoin">
+    <meta property="og:description" content="Verification cost as the binding constraint on Bitcoin's reach, governance, and monetary ambitions">
+    <meta property="og:url" content="https://elementarybitcoin.org/chapters/34-scaling-verification.html">
+    <meta property="og:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Chapter 34: Scaling Verification | Elementary Bitcoin">
+    <meta name="twitter:description" content="Verification cost as the binding constraint on Bitcoin's reach, governance, and monetary ambitions">
+    <meta name="twitter:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="chapter-nav">
+        <a href="../index.html">Contents</a>
+        <span class="nav-separator">·</span>
+        <span class="volume-indicator">Volume IV: Forks and Futures</span>
+    </nav>
+
+    <header class="chapter-header">
+        <p class="chapter-number">Chapter 34</p>
+        <h1>Scaling Verification</h1>
+        <p class="chapter-subtitle">Bitcoin on Every Device</p>
+    </header>
+
+    <main class="chapter-content">
+        <section>
+            <p class="chapter-intro">
+                Volume III measured what it costs to verify Bitcoin: in gigabytes, in
+                megabytes per day, in days of initial synchronization. Chapter 33 asked
+                who governs Bitcoin and answered, in part, "those who enforce the rules."
+                This chapter joins the two questions. The cost of verification determines
+                who can enforce the consensus rules, and therefore who participates in
+                governance, and therefore how far Bitcoin's monetary ambitions can extend
+                without changing character. We assemble the book's own measurements into
+                a hierarchy of verification tiers, ask what other distributed systems
+                teach about driving such costs toward zero, build a small formal model of
+                rule enforcement, and state precisely what the later chapters of this
+                volume quietly presuppose.
+            </p>
+        </section>
+
+        <section>
+            <h2 id="s34-1">34.1 The Binding Constraint</h2>
+
+            <p>
+                A user "verifies Bitcoin" to the extent that the user computes the
+                validation predicate <span class="math">V(C, B)</span> of Definition 13.18
+                rather than asking someone else for the answer. Volume III showed that this
+                is not a binary choice: between full validation and blind trust lies a
+                spectrum of architectures, each verifying some properties and delegating
+                others. We now give the spectrum a name and a price list.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 34.1 (Verification Tier)</p>
+                <p>
+                    A <strong>verification tier</strong> is a class of client architectures
+                    characterized by three quantities:
+                </p>
+                <ul>
+                    <li><strong>Setup cost:</strong> storage and bandwidth required to reach
+                        the chain tip from nothing;</li>
+                    <li><strong>Steady-state cost:</strong> bandwidth and computation required
+                        to stay at the tip;</li>
+                    <li><strong>Verified set:</strong> the subset of consensus properties the
+                        client checks for itself rather than trusts.</li>
+                </ul>
+                <p>
+                    Two clients occupy the same tier when all three quantities agree to
+                    within constant factors.
+                </p>
+            </div>
+
+            <p>
+                The book has already measured the major tiers. We collect the numbers in
+                one table, citing the chapter in which each was derived. Figures are as of
+                roughly mid-2026, height <span class="math">&asymp; 901,000</span>.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Setup cost</th>
+                        <th>Steady state</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Archival full node</td>
+                        <td>~600 GB storage; days of IBD</td>
+                        <td>~245 MB/day; full validation</td>
+                        <td>Ch 21, &sect;21.1</td>
+                    </tr>
+                    <tr>
+                        <td>Pruned full node</td>
+                        <td>~10 GB retained (full IBD bandwidth still required)</td>
+                        <td>~245 MB/day; full validation</td>
+                        <td>&sect;21.4</td>
+                    </tr>
+                    <tr>
+                        <td>AssumeUTXO node</td>
+                        <td>~10 GB snapshot, then snapshot-to-tip validation; historical
+                            validation in background</td>
+                        <td>~245 MB/day; full validation at the tip</td>
+                        <td>&sect;21.3</td>
+                    </tr>
+                    <tr>
+                        <td>Header-only SPV</td>
+                        <td><span class="math">80 &times; height</span> bytes
+                            <span class="math">&asymp; 72 MB</span></td>
+                        <td>~12 KB/day of headers</td>
+                        <td>Theorem 17.1</td>
+                    </tr>
+                    <tr>
+                        <td>Neutrino (BIP-157/158)</td>
+                        <td>~72 MB headers + filter headers</td>
+                        <td>~3&ndash;5 MB/day</td>
+                        <td>Example 19.5</td>
+                    </tr>
+                    <tr>
+                        <td>API client</td>
+                        <td>zero</td>
+                        <td>zero verification</td>
+                        <td>Ch 20, &sect;20.4, &sect;20.6</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>
+                The tiers map onto device classes. A dedicated server or a desktop with a
+                terabyte disk runs an archival node comfortably. A laptop runs a pruned or
+                AssumeUTXO node, at the cost of days of background computation or trust in
+                a release-embedded snapshot hash. A phone cannot, in practice, hold 600 GB
+                or sustain days of CPU-bound validation, but it holds 72 MB of headers
+                without noticing and absorbs 3&ndash;5 MB per day of filters within an
+                ordinary data plan: the phone's natural tier is Neutrino. A browser tab,
+                today, occupies only the bottom row: every popular web wallet is an API
+                client that verifies nothing (Section 20.6 called this the validation gap).
+                Section 34.3 examines whether the browser must stay there.
+            </p>
+
+            <figure>
+                <svg class="diagram" width="540" height="240" viewBox="0 0 540 240">
+                    <text x="270" y="20" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Verification tiers by device class</text>
+
+                    <!-- bars: width suggests population reach, label gives tier -->
+                    <rect x="200" y="40" width="140" height="26" fill="#8b4513" rx="3"/>
+                    <text x="270" y="57" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">Archival / pruned node</text>
+                    <text x="360" y="57" font-family="Georgia" font-size="9" fill="#444">servers, desktops</text>
+
+                    <rect x="180" y="76" width="180" height="26" fill="#5a8f5a" rx="3"/>
+                    <text x="270" y="93" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">AssumeUTXO</text>
+                    <text x="380" y="93" font-family="Georgia" font-size="9" fill="#444">laptops</text>
+
+                    <rect x="140" y="112" width="260" height="26" fill="#4a90d9" rx="3"/>
+                    <text x="270" y="129" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">SPV / Neutrino</text>
+                    <text x="420" y="129" font-family="Georgia" font-size="9" fill="#444">phones</text>
+
+                    <rect x="80" y="148" width="380" height="26" fill="#2f4f4f" rx="3"/>
+                    <text x="270" y="165" text-anchor="middle" font-family="Georgia" font-size="9" fill="white">API / custodial (no verification)</text>
+                    <text x="480" y="165" font-family="Georgia" font-size="9" fill="#444">browsers</text>
+
+                    <!-- axis annotations -->
+                    <text x="270" y="200" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">bar width &prop; fraction of devices that can occupy the tier today</text>
+                    <line x1="60" y1="40" x2="60" y2="174" stroke="#999" stroke-width="1"/>
+                    <text x="52" y="50" text-anchor="end" font-family="Georgia" font-size="8" fill="#666">more</text>
+                    <text x="52" y="60" text-anchor="end" font-family="Georgia" font-size="8" fill="#666">verified</text>
+                    <text x="52" y="160" text-anchor="end" font-family="Georgia" font-size="8" fill="#666">less</text>
+                    <text x="52" y="170" text-anchor="end" font-family="Georgia" font-size="8" fill="#666">verified</text>
+                </svg>
+                <figcaption>Figure 34.1: Each step down the tier ladder trades verified
+                    properties for reach. The widest tiers verify the least.</figcaption>
+            </figure>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.1 (The Binding Constraint)</p>
+                <p>
+                    The thesis of this chapter, stated precisely: each tier's cost
+                    determines what fraction of users can occupy it, and that fraction is
+                    not merely a usability statistic. Section 34.4 will show that the
+                    fraction of the <em>economy</em> that can cheaply verify a given rule
+                    bounds the credibility of enforcing that rule&mdash;so the distribution
+                    of users across the tiers of this section is politically load-bearing.
+                    Verification cost is the binding constraint simultaneously on Bitcoin's
+                    reach (who can hold it sovereignly), on its governance (who can enforce
+                    its rules), and&mdash;Section 34.6&mdash;on the monetary scenarios of
+                    Chapter 40. We emphasize that this framing is itself contested:
+                    "verification must be cheap" was, historically, the small-block
+                    position in the dispute of Section 33.7.1, and Section 34.4 presents
+                    the opposing readings rather than adjudicating them.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2 id="s34-2">34.2 Why the Web Scaled</h2>
+
+            <p>
+                Bitcoin is not the first decentralized system asked to serve billions of
+                clients. The web did it, and its scaling was not an accident: it was
+                designed, and the design was later written down. Fielding's doctoral
+                dissertation&mdash;Fielding, R. T. (2000), <em>Architectural Styles and
+                the Design of Network-based Software Architectures</em>, Ph.D.
+                dissertation, University of California, Irvine&mdash;derives in its
+                Chapter 5 the REST architectural style as the set of constraints that
+                made web-scale possible. Each constraint purchases a specific scalability
+                property. It is worth asking which of those purchases Bitcoin's
+                verification stack has already made, and which it cannot make.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 34.2 (REST Constraints)</p>
+                <p>
+                    The principal REST constraints, each with the property it purchases:
+                </p>
+                <ul>
+                    <li><strong>Client&ndash;server:</strong> separating interface from
+                        storage lets the two evolve and scale independently.</li>
+                    <li><strong>Statelessness:</strong> every request carries all context
+                        needed to process it, so any server can answer any request and
+                        servers can be added or fail freely.</li>
+                    <li><strong>Cache:</strong> responses labeled cacheable can be served
+                        by intermediaries, so popular data costs the origin nothing.</li>
+                    <li><strong>Uniform interface:</strong> all parties speak one small
+                        vocabulary, so components can be substituted without
+                        renegotiation.</li>
+                    <li><strong>Layered system:</strong> each component sees only the
+                        adjacent layer, so intermediaries (caches, proxies, gateways)
+                        can be interposed without anyone's consent.</li>
+                </ul>
+            </div>
+
+            <p>
+                Now the mapping, stated honestly&mdash;as observation, not design lineage,
+                since Bitcoin's authors did not work from Fielding's text.
+            </p>
+
+            <p>
+                <strong>Headers-first sync is cacheable, verifiable state transfer.</strong>
+                The header chain of Chapter 17 is identical for every client, immutable
+                once buried, and self-authenticating: a client checks the proof-of-work
+                and the hash links itself (Theorem 17.1 prices the whole chain at
+                <span class="math">80 &times; height</span> bytes). Because verification
+                travels with the data, the data can be served by <em>anyone</em>&mdash;an
+                untrusted mirror, a CDN, a peer&mdash;exactly the property REST's cache
+                constraint purchases, with cryptography substituting for the origin's
+                authority.
+            </p>
+
+            <p>
+                <strong>Compact filters are a uniform, cacheable interface to chain
+                data.</strong> The BIP-158 filter for a block is deterministic: every
+                client requests the identical artifact, and Theorem 19.1 shows that
+                clients downloading it are indistinguishable to the server. A
+                deterministic response to a parameter-free request is the most cacheable
+                object there is, and the interface is uniform in REST's sense&mdash;one
+                filter format for all wallets, rather than the per-client bespoke queries
+                of BIP-37 (Chapter 18) or the Electrum protocol (Section 20.2).
+            </p>
+
+            <p>
+                <strong>The layered money stack is REST's layered system.</strong>
+                Chapters 23 and 24 built payments in layers: the chain settles channel
+                opens and closes, channels carry the traffic, and Theorem 23.1 gives the
+                multiplier&mdash;<span class="math">N</span> payments per channel cost two
+                on-chain transactions. A Lightning payer sees only the adjacent layer; the
+                base chain neither knows nor consents. This is the layered-system
+                constraint applied to settlement rather than to content delivery.
+            </p>
+
+            <p>
+                <strong>Statelessness maps, partially, to verification locality.</strong>
+                In the UTXO model, a transaction's validity depends only on the
+                transaction itself and the outputs it spends (Chapters 10&ndash;11)&mdash;
+                not on account histories or global balances. Each script execution is a
+                self-contained request carrying its own context. The qualification
+                matters: full validation still requires the UTXO set, a global state.
+                The locality is real but bounded.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.2 (Where the Analogy Breaks)</p>
+                <p>
+                    The web scaled by <em>not requiring global consistency</em>. Two users
+                    may see different versions of a page, stale caches resolve themselves
+                    eventually, and nothing breaks. Bitcoin's entire purpose is the
+                    opposite guarantee: every node computes the same validation predicate
+                    <span class="math">V(C, B)</span> of Definition 13.18 and converges on
+                    one chain. Consequently only the <em>read and verify</em> path&mdash;
+                    headers, filters, blocks, Merkle proofs, all immutable and
+                    self-authenticating&mdash;scales the way the web scales. The
+                    <em>write</em> path, space in blocks, is globally replicated by
+                    construction and therefore scarce by construction; no cache or
+                    intermediary can manufacture more of it. This asymmetry is not a flaw
+                    in the analogy but the justification for the layered architecture:
+                    Chapters 23&ndash;24 move writes off the scarce resource precisely
+                    because reads were the only thing that could be made cheap. We do not
+                    claim the web's trajectory predicts Bitcoin's; we claim only that
+                    where Bitcoin's verification path has scaled, it has done so by the
+                    same architectural moves, and where it cannot, the obstruction is
+                    consensus itself.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2 id="s34-3">34.3 The BitTorrent Precedent</h2>
+
+            <p>
+                A second precedent sits closer to Bitcoin: a peer-to-peer protocol with
+                no servers at all. Cohen, B. (2003), "Incentives Build Robustness in
+                BitTorrent," <em>Workshop on Economics of Peer-to-Peer Systems</em>,
+                described a design in which peers exchange pieces of a file under a
+                tit-for-tat policy, verifying each piece against hashes in a small trusted
+                metadata file. The structural kinship is plain: a compact verified
+                commitment (the torrent's piece hashes; Bitcoin's header chain) lets
+                untrusted peers serve bulk data (file pieces; blocks and filters) that the
+                recipient checks for itself.
+            </p>
+
+            <p>
+                BitTorrent's deployment trajectory is the instructive part. It began as a
+                native client that users installed; it was then embedded invisibly inside
+                other applications (game updaters, media distributors); and finally
+                WebTorrent carried the protocol into the browser itself, replacing TCP
+                sockets with WebRTC data channels so that a web page could join a swarm
+                with no installation step at all. Each stage collapsed adoption friction,
+                and the last stage collapsed it to zero: the browser is the one runtime
+                nearly every connected human already has. If Bitcoin verification is to
+                reach the widest tier of Figure 34.1, the browser is where it must run,
+                and the browser imposes its own constraints.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 34.3 (Browser-Tier Constraints)</p>
+                <p>
+                    A verifying client running in an unmodified browser must operate
+                    under:
+                </p>
+                <ul>
+                    <li><strong>No listening sockets.</strong> A page cannot accept inbound
+                        connections; it reaches peers only through outbound WebSocket or
+                        WebRTC transports, so some bridge between the browser and the
+                        TCP-speaking node network must exist.</li>
+                    <li><strong>Storage quotas.</strong> Persistent storage is limited and
+                        evictable. The full header chain
+                        (<span class="math">&asymp; 72 MB</span>, Theorem 17.1) fits
+                        within typical quotas; a checkpointed anchor&mdash;shipping the
+                        client with a recent header hash and syncing forward from
+                        it&mdash;reduces the requirement to megabytes, at a trust cost
+                        identical in kind to AssumeValid's release-embedded hash, analyzed
+                        in Section 21.2.</li>
+                    <li><strong>No persistent daemon.</strong> A tab does not run while
+                        closed. The client therefore synchronizes on open, and the cost of
+                        catching up after an absence&mdash;the arithmetic of Example
+                        34.1&mdash;determines whether opening the wallet is instant or
+                        intolerable.</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 34.1 (A Week Offline, in the Browser)</p>
+                <p>
+                    Suppose a browser-based Neutrino client is opened after seven days
+                    closed: <span class="math">7 &times; 144 = 1,008</span> blocks behind.
+                    Using the per-block figures of Example 19.5:
+                </p>
+                <ul>
+                    <li>Headers: <span class="math">1,008 &times; 80 B &asymp; 81 KB</span></li>
+                    <li>Filter headers: <span class="math">1,008 &times; 32 B &asymp; 32 KB</span></li>
+                    <li>Filters: <span class="math">1,008 &times; ~18 KB &asymp; 18 MB</span></li>
+                </ul>
+                <p>
+                    Roughly <span class="math">18 MB</span> total&mdash;a few seconds on a
+                    home connection, comparable to loading a media-heavy web page. The
+                    catch-up cost is dominated entirely by filters, which is why filter
+                    determinism (Theorem 19.1) matters doubly here: a deterministic
+                    artifact can be served from any cache or CDN, so the catch-up need
+                    not burden full nodes at all.
+                </p>
+            </div>
+
+            <p>
+                We state plainly what does not yet exist: as of this writing there is no
+                production browser wallet that verifies headers and filters in the tab.
+                The components exist separately&mdash;BIP-157/158 served by Bitcoin Core
+                since version 0.21, WebRTC transports proven by WebTorrent at scale,
+                header validation trivially within browser computational budgets&mdash;but
+                no deployed system composes them. The claim of this section is therefore a
+                trajectory with stated engineering constraints, not a description of the
+                present. The constraints are not known to be blocking; neither has anyone
+                yet borne the cost of satisfying them.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.3 (The Seeding Problem)</p>
+                <p>
+                    One disanalogy with BitTorrent deserves emphasis. Cohen's protocol is
+                    self-provisioning: peers upload to peers that upload to them
+                    (tit-for-tat), and seeding beyond that is reciprocal-altruistic but
+                    cheap and visible. Bitcoin full nodes that serve filters to light
+                    clients receive nothing for it&mdash;there is no protocol-level
+                    compensation, and a light client by construction has nothing chain-
+                    relevant to offer back. At today's light-client population this
+                    altruism is ample. Whether it remains ample if the browser tier grows
+                    by two orders of magnitude&mdash;or whether serving infrastructure
+                    would centralize into a few well-funded gateways, recreating at the
+                    transport layer the intermediation the architecture removed at the
+                    validation layer&mdash;is an open question, and we record it as such.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2 id="s34-4">34.4 The Activation Game</h2>
+
+            <p>
+                We now make the chapter's political claim formal. Chapter 26 analyzed fork
+                adoption as a coordination game (Section 26.4) and proved, in Theorem 26.2,
+                that a soft fork enforced by a majority of hash power produces convergence
+                without a permanent split. That theorem takes the hashrate fraction as
+                given. The question contested in practice&mdash;and contested bitterly in
+                2017&mdash;is what determines the hashrate fraction. The model below gives
+                the standard answer: hashrate follows economic weight, and economic weight
+                can enforce only what it can verify.
+            </p>
+
+            <div class="definition">
+                <p class="definition-title">Definition 34.4 (The Activation Game)</p>
+                <p>
+                    After a contested soft-fork rule change
+                    <span class="math">R<sub>new</sub> &sub; R<sub>old</sub></span>
+                    (rule sets as in Definition 26.5), suppose two candidate chains exist:
+                    chain <span class="math">N</span>, whose blocks satisfy
+                    <span class="math">R<sub>new</sub></span>, and chain
+                    <span class="math">O</span>, which contains at least one block valid
+                    under <span class="math">R<sub>old</sub></span> only. Economic actors
+                    are weighted by the volume of goods, services, and currency they trade
+                    for coins. Each actor accepts coins on exactly one chain. Miners
+                    allocate hashrate <span class="math">H</span> freely between the
+                    chains to maximize revenue, and each chain's block reward is
+                    <span class="math">R</span> coins, valued at prices
+                    <span class="math">p<sub>N</sub></span> and
+                    <span class="math">p<sub>O</sub></span> proportional to the economic
+                    weight accepting that chain's coins.
+                </p>
+            </div>
+
+            <div class="definition">
+                <p class="definition-title">Definition 34.5 (Enforcing Fraction)</p>
+                <p>
+                    The <strong>enforcing fraction</strong> <span class="math">e</span> is
+                    the fraction of total economic weight that enforces
+                    <span class="math">R<sub>new</sub></span>&mdash;that is, validates
+                    incoming coins against <span class="math">R<sub>new</sub></span> and
+                    refuses coins whose history violates it. In the model,
+                    <span class="math">p<sub>N</sub> &prop; e</span> and
+                    <span class="math">p<sub>O</sub> &prop; 1 &minus; e</span>.
+                </p>
+            </div>
+
+            <div class="theorem">
+                <p class="theorem-title">Proposition 34.1 (Hashrate Follows Economic Weight)</p>
+                <p>
+                    In the activation game, if <span class="math">e &gt; 1/2</span>, then
+                    regardless of how hashrate was initially signaled or allocated:
+                </p>
+                <ol>
+                    <li>in any equilibrium, chain <span class="math">N</span> receives the
+                        majority of hashrate and accumulates expected work at a strictly
+                        greater rate;</li>
+                    <li>by Theorem 26.2, all nodes&mdash;including those enforcing only
+                        <span class="math">R<sub>old</sub></span>&mdash;converge on chain
+                        <span class="math">N</span> with probability 1; and</li>
+                    <li>anticipating (2), profit-maximizing miners allocate all hashrate
+                        to chain <span class="math">N</span>.</li>
+                </ol>
+            </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof.</p>
+                <p>
+                    (1) With each chain's difficulty adjusted to its hashrate, a miner
+                    contributing hash fraction <span class="math">h/H<sub>i</sub></span>
+                    on chain <span class="math">i</span> earns that fraction of chain
+                    <span class="math">i</span>'s rewards, so revenue per unit hashrate on
+                    chain <span class="math">i</span> is proportional to
+                    <span class="math">R&middot;p<sub>i</sub>/H<sub>i</sub></span>. If both
+                    chains are mined in equilibrium, revenue per unit hashrate must be
+                    equal, giving
+                    <span class="math">H<sub>N</sub>/H<sub>O</sub> = p<sub>N</sub>/p<sub>O</sub> = e/(1 &minus; e) &gt; 1</span>;
+                    otherwise the corner allocation already favors
+                    <span class="math">N</span>. In either case
+                    <span class="math">H<sub>N</sub> &gt; H<sub>O</sub></span>, so chain
+                    <span class="math">N</span>'s expected work grows strictly faster.
+                </p>
+                <p>
+                    (2) Blocks satisfying <span class="math">R<sub>new</sub></span> also
+                    satisfy <span class="math">R<sub>old</sub></span>, since
+                    <span class="math">R<sub>new</sub> &sub; R<sub>old</sub></span>. Nodes
+                    enforcing <span class="math">R<sub>old</sub></span> follow the
+                    most-work valid chain (Definition 26.10), and by the law of large
+                    numbers chain <span class="math">N</span>'s work lead grows without
+                    bound, so those nodes reorganize onto chain <span class="math">N</span>
+                    with probability 1&mdash;this is precisely the convergence of Theorem
+                    26.2, with the majority condition supplied by (1) rather than assumed.
+                </p>
+                <p>
+                    (3) Once old-rules nodes converge on chain <span class="math">N</span>,
+                    chain <span class="math">O</span> is orphaned and coins minted on it
+                    cease to exist on any surviving ledger. A rational miner anticipating
+                    this assigns chain-<span class="math">O</span> rewards value
+                    approaching zero, making full allocation to chain
+                    <span class="math">N</span> the unique best response&mdash;independent
+                    of initial signaling. <span class="qed"></span>
+                </p>
+            </div>
+
+            <div class="example">
+                <p class="example-title">Example 34.2 (Revenue at e = 0.8)</p>
+                <p>
+                    Let <span class="math">e = 0.8</span> and normalize so a coin's price
+                    equals the economic weight accepting it. Before convergence, the
+                    interior equilibrium of Proposition 34.1 gives
+                    <span class="math">H<sub>N</sub>/H<sub>O</sub> = 0.8/0.2 = 4</span>:
+                    chain <span class="math">N</span> carries 80% of hashrate and finds
+                    blocks four times as fast, so old-rules nodes see chain
+                    <span class="math">N</span> pull ahead almost immediately. A miner who
+                    instead commits everything to chain <span class="math">O</span> earns
+                    rewards worth <span class="math">0.2/0.8 = 25%</span> of the enforcing
+                    chain's per-coin value even before the orphaning of step (3) drives
+                    that value toward zero.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.4 (Enforcement Requires Verification)</p>
+                <p>
+                    The model's lever is <span class="math">e</span>, and here is the
+                    chapter's punchline, stated carefully:
+                    <span class="math">e</span> is bounded above by the fraction of
+                    economic weight that can verify the rule
+                    <span class="math">R<sub>new</sub></span> cheaply. Enforcement, by
+                    Definition 13.18, means computing the validation predicate yourself;
+                    an actor that cannot detect a violation cannot refuse the violating
+                    coins, whatever its stated policy. An exchange running an API client
+                    enforces nothing. A merchant on a Neutrino wallet enforces header
+                    validity but not <span class="math">R<sub>new</sub></span>
+                    (Section 17.4: SPV does not prove rule compliance). Therefore the
+                    credibility of a user-activated soft fork&mdash;a UASF, in which
+                    economic actors threaten to reject non-enforcing blocks&mdash;is a
+                    function of the verification-cost distribution of Section 34.1: the
+                    threat is only as broad as the population that can afford to make it.
+                    Conversely, miner-activated soft forks are rational
+                    <em>delegation</em> precisely when verification is concentrated: if
+                    few economic actors validate, having miners coordinate the upgrade is
+                    not a usurpation of user sovereignty but a reflection of where
+                    verification actually resides.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.5 (Two Readings of the Block-Size War)</p>
+                <p>
+                    The model permits a disciplined rereading of Section 33.7.1. One camp
+                    reads 2017 as the model vindicated in the users' favor: BIP-148 raised
+                    the credible enforcing fraction, miners observed
+                    <span class="math">e</span> moving against the non-enforcing chain,
+                    and signaling flipped within weeks&mdash;users can enforce. The other
+                    camp observes that the enforcement which mattered was concentrated:
+                    exchanges, payment processors, and a comparatively small population of
+                    economic full nodes constituted most of the weight behind
+                    <span class="math">e</span>, so the episode demonstrates coordination
+                    among large economic actors rather than enforcement by the masses.
+                    The readings disagree about who moved <span class="math">e</span>;
+                    they agree&mdash;and this is the point&mdash;that the underlying
+                    dispute was about the cost of validation and who could afford it.
+                    Larger blocks raise the cost of every tier in Section 34.1's table;
+                    one side priced that against on-chain capacity and accepted it, the
+                    other did not. The war was the activation game played over the
+                    parameter that determines who may play.
+                </p>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.6 (Limitations of the Model)</p>
+                <p>
+                    The model is deliberately simple, and its simplifications are not
+                    innocent. Price formation is not a weighted vote: markets aggregate
+                    speculation, leverage, and liquidity, not merely acceptance, and the
+                    2017 futures markets traded on thin volume. The model is reflexive in
+                    practice&mdash;miners watch prices that traders set by watching
+                    miners&mdash;so the clean sequencing of the proof understates the
+                    scope for self-fulfilling stampedes in either direction. The
+                    enforcing fraction <span class="math">e</span> is not empirically
+                    measurable; participants act on noisy proxies (corporate statements,
+                    node counts that can be Sybilled, futures prices). Each actor was
+                    assigned to exactly one chain, excluding the many who would accept
+                    either. And the wipeout asymmetry in step (3) is specific to soft
+                    forks: for a hard fork, with neither chain's blocks valid on the
+                    other's rules, both chains can persist and the model predicts only
+                    the hashrate split of step (1)&mdash;consistent with the survival of
+                    the 2017 hard forks recorded in Chapter 27.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2 id="s34-5">34.5 The Trust-Drift Ladder</h2>
+
+            <p>
+                Sections 34.1 through 34.4 each examined the verification spectrum from
+                one angle. We now unify it. Read each row of the following table as a
+                rung: descending the ladder, the verified set shrinks, the trusted set
+                grows, and the setup cost falls&mdash;which is exactly why the lower rungs
+                are the populated ones.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Rung</th>
+                        <th>Verified</th>
+                        <th>Trusted</th>
+                        <th>Analyzed in</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Full validation</td>
+                        <td>every rule, every block, from genesis</td>
+                        <td>nothing beyond the software itself and one's own hardware</td>
+                        <td>Ch 13, Ch 21</td>
+                    </tr>
+                    <tr>
+                        <td>AssumeValid</td>
+                        <td>everything except historical script signatures</td>
+                        <td>the release process that embedded the assumed-valid hash</td>
+                        <td>&sect;21.2</td>
+                    </tr>
+                    <tr>
+                        <td>AssumeUTXO</td>
+                        <td>everything from the snapshot forward, immediately; history
+                            verified in background</td>
+                        <td>the snapshot hash, until background validation completes</td>
+                        <td>&sect;21.3</td>
+                    </tr>
+                    <tr>
+                        <td>SPV / Neutrino</td>
+                        <td>proof-of-work, header chain, transaction inclusion</td>
+                        <td>majority hashrate for rule compliance of confirmed
+                            transactions</td>
+                        <td>&sect;17.2&ndash;17.6, Ch 19</td>
+                    </tr>
+                    <tr>
+                        <td>Electrum-style servers</td>
+                        <td>headers and Merkle inclusion proofs</td>
+                        <td>the server, for completeness of history and for privacy</td>
+                        <td>&sect;20.2&ndash;20.3</td>
+                    </tr>
+                    <tr>
+                        <td>API / custodial</td>
+                        <td>nothing</td>
+                        <td>the provider, entirely&mdash;balances, history, and in the
+                            custodial case the keys themselves</td>
+                        <td>&sect;20.4, &sect;20.6</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>
+                The ladder is a description, not a prediction. The contested question is
+                where, on this ladder, users will actually live as adoption grows&mdash;and
+                that question is older than every scaling technology in Volume III.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.7 (The Finney Objection)</p>
+                <p>
+                    Hal Finney, the protocol's first recipient, anticipated the bottom of
+                    the ladder before any of its upper rungs existed. In a forum post of
+                    30 December 2010 ("Bitcoin Bank," bitcointalk.org), he argued that
+                    Bitcoin's natural mature form is a settlement layer among
+                    "bitcoin banks"&mdash;institutions that custody coins and issue their
+                    own digital cash against them, with ordinary users transacting in the
+                    banks' liabilities and the chain settling among institutions. Critics
+                    of layered scaling press this as the realistic reading of the ladder:
+                    the bottom rungs are where users actually land, because they are
+                    cheapest and most convenient, so "scaling in layers" means in
+                    practice custodial drift and the re-intermediation Bitcoin was built
+                    to remove&mdash;Finney's banks, with better branding. Proponents of
+                    layered scaling respond on two fronts: first, the upper rungs of the
+                    ladder discipline the lower ones in a way fiat banking never
+                    had&mdash;a custodian whose liabilities are auditable against a public
+                    chain, and whose depositors can exit to self-custody at the cost of
+                    one transaction, is constrained as no fractional-reserve bank ever
+                    was; second, the alternative of placing all economic activity
+                    on-chain fails on arithmetic, since Theorem 23.1's two on-chain
+                    transactions per channel is already the optimistic case and Chapter
+                    23's throughput analysis admits no global payment volume at the base
+                    layer. Both positions are coherent; they weigh the same ladder
+                    differently, and this book adjudicates neither.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2 id="s34-6">34.6 Hyperbitcoinization as a Conditional</h2>
+
+            <p>
+                Chapter 40 will survey monetary futures in which Bitcoin's holders number
+                in the hundreds of millions to billions. Those scenarios are sometimes
+                read as forecasts. Read against this chapter, they are conditionals, and
+                the conditions are the quantities computed above.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 34.8 (The Conditional, Both Branches)</p>
+                <p>
+                    <strong>If</strong> self-sovereign use is to scale to that population,
+                    <strong>then</strong> verification must reach the phone and browser
+                    tiers of Section 34.1 at the costs computed there&mdash;tens of
+                    megabytes of headers, single-digit megabytes per day&mdash;and the
+                    enforcing fraction <span class="math">e</span> of Section 34.4 must
+                    remain large enough that a contested rule change still requires broad
+                    consent. <strong>Otherwise</strong>, scale arrives anyway&mdash;via
+                    the bottom rungs of Section 34.5's ladder&mdash;and the system that
+                    scales is Finney's: custodians transacting on behalf of users who
+                    verify nothing, <span class="math">e</span> concentrated in a few
+                    large institutions, and the governance model of Chapter 33 changed in
+                    character, since the stakeholder map of Definition 33.1 collapses
+                    toward whichever actors still compute <span class="math">V</span>.
+                    Both branches are internally consistent monetary futures; they differ
+                    in who holds the keys and who enforces the rules. The book takes no
+                    position on which arrives, and notes that they are not exclusive:
+                    every prior monetary technology has settled into a mixture, and the
+                    mixture's proportions are exactly what the verification-cost frontier
+                    determines.
+                </p>
+            </div>
+
+            <p>
+                One sentence closes the argument of thirty-four chapters. The mathematics
+                of Volume I made verification possible; the engineering of Volume III made
+                it cheap; whether it becomes universal is the open question of Volume V.
+            </p>
+        </section>
+
+        <section class="exercises">
+            <h2>Exercises</h2>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 34.1</p>
+                <p>
+                    Using Theorem 17.1, compute the size of the complete header chain at
+                    the start of 2031. Take the height as approximately
+                    <span class="math">901,000</span> in mid-2026 and assume
+                    <span class="math">52,560</span> blocks per year for the intervening
+                    <span class="math">4.5</span> years. Does the result change the
+                    browser storage-quota analysis of Definition 34.3?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 34.2</p>
+                <p>
+                    A Neutrino client comes online after 30 days. Using the per-block
+                    figures of Example 19.5 (80 B headers, 32 B filter headers,
+                    ~18 KB filters, and a false-positive rate of
+                    <span class="math">100/784{,}931</span> per block for a wallet
+                    watching 100 scripts), compute the total catch-up download, including
+                    the expected cost of false-positive block fetches at ~2 MB per block.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 34.3</p>
+                <p>
+                    Using Example 19.5's daily figures (~4 MB/day for Neutrino,
+                    ~245 MB/day for full blocks), compute annual bandwidth for each tier
+                    and the ratio between them. At what tier of Section 34.1's table does
+                    a 2 GB/month mobile data plan permit staying at the tip?
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 34.4</p>
+                <p>
+                    In the activation game with <span class="math">e = 0.6</span>, compute
+                    the interior-equilibrium hashrate ratio
+                    <span class="math">H<sub>N</sub>/H<sub>O</sub></span> of Proposition
+                    34.1 and the relative per-coin value of rewards on the two chains.
+                    Then explain why step (3) of the proof makes even this comparison
+                    too favorable to chain <span class="math">O</span>.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 34.5</p>
+                <p>
+                    Section 34.2 mapped four Bitcoin mechanisms onto REST constraints.
+                    Choose one constraint and one mechanism <em>not</em> discussed
+                    there&mdash;candidates include Utreexo (Section 21.5), the
+                    client-side validation of Chapter 22, or transaction relay
+                    policy&mdash;and argue either that the mapping holds or that it
+                    fails. State explicitly what scalability property is or is not
+                    purchased.
+                </p>
+            </div>
+
+            <div class="exercise">
+                <p class="exercise-title">Exercise 34.6</p>
+                <p>
+                    Restate the Finney scenario and the self-custody scenario of Remark
+                    34.7 in the vocabulary of Section 34.5's ladder: for each scenario,
+                    state where the median user sits, where the enforcing fraction
+                    <span class="math">e</span> of Definition 34.5 resides, and what
+                    mechanism (if any) disciplines the bottom rungs. Which empirical
+                    observations, available today, would tell the two trajectories
+                    apart?
+                </p>
+            </div>
+        </section>
+
+        <nav class="chapter-navigation">
+            <a href="33-governance.html" class="prev-chapter">← Chapter 33: Bitcoin Governance</a>
+            <a href="35-consensus-cleanup.html" class="next-chapter">Chapter 35: Great Consensus Cleanup →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Elementary Bitcoin · Volume IV: Forks and Futures (Draft)</p>
+    </footer>
+</body>
+</html>
