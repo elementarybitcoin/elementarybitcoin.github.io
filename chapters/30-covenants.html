@@ -24,7 +24,7 @@
         <section>
             <p class="chapter-intro">
                 A <em>covenant</em> is a spending condition that restricts not just <em>who</em>
-                can spend, but <em>how</em> the funds can be spent—constraining future transactions.
+                can spend, but <em>how</em> the funds can be spent&mdash;constraining future transactions.
                 This chapter examines the major covenant proposals under discussion: OP_CHECKTEMPLATEVERIFY
                 (CTV), OP_CAT, OP_VAULT, and others. We analyze their technical mechanisms,
                 use cases, and the tradeoffs that make covenant design contentious.
@@ -101,7 +101,7 @@
                     <li>Transaction metadata beyond the current input</li>
                 </ul>
                 <p>
-                    This was a deliberate design choice—simplicity and security over
+                    This was a deliberate design choice&mdash;simplicity and security over
                     programmability.
                 </p>
             </div>
@@ -297,8 +297,8 @@ during which the owner claws the funds back to cold storage.</pre>
             <h2>30.3 OP_CAT</h2>
 
             <p>
-                OP_CAT (concatenation) was disabled in 2010 but proposals to re-enable it
-                have gained traction.
+                OP_CAT (concatenation) was disabled in 2010, but proposals to re-enable it
+                have gained support.
             </p>
 
             <div class="definition">
@@ -371,7 +371,7 @@ OP_CHECKSIG</pre>
             <h2>30.4 OP_VAULT (BIP-345)</h2>
 
             <p>
-                OP_VAULT is a purpose-built opcode specifically for secure custody.
+                OP_VAULT is a purpose-built opcode for secure custody.
             </p>
 
             <div class="definition">
@@ -464,7 +464,7 @@ OP_CHECKSIG</pre>
                     <li><strong>Theft prevention:</strong> Attacker with trigger key cannot steal immediately</li>
                     <li><strong>Recovery window:</strong> Owner has timelock period to react</li>
                     <li><strong>Emergency recovery:</strong> Recovery key bypasses normal flow</li>
-                    <li><strong>No key rotation:</strong> Recovery works even if trigger key compromised</li>
+                    <li><strong>No key rotation:</strong> Recovery works even if the trigger key is compromised</li>
                 </ol>
             </div>
         </section>
@@ -477,7 +477,7 @@ OP_CHECKSIG</pre>
             <div class="definition">
                 <p class="definition-title">Definition 30.8 (ANYPREVOUT)</p>
                 <p>
-                    <strong>SIGHASH_ANYPREVOUT</strong> creates signatures that don't commit
+                    <strong>SIGHASH_ANYPREVOUT</strong> creates signatures that do not commit
                     to specific inputs:
                 </p>
                 <ul>
@@ -605,14 +605,14 @@ Stack: [1 if valid]</pre>
                 </p>
                 <ul>
                     <li>Could governments mandate covenants on regulated coins?</li>
-                    <li>Would "covenant-free" coins trade at premium?</li>
+                    <li>Would "covenant-free" coins trade at a premium?</li>
                     <li>Does this threaten Bitcoin's fungibility?</li>
                 </ul>
                 <p>
                     Counter-arguments:
                 </p>
                 <ul>
-                    <li>Coerced covenant adoption already possible via regulation</li>
+                    <li>Coerced covenant adoption is already possible via regulation</li>
                     <li>Covenants are opt-in; users choose to use them</li>
                     <li>Benefits (vaults, scaling) may outweigh risks</li>
                 </ul>

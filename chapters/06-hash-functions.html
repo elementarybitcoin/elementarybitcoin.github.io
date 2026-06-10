@@ -136,10 +136,10 @@
             </figure>
 
             <div class="remark">
-                <p class="remark-title">The Pigeonhole Principle.</p>
+                <p class="remark-title">The Pigeonhole Principle</p>
                 <p>
                     Since hash functions map an infinite domain to a finite range, collisions
-                    must exist by the pigeonhole principle. Collision resistance doesn't mean
+                    must exist by the pigeonhole principle. Collision resistance does not mean
                     collisions are impossible&mdash;it means they are computationally infeasible
                     to find deliberately.
                 </p>
@@ -196,7 +196,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">The Avalanche Effect.</p>
+                <p class="remark-title">The Avalanche Effect</p>
                 <p>
                     A good hash function exhibits the <strong>avalanche effect</strong>: changing
                     a single bit of input changes approximately 50% of the output bits. This
@@ -306,9 +306,9 @@
                 <p class="remark-title">Why Double Hashing?</p>
                 <p>
                     Satoshi Nakamoto implemented double hashing as a defense against <em>length
-                    extension attacks</em>. For Merkle-Damgård constructions like SHA-256, if you
-                    know <span class="math">H(m)</span> and the <em>length</em> of
-                    <span class="math">m</span>, you can compute
+                    extension attacks</em>. For Merkle-Damgård constructions like SHA-256, if one
+                    knows <span class="math">H(m)</span> and the <em>length</em> of
+                    <span class="math">m</span>, one can compute
                     <span class="math">H(m || padding || m')</span>
                     without knowing <span class="math">m</span> itself. Double hashing prevents this.
                 </p>
@@ -341,7 +341,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Defense in Depth.</p>
+                <p class="remark-title">Defense in Depth</p>
                 <p>
                     Using two different hash functions (SHA-256 from NSA, RIPEMD-160 from European
                     researchers) provides redundancy: if one is broken, the other may still be secure.
@@ -397,7 +397,7 @@
             <h2>6.5 Hash Functions in Digital Signatures</h2>
 
             <p>
-                In digital signature schemes, we don't sign the message directly. Instead, we
+                In digital signature schemes, we do not sign the message directly. Instead, we
                 sign its hash. This approach offers several advantages:
             </p>
 
@@ -486,7 +486,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Theoretical vs. Practical Security.</p>
+                <p class="remark-title">Theoretical vs. Practical Security</p>
                 <p>
                     Security proofs in the random oracle model provide strong guarantees under
                     the assumption that the hash function is "ideal." While no real function
@@ -519,7 +519,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Domain Separation.</p>
+                <p class="remark-title">Domain Separation</p>
                 <p>
                     Tagged hashes ensure that a hash computed for one purpose cannot be
                     reinterpreted as valid for another. For example, a challenge hash for

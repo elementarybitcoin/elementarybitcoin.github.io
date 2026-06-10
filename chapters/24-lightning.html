@@ -72,7 +72,7 @@
             <p>
                 The Lightning Network transforms individual payment channels into a global
                 payment network. By routing payments through chains of channels, any participant
-                can pay any other without establishing a direct channel—enabling Bitcoin to
+                can pay any other without establishing a direct channel&mdash;enabling Bitcoin to
                 scale to millions of transactions per second while preserving its fundamental
                 security properties.
             </p>
@@ -88,7 +88,7 @@
 
             <p>
                 The key insight of Lightning: if Alice has a channel with Bob, and Bob has a
-                channel with Carol, Alice can pay Carol through Bob—atomically and trustlessly.
+                channel with Carol, Alice can pay Carol through Bob&mdash;atomically and trustlessly.
             </p>
 
             <h3>The Routing Problem</h3>
@@ -104,7 +104,7 @@
                     <li><span class="math">S</span> routes payment through <span class="math">I₁ → I₂ → ... → Iₙ → R</span></li>
                     <li><span class="math">R</span> reveals <span class="math">r</span> to <span class="math">Iₙ</span> to claim payment</li>
                     <li><span class="math">r</span> propagates back: <span class="math">Iₙ → ... → I₁ → S</span></li>
-                    <li>Each hop atomically settles their HTLC</li>
+                    <li>Each hop atomically settles its HTLC</li>
                 </ol>
             </div>
 
@@ -204,7 +204,7 @@
                 </p>
                 <ul>
                     <li><strong>Complete success:</strong> All HTLCs settle, receiver gets paid, all routing nodes receive fees</li>
-                    <li><strong>Complete failure:</strong> All HTLCs timeout, sender loses nothing</li>
+                    <li><strong>Complete failure:</strong> All HTLCs time out, sender loses nothing</li>
                     <li><strong>Conditional atomicity:</strong> Assuming sufficient CLTV deltas and timely blockchain access, either all HTLCs settle or all fail. Partial failure <em>is</em> possible under adverse conditions (e.g., blockchain congestion preventing an intermediate node from claiming before its incoming HTLC times out), which is why sufficient timelock margins are critical.</li>
                 </ul>
             </div>
@@ -212,13 +212,13 @@
             <div class="proof">
                 <p><strong>Proof.</strong></p>
                 <p>
-                    The payment_hash <span class="math">H(r)</span> is identical across all HTLCs. If receiver reveals <span class="math">r</span>
+                    The payment_hash <span class="math">H(r)</span> is identical across all HTLCs. If the receiver reveals <span class="math">r</span>
                     to claim the final HTLC, every intermediate node learns <span class="math">r</span> (from their
                     downstream) and can claim their incoming HTLC. Since timeouts decrease
                     toward the receiver, each node has sufficient time to claim after learning <span class="math">r</span>.
                 </p>
                 <p>
-                    Conversely, if receiver never reveals <span class="math">r</span>, all HTLCs eventually timeout and
+                    Conversely, if the receiver never reveals <span class="math">r</span>, all HTLCs eventually time out and
                     funds return to senders. An intermediate node cannot steal funds because
                     they cannot claim their outgoing HTLC without <span class="math">r</span>, and cannot keep their
                     incoming HTLC without the timeout expiring. ∎
@@ -230,7 +230,7 @@
             <div class="definition">
                 <p><strong>Definition 24.2</strong> (CLTV Delta)</p>
                 <p>
-                    Each hop requires a <em>CLTV delta</em>—the number of blocks between
+                    Each hop requires a <em>CLTV delta</em>&mdash;the number of blocks between
                     incoming and outgoing HTLC timeouts. This ensures:
                 </p>
                 <ul>
@@ -259,7 +259,7 @@
                 </p>
                 <ul>
                     <li><strong>Per-hop payload:</strong> Instructions for each routing node</li>
-                    <li><strong>Layered encryption:</strong> Each hop can only decrypt their layer</li>
+                    <li><strong>Layered encryption:</strong> Each hop can only decrypt its layer</li>
                     <li><strong>Shared secrets:</strong> Derived via ECDH with each hop's public key</li>
                     <li><strong>MAC chain:</strong> Integrity verification at each hop</li>
                 </ul>
@@ -340,8 +340,8 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 24.2</strong> — Each node peels one encryption layer, forwards
-                    to next hop. No node knows the complete path except the sender.
+                    <strong>Figure 24.2</strong> — Each node peels one encryption layer and forwards
+                    the packet to the next hop. No node knows the complete path except the sender.
                 </figcaption>
             </figure>
 
@@ -423,7 +423,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
             <h3>BOLT #12 Offers</h3>
 
             <p>
-                BOLT #12 introduces <em>offers</em>—reusable payment requests with better privacy:
+                BOLT #12 introduces <em>offers</em>&mdash;reusable payment requests with better privacy:
             </p>
 
             <div class="definition">
@@ -453,7 +453,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
             <div class="definition">
                 <p><strong>Definition 24.7</strong> (Channel Graph)</p>
                 <p>
-                    The Lightning Network graph <span class="math">G = (V, E)</span> where:
+                    The Lightning Network graph is <span class="math">G = (V, E)</span>, where:
                 </p>
                 <ul>
                     <li><strong>Vertices <span class="math">V</span>:</strong> Lightning nodes (public keys)</li>
@@ -725,7 +725,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
             </p>
 
             <ul>
-                <li><strong>Circular rebalancing:</strong> Route payment to yourself through different path</li>
+                <li><strong>Circular rebalancing:</strong> Route a payment to yourself through a different path</li>
                 <li><strong>Submarine swaps:</strong> Exchange on-chain for off-chain liquidity</li>
                 <li><strong>Liquidity ads:</strong> Market for channel leases</li>
                 <li><strong>JIT routing:</strong> Just-in-time channel rebalancing</li>
@@ -788,7 +788,7 @@ lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5
                 <p><strong>Exercise 24.2</strong></p>
                 <p>
                     Prove that the CLTV timeouts must decrease toward the receiver.
-                    What attack becomes possible if they don't?
+                    What attack becomes possible if they do not?
                 </p>
             </div>
 

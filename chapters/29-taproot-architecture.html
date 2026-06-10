@@ -23,10 +23,10 @@
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                Taproot, activated in November 2021, represents Bitcoin's most elegant upgrade—a
+                Taproot, activated in November 2021, represents Bitcoin's most elegant upgrade&mdash;a
                 fusion of Schnorr signatures, Merkleized Alternative Script Trees (MAST), and
-                clever cryptographic tweaking. The result: complex spending conditions that
-                look identical to simple payments, dramatically improving privacy and efficiency.
+                cryptographic key tweaking. The result is complex spending conditions that
+                look identical to simple payments, improving both privacy and efficiency.
                 This chapter dissects Taproot's architecture, from BIP-340 Schnorr signatures
                 through BIP-341 output construction to BIP-342 Tapscript execution.
             </p>
@@ -36,8 +36,8 @@
             <h2>29.1 Schnorr Signatures (BIP-340)</h2>
 
             <p>
-                Taproot begins with a new signature scheme: Schnorr signatures, superior to
-                ECDSA in multiple dimensions.
+                Taproot begins with a new signature scheme: Schnorr signatures, which improve
+                on ECDSA in several respects.
             </p>
 
             <div class="definition">
@@ -124,7 +124,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 29.1 (X-Only Savings).</p>
+                <p class="remark-title">Remark 29.1 (X-Only Savings)</p>
                 <p>
                     X-only keys save 1 byte per public key. For a Taproot output:
                 </p>
@@ -154,7 +154,7 @@
             <div class="remark">
                 <p class="remark-title">Remark 29.2 (Batch Verification Speedup)</p>
                 <p>
-                    Batch verification is approximately 2-3× faster than individual verification
+                    Batch verification is approximately 2&ndash;3× faster than individual verification
                     for typical block sizes. This significantly reduces block validation time.
                 </p>
             </div>
@@ -164,7 +164,7 @@
             <h2>29.2 Key Tweaking and Taproot Outputs</h2>
 
             <p>
-                Taproot's magic lies in <em>key tweaking</em>: encoding spending conditions
+                Taproot's central mechanism is <em>key tweaking</em>: encoding spending conditions
                 into the public key itself.
             </p>
 
@@ -364,7 +364,7 @@ where:
                     <li><strong>Script B:</strong> Bob after timelock (force close by Bob)</li>
                 </ul>
                 <p>
-                    Cooperative closes (vast majority) look like single-sig payments on-chain.
+                    Cooperative closes (the vast majority) look like single-sig payments on-chain.
                 </p>
             </div>
         </section>
@@ -410,7 +410,7 @@ Stack after:  [n] (or [n+1] if valid)
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 29.3 (Tapscript Multisig Efficiency).</p>
+                <p class="remark-title">Remark 29.3 (Tapscript Multisig Efficiency)</p>
                 <p>
                     CHECKSIGADD is more efficient than OP_CHECKMULTISIG:
                 </p>
@@ -460,8 +460,8 @@ Stack after:  [n] (or [n+1] if valid)
             <h2>29.5 Key Aggregation: MuSig2</h2>
 
             <p>
-                Schnorr's linearity enables elegant multi-party signatures where the
-                aggregate key and signature are indistinguishable from single-party.
+                Schnorr's linearity enables multi-party signatures in which the
+                aggregate key and signature are indistinguishable from those of a single party.
             </p>
 
             <div class="definition">

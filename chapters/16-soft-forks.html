@@ -38,7 +38,7 @@
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                How does a decentralized network upgrade itself when there's no central authority
+                How does a decentralized network upgrade itself when there is no central authority
                 to mandate changes? Bitcoin has evolved significantly since 2009, adding new
                 features while maintaining backward compatibility. This chapter examines the
                 mechanisms that make this possible: the distinction between policy and consensus,
@@ -168,7 +168,7 @@
             <div class="definition">
                 <p class="definition-title">Definition 16.3 (Hard Fork)</p>
                 <p>
-                    A <strong>hard fork</strong> relaxes consensus rules—it makes previously
+                    A <strong>hard fork</strong> relaxes consensus rules&mdash;it makes previously
                     invalid blocks valid. Old nodes will reject blocks valid under new rules.
                 </p>
             </div>
@@ -176,7 +176,7 @@
             <div class="definition">
                 <p class="definition-title">Definition 16.4 (Soft Fork)</p>
                 <p>
-                    A <strong>soft fork</strong> tightens consensus rules—it makes some previously
+                    A <strong>soft fork</strong> tightens consensus rules&mdash;it makes some previously
                     valid blocks invalid. Old nodes will accept blocks valid under new rules
                     (though they may not fully understand them).
                 </p>
@@ -383,8 +383,8 @@
                 <p>
                     Pay-to-Script-Hash (2012) made <code>OP_HASH160 &lt;hash&gt; OP_EQUAL</code>
                     outputs special. Old nodes see a simple hash check passing; new nodes
-                    additionally execute the revealed script. This pattern—reinterpreting
-                    previously "anyone can spend" outputs—became a template for future soft forks.
+                    additionally execute the revealed script. This pattern&mdash;reinterpreting
+                    previously "anyone can spend" outputs&mdash;became a template for future soft forks.
                 </p>
             </div>
 
@@ -402,7 +402,7 @@
                     <li>New address formats (bech32)</li>
                 </ul>
                 <p>
-                    Old nodes see SegWit outputs as "anyone can spend" (but miners won't include
+                    Old nodes see SegWit outputs as "anyone can spend" (but miners will not include
                     invalid spends, so this is safe once majority hash power upgrades).
                 </p>
             </div>
@@ -440,7 +440,7 @@
                     A rule change is a valid soft fork if it can be expressed as:
                 </p>
                 <ol>
-                    <li>Identify a class of currently-valid transactions</li>
+                    <li>Identify a class of currently valid transactions</li>
                     <li>Add constraints that make some of them invalid</li>
                     <li>Ensure the constraints are enforceable by upgraded nodes</li>
                 </ol>
@@ -506,7 +506,7 @@
                     Before SegWit activated:
                 </p>
                 <ol>
-                    <li>Witness programs were made non-standard to spend improperly</li>
+                    <li>Improper spends of witness programs were made non-standard</li>
                     <li>This prevented anyone from claiming "anyone can spend" outputs</li>
                     <li>Once 95% of miners upgraded, consensus rules activated</li>
                     <li>The policy protection was no longer necessary (consensus enforced)</li>
@@ -546,7 +546,7 @@
                     <li>Upgraded nodes reject them, following a shorter (but valid) chain</li>
                 </ul>
                 <p>
-                    This is why 95% miner signaling is required—it ensures the new-rules
+                    This is why 95% miner signaling is required&mdash;it ensures the new-rules
                     chain will be longest.
                 </p>
             </div>
@@ -590,12 +590,12 @@
             <div class="definition">
                 <p class="definition-title">Definition 16.10 (Witness Versions)</p>
                 <p>
-                    SegWit defined 17 <strong>witness versions</strong> (0-16). Currently used:
+                    SegWit defined 17 <strong>witness versions</strong> (0&ndash;16). Currently used:
                 </p>
                 <ul>
                     <li><strong>Version 0:</strong> P2WPKH, P2WSH</li>
                     <li><strong>Version 1:</strong> Taproot (P2TR)</li>
-                    <li><strong>Versions 2-16:</strong> Reserved for future soft forks</li>
+                    <li><strong>Versions 2&ndash;16:</strong> Reserved for future soft forks</li>
                 </ul>
             </div>
 
@@ -628,7 +628,7 @@
 
             <p>
                 Technical mechanisms are necessary but not sufficient for upgrades.
-                The social layer—community consensus—ultimately determines what changes
+                The social layer&mdash;community consensus&mdash;ultimately determines what changes
                 are accepted.
             </p>
 
@@ -643,7 +643,7 @@
                 </ol>
                 <p>
                     Changes require both. Code without social consensus is an altcoin.
-                    Social consensus without code changes existing behavior.
+                    Social consensus without code does not change existing behavior.
                 </p>
             </div>
 
@@ -653,7 +653,7 @@
                     SegWit's activation (2017) illustrated social consensus dynamics:
                 </p>
                 <ul>
-                    <li>Technical readiness: 2015-2016</li>
+                    <li>Technical readiness: 2015&ndash;2016</li>
                     <li>Miner signaling stalled at ~30% for months</li>
                     <li>User Activated Soft Fork (BIP-148) threatened August 1 activation</li>
                     <li>Miners signaled rapidly, reaching 95% before the deadline</li>

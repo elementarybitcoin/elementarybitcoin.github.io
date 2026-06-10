@@ -38,7 +38,7 @@
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                Section 8 of the Bitcoin whitepaper describes "Simplified Payment Verification"—a
+                Section 8 of the Bitcoin whitepaper describes "Simplified Payment Verification"&mdash;a
                 method for verifying payments without running a full node. This section, spanning
                 just over two hundred words, has generated enormous controversy and widespread misunderstanding.
                 In this chapter, we examine SPV with mathematical precision: what it proves, what
@@ -269,12 +269,12 @@
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 17.2: SPV verifies transaction inclusion in a header that's part of the longest chain.</figcaption>
+                <figcaption>Figure 17.2: SPV verifies transaction inclusion in a header that is part of the longest chain.</figcaption>
             </figure>
         </section>
 
         <section>
-            <h2>17.4 What SPV Does NOT Prove</h2>
+            <h2>17.4 What SPV Does Not Prove</h2>
 
             <p>
                 This is where misunderstandings flourish. Let us be explicit about what
@@ -289,7 +289,7 @@
                 <ol>
                     <li>That the transaction's inputs are valid UTXOs</li>
                     <li>That the transaction's signatures are correct</li>
-                    <li>That the transaction doesn't double-spend</li>
+                    <li>That the transaction does not double-spend</li>
                     <li>That the block's other transactions are valid</li>
                     <li>That consensus rules were followed</li>
                 </ol>
@@ -298,7 +298,7 @@
             <div class="proof">
                 <p class="proof-title">Proof.</p>
                 <p>
-                    Each verification requires data the SPV client doesn't have:
+                    Each verification requires data the SPV client does not have:
                 </p>
                 <ol>
                     <li>UTXO validation requires the UTXO set (not stored)</li>
@@ -411,7 +411,7 @@
             </div>
 
             <p>
-                Eclipse attacks are more dangerous for SPV clients than full nodes because
+                Eclipse attacks are more dangerous for SPV clients than for full nodes because
                 SPV clients cannot independently verify that blocks contain valid transactions.
             </p>
 
@@ -555,7 +555,7 @@
                 <p>
                     Despite years of research, general-purpose fraud proofs for Bitcoin do not
                     exist. The problem is that proving a transaction is invalid requires proving
-                    a negative—that a UTXO doesn't exist—which requires either:
+                    a negative&mdash;that a UTXO does not exist&mdash;which requires either:
                 </p>
                 <ul>
                     <li>The entire UTXO set (defeats the purpose of SPV)</li>
@@ -624,7 +624,7 @@
         </section>
 
         <section>
-            <h2>17.9 When is SPV Appropriate?</h2>
+            <h2>17.9 When Is SPV Appropriate?</h2>
 
             <p>
                 Given the security trade-offs, when should SPV be used?
@@ -638,7 +638,7 @@
                 <ul>
                     <li>Storage/bandwidth constraints preclude full validation</li>
                     <li>The honest majority assumption is reasonable</li>
-                    <li>Transaction values don't justify full node costs</li>
+                    <li>Transaction values do not justify full node costs</li>
                     <li>Additional confirmation time is acceptable</li>
                 </ul>
                 <p>
@@ -680,9 +680,9 @@
                     In practice, most "SPV wallets" today use either:
                 </p>
                 <ul>
-                    <li>Bloom filters (BIP-37)—with serious privacy issues (Chapter 18)</li>
-                    <li>Trusted servers (Electrum model)—not SPV at all (Chapter 20)</li>
-                    <li>Compact block filters (BIP-157)—improved privacy (Chapter 19)</li>
+                    <li>Bloom filters (BIP-37)&mdash;with serious privacy issues (Chapter 18)</li>
+                    <li>Trusted servers (Electrum model)&mdash;not SPV at all (Chapter 20)</li>
+                    <li>Compact block filters (BIP-157)&mdash;improved privacy (Chapter 19)</li>
                 </ul>
             </div>
         </section>

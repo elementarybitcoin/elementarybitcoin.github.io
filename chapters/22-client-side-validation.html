@@ -71,8 +71,8 @@
         <section class="introduction">
             <p>
                 Bitcoin's blockchain provides a globally replicated, publicly verifiable ledger.
-                But this publicity comes at a cost: every node must validate every transaction,
-                limiting throughput and privacy. <em>Client-side validation</em> inverts this model—
+                But this openness comes at a cost: every node must validate every transaction,
+                limiting throughput and privacy. <em>Client-side validation</em> inverts this model&mdash;
                 validation happens privately between transacting parties, with Bitcoin serving
                 only as a timestamping and anti-double-spend anchor.
             </p>
@@ -171,7 +171,7 @@
             <div class="definition">
                 <p><strong>Definition 22.2</strong> (Single-Use Seal)</p>
                 <p>
-                    A <em>single-use seal</em> is a cryptographic primitive that can be:
+                    A <em>single-use seal</em> is a cryptographic primitive with the following properties:
                 </p>
                 <ul>
                     <li><strong>Single-use:</strong> Can be closed over a message exactly once</li>
@@ -212,7 +212,7 @@
             <div class="proof">
                 <p><strong>Proof.</strong></p>
                 <p>
-                    Suppose an adversary could close seal (UTXO) over both <span class="math">m₁</span> and <span class="math">m₂</span> where <span class="math">m₁ ≠ m₂</span>.
+                    Suppose an adversary could close a seal (UTXO) over both <span class="math">m₁</span> and <span class="math">m₂</span> where <span class="math">m₁ ≠ m₂</span>.
                     This would require two transactions <span class="math">tx₁</span> and <span class="math">tx₂</span> both spending the same UTXO,
                     with <span class="math">tx₁</span> committing to <span class="math">m₁</span> and <span class="math">tx₂</span> committing to <span class="math">m₂</span>. But Bitcoin consensus
                     ensures only one transaction spending a given UTXO can be included in the
@@ -514,7 +514,7 @@
                     <li>No seal was closed twice (via Bitcoin UTXO uniqueness)</li>
                 </ol>
                 <p>
-                    The receiver needs no trusted third party—verification is purely mathematical.
+                    The receiver needs no trusted third party&mdash;verification is purely mathematical.
                 </p>
             </div>
 
@@ -689,7 +689,7 @@
                     For <span class="math">N</span> client-side validation transfers, the blockchain footprint is:
                 </p>
                 <ul>
-                    <li><strong>Optimal case:</strong> <span class="math">O(1)</span> — multiple transfers share one anchor tx</li>
+                    <li><strong>Optimal case:</strong> <span class="math">O(1)</span>&mdash;multiple transfers share one anchor tx</li>
                     <li><strong>Typical case:</strong> <span class="math">O(N)</span> Bitcoin transactions, but each tx is minimal size</li>
                     <li><strong>Data stored:</strong> Only commitments (~32 bytes), not state</li>
                 </ul>
@@ -716,7 +716,7 @@
             <div class="example">
                 <p><strong>Example 22.2</strong> (Validation Comparison)</p>
                 <p>
-                    An asset with 1 million total transfers, Alice receiving for the first time:
+                    Consider an asset with 1 million total transfers, with Alice receiving for the first time:
                 </p>
                 <table class="bitcoin-table">
                     <thead>
@@ -860,7 +860,7 @@
             <ul>
                 <li>
                     Client-side validation inverts the blockchain paradigm: state lives
-                    off-chain, validated privately, with Bitcoin providing only anti-double-spend.
+                    off-chain, validated privately, with Bitcoin providing only anti-double-spend protection.
                 </li>
                 <li>
                     Single-use seals are the theoretical foundation: Bitcoin UTXOs can be

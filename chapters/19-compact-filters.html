@@ -63,7 +63,7 @@
                 these filters, test them locally, and request full blocks only when relevant.
             </p>
             <p>
-                This architectural inversion—server computes, client filters locally—eliminates
+                This architectural inversion&mdash;server computes, client filters locally&mdash;eliminates
                 the privacy leaks inherent in BIP-37 while providing efficient synchronization.
                 The filters use Golomb-Rice coding for exceptional space efficiency, achieving
                 sizes of roughly 1/80th of the full block.
@@ -76,7 +76,7 @@
                 <strong>The server learns nothing about client interests.</strong> A client that
                 downloads the filter for block <span class="math">N</span> is indistinguishable from any other client downloading
                 that filter. When the client requests the full block, the server learns only that
-                "something in this block is interesting"—not which transactions, addresses, or
+                "something in this block is interesting"&mdash;not which transactions, addresses, or
                 scripts.
             </p>
         </div>
@@ -185,7 +185,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 19.1</strong> — The fundamental difference: BIP-37 has clients
+                    <strong>Figure 19.1</strong>&mdash;The fundamental difference: BIP-37 has clients
                     send filters to servers (privacy leak); BIP-157/158 has servers publish
                     filters that clients test locally (privacy preserved).
                 </figcaption>
@@ -194,7 +194,7 @@
             <div class="theorem">
                 <p><strong>Theorem 19.1</strong> (Privacy Guarantee)</p>
                 <p>
-                    In the BIP-157/158 model, <em>during the filter-download phase</em> a server
+                    In the BIP-157/158 model, <em>during the filter-download phase</em>, a server
                     cannot distinguish between:
                 </p>
                 <ol>
@@ -278,7 +278,7 @@
                 </ul>
             </div>
 
-            <h3>Why Golomb-Rice is Optimal</h3>
+            <h3>Why Golomb-Rice Is Optimal</h3>
 
             <div class="theorem">
                 <p><strong>Theorem 19.2</strong> (Golomb-Rice Optimality)</p>
@@ -291,7 +291,7 @@
 
             <p>
                 The deltas between sorted set elements in a Golomb-coded set (GCS)
-                follow approximately geometric distribution, making Golomb-Rice coding
+                follow an approximately geometric distribution, making Golomb-Rice coding
                 nearly optimal.
             </p>
 
@@ -383,7 +383,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 19.2</strong> — GCS construction: hash elements to numeric range,
+                    <strong>Figure 19.2</strong>&mdash;GCS construction: hash elements to numeric range,
                     sort, compute deltas, Golomb-Rice encode. The result is highly compact.
                 </figcaption>
             </figure>
@@ -420,7 +420,7 @@
                 </p>
                 <ul>
                     <li>Filter size <span class="math">≈ 2000 × (19 + 2) = 42,000</span> bits ≈ 5,250 bytes</li>
-                    <li>Compared to full block: ~1-2 MB</li>
+                    <li>Compared to full block: ~1&ndash;2 MB</li>
                     <li>Ratio: ~1/200 to 1/400 for this <span class="math">N</span>; real blocks contain
                     more filter elements (~5,000&ndash;10,000), giving the
                     ~1/80 ratio quoted elsewhere</li>
@@ -571,10 +571,10 @@
                     A wallet with 50 addresses syncs the blockchain:
                 </p>
                 <ol>
-                    <li>For each block, download the ~5KB filter</li>
+                    <li>For each block, download the ~5 KB filter</li>
                     <li>Hash wallet's 50 scriptPubKeys with block's key</li>
                     <li>Check if any hash appears in the decoded filter</li>
-                    <li>If match: download full block (~1.5MB), extract relevant transactions</li>
+                    <li>If match: download full block (~1.5 MB), extract relevant transactions</li>
                     <li>If no match: continue to next block (no download)</li>
                 </ol>
                 <p>
@@ -656,7 +656,7 @@
                     filter_header<sub>N</sub> = SHA256d(SHA256d(filter<sub>N</sub>) || filter_header<sub>N−1</sub>)
                 </div>
                 <p>
-                    Where <span class="math">SHA256d(x) = SHA256(SHA256(x))</span> (the HASH256 function of Chapter 6), <span class="math">filter<sub>N</sub></span> is the raw filter bytes, and <span class="math">filter_header<sub>−1</sub> = 0x00...00</span> (32 zero bytes).
+                    where <span class="math">SHA256d(x) = SHA256(SHA256(x))</span> (the HASH256 function of Chapter 6), <span class="math">filter<sub>N</sub></span> is the raw filter bytes, and <span class="math">filter_header<sub>−1</sub> = 0x00...00</span> (32 zero bytes).
                 </p>
             </div>
 
@@ -729,7 +729,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 19.3</strong> — Filter header chain: each header commits to
+                    <strong>Figure 19.3</strong>&mdash;Filter header chain: each header commits to
                     the current filter and all previous headers, forming a verifiable chain.
                 </figcaption>
             </figure>
@@ -804,7 +804,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 19.4</strong> — Three-phase sync: (1) download checkpoints for
+                    <strong>Figure 19.4</strong>&mdash;Three-phase sync: (1) download checkpoints for
                     coarse verification, (2) download headers to verify filter chain, (3) download
                     and process individual filters.
                 </figcaption>
@@ -852,7 +852,7 @@
                 <ol>
                     <li>Querying multiple independent peers for filter headers</li>
                     <li>Verifying all peers return identical <span class="math">filter_header<sub>N</sub></span></li>
-                    <li>Verifying received filter hashes to <span class="math">filter_header<sub>N</sub></span></li>
+                    <li>Verifying that received filters hash to <span class="math">filter_header<sub>N</sub></span></li>
                 </ol>
                 <p>
                     If at least one honest peer is among those queried, the manipulation is
@@ -863,7 +863,7 @@
             </div>
 
             <p>
-                Unlike BIP-37 where the server could silently omit matching transactions,
+                Unlike BIP-37, where the server could silently omit matching transactions,
                 BIP-157/158 filters are deterministic. Any tampering changes the filter
                 hash, which is detectable by querying multiple peers.
             </p>
@@ -889,7 +889,7 @@
             </p>
 
             <ul>
-                <li>Average block has ~2000-3000 unique scriptPubKeys, a sizable anonymity set</li>
+                <li>Average block has ~2000&ndash;3000 unique scriptPubKeys, a sizable anonymity set</li>
                 <li>False positives provide additional cover</li>
                 <li>The real deanonymization vector is <em>intersection</em>: the pattern of
                     full-block requests across many blocks can be intersected to isolate the
@@ -908,7 +908,7 @@
                     For the entire Bitcoin blockchain (as of early 2024, ~830,000 blocks):
                 </p>
                 <ul>
-                    <li>Average filter size: ~15-20 KB (varies with block size)</li>
+                    <li>Average filter size: ~15&ndash;20 KB (varies with block size)</li>
                     <li>Total filter data: ~15 GB</li>
                     <li>Filter headers only: 830,000 × 32 = ~27 MB</li>
                     <li>Compare to full blockchain: ~550 GB</li>
@@ -1021,7 +1021,7 @@
             <p>
                 Neutrino enables Lightning Network nodes to operate without a full Bitcoin
                 node, trading some security for reduced resource requirements (payment
-                channels and HTLCs, referenced below, are developed in Chapters 23-24):
+                channels and HTLCs, referenced below, are developed in Chapters 23&ndash;24):
             </p>
 
             <ul>
@@ -1098,7 +1098,7 @@
                 </li>
                 <li>
                     This architectural change eliminates the privacy leaks inherent in
-                    revealing your filter to the server.
+                    revealing the client's filter to the server.
                 </li>
                 <li>
                     Golomb-Rice coding provides near-optimal compression for set membership
@@ -1127,7 +1127,7 @@
     </main>
 
     <footer>
-        <p>Elementary Bitcoin — Volume III: Scaling and Verification</p>
+        <p>Elementary Bitcoin &mdash; Volume III: Scaling and Verification</p>
     </footer>
 </body>
 </html>

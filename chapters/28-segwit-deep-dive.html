@@ -56,7 +56,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.1 (Pre-SegWit Malleability Sources).</p>
+                <p class="remark-title">Remark 28.1 (Pre-SegWit Malleability Sources)</p>
                 <p>
                     In pre-SegWit Bitcoin, the txid was computed over the entire transaction
                     including signatures. Several malleability vectors existed:
@@ -145,7 +145,7 @@ Since R'.x = R.x (negation preserves x), both pass.</pre>
             <h2>28.2 The SegWit Solution</h2>
 
             <p>
-                SegWit's key insight: remove signature data from the txid computation by
+                SegWit's key insight is to remove signature data from the txid computation by
                 segregating it into a separate structure.
             </p>
 
@@ -345,7 +345,7 @@ where:
                         (Taproot activated witness v1 via Speedy Trial), but never a hard fork</li>
                 </ol>
                 <p>
-                    Versions 2-16 are reserved for future upgrades that remain
+                    Versions 2&ndash;16 are reserved for future upgrades that remain
                     backwards-compatible with existing nodes.
                 </p>
             </div>
@@ -457,7 +457,7 @@ where:
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.3 (SegWit Capacity Increase).</p>
+                <p class="remark-title">Remark 28.3 (SegWit Capacity Increase)</p>
                 <p>
                     SegWit increases effective block capacity:
                 </p>
@@ -468,7 +468,7 @@ where:
                     <li><strong>Theoretical max:</strong> ~4 MB (all witness data)</li>
                 </ul>
                 <p>
-                    Real-world blocks average 1.5-2 MB with current usage patterns.
+                    Real-world blocks average 1.5&ndash;2 MB with current usage patterns.
                 </p>
             </div>
 
@@ -478,7 +478,7 @@ where:
                     The 75% witness discount serves multiple purposes:
                 </p>
                 <ul>
-                    <li><strong>UTXO efficiency:</strong> Witness data isn't stored in UTXO set</li>
+                    <li><strong>UTXO efficiency:</strong> Witness data is not stored in the UTXO set</li>
                     <li><strong>Verification efficiency:</strong> Witness data only validated once</li>
                     <li><strong>Adoption incentive:</strong> SegWit transactions are cheaper</li>
                     <li><strong>Backward compatibility:</strong> Old nodes see ~1 MB base size</li>
@@ -491,7 +491,7 @@ where:
 
             <p>
                 Witness data must be committed to in blocks for validation, but the existing
-                Merkle tree computes txids (which exclude witness).
+                Merkle tree is computed over txids (which exclude witness data).
             </p>
 
             <div class="definition">
@@ -686,7 +686,7 @@ SHA256d(
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 28.6 (BIP-143 Improvements).</p>
+                <p class="remark-title">Remark 28.6 (BIP-143 Improvements)</p>
                 <p>
                     BIP-143 sighash fixes multiple issues:
                 </p>
@@ -717,7 +717,7 @@ SHA256d(
             <h2>28.8 Wrapped SegWit (P2SH-P2WPKH/WSH)</h2>
 
             <p>
-                For backward compatibility with wallets that couldn't generate bech32
+                For backward compatibility with wallets that could not generate bech32
                 addresses, SegWit can be wrapped in P2SH.
             </p>
 
@@ -822,7 +822,7 @@ witness:      &lt;sig&gt; &lt;pubkey&gt;</pre>
                     SegWit adoption accelerated due to:
                 </p>
                 <ul>
-                    <li><strong>Fee savings:</strong> 40-70% reduction in fees</li>
+                    <li><strong>Fee savings:</strong> 40&ndash;70% reduction in fees</li>
                     <li><strong>Exchange adoption:</strong> Major exchanges added bech32</li>
                     <li><strong>Wallet updates:</strong> Most wallets now default to SegWit</li>
                     <li><strong>Lightning requirement:</strong> LN channels require SegWit</li>
