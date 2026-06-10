@@ -134,63 +134,33 @@
                 <p>
                     Let <span class="math">q</span> be attacker hashrate fraction,
                     <span class="math">p = 1 − q</span> honest hashrate, and <span class="math">k</span>
-                    the number of confirmations. The exact probability of a successful
+                    the number of confirmations. The probability of a successful
                     double-spend (Nakamoto, 2008) is:
                 </p>
                 <p class="math-block">
-                    P(success) = 1 if q ≥ 0.5<br>
-                    P(success) = 1 − Σₘ₌₀ᵏ [λᵐe^(−λ)/m! · (1 − (q/p)^(k−m))] if q &lt; 0.5
+                    P(success) = 1 if q ≥ 0.5
                 </p>
                 <p>
-                    where <span class="math">λ = k · (q/p)</span>. The simplified approximation
-                    <span class="math">(q/p)ᵏ</span>
-                    underestimates the probability because it ignores the attacker's
-                    Poisson-distributed progress during the <span class="math">k</span> confirmations; the table
-                    below uses the exact Poisson formula.
+                    and, if <span class="math">q &lt; 0.5</span>, the value given by Nakamoto's
+                    formula, stated as Theorem 14.2 and derived by the gambler's-ruin
+                    argument of Theorem 26.3. In that case the probability decreases
+                    geometrically in <span class="math">k</span>, dominated by the catch-up
+                    factor <span class="math">(q/p)ᵏ</span>.
                 </p>
             </div>
 
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Attacker Hashrate</th>
-                        <th>1 conf</th>
-                        <th>3 conf</th>
-                        <th>6 conf</th>
-                        <th>12 conf</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>10%</td>
-                        <td>20%</td>
-                        <td>1%</td>
-                        <td>0.02%</td>
-                        <td>~0%</td>
-                    </tr>
-                    <tr>
-                        <td>25%</td>
-                        <td>52%</td>
-                        <td>20%</td>
-                        <td>5%</td>
-                        <td>0.4%</td>
-                    </tr>
-                    <tr>
-                        <td>40%</td>
-                        <td>83%</td>
-                        <td>66%</td>
-                        <td>50%</td>
-                        <td>31%</td>
-                    </tr>
-                    <tr>
-                        <td>50%</td>
-                        <td>100%</td>
-                        <td>100%</td>
-                        <td>100%</td>
-                        <td>100%</td>
-                    </tr>
-                </tbody>
-            </table>
+            <p>
+                Numerical values are tabulated in Section 14.8. Two readings of that table
+                matter for security policy. First, confirmations buy exponential safety
+                only against a minority attacker: at <span class="math">q = 0.10</span>,
+                six confirmations leave a success probability of about 0.02%, but at
+                <span class="math">q = 0.40</span>, even twelve confirmations leave about 31%.
+                Second, no confirmation count protects against a majority attacker:
+                the <span class="math">q ≥ 0.5</span> case of Theorem 36.1 is the formal
+                content of the term "51% attack". Exchanges and merchants therefore scale
+                confirmation requirements with the value at risk and with their estimate
+                of plausibly attainable hashrate (Chapter 37).
+            </p>
         </section>
 
         <section>

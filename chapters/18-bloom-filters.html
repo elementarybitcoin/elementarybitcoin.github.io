@@ -217,7 +217,7 @@
                     </g>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.1</strong>&mdash;Bloom filter operations with k=3 hash functions.
+                    <strong>Figure 18.1:</strong> Bloom filter operations with k=3 hash functions.
                     Red cells indicate bits set to 1. A query returns "possibly in set" only if
                     all k bits are set.
                 </figcaption>
@@ -478,7 +478,7 @@
                     </g>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.2</strong>&mdash;A merkleblock message contains just enough
+                    <strong>Figure 18.2:</strong> A merkleblock message contains just enough
                     Merkle tree nodes to prove that matched transactions are included in the block.
                     The client receives TX B in full, plus hashes H(A) and H(CD) to verify inclusion.
                 </figcaption>
@@ -541,26 +541,20 @@
 
             <h3>Attack 1: Direct Address Extraction</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 18.2</strong> (Filter Analysis Attack)</p>
+            <div class="remark">
+                <p><strong>Remark 18.1</strong> (Filter Analysis Attack)</p>
                 <p>
                     Given a Bloom filter with parameters (<span class="math">m</span>, <span class="math">k</span>, <code>nTweak</code>),
-                    an attacker can test arbitrary addresses against the filter locally. By testing
-                    all addresses that have ever appeared on the blockchain, the attacker recovers
-                    the wallet's address set with high probability.
-                </p>
-            </div>
-
-            <div class="proof">
-                <p><strong>Proof sketch.</strong></p>
-                <p>
-                    The attacker knows the hash function construction (Algorithm 18.1). For each
-                    candidate address <span class="math">a</span>, they compute <span class="math">h₀(a), h₁(a), ..., hₖ₋₁(a)</span>
-                    and check if all corresponding bits are set. True positives (actual wallet
-                    addresses) will always match. False positives occur at rate <span class="math">p</span>, but with
-                    millions of blockchain addresses and typical filter sizes, the number of
-                    false positives is small and can often be distinguished through blockchain
-                    graph analysis. ∎
+                    an attacker can test arbitrary addresses against the filter locally: the
+                    hash function construction (Algorithm 18.1) is public, so for each
+                    candidate address <span class="math">a</span> the attacker computes
+                    <span class="math">h₀(a), h₁(a), ..., hₖ₋₁(a)</span> and checks whether all
+                    corresponding bits are set. True positives (actual wallet addresses)
+                    always match; false positives occur at rate <span class="math">p</span>, and the survivors
+                    can often be distinguished through blockchain graph analysis. By testing
+                    all addresses that have ever appeared on the blockchain, the attacker
+                    recovers the wallet's address set with high probability; Gervais et al.
+                    (2014) demonstrated this empirically (Example 18.2).
                 </p>
             </div>
 
@@ -612,14 +606,14 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.3</strong>&mdash;When a client updates their filter (e.g., after
+                    <strong>Figure 18.3:</strong> When a client updates their filter (e.g., after
                     generating new addresses), the intersection of matched addresses across filter
                     versions eliminates false positives and reveals true wallet addresses.
                 </figcaption>
             </figure>
 
             <div class="theorem">
-                <p><strong>Theorem 18.3</strong> (Intersection Attack)</p>
+                <p><strong>Proposition 18.1</strong> (Intersection Attack)</p>
                 <p>
                     If a client sends filter versions <span class="math">F₁</span> and <span class="math">F₂</span> with different tweaks or sizes,
                     the intersection of matching addresses has vastly reduced false positive rate:
@@ -629,6 +623,20 @@
                 </div>
                 <p>
                     After just 3 filter versions with <span class="math">p = 0.001</span>, the false positive rate drops to <span class="math">10⁻⁹</span>.
+                </p>
+            </div>
+
+            <div class="proof">
+                <p><strong>Proof.</strong></p>
+                <p>
+                    A true wallet address matches every filter version, so it survives the
+                    intersection with probability 1. For an address <em>not</em> in the
+                    wallet, matching <span class="math">F₁</span> is an event of probability
+                    <span class="math">p₁</span> and matching <span class="math">F₂</span> one of probability <span class="math">p₂</span>; because the
+                    tweaks (or sizes) differ, the two filters probe different hash values,
+                    and under the same independence heuristic used in Theorem 18.1 the two
+                    events are independent. The probability of surviving both is therefore
+                    approximately <span class="math">p₁ · p₂</span>, and <span class="math">pᵏ</span> for <span class="math">k</span> independent versions. ∎
                 </p>
             </div>
 
@@ -660,7 +668,7 @@
             <h3>Quantifying the Privacy Loss</h3>
 
             <div class="remark">
-                <p><strong>Remark 18.1</strong> (Practical Privacy Bound)</p>
+                <p><strong>Remark 18.2</strong> (Practical Privacy Bound)</p>
                 <p>
                     Empirically, under realistic conditions (persistent connections, repeated
                     queries, filter updates), a malicious node identifies all wallet addresses
@@ -692,8 +700,8 @@
 
             <h3>Computational Asymmetry</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 18.4</strong> (DoS Amplification)</p>
+            <div class="remark">
+                <p><strong>Remark 18.3</strong> (DoS Amplification)</p>
                 <p>
                     Processing a Bloom filter request against a block requires:
                 </p>
@@ -911,7 +919,7 @@
                     </defs>
                 </svg>
                 <figcaption>
-                    <strong>Figure 18.4</strong>&mdash;Complete BIP-37 protocol flow showing filter
+                    <strong>Figure 18.4:</strong> Complete BIP-37 protocol flow showing filter
                     submission, filtered block requests, and optional filter updates.
                 </figcaption>
             </figure>

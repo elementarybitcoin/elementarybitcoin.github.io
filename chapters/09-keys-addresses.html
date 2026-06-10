@@ -58,7 +58,8 @@
 
             <p>
                 A Bitcoin private key is, at its core, simply a number. But not just any number&mdash;it
-                must be chosen with extreme care.
+                must be chosen with extreme care. Chapter 5 introduced private and public keys
+                alongside the curve parameters; we now define them as protocol objects.
             </p>
 
             <div class="definition">
@@ -226,8 +227,9 @@
                     04 || x || y
                 </p>
                 <p>
-                    where <code>04</code> is a single prefix byte, and <span class="math">x</span> and
-                    <span class="math">y</span> are each encoded as 32-byte big-endian integers.
+                    where <code>04</code> is a single prefix byte, <span class="math">x</span> and
+                    <span class="math">y</span> are each encoded as 32-byte big-endian integers,
+                    and <span class="math">||</span> denotes concatenation of byte strings.
                 </p>
             </div>
 
@@ -294,23 +296,17 @@
                 resistance, and scripting flexibility.
             </p>
 
-            <div class="definition">
-                <p class="definition-title">Definition 9.5 (HASH160)</p>
-                <p>
-                    The <strong>HASH160</strong> function is the composition:
-                </p>
-                <p class="math-block">
-                    HASH160(x) = RIPEMD160(SHA256(x))
-                </p>
-                <p>
-                    This produces a 160-bit (20-byte) digest from an arbitrary input.
-                </p>
-            </div>
-
             <p>
-                The use of two different hash functions (SHA-256 followed by RIPEMD-160) provides
-                defense in depth: if either function is found to have weaknesses, the composition
-                may still be secure.
+                Recall the composite hash function HASH160 (Definition 6.4):
+            </p>
+            <p class="math-block">
+                HASH160(x) = RIPEMD160(SHA256(x))
+            </p>
+            <p>
+                It produces a 160-bit (20-byte) digest from an arbitrary input. As discussed in
+                Chapter 6, the use of two different hash functions (SHA-256 followed by RIPEMD-160)
+                provides defense in depth: if either function is found to have weaknesses, the
+                composition may still be secure.
             </p>
 
             <figure>
@@ -363,7 +359,7 @@
             <h3 id="s9-4-1">9.4.1 The Base58 Alphabet</h3>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.6 (Base58 Alphabet)</p>
+                <p class="definition-title">Definition 9.5 (Base58 Alphabet)</p>
                 <p>
                     The <strong>Base58</strong> alphabet consists of 58 characters:
                 </p>
@@ -383,7 +379,7 @@
             <h3 id="s9-4-2">9.4.2 Adding the Checksum</h3>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.7 (Base58Check)</p>
+                <p class="definition-title">Definition 9.6 (Base58Check)</p>
                 <p>
                     <strong>Base58Check</strong> encoding of data <span class="math">d</span> with
                     version byte <span class="math">v</span> is:
@@ -477,7 +473,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.8 (P2PKH Address)</p>
+                <p class="definition-title">Definition 9.7 (P2PKH Address)</p>
                 <p>
                     A <strong>Pay-to-Public-Key-Hash (P2PKH)</strong> address is the Base58Check
                     encoding of:
@@ -556,7 +552,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.9 (P2SH Address)</p>
+                <p class="definition-title">Definition 9.8 (P2SH Address)</p>
                 <p>
                     A <strong>Pay-to-Script-Hash (P2SH)</strong> address is the Base58Check
                     encoding of:
@@ -610,7 +606,7 @@
             <h3 id="s9-7-1">9.7.1 The Bech32 Alphabet</h3>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.10 (Bech32 Alphabet)</p>
+                <p class="definition-title">Definition 9.9 (Bech32 Alphabet)</p>
                 <p>
                     The <strong>Bech32</strong> alphabet consists of 32 lowercase alphanumeric characters:
                 </p>
@@ -634,7 +630,7 @@
             </ol>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.11 (P2WPKH Address)</p>
+                <p class="definition-title">Definition 9.10 (P2WPKH Address)</p>
                 <p>
                     A <strong>Pay-to-Witness-Public-Key-Hash (P2WPKH)</strong> address encodes:
                 </p>
@@ -686,6 +682,32 @@
                     1 in 10⁹.
                 </p>
             </div>
+
+            <div class="proof">
+                <p class="proof-title">Proof sketch.</p>
+                <p>
+                    Interpret each character of the address as an element of the finite field
+                    <span class="math">𝔽₃₂</span> of 32 elements (Chapter 2), so that a string
+                    becomes the coefficient sequence of a polynomial. The six-character checksum
+                    is chosen so that this polynomial leaves a fixed residue modulo a fixed
+                    degree-6 generator polynomial; for a given length and human-readable part,
+                    the valid strings therefore form a coset of a linear code over
+                    <span class="math">𝔽₃₂</span>,
+                    and an error goes undetected exactly when the error pattern (the character-wise
+                    difference of two valid strings) is a nonzero codeword. A nonzero codeword has
+                    weight at least the minimum distance of the code, and the Bech32 generator was
+                    selected by exhaustive search over BCH codes so that this minimum distance is
+                    at least 5 for all lengths up to 90 characters: hence every error pattern
+                    touching at most 4 character positions is detected, which subsumes single
+                    substitutions and adjacent transpositions (the latter alter at most 2
+                    positions). For arbitrary corruption, the checksum carries
+                    <span class="math">6 × 5 = 30</span> bits, so a random invalid string passes
+                    verification with probability about <span class="math">2⁻³⁰ &lt; 10⁻⁹</span>.
+                    The minimum-distance computation itself is an exhaustive verification; the
+                    code construction and its design notes are specified in BIP-173.
+                    <span class="qed"></span>
+                </p>
+            </div>
         </section>
 
         <section>
@@ -697,7 +719,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.12 (P2TR Address)</p>
+                <p class="definition-title">Definition 9.11 (P2TR Address)</p>
                 <p>
                     A <strong>Pay-to-Taproot (P2TR)</strong> address encodes:
                 </p>
@@ -770,7 +792,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 9.13 (WIF Encoding)</p>
+                <p class="definition-title">Definition 9.12 (WIF Encoding)</p>
                 <p>
                     The <strong>Wallet Import Format</strong> of a private key <span class="math">d</span> is:
                 </p>

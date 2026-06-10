@@ -405,8 +405,8 @@ script_hash (little-endian hex) = 56f4de...23c1ab</code></pre>
 
             <h3>What the Server Learns</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 20.1</strong> (Electrum Privacy Leakage)</p>
+            <div class="remark">
+                <p><strong>Remark 20.1</strong> (Electrum Privacy Leakage)</p>
                 <p>
                     When a client connects to an Electrum server, the server learns:
                 </p>
@@ -419,16 +419,13 @@ script_hash (little-endian hex) = 56f4de...23c1ab</code></pre>
                     <li>Client IP address (without Tor)</li>
                     <li>Wallet software and version (from protocol negotiation)</li>
                 </ol>
-            </div>
-
-            <div class="proof">
-                <p><strong>Proof.</strong></p>
                 <p>
-                    The Electrum protocol requires the client to send scriptPubKey hashes
-                    to query address history. The server must store and respond to these
-                    queries, necessarily learning the queried addresses. Subscription
-                    requests explicitly reveal ongoing interest. Transaction broadcasts
-                    reveal spending before the transaction propagates through the P2P network. ∎
+                    This leakage is structural, not accidental: the Electrum protocol
+                    requires the client to send scriptPubKey hashes to query address
+                    history, so the server necessarily learns the queried addresses.
+                    Subscription requests explicitly reveal ongoing interest, and
+                    transaction broadcasts reveal spending before the transaction
+                    propagates through the P2P network.
                 </p>
             </div>
 
@@ -514,8 +511,8 @@ Response:
 
             <h3>Trust Model</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 20.2</strong> (API Trust Requirements)</p>
+            <div class="remark">
+                <p><strong>Remark 20.2</strong> (API Trust Requirements)</p>
                 <p>
                     When using a third-party API:
                 </p>
@@ -861,7 +858,7 @@ Response:
             </p>
 
             <div class="theorem">
-                <p><strong>Theorem 20.3</strong> (Fraud Proof Coverage)</p>
+                <p><strong>Theorem 20.1</strong> (Fraud Proof Coverage)</p>
                 <p>
                     Given a distribution mechanism for fraud proofs and assuming data
                     availability (that is, block data is accessible to at least one

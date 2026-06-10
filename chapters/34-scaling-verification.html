@@ -124,7 +124,7 @@
                         <td><span class="math">80 &times; height</span> bytes
                             <span class="math">&asymp; 72 MB</span></td>
                         <td>~12 KB/day of headers</td>
-                        <td>Theorem 17.1</td>
+                        <td>Remark 17.1</td>
                     </tr>
                     <tr>
                         <td>Neutrino (BIP-157/158)</td>
@@ -254,7 +254,7 @@
                 <strong>Headers-first sync is cacheable, verifiable state transfer.</strong>
                 The header chain of Chapter 17 is identical for every client, immutable
                 once buried, and self-authenticating: a client checks the proof-of-work
-                and the hash links itself (Theorem 17.1 prices the whole chain at
+                and the hash links itself (Remark 17.1 prices the whole chain at
                 <span class="math">80 &times; height</span> bytes). Because verification
                 travels with the data, the data can be served by <em>anyone</em>: an
                 untrusted mirror, a CDN, a peer. This is exactly the property REST's cache
@@ -276,7 +276,7 @@
             <p>
                 <strong>The layered money stack is REST's layered system.</strong>
                 Chapters 23 and 24 built payments in layers: the chain settles channel
-                opens and closes, channels carry the traffic, and Theorem 23.1 gives the
+                opens and closes, channels carry the traffic, and Remark 23.1 gives the
                 multiplier: <span class="math">N</span> payments per channel cost two
                 on-chain transactions. A Lightning payer sees only the adjacent layer; the
                 base chain neither knows nor consents. This is the layered-system
@@ -359,7 +359,7 @@
                         TCP-speaking node network must exist.</li>
                     <li><strong>Storage quotas.</strong> Persistent storage is limited and
                         evictable. The full header chain
-                        (<span class="math">&asymp; 72 MB</span>, Theorem 17.1) fits
+                        (<span class="math">&asymp; 72 MB</span>, Remark 17.1) fits
                         within typical quotas; a checkpointed anchor (shipping the
                         client with a recent header hash and syncing forward from
                         it) reduces the requirement to megabytes, at a trust cost
@@ -852,7 +852,7 @@
                     chain, and whose depositors can exit to self-custody at the cost of
                     one transaction, is constrained as no fractional-reserve bank ever
                     was; second, the alternative of placing all economic activity
-                    on-chain fails on arithmetic, since Theorem 23.1's two on-chain
+                    on-chain fails on arithmetic, since Remark 23.1's two on-chain
                     transactions per channel is already the optimistic case and Chapter
                     23's throughput analysis admits no global payment volume at the base
                     layer. Both positions are coherent; they weigh the same ladder
@@ -909,7 +909,7 @@
             <div class="exercise">
                 <p class="exercise-title">Exercise 34.1</p>
                 <p>
-                    Using Theorem 17.1, compute the size of the complete header chain at
+                    Using Remark 17.1, compute the size of the complete header chain at
                     the start of 2031. Take the height as approximately
                     <span class="math">901,000</span> in mid-2026 and assume
                     <span class="math">52,560</span> blocks per year for the intervening

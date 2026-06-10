@@ -150,24 +150,18 @@
                 <figcaption>Figure 17.1: An SPV client stores orders of magnitude less data than a full node.</figcaption>
             </figure>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 17.1 (Header Chain Size)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 17.1 (Header Chain Size)</p>
                 <p>
-                    The size of the complete header chain grows linearly with blockchain height:
+                    Since each block has exactly one 80-byte header, the size of the
+                    complete header chain grows linearly with blockchain height:
                 </p>
                 <p class="math-block">
                     size = 80 × height bytes
                 </p>
                 <p>
-                    At height 800,000: approximately 64 MB. Annual growth: ~4.2 MB/year.
-                </p>
-            </div>
-
-            <div class="proof">
-                <p class="proof-title">Proof.</p>
-                <p>
-                    Each block has exactly one 80-byte header. At ~52,560 blocks per year,
-                    annual growth = 52,560 × 80 = 4,204,800 bytes ≈ 4.2 MB. □
+                    At height 800,000: approximately 64 MB. At ~52,560 blocks per year,
+                    annual growth is 52,560 × 80 = 4,204,800 bytes ≈ 4.2 MB.
                 </p>
             </div>
         </section>
@@ -181,7 +175,7 @@
             </p>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 17.2 (SPV Inclusion Proof)</p>
+                <p class="theorem-title">Theorem 17.1 (SPV Inclusion Proof)</p>
                 <p>
                     Given:
                 </p>
@@ -281,8 +275,8 @@
                 SPV cannot verify.
             </p>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 17.3 (SPV Limitations)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 17.2 (SPV Limitations)</p>
                 <p>
                     An SPV client <strong>cannot independently verify</strong>:
                 </p>
@@ -293,27 +287,18 @@
                     <li>That the block's other transactions are valid</li>
                     <li>That consensus rules were followed</li>
                 </ol>
-            </div>
-
-            <div class="proof">
-                <p class="proof-title">Proof.</p>
                 <p>
-                    Each verification requires data the SPV client does not have:
-                </p>
-                <ol>
-                    <li>UTXO validation requires the UTXO set (not stored)</li>
-                    <li>Signature validation requires scripts from spent outputs (not stored)</li>
-                    <li>Double-spend detection requires transaction history (not stored)</li>
-                    <li>Block validation requires all transactions (not stored)</li>
-                    <li>Consensus validation requires full chain state (not stored)</li>
-                </ol>
-                <p>
-                    The SPV client has only headers and Merkle proofs. □
+                    The reason is that each check requires data the SPV client does not
+                    hold: UTXO validation requires the UTXO set; signature validation
+                    requires the scripts of the spent outputs; double-spend detection
+                    requires transaction history; block validation requires all
+                    transactions; consensus validation requires full chain state. The
+                    SPV client has only headers and Merkle proofs.
                 </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.1 (The Trust Assumption)</p>
+                <p class="remark-title">Remark 17.3 (The Trust Assumption)</p>
                 <p>
                     SPV works by <em>delegating</em> validation to miners. The reasoning is:
                 </p>
@@ -350,8 +335,8 @@
                 </ul>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 17.4 (SPV Security)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 17.4 (SPV Attack Vectors)</p>
                 <p>
                     Under the honest majority assumption, an SPV client accepting a transaction
                     with <span class="math">k</span> confirmations faces two attack vectors:
@@ -370,8 +355,8 @@
                 Can an attacker fool an SPV client with a fake transaction?
             </p>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 17.5 (Fabrication Cost)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 17.5 (Fabrication Cost)</p>
                 <p>
                     To fabricate a transaction with <span class="math">k</span> confirmations,
                     an attacker must:
@@ -387,7 +372,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.2 (The Catch)</p>
+                <p class="remark-title">Remark 17.6 (The Catch)</p>
                 <p>
                     The fabricated chain will be shorter (less work) than the honest chain.
                     An SPV client that correctly identifies the most-work chain will reject it.
@@ -424,7 +409,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.3 (The Difficulty Caveat)</p>
+                <p class="remark-title">Remark 17.7 (The Difficulty Caveat)</p>
                 <p>
                     Example 17.1's arithmetic silently assumes the client verifies that each
                     header's difficulty target follows the adjustment rules (Phase 1 of the
@@ -501,7 +486,7 @@
             </p>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 17.6 (Confirmation Security)</p>
+                <p class="theorem-title">Theorem 17.2 (Confirmation Security)</p>
                 <p>
                     For an attacker with hash power fraction <span class="math">q < 0.5</span>,
                     the probability of reversing a transaction with <span class="math">k</span>
@@ -514,7 +499,7 @@
                     where <span class="math">λ = k(q/p)</span> and <span class="math">p = 1 − q</span>
                     (the Nakamoto formula from Section 11 of the Bitcoin whitepaper; here
                     <span class="math">k</span> counts confirmations, playing the role of
-                    <span class="math">z</span> in Theorem 14.4).
+                    <span class="math">z</span> in Theorem 14.2).
                 </p>
             </div>
 
@@ -556,7 +541,7 @@
             </table>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.4 (Same Security as Full Nodes)</p>
+                <p class="remark-title">Remark 17.8 (Same Security as Full Nodes)</p>
                 <p>
                     Importantly, these probabilities are <em>identical</em> for SPV clients and
                     full nodes. The confirmation security against double-spends depends only on
@@ -590,7 +575,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.5 (Fraud Proofs Don't Exist Yet)</p>
+                <p class="remark-title">Remark 17.9 (Fraud Proofs Don't Exist Yet)</p>
                 <p>
                     Despite years of research, general-purpose fraud proofs for Bitcoin do not
                     exist. The problem is that proving a transaction is invalid requires proving
@@ -673,7 +658,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.6 (SPV Use Cases)</p>
+                <p class="remark-title">Remark 17.10 (SPV Use Cases)</p>
                 <p>
                     <strong>SPV is appropriate when:</strong>
                 </p>
@@ -709,7 +694,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 17.7 (SPV in Practice)</p>
+                <p class="remark-title">Remark 17.11 (SPV in Practice)</p>
                 <p>
                     The original SPV concept assumed:
                 </p>
@@ -731,7 +716,7 @@
             <div class="example">
                 <p class="example-title">Example 17.2 (July 2015: The Assumption Fails Without an Attacker)</p>
                 <p>
-                    The honest-majority assumption of Theorem 17.4 failed observably once, and
+                    The honest-majority assumption of Definition 17.3 failed observably once, and
                     no adversary was needed. When the BIP-66 soft fork activated in early July
                     2015, a substantial fraction of the network's hashrate&mdash;by
                     contemporaneous estimates, roughly half&mdash;was engaged in
@@ -750,7 +735,7 @@
                     confirmations for large payments.
                 </p>
                 <p>
-                    The lesson sharpens the theorem's hypothesis: SPV security rests not on a
+                    The lesson sharpens the assumption itself: SPV security rests not on a
                     majority of hashrate being <em>honest</em>, but on a majority being honest
                     <em>and validating</em>. Hashrate that follows headers without checking
                     blocks counts toward proof of work but not toward the enforcement of

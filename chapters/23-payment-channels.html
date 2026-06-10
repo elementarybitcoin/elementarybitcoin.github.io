@@ -119,8 +119,8 @@
                 solutions move transactions off-chain while preserving Bitcoin's security:
             </p>
 
-            <div class="theorem">
-                <p><strong>Theorem 23.1</strong> (Payment Channel Scaling)</p>
+            <div class="remark">
+                <p><strong>Remark 23.1</strong> (Payment Channel Scaling)</p>
                 <p>
                     A payment channel between two parties requires:
                 </p>
@@ -129,7 +129,9 @@
                     <li><strong>Off-chain:</strong> Unlimited transactions between parties</li>
                 </ul>
                 <p>
-                    If a channel supports <span class="math">N</span> off-chain payments, throughput multiplies by <span class="math">N/2</span>.
+                    If a channel supports <span class="math">N</span> off-chain payments, the two on-chain
+                    transactions stand in for <span class="math">N</span> payments: a multiplier of <span class="math">N/2</span> in
+                    payments per unit of block space.
                 </p>
             </div>
         </section>
@@ -250,8 +252,8 @@
 
             <h3>Security Analysis</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 23.2</strong> (Unidirectional Channel Security)</p>
+            <div class="remark">
+                <p><strong>Remark 23.2</strong> (Unidirectional Channel Security)</p>
                 <p>
                     In a unidirectional channel:
                 </p>
@@ -260,6 +262,11 @@
                     <li><strong>Alice's guarantee:</strong> Bob can only claim what Alice signed</li>
                     <li><strong>Problem:</strong> Alice cannot recover uncommitted funds if Bob disappears</li>
                 </ul>
+                <p>
+                    We state these guarantees informally: a precise security analysis,
+                    accounting for timelock expiry, fee dynamics, and blockchain
+                    congestion, is beyond this section.
+                </p>
             </div>
 
             <h3>Adding Timelocks</h3>
@@ -527,8 +534,8 @@ OP_ENDIF</code></pre>
                 </ol>
             </div>
 
-            <div class="theorem">
-                <p><strong>Theorem 23.3</strong> (LN-Penalty Security)</p>
+            <div class="remark">
+                <p><strong>Remark 23.3</strong> (LN-Penalty Security)</p>
                 <p>
                     In an LN-Penalty channel:
                 </p>
@@ -537,6 +544,12 @@ OP_ENDIF</code></pre>
                     <li><strong>Cheating attempt:</strong> Cheater loses all funds to counterparty</li>
                     <li><strong>Requirement:</strong> Honest party must be online during timelock</li>
                 </ul>
+                <p>
+                    As with Remark 23.2, these are the intended guarantees of the
+                    construction rather than proved theorems; a rigorous treatment must
+                    model timelocks, fees, and chain access, and is beyond this section
+                    (Exercise 23.2 develops the incentive argument).
+                </p>
             </div>
         </section>
 
@@ -759,10 +772,11 @@ OP_ENDIF</code></pre>
 
             <h3>Watchtower Privacy</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 23.4</strong> (Watchtower Privacy)</p>
+            <div class="remark">
+                <p><strong>Remark 23.4</strong> (Watchtower Privacy)</p>
                 <p>
-                    Watchtowers can operate without learning channel balances:
+                    Watchtowers can operate without learning channel balances. The design
+                    pattern:
                 </p>
                 <ul>
                     <li>Client provides encrypted blob keyed to commitment txid</li>

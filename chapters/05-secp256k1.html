@@ -405,60 +405,21 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
         </section>
 
         <section>
-            <h2 id="s5-7">5.7 Private and Public Keys</h2>
+            <h2 id="s5-7">5.7 From Parameters to Keys</h2>
 
             <p>
-                With the curve parameters established, we can now precisely define what
-                constitutes a Bitcoin private key and public key.
+                With the curve parameters established, the objects at the heart of Bitcoin's
+                cryptography are one step away. A private key is an integer
+                <span class="math">d</span> with <span class="math">1 ≤ d ≤ n − 1</span>, and
+                the corresponding public key is the point <span class="math">P = dG</span>;
+                these objects, their byte encodings, and the address formats built on them
+                are the subject of Chapter 9. Here we record only what the parameters
+                themselves determine about them.
             </p>
 
-            <div class="definition">
-                <p class="definition-title">Definition 5.5 (Private Key)</p>
-                <p>
-                    A <strong>private key</strong> is an integer <span class="math">d</span> satisfying:
-                </p>
-                <p style="text-align: center; font-size: 1.1em;">
-                    <span class="math">1 ≤ d ≤ n − 1</span>
-                </p>
-                <p>
-                    In Bitcoin, this is typically a 256-bit random number. The private key must
-                    be kept secret; anyone who knows it can spend the associated funds.
-                </p>
-            </div>
-
-            <div class="definition">
-                <p class="definition-title">Definition 5.6 (Public Key)</p>
-                <p>
-                    Given a private key <span class="math">d</span>, the <strong>public key</strong>
-                    is the point:
-                </p>
-                <p style="text-align: center; font-size: 1.1em;">
-                    <span class="math">P = dG = (x, y)</span>
-                </p>
-                <p>
-                    This point can be shared publicly. The security of the system relies on
-                    the infeasibility of computing <span class="math">d</span> from <span class="math">P</span>
-                    and <span class="math">G</span>.
-                </p>
-            </div>
-
-            <div class="example">
-                <p class="example-title">Example 5.2 (A Simple Private Key)</p>
-                <p>
-                    Let the private key be <span class="math">d = 1</span>. Then the public key is:
-                </p>
-                <p style="text-align: center;">
-                    <span class="math">P = 1 × G = G</span>
-                </p>
-                <p>
-                    So the public key is simply the generator point itself. While this is
-                    mathematically valid, it would be a catastrophically weak key in practice.
-                </p>
-                <p>
-                    For <span class="math">d = 2</span>, the public key is <span class="math">P = 2G</span>,
-                    computed via point doubling.
-                </p>
-            </div>
+            <p>
+                First, the size of <span class="math">n</span> fixes the size of the key space.
+            </p>
 
             <div class="remark">
                 <p class="remark-title">Key Space Size</p>
@@ -476,64 +437,17 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     of collision with any other key ever generated.
                 </p>
             </div>
-        </section>
-
-        <section>
-            <h2 id="s5-8">5.8 Public Key Encoding</h2>
 
             <p>
-                A public key is a point <span class="math">(x, y)</span> on the curve. There
-                are several ways to encode this point as a byte sequence (throughout,
-                <span class="math">||</span> denotes concatenation of byte strings).
+                Second, the special form of <span class="math">p</span> has a practical
+                consequence for how public keys can be stored. Since the curve equation is
+                quadratic in <span class="math">y</span>, a point is determined by its
+                <span class="math">x</span>-coordinate together with one bit selecting between
+                the two roots <span class="math">y</span> and <span class="math">p − y</span>
+                (which have opposite parities, as <span class="math">p</span> is odd). Because
+                <span class="math">p ≡ 3 (mod 4)</span>, the required square root can be
+                computed by a single exponentiation.
             </p>
-
-            <div class="definition">
-                <p class="definition-title">Definition 5.7 (Public Key Formats)</p>
-                <p><strong>Uncompressed format (65 bytes):</strong></p>
-                <p style="font-family: monospace; margin-left: 2rem;">
-                    04 || x (32 bytes) || y (32 bytes)
-                </p>
-                <p>The prefix <code>04</code> indicates uncompressed format.</p>
-
-                <p><strong>Compressed format (33 bytes):</strong></p>
-                <p style="font-family: monospace; margin-left: 2rem;">
-                    (02 or 03) || x (32 bytes)
-                </p>
-                <p>
-                    The prefix is <code>02</code> if <span class="math">y</span> is even,
-                    <code>03</code> if <span class="math">y</span> is odd.
-                </p>
-            </div>
-
-            <figure>
-                <svg class="diagram" width="500" height="200" viewBox="0 0 500 200">
-                    <text x="250" y="25" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="bold">Public Key Encoding Formats</text>
-
-                    <!-- Uncompressed -->
-                    <g transform="translate(90, 50)">
-                        <text x="0" y="15" font-family="Georgia" font-size="12" font-weight="bold">Uncompressed (65 bytes):</text>
-                        <rect x="0" y="25" width="30" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
-                        <text x="15" y="45" text-anchor="middle" font-family="monospace" font-size="11">04</text>
-                        <rect x="35" y="25" width="140" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
-                        <text x="105" y="45" text-anchor="middle" font-family="Georgia" font-size="11">x (32 bytes)</text>
-                        <rect x="180" y="25" width="140" height="30" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1"/>
-                        <text x="250" y="45" text-anchor="middle" font-family="Georgia" font-size="11">y (32 bytes)</text>
-                    </g>
-
-                    <!-- Compressed -->
-                    <g transform="translate(90, 120)">
-                        <text x="0" y="15" font-family="Georgia" font-size="12" font-weight="bold">Compressed (33 bytes):</text>
-                        <rect x="0" y="25" width="45" height="30" fill="#f8f5f0" stroke="#8b4513" stroke-width="1"/>
-                        <text x="22" y="45" text-anchor="middle" font-family="monospace" font-size="11">02/03</text>
-                        <rect x="50" y="25" width="140" height="30" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1"/>
-                        <text x="120" y="45" text-anchor="middle" font-family="Georgia" font-size="11">x (32 bytes)</text>
-
-                        <!-- Recovery note -->
-                        <text x="210" y="45" font-family="Georgia" font-size="10" fill="#666">y recovered from x</text>
-                    </g>
-                </svg>
-                <figcaption>Figure 5.4: Uncompressed and compressed public key formats.</figcaption>
-            </figure>
 
             <div class="theorem">
                 <p class="theorem-title">Proposition 5.2 (Point Recovery)</p>
@@ -544,7 +458,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                 <ol>
                     <li>Compute <span class="math">y² = x³ + 7 mod p</span></li>
                     <li>Compute <span class="math">y = (y²)^((p+1)/4) mod p</span> (valid since <span class="math">p ≡ 3 (mod 4)</span>)</li>
-                    <li>If the parity of <span class="math">y</span> does not match the prefix, use <span class="math">p − y</span></li>
+                    <li>If the parity of <span class="math">y</span> does not match the required parity, use <span class="math">p − y</span></li>
                 </ol>
                 <p>
                     Step 2 works by Euler's criterion: a nonzero <span class="math">a</span> is a
@@ -556,18 +470,16 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                 </p>
             </div>
 
-            <div class="remark">
-                <p class="remark-title">Compression Benefits</p>
-                <p>
-                    Compressed public keys save 32 bytes per key. In Bitcoin transactions,
-                    this reduces transaction size and hence fees. Modern Bitcoin software
-                    uses compressed keys by default.
-                </p>
-            </div>
+            <p>
+                This proposition is what makes the compressed public key encoding of
+                Chapter 9 possible: a public key can be transmitted as 33 bytes (the
+                <span class="math">x</span>-coordinate plus a parity prefix) rather than
+                65, and the receiver recovers <span class="math">y</span> exactly.
+            </p>
         </section>
 
         <section>
-            <h2 id="s5-9">5.9 Why Satoshi Chose secp256k1</h2>
+            <h2 id="s5-8">5.8 Why Satoshi Chose secp256k1</h2>
 
             <p>
                 When Satoshi Nakamoto designed Bitcoin, he chose secp256k1 over the more
@@ -610,7 +522,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
         </section>
 
         <section>
-            <h2 id="s5-10">5.10 Security Analysis</h2>
+            <h2 id="s5-9">5.9 Security Analysis</h2>
 
             <p>
                 The security of secp256k1 has been extensively analyzed. The main conclusion:
@@ -660,7 +572,7 @@ FD17B448 A6855419 9C47D08F FB10D4B8</pre>
                     <!-- Annotation -->
                     <text x="225" y="115" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">Best attack: ~2¹²⁸ operations (computationally infeasible)</text>
                 </svg>
-                <figcaption>Figure 5.5: secp256k1 provides approximately 128 bits of security.</figcaption>
+                <figcaption>Figure 5.4: secp256k1 provides approximately 128 bits of security.</figcaption>
             </figure>
 
             <p>
