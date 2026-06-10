@@ -692,10 +692,195 @@
         </section>
 
         <section>
-            <h2 id="s25-7">25.7 Methodology for Myth Evaluation</h2>
+            <h2 id="s25-7">25.7 Myths From Within</h2>
 
             <p>
-                When encountering claims about Bitcoin, apply this framework:
+                The myths above circulate mostly among Bitcoin's critics. Intellectual
+                honesty requires pointing the same instruments inward: Bitcoin's own culture
+                carries dogmas&mdash;claims repeated until they feel like theorems&mdash;and
+                this book has proved enough by now to deflate them with its own results.
+            </p>
+
+            <div class="myth-box">
+                <h4>Myth: "Bitcoin has never been hacked"</h4>
+                <p>
+                    A staple of advocacy: fifteen-plus years, billions at stake, and the
+                    protocol has never failed.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: The cryptography has never been broken; consensus has failed at least three times and was repaired by coordination</h4>
+            </div>
+
+            <div class="proof">
+                <p><strong>Analysis.</strong></p>
+                <p>
+                    In August 2010 the value-overflow bug let an attacker create 184 billion
+                    BTC in one transaction; the chain was rolled back 53 blocks by a
+                    coordinated upgrade (Remark 26.8, Example 36.1). In March 2013 an unwritten,
+                    environment-dependent rule split the network for 24 blocks
+                    (Example 33.7). In July 2015 half the hashrate extended an invalid
+                    chain six blocks deep (Example 17.2). What is true&mdash;and
+                    remarkable&mdash;is the precise claim: the cryptographic primitives of
+                    Volume I have never been broken, no theft has ever come from a protocol
+                    flaw that the network declined to fix, and each consensus failure was
+                    repaired within hours by exactly the social coordination the next myth
+                    denies. The strong version of the slogan erases the most instructive
+                    events in Bitcoin's history.
+                </p>
+            </div>
+
+            <div class="myth-box">
+                <h4>Myth: "The 21 million cap is mathematically guaranteed"</h4>
+                <p>
+                    The supply schedule is presented as a law of mathematics: the cap cannot
+                    change because the math cannot change.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: The cap is a rule of the validation predicate, protected by a coordination game, not by mathematics</h4>
+            </div>
+
+            <div class="proof">
+                <p><strong>Analysis.</strong></p>
+                <p>
+                    Definition 15.2 is a rule inside <span class="math">V(C, B)</span>
+                    (Definition 13.18), and rules are changeable by the same processes that
+                    created them (Chapter 16). What mathematics guarantees is conditional:
+                    <em>under the current rules</em>, total issuance is bounded by
+                    20,999,999.9769 BTC. What protects the rules themselves is not a theorem
+                    but the coordination game of Section 26.4 and the incentive analysis of
+                    Chapter 38: every holder is paid to defend the cap, any chain that
+                    inflates it must win the fork game of Chapter 26 against the entire
+                    economic weight of the existing one. That protection is arguably stronger
+                    than a theorem&mdash;theorems do not punish defectors&mdash;but it is
+                    different in kind, and pretending it is mathematics hides where the
+                    actual security lives: in people continuing to choose it.
+                </p>
+            </div>
+
+            <div class="myth-box">
+                <h4>Myth: "Bitcoin is decentralized"</h4>
+                <p>
+                    Stated as a settled boolean property, usually as the conversation-ending
+                    contrast with everything else.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Decentralization is a vector of measurable quantities, several of which are uncomfortably concentrated</h4>
+            </div>
+
+            <div class="proof">
+                <p><strong>Analysis.</strong></p>
+                <p>
+                    Validation is genuinely permissionless and widely distributed&mdash;that
+                    much the device-tier analysis of Section 34.1 supports. But block
+                    template construction is concentrated in a handful of mining pools;
+                    maintainer influence over the de facto specification is real
+                    (Remark 33.6); the supermajority of nodes run one implementation
+                    (Remark 33.13); and most users occupy the custodial rungs of the ladder
+                    in Section 34.5, where they verify nothing. Each of these is a measured
+                    quantity that moves over time. "Is Bitcoin decentralized?" is not a
+                    well-posed question; "decentralized in which dimension, measured how,
+                    compared to what?" is&mdash;and the honest answers differ by dimension.
+                </p>
+            </div>
+
+            <div class="myth-box">
+                <h4>Myth: "Bitcoin transactions are anonymous"</h4>
+                <p>
+                    Persisting from the protocol's early reputation, in both directions:
+                    admirers cite it as freedom, critics as menace.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: Bitcoin is pseudonymous with a permanent public record; its privacy is poor by default and the book's privacy chapters exist because of it</h4>
+            </div>
+
+            <div class="proof">
+                <p><strong>Analysis.</strong></p>
+                <p>
+                    Every transaction is public forever, and addresses cluster: common-input
+                    ownership, change detection, and exchange identity links collapse
+                    pseudonyms wholesale. The BIP-37 privacy catastrophe (Chapter 18), the
+                    engineering effort behind compact filters (Chapter 19), and the Electrum
+                    leakage analysis (Section 20.3) are all responses to the fact that the
+                    base protocol leaks. A bank record is private from the public and visible
+                    to the state; Bitcoin's ledger is the reverse&mdash;visible to everyone,
+                    deniable to no one, forever. Whether that trade is good is debatable;
+                    that it is "anonymous" is simply false.
+                </p>
+            </div>
+
+            <div class="myth-box">
+                <h4>Myth: "Code is law"</h4>
+                <p>
+                    The rules are whatever the software enforces; no human authority can
+                    override them.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: The code's authority is itself a social fact, and the network has overridden the code's verdict when it had to</h4>
+            </div>
+
+            <div class="proof">
+                <p><strong>Analysis.</strong></p>
+                <p>
+                    March 2013 is the decisive counterexample: the 0.8-valid chain was
+                    abandoned <em>by agreement</em>, with miners deliberately reorganizing
+                    onto the chain the buggy software preferred (Example 33.7)&mdash;humans
+                    coordinating to overrule the deployed code's verdict, within hours.
+                    Section 33.9 gives the deeper reason the slogan cannot be right: no
+                    canonical statement of the rules exists apart from software that humans
+                    write, review, ship, and choose to run. The truth in the slogan is that
+                    <em>no small group</em> can quietly override the rules&mdash;overriding
+                    them takes the broad coordination of Chapter 33. That is a profound
+                    property. It is not the absence of human authority; it is human
+                    authority made expensive.
+                </p>
+            </div>
+
+            <div class="myth-box">
+                <h4>Myth: "Running a full node protects the network"</h4>
+                <p>
+                    The believer-side mirror of the myth in Section 25.6: every node
+                    strengthens Bitcoin, so running one is a civic duty with network-wide
+                    effect.
+                </p>
+            </div>
+
+            <div class="reality-box">
+                <h4>Reality: A full node primarily protects its operator; network-level power is a property of the aggregate enforcing economy</h4>
+            </div>
+
+            <div class="proof">
+                <p><strong>Analysis.</strong></p>
+                <p>
+                    Remark 25.13 established what a node gives <em>you</em>: trustless
+                    verification of your own money. Network-level effects are real but
+                    aggregate: what disciplines miners is the enforcing economic fraction
+                    <span class="math">e</span> of Section 34.4&mdash;validation by actors
+                    whose acceptance gives coins value&mdash;not the raw count of listening
+                    nodes, which is cheaply inflatable and economically weightless. One more
+                    node behind a home connection changes <span class="math">e</span> by
+                    approximately nothing; a merchant, exchange, or payment processor
+                    validating independently changes it materially. Both extremes are
+                    wrong&mdash;"nodes don't matter" (Section 25.6) and "every node guards
+                    the network"&mdash;and the truth is the same in both directions:
+                    verification matters in proportion to the economic activity that
+                    depends on it.
+                </p>
+            </div>
+
+            <h2 id="s25-8">25.8 Methodology for Myth Evaluation</h2>
+
+            <p>
+                When encountering claims about Bitcoin&mdash;from its critics or its advocates; Sections 25.1&ndash;25.6 and 25.7 required exactly the same instruments&mdash;apply this framework:
             </p>
 
             <div class="definition">
