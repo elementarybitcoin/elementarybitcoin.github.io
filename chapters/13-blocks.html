@@ -255,23 +255,45 @@
             <h3 id="s13-2-4">13.2.4 Timestamp</h3>
 
             <div class="definition">
-                <p class="definition-title">Definition 13.5 (Block Timestamp)</p>
+                <p class="definition-title">Definition 13.5 (Block Timestamp and Median Time Past)</p>
                 <p>
                     The <strong>timestamp</strong> is a 32-bit unsigned integer representing seconds
-                    since the Unix epoch (January 1, 1970 00:00:00 UTC).
+                    since the Unix epoch (January 1, 1970 00:00:00 UTC). The
+                    <strong>median time past (MTP)</strong> of a block is the median of the
+                    timestamps of the previous 11 blocks.
+                </p>
+                <p>
+                    A valid block's timestamp must be strictly greater than the block's MTP,
+                    and must not exceed network-adjusted time plus 2 hours (both rules appear
+                    in the consensus catalog of Appendix D).
                 </p>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 13.1 (Timestamp Constraints)</p>
-                <p>
-                    A valid block timestamp must satisfy:
-                </p>
-                <ul>
-                    <li>Greater than the median of the previous 11 blocks (MTP)</li>
-                    <li>Less than 2 hours in the future (network-adjusted time)</li>
-                </ul>
-            </div>
+            <figure>
+                <svg class="diagram" width="480" height="120" viewBox="0 0 480 120">
+                    <!-- Timeline -->
+                    <line x1="40" y1="60" x2="440" y2="60" stroke="#666" stroke-width="1.5"/>
+
+                    <!-- MTP marker -->
+                    <rect x="100" y="45" width="80" height="30" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="140" y="65" text-anchor="middle" font-family="Georgia" font-size="10">MTP</text>
+                    <text x="140" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">minimum</text>
+
+                    <!-- Valid range -->
+                    <rect x="185" y="45" width="150" height="30" rx="4" fill="#f5f8f0" stroke="#5a8f5a"/>
+                    <text x="260" y="65" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">Valid Range</text>
+
+                    <!-- Future limit -->
+                    <rect x="340" y="45" width="90" height="30" rx="4" fill="#ffe8e8" stroke="#c44"/>
+                    <text x="385" y="65" text-anchor="middle" font-family="Georgia" font-size="10">Now + 2h</text>
+                    <text x="385" y="90" text-anchor="middle" font-family="Georgia" font-size="9" fill="#c44">maximum</text>
+
+                    <!-- Labels -->
+                    <text x="40" y="110" font-family="Georgia" font-size="9" fill="#666">Past</text>
+                    <text x="440" y="110" text-anchor="end" font-family="Georgia" font-size="9" fill="#666">Future</text>
+                </svg>
+                <figcaption>Figure 13.3: Valid block timestamp range is between MTP and network-adjusted time + 2 hours.</figcaption>
+            </figure>
 
             <h3 id="s13-2-5">13.2.5 Bits (Difficulty Target)</h3>
 
@@ -377,11 +399,11 @@ target = 0x00ffff × 256^(29-3)
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 13.3: Blocks form a chain through hash references.</figcaption>
+                <figcaption>Figure 13.4: Blocks form a chain through hash references.</figcaption>
             </figure>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 13.2 (Chain Integrity)</p>
+                <p class="theorem-title">Theorem 13.1 (Chain Integrity)</p>
                 <p>
                     If block <span class="math">Bₙ</span> contains <code>prev_hash = H(B[n-1])</code>,
                     then any modification to <span class="math">Bₙ₋₁</span> (including its transactions)
@@ -641,7 +663,7 @@ target = 0x00ffff × 256^(29-3)
                     <path d="M 265 105 L 265 120 L 435 120 L 435 105" stroke="#c44" stroke-width="1.5" fill="none"/>
                     <text x="350" y="135" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">3 confirmations</text>
                 </svg>
-                <figcaption>Figure 13.4: A transaction at height n has 3 confirmations when the chain tip is at n+2.</figcaption>
+                <figcaption>Figure 13.5: A transaction at height n has 3 confirmations when the chain tip is at n+2.</figcaption>
             </figure>
         </section>
 
@@ -700,7 +722,7 @@ target = 0x00ffff × 256^(29-3)
                     <!-- Labels -->
                     <text x="320" y="45" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">Main chain (most work)</text>
                 </svg>
-                <figcaption>Figure 13.5: Block n+1' is valid but stale&mdash;the main chain extended differently.</figcaption>
+                <figcaption>Figure 13.6: Block n+1' is valid but stale&mdash;the main chain extended differently.</figcaption>
             </figure>
         </section>
 
@@ -734,6 +756,21 @@ target = 0x00ffff × 256^(29-3)
                 Fast propagation reduces stale block rates and improves mining fairness.
                 Modern optimizations achieve sub-second propagation for most blocks.
             </p>
+
+            <div class="remark">
+                <p class="remark-title">Network Protocol Constants</p>
+                <p>
+                    The peer-to-peer layer has constants of its own: the default mainnet
+                    port (8333; testnet uses 18333), the four "magic" bytes that prefix
+                    every message (<code>0xF9BEB4D9</code> on mainnet), and caps on message
+                    size (4 MB) and on entries per <code>inv</code> announcement (50,000).
+                    None of these is a consensus parameter in the sense of Definition 16.1:
+                    a node that changes them can still validate, and follow, the same chain.
+                    We record them here, with the networking machinery, to keep that
+                    distinction sharp; the consensus constants proper are the subject of
+                    Chapter 15.
+                </p>
+            </div>
         </section>
 
         <section>

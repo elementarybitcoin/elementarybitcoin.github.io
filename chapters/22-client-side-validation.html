@@ -521,8 +521,8 @@
                 </ul>
             </div>
 
-            <div class="theorem">
-                <p><strong>Theorem 22.2</strong> (RGB Validation Completeness)</p>
+            <div class="remark">
+                <p><strong>Remark 22.2</strong> (RGB Validation Completeness)</p>
                 <p>
                     Given a valid consignment, a receiver can independently verify:
                 </p>
@@ -530,10 +530,13 @@
                     <li>The genesis contract is valid</li>
                     <li>Every state transition follows contract rules</li>
                     <li>Every anchor exists in a confirmed Bitcoin block</li>
-                    <li>No seal was closed twice (via Bitcoin UTXO uniqueness)</li>
+                    <li>No seal was closed twice (via Bitcoin UTXO uniqueness, Theorem 22.1)</li>
                 </ol>
                 <p>
-                    The receiver needs no trusted third party: verification is purely mathematical.
+                    The receiver needs no trusted third party for these checks. This is a
+                    design property of the protocol, not a proved theorem: it holds only
+                    insofar as the validation code correctly implements the contract
+                    schema, and a precise security analysis is beyond this section.
                 </p>
             </div>
 
@@ -702,8 +705,8 @@
 
             <h3>On-Chain Footprint</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 22.3</strong> (CSV On-Chain Scaling)</p>
+            <div class="remark">
+                <p><strong>Remark 22.3</strong> (CSV On-Chain Scaling)</p>
                 <p>
                     For <span class="math">N</span> client-side validation transfers, the blockchain footprint is:
                 </p>
@@ -720,8 +723,8 @@
 
             <h3>Validation Cost</h3>
 
-            <div class="theorem">
-                <p><strong>Theorem 22.4</strong> (Validation Scaling)</p>
+            <div class="remark">
+                <p><strong>Remark 22.4</strong> (Validation Scaling)</p>
                 <p>
                     Receiver validation cost is <span class="math">O(history_length)</span>, not <span class="math">O(all_transfers)</span>:
                 </p>

@@ -126,10 +126,10 @@
                 </p>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 10.1 (Conservation of Value)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 10.2 (Protocol Rule: Conservation of Value)</p>
                 <p>
-                    For any valid non-coinbase transaction:
+                    Consensus requires that for any valid non-coinbase transaction:
                 </p>
                 <p class="math-block">
                     Σ(input values) ≥ Σ(output values)
@@ -138,7 +138,9 @@
                     The difference <span class="math">Σ(inputs) − Σ(outputs)</span> is the
                     <strong>transaction fee</strong>, claimed by the miner who includes the
                     transaction in a block (blocks and mining are developed in
-                    Chapters 13 and 14).
+                    Chapters 13 and 14). This is a consensus rule, enforced because
+                    every validating node rejects transactions that violate it (see
+                    the rule catalog in Appendix D), not a mathematical theorem.
                 </p>
             </div>
         </section>
@@ -781,10 +783,11 @@ efcdab78563412...f6e5d4c3b2a1
                 </ul>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 10.2 (Coinbase Constraint)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 10.3 (Protocol Rule: Coinbase Constraint)</p>
                 <p>
-                    The total output value of a coinbase transaction must not exceed:
+                    Consensus requires that the total output value of a coinbase
+                    transaction not exceed:
                 </p>
                 <p class="math-block">
                     subsidy + Σ(fees of all transactions in the block)
@@ -794,7 +797,9 @@ efcdab78563412...f6e5d4c3b2a1
                     defined in Chapter 15.)
                 </p>
                 <p>
-                    Any value not claimed is permanently lost (burned).
+                    Any value not claimed is permanently lost (burned). Like value
+                    conservation, this is a consensus rule enforced by every validating
+                    node (Appendix D).
                 </p>
             </div>
 

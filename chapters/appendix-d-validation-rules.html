@@ -101,7 +101,7 @@
                 <tr><td>Inputs exist</td><td>Every input references an existing unspent output in the UTXO set</td><td>Genesis</td></tr>
                 <tr><td>Coinbase maturity</td><td>Spent coinbase outputs have at least 100 confirmations</td><td>Genesis</td></tr>
                 <tr><td>Value conservation</td><td>For each transaction, total input value &ge; total output value; the difference is the fee</td><td>Genesis</td></tr>
-                <tr><td>Subsidy bound</td><td>Coinbase output total at most subsidy(height) + total fees (Theorem 10.2, Definition 15.2)</td><td>Genesis</td></tr>
+                <tr><td>Subsidy bound</td><td>Coinbase output total at most subsidy(height) + total fees (Remark 10.3, Definition 15.2)</td><td>Genesis</td></tr>
                 <tr><td>Sequence locks</td><td>Relative lock-times encoded in sequence numbers are satisfied (BIP-68)</td><td>Height 419,328</td></tr>
                 <tr><td>Script execution</td><td>Every input's script verifies under the flags active at this height (Chapter 11)</td><td>See D.5</td></tr>
             </table>

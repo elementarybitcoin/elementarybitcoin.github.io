@@ -593,26 +593,17 @@ H(CD) = SHA256(SHA256(1c8d...2e3f || 9a4b...5c6d))</pre>
                 client can verify transaction inclusion without downloading full blocks.
             </p>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 12.3 (SPV Verification)</p>
-                <p>
-                    Given:
-                </p>
-                <ul>
-                    <li>A transaction <span class="math">tx</span></li>
-                    <li>A Merkle proof <span class="math">π</span></li>
-                    <li>A block header <span class="math">H</span> (from the chain with the most work&mdash;block headers and chain selection are defined in Chapter 13)</li>
-                </ul>
-                <p>
-                    An SPV client can verify that <span class="math">tx</span> is included in the
-                    block represented by <span class="math">H</span> by checking that
-                    <span class="math">π</span> is valid for the Merkle root in <span class="math">H</span>.
-                </p>
-            </div>
-
             <p>
-                The SPV security model assumes the most-work chain (Chapter 13) represents
-                honest consensus. We will examine this assumption critically in Volume III.
+                Given a transaction <span class="math">tx</span>, a Merkle proof
+                <span class="math">π</span>, and a block header <span class="math">H</span>
+                from the most-work chain (block headers and chain selection are defined in
+                Chapter 13), a client can verify that <span class="math">tx</span> is
+                included in the block represented by <span class="math">H</span> by checking
+                <span class="math">π</span> against the Merkle root in
+                <span class="math">H</span>. The precise statement and its security
+                hypotheses are Theorem 17.1, where the SPV model is the subject; the
+                assumption that the most-work chain represents honest consensus is examined
+                critically throughout Volume III.
             </p>
 
             <div class="example">

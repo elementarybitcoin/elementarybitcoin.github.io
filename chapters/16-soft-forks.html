@@ -451,16 +451,21 @@
                 see as valid (often "anyone can spend") to have new meaning.
             </p>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 16.2 (Soft Fork Template)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 16.6 (Design Pattern: The Soft Fork Template)</p>
                 <p>
-                    A rule change is a valid soft fork if it can be expressed as:
+                    A rule change can be deployed as a soft fork if it can be expressed as:
                 </p>
                 <ol>
                     <li>Identify a class of currently valid transactions</li>
                     <li>Add constraints that make some of them invalid</li>
                     <li>Ensure the constraints are enforceable by upgraded nodes</li>
                 </ol>
+                <p>
+                    This is a design recipe, not a theorem: any such change only restricts
+                    the valid set, which is exactly the soft fork condition of
+                    Definition 16.4.
+                </p>
             </div>
 
             <figure>
@@ -531,7 +536,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.6 (Standardness Changes)</p>
+                <p class="remark-title">Remark 16.7 (Standardness Changes)</p>
                 <p>
                     Notable standardness changes that were <em>not</em> soft forks:
                 </p>
@@ -552,8 +557,8 @@
 
             <h3 id="s16-7-1">16.7.1 Chain Split Risk</h3>
 
-            <div class="theorem">
-                <p class="theorem-title">Theorem 16.3 (Soft Fork Split Conditions)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 16.8 (Soft Fork Split Conditions)</p>
                 <p>
                     A soft fork can cause a chain split if:
                 </p>
@@ -571,7 +576,7 @@
             <h3 id="s16-7-2">16.7.2 Coordination Challenges</h3>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.7 (Upgrade Coordination)</p>
+                <p class="remark-title">Remark 16.9 (Upgrade Coordination)</p>
                 <p>
                     Soft fork deployment requires coordinating:
                 </p>
@@ -650,7 +655,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 16.8 (Consensus Beyond Code)</p>
+                <p class="remark-title">Remark 16.10 (Consensus Beyond Code)</p>
                 <p>
                     "Consensus" in Bitcoin has two meanings:
                 </p>
