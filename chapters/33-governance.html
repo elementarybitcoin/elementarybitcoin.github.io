@@ -234,6 +234,39 @@
                 Beyond technical specification, controversial changes require social consensus.
             </p>
 
+            <div class="remark">
+                <p class="remark-title">Remark 33.2 (Three Senses of "Consensus")</p>
+                <p>
+                    Before going further, a warning about the chapter's central word. In
+                    Bitcoin discourse "consensus" carries three incompatible meanings, and
+                    this book has already used two of them:
+                </p>
+                <ol>
+                    <li><strong>Consensus rules</strong> &mdash; the technical sense: the
+                        validation predicate of Definition 13.18, the rules of Definition 16.1
+                        and Appendix D. A precise, falsifiable property of software.</li>
+                    <li><strong>Near-unanimity</strong> &mdash; the social sense: no
+                        significant stakeholder objects. This is what "rough consensus"
+                        (Definition 33.4 below) approximates.</li>
+                    <li><strong>General agreement</strong> &mdash; the loose sense: most
+                        participants, perhaps weighted by some unstated notion of expertise
+                        or stake, are in favor.</li>
+                </ol>
+                <p>
+                    The ambiguity is exploitable. The claim "we don't have consensus" can
+                    block a proposal while committing to nothing: it may mean the rules forbid
+                    it (sense 1, checkable), that identified stakeholders object (sense 2,
+                    answerable), or merely that someone, somewhere disagrees (sense 3,
+                    unfalsifiable). A speaker who never specifies which sense is meant cannot
+                    be refuted&mdash;which is precisely the word's rhetorical value to those
+                    who deploy it. The remedy is terminological discipline: say
+                    <em>consensus rules</em> for sense 1, <em>non-contentious</em> for
+                    sense 2, and <em>general agreement</em> for sense 3&mdash;and when someone
+                    asserts that consensus exists or is lacking, ask which kind they mean.
+                    This book uses "consensus" unqualified only in the technical sense.
+                </p>
+            </div>
+
             <div class="definition">
                 <p class="definition-title">Definition 33.4 (Rough Consensus)</p>
                 <p>
@@ -250,7 +283,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.2 (Consensus Signals)</p>
+                <p class="remark-title">Remark 33.3 (Consensus Signals)</p>
                 <p>
                     Social consensus is observed through:
                 </p>
@@ -264,7 +297,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.3 (The "Ossification" Debate)</p>
+                <p class="remark-title">Remark 33.4 (The "Ossification" Debate)</p>
                 <p>
                     A growing tension in Bitcoin governance:
                 </p>
@@ -297,7 +330,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.4 (MASF vs UASF)</p>
+                <p class="remark-title">Remark 33.5 (MASF vs UASF)</p>
                 <p>
                     Two philosophical approaches to activation:
                 </p>
@@ -351,7 +384,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.5 (Core is Not Bitcoin)</p>
+                <p class="remark-title">Remark 33.6 (Core is Not Bitcoin)</p>
                 <p>
                     Bitcoin Core has significant influence but not control:
                 </p>
@@ -364,7 +397,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.6 (Core Development Process)</p>
+                <p class="remark-title">Remark 33.7 (Core Development Process)</p>
                 <p>
                     Bitcoin Core changes require:
                 </p>
@@ -412,7 +445,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.7 (Schelling Point Preservation)</p>
+                <p class="remark-title">Remark 33.8 (Schelling Point Preservation)</p>
                 <p>
                     Bitcoin's value partially derives from being a Schelling point:
                 </p>
@@ -480,7 +513,7 @@
             <h2 id="s33-8">33.8 Future Governance Challenges</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.8 (Open Questions)</p>
+                <p class="remark-title">Remark 33.9 (Open Questions)</p>
                 <p>
                     Bitcoin governance faces unresolved challenges:
                 </p>
@@ -494,7 +527,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.9 (Governance Evolution)</p>
+                <p class="remark-title">Remark 33.10 (Governance Evolution)</p>
                 <p>
                     Bitcoin's governance has evolved:
                 </p>
@@ -520,7 +553,7 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.10 (Code as Specification)</p>
+                <p class="remark-title">Remark 33.11 (Code as Specification)</p>
                 <p>
                     Section 13.10 defined validation as a pure predicate
                     <span class="math">V(C, B)</span>. The specification problem is that no
@@ -556,7 +589,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.11 (The Client Diversity Dilemma)</p>
+                <p class="remark-title">Remark 33.12 (The Client Diversity Dilemma)</p>
                 <p>
                     The specification problem shapes the debate over implementation diversity.
                     With a single dominant implementation, its bugs are uniform&mdash;everyone
@@ -571,7 +604,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.12 (Toward Executable Specifications)</p>
+                <p class="remark-title">Remark 33.13 (Toward Executable Specifications)</p>
                 <p>
                     The emerging response is to make the specification <em>executable</em>:
                     a statement of <span class="math">V</span> precise enough to run, so that
