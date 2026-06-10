@@ -418,6 +418,44 @@
             </div>
         </section>
 
+        <section>
+            <h2 id="s31-8">31.8 Hashrate-Escrow Pegs: The Drivechain Episode</h2>
+
+            <p>
+                A third peg family completes the taxonomy: let Bitcoin's miners themselves
+                custody the peg. <em>Drivechains</em> (BIP-300/301, proposed by Paul Sztorc)
+                would have added one opcode (OP_DRIVECHAIN) under which sidechain deposits
+                sit in a hashrate escrow: a withdrawal bundle requires 13,150 miner ACKs
+                within a 26,300-block (~6-month) window, with sidechain blocks produced via
+                blind merged mining&mdash;miners sell block space to sidechain operators
+                without validating sidechain state.
+            </p>
+
+            <div class="remark">
+                <p class="remark-title">Remark 31.7 (Why It Failed)</p>
+                <p>
+                    The design asks users to trust two parties the base layer never asks
+                    them to trust. A miner majority can vote deposits to itself&mdash;slowly
+                    and in public, which proponents argued is the defense (the theft is
+                    visible and punishable, up to a user-activated soft fork) and which
+                    critics judged a description of the design rather than an attack on it.
+                    And since Bitcoin never validates sidechain state, whoever maintains
+                    each sidechain's software defines its rules, including peg behavior
+                    (the Section 33.9 argument). After a decade without approaching rough
+                    consensus, the proposal's advocates announced an exit in April 2026:
+                    a hard fork ("eCash," scheduled for ~block 964,000, August 2026,
+                    unrelated to eCash/XEC of Section 27.6.3) with drivechains enabled
+                    natively&mdash;and, controversially, with roughly 500,000 of the
+                    Satoshi-era coins' balances reassigned to project investors on the
+                    forked ledger. No BTC moves, but every prior fork in Chapter 27
+                    preserved balances exactly; critics called it confiscation. The
+                    episode is this volume's sharpest cautionary tale: technical coherence
+                    does not entitle a proposal to activation, and exit is governed by
+                    Chapter 26's unforgiving game theory.
+                </p>
+            </div>
+        </section>
+
         <section class="exercises">
             <h2>Exercises</h2>
 
