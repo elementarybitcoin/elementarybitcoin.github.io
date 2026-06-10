@@ -129,6 +129,60 @@
                 </ul>
             </div>
 
+            <figure>
+                <svg class="diagram" width="520" height="240" viewBox="0 0 520 240">
+                    <!-- SPV panel -->
+                    <rect x="30" y="34" width="190" height="194" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="125" y="56" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">SPV Client</text>
+
+                    <text x="46" y="80" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="58" y="80" font-family="Georgia" font-size="10">Merkle inclusion proof</text>
+                    <text x="46" y="100" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="58" y="100" font-family="Georgia" font-size="10">Valid proof-of-work</text>
+                    <text x="46" y="120" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="58" y="120" font-family="Georgia" font-size="10">Most-work chain</text>
+
+                    <line x1="42" y1="130" x2="208" y2="130" stroke="#666" stroke-width="1" stroke-dasharray="3,3"/>
+
+                    <text x="46" y="148" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">&#10007;</text>
+                    <text x="58" y="148" font-family="Georgia" font-size="10" fill="#666">Valid signatures</text>
+                    <text x="46" y="168" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">&#10007;</text>
+                    <text x="58" y="168" font-family="Georgia" font-size="10" fill="#666">No double-spends</text>
+                    <text x="46" y="188" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">&#10007;</text>
+                    <text x="58" y="188" font-family="Georgia" font-size="10" fill="#666">Correct subsidy</text>
+                    <text x="46" y="208" text-anchor="middle" font-family="Georgia" font-size="10" fill="#c44">&#10007;</text>
+                    <text x="58" y="208" font-family="Georgia" font-size="10" fill="#666">Consensus rules</text>
+
+                    <text x="125" y="222" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&#10007; = trusted, not verified</text>
+
+                    <!-- Subset relation -->
+                    <text x="260" y="136" text-anchor="middle" font-family="Georgia" font-size="20">&#8834;</text>
+                    <text x="260" y="154" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">strict subset</text>
+
+                    <!-- Full node panel -->
+                    <rect x="300" y="34" width="190" height="194" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="395" y="56" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Full Node</text>
+
+                    <text x="316" y="80" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="328" y="80" font-family="Georgia" font-size="10">Merkle inclusion proof</text>
+                    <text x="316" y="100" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="328" y="100" font-family="Georgia" font-size="10">Valid proof-of-work</text>
+                    <text x="316" y="120" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="328" y="120" font-family="Georgia" font-size="10">Most-work chain</text>
+                    <text x="316" y="148" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="328" y="148" font-family="Georgia" font-size="10">Valid signatures</text>
+                    <text x="316" y="168" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="328" y="168" font-family="Georgia" font-size="10">No double-spends</text>
+                    <text x="316" y="188" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="328" y="188" font-family="Georgia" font-size="10">Correct subsidy</text>
+                    <text x="316" y="208" text-anchor="middle" font-family="Georgia" font-size="10" fill="#5a8f5a">&#10003;</text>
+                    <text x="328" y="208" font-family="Georgia" font-size="10">Consensus rules</text>
+
+                    <text x="395" y="222" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">&#10003; = independently verified</text>
+                </svg>
+                <figcaption>Figure 25.1: SPV verification is a strict subset of full-node verification&mdash;SPV checks inclusion and work but trusts miners for everything below the line.</figcaption>
+            </figure>
+
             <div class="proof">
                 <p><strong>Analysis.</strong></p>
                 <p>
@@ -263,6 +317,61 @@
                     Layer 2 achieves the same throughput with ~150,000x less on-chain footprint.
                 </p>
             </div>
+
+            <figure>
+                <svg class="diagram" width="520" height="232" viewBox="0 0 520 232">
+                    <!-- Left: pure on-chain -->
+                    <text x="130" y="24" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Pure on-chain</text>
+                    <text x="130" y="40" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">target: 1 million TPS</text>
+
+                    <rect x="80" y="56" width="100" height="84" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
+                    <text x="130" y="84" text-anchor="middle" font-family="Georgia" font-size="10">one block</text>
+                    <text x="130" y="104" text-anchor="middle" font-family="Georgia" font-size="13" font-weight="bold">~144 GB</text>
+                    <text x="130" y="124" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">every 10 minutes</text>
+
+                    <text x="130" y="166" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">every node: ~150 GB</text>
+                    <text x="130" y="182" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">bandwidth per 10 min</text>
+
+                    <!-- Divider -->
+                    <line x1="260" y1="14" x2="260" y2="190" stroke="#666" stroke-width="1" stroke-dasharray="4,4"/>
+
+                    <!-- Right: Lightning -->
+                    <text x="390" y="24" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">Lightning channels</text>
+                    <text x="390" y="40" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">target: 1 million TPS</text>
+
+                    <rect x="302" y="52" width="176" height="64" rx="8" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
+                    <text x="390" y="70" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">off-chain payments</text>
+                    <circle cx="326" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="342" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="358" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="374" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="390" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="406" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="422" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="438" cy="84" r="3" fill="#4a90d9"/>
+                    <circle cx="454" cy="84" r="3" fill="#4a90d9"/>
+                    <text x="390" y="107" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">1000 tx per channel</text>
+
+                    <line x1="390" y1="118" x2="390" y2="138" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arrow25a)"/>
+                    <text x="398" y="132" font-family="Georgia" font-size="9" fill="#666">anchored by</text>
+
+                    <rect x="366" y="142" width="48" height="26" rx="3" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
+                    <text x="390" y="159" text-anchor="middle" font-family="Georgia" font-size="9" font-weight="bold">~1 MB</text>
+
+                    <text x="390" y="186" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">node requirements:</text>
+                    <text x="390" y="202" text-anchor="middle" font-family="Georgia" font-size="10" fill="#666">unchanged</text>
+
+                    <!-- Bottom annotation -->
+                    <text x="260" y="224" text-anchor="middle" font-family="Georgia" font-size="10">Same throughput with ~150,000x less on-chain footprint</text>
+
+                    <defs>
+                        <marker id="arrow25a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4a90d9"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <figcaption>Figure 25.2: On-chain scaling grows node costs linearly with throughput; layer 2 anchors many off-chain transactions with one small on-chain block.</figcaption>
+            </figure>
 
             <div class="nuance-box">
                 <h4>Nuance: Layer 2 has costs of its own</h4>
@@ -498,6 +607,46 @@
                     rule applies only among <em>valid</em> chains. ∎
                 </p>
             </div>
+
+            <figure>
+                <svg class="diagram" width="500" height="252" viewBox="0 0 500 252">
+                    <text x="250" y="22" text-anchor="middle" font-family="Georgia" font-size="11" font-weight="bold">An attacker with majority (51%) hashrate</text>
+
+                    <!-- Can column -->
+                    <text x="127" y="54" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold" fill="#c44">Can</text>
+                    <text x="127" y="68" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">ordering of valid blocks</text>
+
+                    <rect x="29" y="78" width="196" height="26" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1"/>
+                    <text x="127" y="95" text-anchor="middle" font-family="Georgia" font-size="10">Double-spend own transactions</text>
+                    <rect x="29" y="112" width="196" height="26" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1"/>
+                    <text x="127" y="129" text-anchor="middle" font-family="Georgia" font-size="10">Censor specific transactions</text>
+                    <rect x="29" y="146" width="196" height="26" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1"/>
+                    <text x="127" y="163" text-anchor="middle" font-family="Georgia" font-size="10">Selfish-mine for extra reward</text>
+                    <rect x="29" y="180" width="196" height="26" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="1"/>
+                    <text x="127" y="197" text-anchor="middle" font-family="Georgia" font-size="10">Reorganize recent blocks</text>
+
+                    <!-- Boundary -->
+                    <line x1="250" y1="40" x2="250" y2="210" stroke="#2f4f4f" stroke-width="2"/>
+
+                    <!-- Cannot column -->
+                    <text x="373" y="54" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="bold" fill="#5a8f5a">Cannot</text>
+                    <text x="373" y="68" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">what counts as valid</text>
+
+                    <rect x="275" y="78" width="196" height="26" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1"/>
+                    <text x="373" y="95" text-anchor="middle" font-family="Georgia" font-size="10">Steal coins without the keys</text>
+                    <rect x="275" y="112" width="196" height="26" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1"/>
+                    <text x="373" y="129" text-anchor="middle" font-family="Georgia" font-size="10">Create coins beyond subsidy</text>
+                    <rect x="275" y="146" width="196" height="26" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1"/>
+                    <text x="373" y="163" text-anchor="middle" font-family="Georgia" font-size="10">Change consensus rules</text>
+                    <rect x="275" y="180" width="196" height="26" rx="4" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1"/>
+                    <text x="373" y="197" text-anchor="middle" font-family="Georgia" font-size="10">Stop a minority chain</text>
+
+                    <!-- Boundary label -->
+                    <rect x="118" y="212" width="264" height="26" rx="4" fill="#fff" stroke="#2f4f4f" stroke-width="1"/>
+                    <text x="250" y="229" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold">Validity is decided by full nodes, not hashrate</text>
+                </svg>
+                <figcaption>Figure 25.3: Majority hashrate controls the ordering of valid blocks, not what is valid&mdash;the boundary is enforced by full nodes.</figcaption>
+            </figure>
 
             <hr>
 
