@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter 33: Bitcoin Governance | Elementary Bitcoin</title>
-    <meta name="description" content="Chapter 33: Bitcoin Governance - BIP process, consensus formation, and decentralized decision-making">
+    <meta name="description" content="Chapter 33: Bitcoin Governance - BIP process, social consensus formation, and decentralized decision-making">
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -26,7 +26,7 @@
                 How does a protocol with no central authority evolve? Bitcoin's governance
                 is often called "rough consensus and running code," a process where changes
                 require broad agreement across developers, miners, users, and businesses.
-                This chapter examines Bitcoin's unique governance model: the BIP process,
+                This chapter examines Bitcoin's governance model: the BIP process,
                 the dynamics of soft fork activation, and the philosophical tensions that
                 shape protocol development.
             </p>
@@ -91,7 +91,7 @@
                     <li><strong>Developers:</strong> Write code but cannot force adoption</li>
                     <li><strong>Miners:</strong> Produce blocks but users can reject them</li>
                     <li><strong>Users:</strong> Choose software but need developer support</li>
-                    <li><strong>Businesses:</strong> Influence but do not control consensus</li>
+                    <li><strong>Businesses:</strong> Influence but do not control rule changes</li>
                 </ul>
                 <p>
                     Changes require implicit or explicit agreement across groups.
@@ -228,7 +228,7 @@
         </section>
 
         <section>
-            <h2 id="s33-3">33.3 Consensus Formation</h2>
+            <h2 id="s33-3">33.3 Social Consensus Formation</h2>
 
             <p>
                 Beyond technical specification, controversial changes require social consensus.
@@ -258,11 +258,11 @@
                     it (sense 1, checkable), that identified stakeholders object (sense 2,
                     answerable), or merely that someone, somewhere disagrees (sense 3,
                     unfalsifiable). A speaker who never specifies which sense is meant cannot
-                    be refuted, which is precisely the word's rhetorical value to those
-                    who deploy it. The remedy is terminological discipline: say
+                    be refuted, which gives the unqualified word much of its rhetorical
+                    force. The remedy is terminological discipline: say
                     <em>consensus rules</em> for sense 1, <em>non-contentious</em> for
                     sense 2, and <em>general agreement</em> for sense 3. When someone
-                    asserts that consensus exists or is lacking, ask which kind they mean.
+                    asserts that consensus exists or is lacking, the first question is which kind is meant.
                     This book uses "consensus" unqualified only in the technical sense.
                 </p>
             </div>
@@ -351,7 +351,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 33.3 (Consensus Signals)</p>
+                <p class="remark-title">Remark 33.3 (Social Consensus Signals)</p>
                 <p>
                     Social consensus is observed through:
                 </p>
@@ -360,7 +360,7 @@
                     <li><strong>Implementation:</strong> Multiple independent implementations</li>
                     <li><strong>Testing:</strong> Deployment on testnet/signet</li>
                     <li><strong>Support statements:</strong> Companies and developers</li>
-                    <li><strong>Futures markets:</strong> Price discovery for contentious forks</li>
+                    <li><strong>Futures markets:</strong> Price signals for contentious forks (where such markets exist)</li>
                 </ul>
             </div>
 
@@ -372,7 +372,7 @@
                 <ul>
                     <li><strong>Pro-change</strong> (common among application and Layer 2 developers): Bitcoin needs features (covenants, etc.) to remain competitive</li>
                     <li><strong>Pro-stability</strong> (common among long-term holders and some senior contributors): Changes risk breaking what works; ossification protects value</li>
-                    <li><strong>Middle ground:</strong> Only changes with overwhelming consensus</li>
+                    <li><strong>Middle ground:</strong> Only changes with near-unanimous support</li>
                 </ul>
                 <p>
                     Participants across the debate describe the threshold for activating
@@ -386,7 +386,7 @@
             <h2 id="s33-4">33.4 Soft Fork Activation</h2>
 
             <p>
-                Technical consensus (a working BIP) requires an activation mechanism.
+                Agreement on a technical design (a working BIP) does not by itself change the network: an activation mechanism is required.
             </p>
 
             <div class="definition">
@@ -501,11 +501,16 @@
                 </p>
                 <ul>
                     <li>Descended from Satoshi's original code</li>
-                    <li>Most widely run full node software</li>
                     <li>Open source, permissively licensed</li>
-                    <li>Maintained by ~30 active contributors (as of 2025)</li>
                 </ul>
             </div>
+
+            <p>
+                As of 2025, Bitcoin Core is the most widely run full-node implementation
+                by listening-node share. Its development involves a handful of maintainers
+                with merge access, a few dozen regular contributors, and over a hundred
+                occasional contributors in a typical year.
+            </p>
 
             <div class="remark">
                 <p class="remark-title">Remark 33.6 (The Developer-Power Critique)</p>
@@ -513,13 +518,14 @@
                     Critics, from legal scholars such as Angela Walch to veterans of the
                     block size war, argue that the formal power map of Remark 33.1
                     understates developer influence. Maintainers control commit access to the
-                    software the economy runs by default, and defaults are sticky: "users can
-                    reject a release" is true in principle but rarely exercised. Agenda
-                    setting (which proposals receive review at all) is itself a form
-                    of power, and contributor funding is concentrated among a handful of
-                    sponsors. On this view, Section 33.9's code-as-specification argument
-                    cuts against the customary reassurance rather than for it: if the rules
-                    are the code, those who write the code write the rules. Walch presses
+                    software the economy runs by default, and, they argue, defaults are
+                    sticky: "users can reject a release" is true in principle but rarely
+                    exercised. On this account, agenda setting (which proposals receive
+                    review at all) is itself a form of power, and contributor funding is
+                    concentrated among a handful of sponsors. On this view, Section 33.9's
+                    code-as-specification argument cuts against the standard rebuttal
+                    (Remark 33.7) rather than for it: if the rules are the code, those who
+                    write the code write the rules. Walch presses
                     the point furthest, arguing that core developers function as de facto
                     fiduciaries, exercising trusted power without accountability. The
                     rebuttals follow.
@@ -529,14 +535,16 @@
             <div class="remark">
                 <p class="remark-title">Remark 33.7 (Core is Not Bitcoin)</p>
                 <p>
-                    Bitcoin Core has significant influence but not control:
+                    The standard rebuttal holds that Bitcoin Core has significant influence
+                    but not control: users can run alternative implementations, fork the
+                    code, or reject a release, and core contributors cannot unilaterally
+                    change the consensus rules. The rejection option is not merely
+                    theoretical: forks of Core carrying contested consensus changes (the
+                    clients of Examples 27.1&ndash;27.3) failed to attract economic adoption
+                    despite substantial miner and business support, and the 2025 relay-policy
+                    migration (Example 33.6) shows node operators switching implementations
+                    over a default.
                 </p>
-                <ul>
-                    <li>Users can run alternative implementations</li>
-                    <li>Users can fork Bitcoin Core and modify it</li>
-                    <li>Core contributors cannot unilaterally change consensus</li>
-                    <li>If Core goes "wrong," users can reject its releases</li>
-                </ul>
             </div>
 
             <div class="remark">
@@ -573,10 +581,11 @@
                 </ul>
             </div>
 
-            <div class="definition">
-                <p class="definition-title">Definition 33.8 (Core Properties)</p>
+            <div class="remark">
+                <p class="remark-title">Properties Bitcoin Governance Tends to Protect</p>
                 <p>
-                    Properties that Bitcoin governance tends to protect:
+                    Observation across the episodes of this chapter: Bitcoin governance
+                    tends to protect a small set of properties:
                 </p>
                 <ul>
                     <li><strong>21 million cap:</strong> Fixed supply, no inflation</li>
@@ -611,13 +620,13 @@
             <div class="example">
                 <p class="example-title">Example 33.3 (Block Size Debate)</p>
                 <p>
-                    The defining governance crisis:
+                    Widely regarded as Bitcoin's formative governance crisis:
                 </p>
                 <ul>
                     <li><strong>Issue:</strong> How to scale Bitcoin (blocks vs layers)</li>
                     <li><strong>Camps:</strong> Big blockers vs small blockers</li>
-                    <li><strong>Resolution:</strong> SegWit activated; BCH forked away</li>
-                    <li><strong>Lesson widely drawn:</strong> Users, not just miners, determine consensus, though some observers attribute the outcome more narrowly to exchanges and large economic nodes, and note that the UASF ultimatum was never carried to a contested split</li>
+                    <li><strong>Resolution:</strong> SegWit activated; the big-block side forked to create Bitcoin Cash</li>
+                    <li><strong>Lesson widely drawn:</strong> Users, not just miners, determine which rules prevail, though some observers attribute the outcome more narrowly to exchanges and large economic nodes, and note that the UASF ultimatum was never tested against actual miner resistance</li>
                 </ul>
             </div>
 
@@ -629,7 +638,7 @@
                     A smoother activation process:
                 </p>
                 <ul>
-                    <li><strong>Technical consensus:</strong> Strong agreement on benefits</li>
+                    <li><strong>Substance:</strong> Broad agreement on the design's benefits</li>
                     <li><strong>Debate:</strong> Activation method (LOT=true vs LOT=false)</li>
                     <li><strong>Resolution:</strong> Speedy Trial compromise</li>
                     <li><strong>Result:</strong> 90% signaling, activated November 2021</li>
@@ -645,7 +654,7 @@
                 </p>
                 <ul>
                     <li><strong>Innovation:</strong> NFT-like assets on Bitcoin</li>
-                    <li><strong>Criticism:</strong> "Spam," increased fees, not intended use</li>
+                    <li><strong>Criticism:</strong> Spam, increased fees, not the intended use</li>
                     <li><strong>Defense:</strong> Permissionless use, valid transactions</li>
                     <li><strong>Outcome:</strong> No general agreement to filter emerged; default relay policy was unchanged (see Section 33.7.4 for the 2025 sequel)</li>
                 </ul>
@@ -663,11 +672,14 @@
                     argued that relay defaults should track what miners demonstrably include,
                     since a filter that no longer predicts confirmation only degrades fee
                     estimation and pushes transactions to private submission channels; the
-                    other argued that defaults are normative whatever their technical effect,
-                    and that relaxing them signaled endorsement of non-monetary data on the
-                    chain. A minority of reachable listening nodes switched to an
-                    alternative implementation with stricter defaults (a share that is
-                    measurable but inflatable by Sybil nodes).
+                    other argued that filters raise the cost and friction of data embedding
+                    and protect node operators' resources, and that defaults are normative
+                    whatever their direct effect on confirmation: relaxing them signaled
+                    endorsement of non-monetary data on the chain. A substantial minority of
+                    reachable listening nodes switched to an alternative implementation with
+                    stricter defaults; how much weight that signal deserved was itself
+                    contested, since reachable-node counts are inflatable and do not measure
+                    economic activity.
                 </p>
                 <p>
                     The book's apparatus classifies the episode without adjudicating it.
@@ -713,7 +725,7 @@
                 <ul>
                     <li><strong>2009-2014:</strong> Satoshi-led, then core developers</li>
                     <li><strong>2015-2017:</strong> Contested, stakeholder conflict</li>
-                    <li><strong>2017-present:</strong> Higher bar for changes, user power demonstrated</li>
+                    <li><strong>2017-present:</strong> Higher bar for changes after the contested SegWit activation</li>
                     <li><strong>Future:</strong> Contested (Remark 33.4)</li>
                 </ul>
             </div>
@@ -749,10 +761,10 @@
             <div class="example">
                 <p class="example-title">Example 33.7 (March 2013: A Specification Failure)</p>
                 <p>
-                    Chapters 26 and 36 treat the March 2013 fork as an accidental chain split.
-                    Reread it as a statement about specification. Bitcoin Core 0.7 stored the
+                    Chapters 36 and 37 treat the March 2013 fork as an accidental chain split.
+                    We reread it here as a statement about specification. Bitcoin Core 0.7 stored the
                     block index in Berkeley DB, which enforces a configurable limit on
-                    simultaneously locked database pages. A sufficiently large block exceeded
+                    the number of simultaneously held locks. A sufficiently large block exceeded
                     that limit on 0.7 nodes, which therefore rejected it, while 0.8 nodes,
                     using LevelDB, accepted it. The network split for 24 blocks.
                 </p>
@@ -814,7 +826,7 @@
                 <p class="exercise-title">Exercise 33.1</p>
                 <p>
                     Research the "LOT=true" vs "LOT=false" debate for Taproot activation.
-                    What were the arguments on each side? How was consensus reached?
+                    What were the arguments on each side? How was the disagreement resolved?
                 </p>
             </div>
 
@@ -846,7 +858,7 @@
                 <p class="exercise-title">Exercise 33.5</p>
                 <p>
                     Compare Bitcoin's governance to other open-source projects (Linux,
-                    Ethereum, etc.). What makes Bitcoin's governance unique?
+                    Ethereum, etc.). What distinguishes Bitcoin's governance from each?
                 </p>
             </div>
         </section>
