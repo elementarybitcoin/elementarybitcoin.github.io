@@ -117,7 +117,7 @@
                         </tr>
                         <tr>
                             <td>UTXO set</td>
-                            <td>~8 GB (in memory) / ~12 GB (on disk)</td>
+                            <td>~11&ndash;12 GB on disk (~175 million outputs, 2025)</td>
                         </tr>
                         <tr>
                             <td>Download bandwidth</td>
@@ -188,7 +188,7 @@
                         <rect x="0" y="0" width="110" height="80" fill="#ffe8e8" stroke="#c44" rx="5"/>
                         <text x="55" y="25" text-anchor="middle" font-size="10" font-weight="bold">Phase 4</text>
                         <text x="55" y="45" text-anchor="middle" font-size="9">UTXO Build</text>
-                        <text x="55" y="60" text-anchor="middle" font-size="9" fill="#666">~8 GB</text>
+                        <text x="55" y="60" text-anchor="middle" font-size="9" fill="#666">~12 GB</text>
                         <text x="55" y="73" text-anchor="middle" font-size="9" fill="#666">I/O-intensive</text>
                     </g>
 
@@ -402,7 +402,9 @@ bitcoind -assumevalid=00000000000000000001...</code></pre>
                 <p><strong>What it does:</strong> Start with a pre-computed UTXO set snapshot</p>
                 <p><strong>What it preserves:</strong> Background validation catches up to verify</p>
                 <p><strong>Trust assumption:</strong> Initial snapshot is correct (temporarily)</p>
-                <p><strong>Benefit:</strong> Fully functional node in ~minutes instead of hours/days</p>
+                <p><strong>Benefit:</strong> Reaches the chain tip after validating only snapshot&rarr;tip
+                   (the snapshot height is fixed in the release, so this is still weeks-to-months of
+                   blocks); history back to genesis verifies in the background</p>
             </div>
 
             <h3>Architecture</h3>
@@ -491,7 +493,7 @@ bitcoind -assumevalid=00000000000000000001...</code></pre>
                     AssumeUTXO synchronization:
                 </p>
                 <ol>
-                    <li><strong>Load snapshot:</strong> Import pre-computed UTXO set (~8 GB)</li>
+                    <li><strong>Load snapshot:</strong> Import pre-computed UTXO set (~10 GB serialized)</li>
                     <li><strong>Foreground sync:</strong> Download blocks from snapshot to tip (recent blocks)</li>
                     <li><strong>Become functional:</strong> Node can now validate new blocks, answer queries</li>
                     <li><strong>Background sync:</strong> Download and validate historical blocks (0 → snapshot)</li>
@@ -827,6 +829,27 @@ prune=550</code></pre>
             <p>
                 Utreexo is still experimental and not yet deployed on mainnet.
             </p>
+
+            <div class="remark">
+                <p><strong>Remark 21.1</strong> (SwiftSync)</p>
+                <p>
+                    A recent proposal attacks initial block download from a different angle.
+                    <em>SwiftSync</em> (Somsen, 2025) ships a compact hints file&mdash;one bit
+                    per output, marking whether it is still unspent at the snapshot
+                    height&mdash;so that validation during sync needs no UTXO-set lookups at
+                    all. Correctness is enforced by an aggregate check: each output marked
+                    spent is hashed into a running accumulator when created and subtracted
+                    when consumed; the accumulator returning to zero proves every such output
+                    was spent exactly once, with no inflation. Blocks can then be validated
+                    out of order and in parallel. Crucially, the hints are not trusted:
+                    incorrect hints make validation fail rather than succeed wrongly, so full
+                    validation is preserved. Early proof-of-concept benchmarks report roughly
+                    a 5&times; speedup before parallelization. The proposal is new and not
+                    yet deployed, but it illustrates the chapter's recurring theme: the
+                    bottleneck is not verification itself but the data structures it
+                    traverses.
+                </p>
+            </div>
         </section>
 
         <section>
@@ -886,7 +909,7 @@ prune=550</code></pre>
             <h3>Recommendations</h3>
 
             <div class="definition">
-                <p><strong>Remark 21.1</strong> (Node Configuration Recommendations)</p>
+                <p><strong>Remark 21.2</strong> (Node Configuration Recommendations)</p>
                 <table class="bitcoin-table">
                     <thead>
                         <tr>
