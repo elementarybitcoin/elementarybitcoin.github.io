@@ -43,7 +43,7 @@
                 <ul>
                     <li>Double-spending confirmed transactions</li>
                     <li>Preventing transactions from confirming</li>
-                    <li>Preventing other miners from finding blocks</li>
+                    <li>Preventing other miners' blocks from remaining in the best chain</li>
                 </ul>
             </div>
 
@@ -109,7 +109,7 @@
 
                     <!-- Reorg arrow -->
                     <path d="M 320 132 L 380 90" stroke="#c44" stroke-width="2" marker-end="url(#arrowRed36)"/>
-                    <text x="310" y="110" font-family="Georgia" font-size="9" fill="#c44">Reorg!</text>
+                    <text x="310" y="110" font-family="Georgia" font-size="9" fill="#c44">reorg</text>
 
                     <!-- Result -->
                     <rect x="380" y="40" width="120" height="50" rx="4" fill="#ffe8e8" stroke="#c44" stroke-width="2"/>
@@ -239,19 +239,24 @@
                 </table>
             </div>
 
-            <div class="theorem">
-                <p class="theorem-title">Proposition 36.2 (Reorg Probability)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 36.1 (Reorg Probability)</p>
                 <p>
                     Under honest mining with network delay <span class="math">δ</span> and
-                    block time <span class="math">T</span>:
+                    block time <span class="math">T</span>, the following approximations hold:
                 </p>
                 <ul>
-                    <li><span class="math">P(1-block reorg) ≈ δ/T ≈ 0.5-1%</span></li>
-                    <li><span class="math">P(2-block reorg) ≈ (δ/T)² ≈ 0.01%</span></li>
+                    <li><span class="math">P(1-block reorg) ≈ δ/T</span>; with modern
+                        relay <span class="math">δ/T &lt; 0.0005</span>
+                        (&lt;0.05%, Example 36.1), historically
+                        <span class="math">~0.005&ndash;0.01</span></li>
+                    <li><span class="math">P(2-block reorg) ≈ (δ/T)² &lt; 10⁻⁶</span> at
+                        the modern <span class="math">δ/T</span></li>
                     <li><span class="math">P(k-block reorg) ≈ (δ/T)ᵏ</span> (approximately)</li>
                 </ul>
                 <p>
-                    Deep reorgs under honest mining are astronomically unlikely.
+                    In particular, <span class="math">P(6-block honest reorg) ≈ (δ/T)⁶
+                    &lt; 10⁻¹⁹</span> at <span class="math">δ/T = 0.0005</span>.
                 </p>
             </div>
         </section>
@@ -265,7 +270,7 @@
                     <strong>Selfish mining</strong> is a strategy where miners withhold blocks:
                 </p>
                 <ol>
-                    <li>Find block, don't broadcast immediately</li>
+                    <li>Find a block; withhold it</li>
                     <li>Continue mining on secret chain</li>
                     <li>When honest miners find block, release secret chain</li>
                     <li>Goal: Waste honest miners' work, gain unfair advantage</li>
@@ -273,7 +278,7 @@
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Theorem 36.3 (Selfish Mining Threshold)</p>
+                <p class="theorem-title">Theorem 36.2 (Eyal and Sirer, 2014)</p>
                 <p>
                     Selfish mining is profitable when attacker hashrate <span class="math">q</span> satisfies:
                 </p>
@@ -284,6 +289,10 @@
                     where <span class="math">γ</span> is the fraction of honest miners who mine on the attacker's block
                     during a race. With <span class="math">γ = 0</span>: <span class="math">q &gt; 1/3 ≈ 33%</span>.
                     With <span class="math">γ = 1</span>: <span class="math">q &gt; 0</span> (any hashrate suffices).
+                    The strategy and threshold are due to Eyal, I. and Sirer, E. G.
+                    (2014), "Majority Is Not Enough: Bitcoin Mining Is Vulnerable,"
+                    <em>Financial Cryptography and Data Security</em>, where the result
+                    is proved by Markov-chain analysis of the withholding strategy.
                 </p>
             </div>
 
@@ -315,13 +324,16 @@
                     <text x="100" y="155" font-family="Georgia" font-size="9">0%</text>
                     <text x="420" y="155" font-family="Georgia" font-size="9">100%</text>
                 </svg>
-                <figcaption>Figure 36.2: Selfish mining becomes profitable above ~33% hashrate.</figcaption>
+                <figcaption>Figure 36.2: Selfish mining becomes profitable above ~33%
+                    hashrate when <span class="math">γ = 0</span>; the threshold falls
+                    as <span class="math">γ</span> grows.</figcaption>
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Remark 36.1 (Selfish Mining in Practice)</p>
+                <p class="remark-title">Remark 36.2 (Selfish Mining in Practice)</p>
                 <p>
-                    Selfish mining has not been observed on Bitcoin mainnet because:
+                    No selfish-mining episode has been conclusively identified on
+                    mainnet. Contributing factors:
                 </p>
                 <ul>
                     <li>Requires sustained <span class="math">&gt;25-33%</span> hashrate</li>
@@ -346,10 +358,16 @@
                     <li>Victim connects only to attacker nodes</li>
                     <li>Attacker controls victim's view of blockchain</li>
                 </ol>
+                <p>
+                    The attack and its feasibility against Bitcoin's peer selection were
+                    analyzed by Heilman, E., Kendler, A., Zohar, A., and Goldberg, S.
+                    (2015), "Eclipse Attacks on Bitcoin's Peer-to-Peer Network,"
+                    <em>USENIX Security Symposium</em>.
+                </p>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 36.2 (Eclipse Attack Consequences)</p>
+                <p class="remark-title">Remark 36.3 (Eclipse Attack Consequences)</p>
                 <p>
                     An eclipsed node can be:
                 </p>
@@ -362,7 +380,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 36.3 (Eclipse Mitigations)</p>
+                <p class="remark-title">Remark 36.4 (Eclipse Mitigations)</p>
                 <p>
                     Bitcoin Core includes mitigations:
                 </p>
@@ -419,6 +437,10 @@
                     <li>HTLCs time out on victim's view before actual expiry</li>
                     <li>Steal funds from payment channels</li>
                 </ul>
+                <p>
+                    The attack is described by Riard, A. and Naumenko, G. (2020),
+                    "Time-Dilation Attacks on the Lightning Network."
+                </p>
             </div>
         </section>
 
@@ -426,7 +448,7 @@
             <h2 id="s36-6">36.6 Attack Economics</h2>
 
             <div class="remark">
-                <p class="remark-title">Remark 36.4 (51% Attack Cost)</p>
+                <p class="remark-title">Remark 36.5 (51% Attack Cost)</p>
                 <p>
                     The cost of a 51% attack includes:
                 </p>
@@ -434,14 +456,16 @@
                     <li><strong>Hardware:</strong> ASICs to achieve majority hashrate</li>
                     <li><strong>Electricity:</strong> Ongoing operational cost</li>
                     <li><strong>Opportunity cost:</strong> Could mine honestly instead</li>
-                    <li><strong>Market impact:</strong> Attack discovery crashes BTC price</li>
+                    <li><strong>Market impact:</strong> the expectation that attack
+                        discovery would depress the price</li>
                 </ul>
             </div>
 
             <div class="example">
                 <p class="example-title">Example 36.2 (Attack Cost Estimation)</p>
                 <p>
-                    Rough 51% attack cost for Bitcoin (2024):
+                    Rough 51% attack cost (mid-2026, ~360+ EH/s network, cf.
+                    Chapter 14):
                 </p>
                 <table class="data-table">
                     <thead>
@@ -452,21 +476,23 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Hardware (>300 EH/s)</td>
-                            <td>$10-20 billion</td>
+                            <td>Hardware (~360+ EH/s to match)</td>
+                            <td>$10&ndash;20 billion</td>
                         </tr>
                         <tr>
                             <td>Electricity (per day)</td>
-                            <td>$20-50 million</td>
+                            <td>$20&ndash;50 million</td>
                         </tr>
                         <tr>
                             <td>Rental attack (if possible)</td>
-                            <td>$1-5 million/hour</td>
+                            <td>$1&ndash;5 million/hour</td>
                         </tr>
                     </tbody>
                 </table>
                 <p>
-                    Note: Rentable hardware does not exist at this scale for Bitcoin.
+                    These figures are rough, order-of-magnitude estimates, and the attack
+                    is hardware-availability-bound: neither purchasable nor rentable
+                    hardware exists at this scale for Bitcoin.
                 </p>
             </div>
         </section>

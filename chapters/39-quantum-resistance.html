@@ -34,8 +34,8 @@
                 Bitcoin, surveys the current state of quantum hardware, presents the
                 post-quantum signature schemes standardized by NIST, and analyzes the
                 migration strategies available to the network. Understanding this
-                threat&mdash;and preparing for it&mdash;is essential for Bitcoin's
-                multi-generational future.
+                threat&mdash;and preparing for it&mdash;is a prerequisite for any
+                multi-generational plan.
             </p>
         </section>
 
@@ -74,8 +74,9 @@
                     <text x="132" y="152" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">needs fault-tolerant quantum computer</text>
                     <text x="132" y="166" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(~2,330 logical qubits, ~10¹² gates)</text>
                     <rect x="30" y="182" width="204" height="48" rx="6" fill="#ffe8e8" stroke="#c44" stroke-width="1.5"/>
-                    <text x="132" y="202" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#c44">Severe: coins can be stolen</text>
-                    <text x="132" y="218" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">migration eventually required</text>
+                    <text x="132" y="198" text-anchor="middle" font-family="Georgia" font-size="9.5" font-weight="bold" fill="#c44">Severe: private keys recoverable</text>
+                    <text x="132" y="211" text-anchor="middle" font-family="Georgia" font-size="9.5" font-weight="bold" fill="#c44">from exposed public keys</text>
+                    <text x="132" y="225" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">migration eventually required</text>
 
                     <!-- Grover branch -->
                     <rect x="266" y="86" width="204" height="30" rx="6" fill="#f0f5f8" stroke="#4a90d9" stroke-width="1.5"/>
@@ -84,8 +85,9 @@
                     <text x="368" y="152" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">only quadratic speedup, O(√N)</text>
                     <text x="368" y="166" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">(√M collective gain from M machines)</text>
                     <rect x="266" y="182" width="204" height="48" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
-                    <text x="368" y="202" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="#5a8f5a">Manageable: 2¹²⁸ still astronomical</text>
-                    <text x="368" y="218" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">difficulty adjustment compensates</text>
+                    <text x="368" y="198" text-anchor="middle" font-family="Georgia" font-size="9.5" font-weight="bold" fill="#5a8f5a">Limited: quadratic speedup only;</text>
+                    <text x="368" y="211" text-anchor="middle" font-family="Georgia" font-size="9.5" font-weight="bold" fill="#5a8f5a">2¹²⁸ operations remain</text>
+                    <text x="368" y="225" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">difficulty adjustment compensates</text>
 
                     <defs>
                         <marker id="arrow39a" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -104,14 +106,15 @@
                 <p class="definition-title">Definition 39.1 (Qubit)</p>
                 <p>
                     Classical computers use bits (0 or 1). Quantum computers use
-                    <strong>qubits</strong>, which can exist in superposition&mdash;simultaneously
-                    0 and 1 until measured. A qubit's state is
+                    <strong>qubits</strong>. A qubit's state is a superposition
                 </p>
                 <p class="math-block">
                     α|0⟩ + β|1⟩, &nbsp;&nbsp;with&nbsp;&nbsp; |α|² + |β|² = 1
                 </p>
                 <p>
-                    where the constraint expresses that the measurement probabilities sum to one.
+                    that yields 0 or 1 on measurement with probabilities
+                    <span class="math">|α|²</span> and <span class="math">|β|²</span>;
+                    the constraint expresses that these probabilities sum to one.
                 </p>
                 <pre>
 Classical Bit:
@@ -124,7 +127,8 @@ Quantum Qubit:
 ├── |α|² + |β|² = 1 (probability constraint)
 ├── Operations: Quantum gates (Hadamard, CNOT, etc.)
 ├── Entanglement: Correlated qubits
-└── Parallelism: Exponential in number of qubits
+└── State space: dimension 2ⁿ for n qubits
+    (amplitudes, not independently readable values)
 </pre>
             </div>
 
@@ -318,7 +322,7 @@ Resource Requirements (256-bit ECDSA):
                     <text x="135" y="182" text-anchor="middle" font-family="Georgia" font-size="10">P2TR (tweaked key in output)</text>
                     <text x="135" y="204" text-anchor="middle" font-family="Georgia" font-size="10">Reused / already-spent</text>
                     <text x="135" y="218" text-anchor="middle" font-family="Georgia" font-size="10">addresses (key revealed)</text>
-                    <text x="135" y="242" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">no defense possible for these coins</text>
+                    <text x="135" y="242" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">no user-side defense; protocol options: §39.9</text>
 
                     <!-- Shielded panel -->
                     <rect x="260" y="100" width="210" height="158" rx="6" fill="#f5f8f0" stroke="#5a8f5a" stroke-width="1.5"/>
@@ -417,7 +421,7 @@ Quantum Mining:
 
 Practical Reality:
 ├── Grover requires coherent computation
-├── Can't simply "add more qubits" for speedup
+├── Cannot simply add more qubits for speedup
 ├── One quantum computer = √N speedup
 ├── M quantum computers: only √M collective speedup (vs M× classically)
 └── ASICs likely remain competitive for mining
@@ -425,42 +429,47 @@ Practical Reality:
             </div>
 
             <div class="theorem">
-                <p class="theorem-title">Proposition 39.1 (Grover Does Not Break Mining)</p>
+                <p class="theorem-title">Proposition 39.1 (Grover Does Not Parallelize)</p>
                 <p>
-                    Grover's algorithm does not give a quantum miner the kind of decisive
-                    advantage that Shor's algorithm gives a quantum signature forger:
+                    A Grover search over a space of size <span class="math">N</span> requires
+                    about <span class="math">√N</span> sequential coherent iterations.
+                    Distributing the search across <span class="math">M</span> quantum
+                    machines reduces the running time only by a factor of
+                    <span class="math">√M</span>, whereas <span class="math">M</span> classical
+                    machines achieve a full <span class="math">M×</span> speedup.
                 </p>
-                <ol>
-                    <li><strong>Quadratic, not exponential:</strong> <span class="math">2¹²⁸</span> is still astronomical</li>
-                    <li><strong>Not parallelizable:</strong> Can't gain advantage from multiple quantum computers</li>
-                    <li><strong>Difficulty adjustment:</strong> Network adjusts to maintain 10-minute blocks</li>
-                    <li><strong>Simple fix:</strong> Double hash output size (SHA-512) restores security</li>
-                </ol>
             </div>
 
             <div class="proof">
                 <p class="proof-title">Proof.</p>
                 <p>
-                    A Grover search over a space of size <span class="math">N</span> requires
-                    about <span class="math">√N</span> <em>sequential</em> coherent iterations.
                     Splitting the search space among <span class="math">M</span> quantum
                     machines gives each machine a space of size <span class="math">N/M</span>,
-                    costing <span class="math">√(N/M) = √N/√M</span> time&mdash;a collective
-                    speedup of only <span class="math">√M</span>, whereas <span class="math">M</span>
-                    classical ASICs achieve a full <span class="math">M×</span> speedup. Since
-                    mining is a throughput race rather than a one-shot break, and the difficulty
-                    adjustment retargets to whatever total search rate the network achieves,
-                    quantum miners merely join the existing hardware arms race rather than
-                    breaking the proof-of-work mechanism. <span class="qed"></span>
+                    costing <span class="math">√(N/M) = √N/√M</span> sequential coherent
+                    iterations&mdash;a collective speedup of only <span class="math">√M</span>
+                    over a single machine. <span class="math">M</span> classical ASICs, by
+                    contrast, partition the same work for a full <span class="math">M×</span>
+                    speedup. <span class="qed"></span>
                 </p>
             </div>
 
             <div class="remark">
                 <p class="remark-title">Remark 39.4 (Effective Security Levels)</p>
                 <p>
-                    Post-quantum, SHA-256 provides 128-bit security (still extremely strong).
-                    If needed, migration to SHA-384 or SHA-512 could restore 256-bit security
-                    against quantum adversaries.
+                    Proposition 39.1 is the central reason Grover's algorithm does not give a
+                    quantum miner the kind of decisive advantage that Shor's algorithm gives
+                    a quantum signature forger:
+                </p>
+                <ol>
+                    <li><strong>Quadratic, not exponential:</strong> <span class="math">2¹²⁸</span> operations remain infeasible (cf. Chapter 2)</li>
+                    <li><strong>Not parallelizable:</strong> a fleet of quantum machines cannot gain a classical-style advantage (Proposition 39.1); since mining is a throughput race rather than a one-shot break, quantum miners merely join the existing hardware arms race</li>
+                    <li><strong>Difficulty adjustment:</strong> the network retargets to whatever total search rate is achieved, maintaining 10-minute blocks</li>
+                </ol>
+                <p>
+                    Post-quantum, SHA-256 thus provides 128-bit security. Doubling the hash
+                    output (e.g., SHA-512) would restore the original margin; note that
+                    changing Bitcoin's proof-of-work or txid hash is a hard fork
+                    (Chapter 26).
                 </p>
             </div>
         </section>
@@ -469,7 +478,7 @@ Practical Reality:
             <h2 id="s39-5">39.5 The Current State of Quantum Computing</h2>
 
             <div class="example">
-                <p class="example-title">Example 39.2 (2024 Quantum Landscape)</p>
+                <p class="example-title">Example 39.2 (Quantum Hardware Landscape, mid-2026)</p>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -481,25 +490,25 @@ Practical Reality:
                     </thead>
                     <tbody>
                         <tr>
-                            <td>IBM Condor</td>
+                            <td>IBM Condor (2023)</td>
                             <td>1,121</td>
                             <td>Superconducting</td>
                             <td>~0.1%</td>
                         </tr>
                         <tr>
-                            <td>Google Sycamore</td>
-                            <td>53</td>
+                            <td>Google Willow (2024)</td>
+                            <td>105</td>
                             <td>Superconducting</td>
-                            <td>~0.5%</td>
+                            <td>~0.1%</td>
                         </tr>
                         <tr>
-                            <td>IonQ Forte</td>
+                            <td>IonQ Forte (2023)</td>
                             <td>36</td>
                             <td>Trapped ion</td>
                             <td>~0.03%</td>
                         </tr>
                         <tr>
-                            <td>Quantinuum H2</td>
+                            <td>Quantinuum H2 (2024)</td>
                             <td>56</td>
                             <td>Trapped ion</td>
                             <td>~0.1%</td>
@@ -512,6 +521,16 @@ Practical Reality:
                         </tr>
                     </tbody>
                 </table>
+                <p>
+                    Raw qubit counts overstate progress; error rates and error correction
+                    matter more. The most significant recent milestone is qualitative:
+                    in December 2024, Google's Willow chip (105 physical qubits)
+                    demonstrated a logical qubit whose error rate fell as the
+                    error-correcting code grew&mdash;the first below-threshold
+                    error-correction result. As of mid-2026, no announced machine
+                    approaches the roughly 2,330 error-corrected logical qubits that
+                    Example 39.3 shows an attack on 256-bit ECDSA would require.
+                </p>
             </div>
 
             <div class="definition">
@@ -566,27 +585,27 @@ For Breaking 256-bit ECDSA (Roetteler et al., 2017):
                         <tr>
                             <td>NIST (2016)</td>
                             <td>2030</td>
-                            <td>"Unlikely before 2030"</td>
+                            <td>Assessed a cryptographically relevant machine as unlikely before 2030</td>
                         </tr>
                         <tr>
                             <td>Google (2019)</td>
                             <td>2029</td>
-                            <td>"Million-qubit machine possible"</td>
+                            <td>Projected that a million-qubit machine could be built by 2029</td>
                         </tr>
                         <tr>
-                            <td>IBM Roadmap (2023)</td>
+                            <td>IBM roadmap (2023)</td>
                             <td>2033</td>
-                            <td>"100,000 physical qubits"</td>
+                            <td>Targets 100,000 physical qubits by 2033</td>
                         </tr>
                         <tr>
-                            <td>Mosca Theorem</td>
+                            <td>Mosca (Definition 39.8)</td>
                             <td>Variable</td>
-                            <td>"Migrate before threat arrives"</td>
+                            <td>Argues migration must begin well before the threat arrives</td>
                         </tr>
                         <tr>
-                            <td>Skeptics</td>
+                            <td>Skeptics such as Dyakonov (2018)</td>
                             <td>2050+</td>
-                            <td>"Fundamental barriers remain"</td>
+                            <td>Argue that fundamental engineering barriers remain</td>
                         </tr>
                     </tbody>
                 </table>
@@ -672,7 +691,8 @@ For Breaking 256-bit ECDSA (Roetteler et al., 2017):
                 <p>
                     <strong>Lattice-based cryptography</strong> rests on the hardness of
                     lattice problems, for which no efficient quantum algorithm is known.
-                    It is the most promising family for Bitcoin:
+                    It is the family most often proposed for Bitcoin, on signature-size
+                    and verification-speed grounds:
                 </p>
                 <pre>
 Lattice Problem (simplified):
@@ -806,7 +826,7 @@ Commit-Delay-Reveal Protocol:
 2. Delay Phase
    ├── Wait N blocks (e.g., 100)
    ├── Prevents race condition
-   └── Attacker can't predict destination
+   └── Attacker cannot predict destination
 
 3. Reveal Phase
    ├── Provide pre-image of commitment
@@ -815,7 +835,7 @@ Commit-Delay-Reveal Protocol:
 
 Benefits:
 ├── Works with existing ECDSA
-├── Quantum attacker can't steal
+├── Quantum attacker cannot steal
 ├── Time lock provides protection
 └── Soft fork implementation possible
 </pre>
@@ -848,7 +868,7 @@ Security:
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 39.7 (Emergency Hard Fork)</p>
+                <p class="remark-title">Remark 39.7 (Emergency Migration)</p>
                 <p>
                     The last resort, if the quantum threat materializes suddenly:
                 </p>
@@ -856,11 +876,15 @@ Security:
                     <li>Quantum attack demonstrated or imminent</li>
                     <li>Freeze all ECDSA-based transactions</li>
                     <li>Require PQ proof of key ownership</li>
-                    <li>Hard fork to PQ-only signatures</li>
+                    <li>Restrict the network to PQ-only signatures</li>
                     <li>Coins without valid PQ proof may be frozen/burned</li>
                 </ol>
                 <p>
-                    This is extremely disruptive and should be avoided through proactive migration.
+                    Note the classification: disabling ECDSA spends restricts the valid set
+                    and is therefore a soft fork (Definition 26.5), though a drastic one;
+                    schemes that reassign or recover frozen value would require more. Either
+                    way, the path is extremely disruptive and is what proactive migration is
+                    designed to avoid.
                 </p>
             </div>
         </section>
@@ -938,7 +962,7 @@ P2PK outputs (exposed public keys):
 ├── Satoshi's ~1M BTC: Public key known
 ├── Other early miners: Public keys known
 ├── First to break ECDSA claims these
-└── No defense possible for these coins
+└── No user-side defense; see the protocol options below
 
 P2PKH outputs (hash-protected):
 ├── Safe until spent
@@ -961,8 +985,9 @@ Controversial Question:
                 <p class="remark-title">Remark 39.10 (The Ethical Dimension)</p>
                 <p>
                     If quantum computers can claim Satoshi's coins, ~1 million BTC returns to
-                    circulation. Is this theft? Inheritance? A feature? The community has no
-                    consensus on how to handle this eventuality.
+                    circulation. Whether such a claim constitutes theft of dormant property
+                    or the operation of the system as designed is contested; no community
+                    position exists.
                 </p>
             </div>
         </section>
@@ -974,35 +999,40 @@ Controversial Question:
                 <p class="remark-title">Remark 39.11 (Best Practices for Users)</p>
                 <ol>
                     <li><strong>Never reuse addresses:</strong> Fresh addresses hide public keys</li>
-                    <li><strong>Prefer P2WPKH over P2TR:</strong> P2TR exposes the tweaked public key in the output; P2WPKH hides the key behind a hash until spending</li>
+                    <li><strong>Output-type choice is debated:</strong> Some analysts recommend hash-based output types over P2TR for long-term cold storage, since P2TR exposes the tweaked public key in the output; others respond that the protection is limited to the pre-spend period, since any key is exposed at spend time. The trade-off is unresolved</li>
                     <li><strong>Monitor quantum progress:</strong> Be ready to migrate when solutions deploy</li>
-                    <li><strong>Support PQ research:</strong> Encourage wallet/protocol development</li>
                 </ol>
             </div>
 
             <div class="definition">
                 <p class="definition-title">Definition 39.15 (Committed Lamport Fallback)</p>
                 <p>
-                    Users can protect themselves today by committing to a hash-based
+                    A holder can be protected today by committing to a hash-based
                     signature inside a P2SH script&mdash;a "commit now, reveal later" defense:
                 </p>
                 <pre>
-DIY Quantum Protection (Advanced):
+Committed Lamport Fallback:
 
-1. Generate Lamport keypair offline
+1. A Lamport keypair is generated offline
    └── One-time use hash-based signature
 
-2. Create P2SH address
+2. A P2SH address commits to the script
    ├── Script: IF &lt;lamport verify&gt; ELSE &lt;ECDSA&gt; ENDIF
    └── Hidden until spending
 
-3. When quantum threat arrives
-   ├── Spend using Lamport path
-   └── Quantum cannot break hash commitment
-
-Note: Complex, not user-friendly
-      Wait for wallet support instead
+3. If a quantum threat materializes
+   ├── The holder spends via the Lamport path
+   └── Quantum computers cannot break the hash commitment
 </pre>
+            </div>
+
+            <div class="remark">
+                <p class="remark-title">Remark 39.12 (Practicality of the Lamport Fallback)</p>
+                <p>
+                    The construction of Definition 39.15 is intricate and is not exposed by
+                    current wallet software; in practice, most holders depend on wallet-level
+                    support, which does not yet exist.
+                </p>
             </div>
 
             <p>
@@ -1012,38 +1042,39 @@ Note: Complex, not user-friendly
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 39.12 (Action Timeline)</p>
+                <p class="remark-title">Remark 39.13 (An Illustrative Timeline)</p>
                 <p>
-                    A recommended preparation timeline:
+                    One plausible sequencing, for concreteness (the phase boundaries are
+                    illustrative, not predictions):
                 </p>
                 <pre>
-Recommended Preparation Timeline:
+One Plausible Sequencing (illustrative):
 
-2024-2026: Research Phase
+2026-2028: Research Phase
 ├── Finalize PQ signature choice
 ├── Design soft fork proposal
 ├── Implement in Bitcoin Core (experimental)
 └── Community discussion and review
 
-2026-2028: Testing Phase
+2028-2030: Testing Phase
 ├── Signet deployment
 ├── Wallet integration
 ├── Security audits
 └── BIP finalization
 
-2028-2030: Activation
+2030-2032: Activation
 ├── Soft fork activation
 ├── New PQ address types available
 ├── Migration begins
 └── Wallet support widespread
 
-2030-2040: Migration Window
+2032-2042: Migration Window
 ├── Users migrate to PQ addresses
 ├── Layer 2 upgrades
 ├── Exchange support
 └── Legacy addresses deprecated (social)
 
-2040+: Post-Quantum Era
+2042+: Post-Quantum Era
 ├── All active coins quantum-resistant
 ├── Legacy coins (Satoshi's etc.) at risk
 ├── Protocol decisions on unmoved coins
@@ -1082,10 +1113,10 @@ Recommended Preparation Timeline:
 
                     <!-- Timeline axis -->
                     <path d="M 30 150 L 484 150" stroke="#2f4f4f" stroke-width="1.5" marker-end="url(#arrow39c)"/>
-                    <text x="78" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2024&ndash;2026</text>
-                    <text x="182" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2026&ndash;2028</text>
-                    <text x="286" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2028&ndash;2030</text>
-                    <text x="390" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2030&ndash;2040</text>
+                    <text x="78" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2026&ndash;2028</text>
+                    <text x="182" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2028&ndash;2030</text>
+                    <text x="286" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2030&ndash;2032</text>
+                    <text x="390" y="168" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">2032&ndash;2042</text>
 
                     <!-- Quantum threat marker -->
                     <line x1="460" y1="112" x2="460" y2="164" stroke="#c44" stroke-width="1.5" stroke-dasharray="4,3"/>
@@ -1101,15 +1132,16 @@ Recommended Preparation Timeline:
                         </marker>
                     </defs>
                 </svg>
-                <figcaption>Figure 39.3: The migration path&mdash;from monitoring and standardization through a soft fork to user migration, completed before the quantum threat arrives.</figcaption>
+                <figcaption>Figure 39.3: The migration path&mdash;from monitoring and standardization through a soft fork to user migration, ideally completed before any quantum threat materializes (Mosca's inequality).</figcaption>
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Remark 39.13 (The 20-Year Window)</p>
+                <p class="remark-title">Remark 39.14 (The 20-Year Window)</p>
                 <p>
                     Most estimates give Bitcoin 15-25 years before quantum computers threaten
-                    ECDSA. This seems like ample time, but cryptographic migrations are slow.
-                    The Y2K problem was identified in the 1960s&mdash;and we still barely made it.
+                    ECDSA. This seems like ample time, but cryptographic migrations are slow:
+                    the MD5 and SHA-1 deprecations each took over a decade from demonstrated
+                    weakness to ecosystem removal.
                 </p>
             </div>
         </section>
@@ -1118,7 +1150,7 @@ Recommended Preparation Timeline:
             <h2 id="s39-11">39.11 Summary</h2>
 
             <ul>
-                <li><strong>Shor's algorithm</strong> will eventually break ECDSA&mdash;migration is inevitable</li>
+                <li><strong>Shor's algorithm:</strong> if fault-tolerant quantum computers are built, it breaks ECDSA; on prevailing expert timelines, preparation is prudent</li>
                 <li><strong>Grover's algorithm</strong> halves hash security&mdash;doubling key size fixes it</li>
                 <li><strong>Timeline:</strong> Likely 15-25 years, but uncertain</li>
                 <li><strong>NIST standards</strong> (ML-DSA, SPHINCS+) provide ready alternatives</li>
@@ -1131,8 +1163,7 @@ Recommended Preparation Timeline:
             <p>
                 The quantum threat to Bitcoin is real but not imminent. With proper
                 preparation, Bitcoin can transition to quantum-resistant cryptography
-                smoothly. The challenge is significant but surmountable&mdash;far easier than
-                the social coordination that would be required to change monetary policy.
+                smoothly. The challenge is significant but has known technical paths.
             </p>
         </section>
 
@@ -1192,8 +1223,8 @@ Recommended Preparation Timeline:
                     <span class="math">2¹²⁸</span> sequential iterations (Definition 39.6).
                     If a fault-tolerant quantum computer performs <span class="math">10⁹</span>
                     Grover iterations per second, how many years would the full search take?
-                    What does this say about Remark 39.4's claim that 128-bit post-quantum
-                    security is "still extremely strong"?
+                    What does this say about Remark 39.4's claim that
+                    <span class="math">2¹²⁸</span> operations remain infeasible?
                 </p>
             </div>
 

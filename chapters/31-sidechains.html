@@ -100,16 +100,24 @@
             <div class="theorem">
                 <p class="theorem-title">Proposition 31.1 (Peg Security Tradeoff)</p>
                 <p>
-                    Without changes to Bitcoin's consensus rules, a trustless two-way peg is
-                    impossible: Bitcoin Script has no opcode that can verify sidechain
-                    consensus, so some extrinsic trust (or a new opcode) must authorize
-                    peg-outs. The options are:
+                    Without changes to Bitcoin's consensus rules, a trustless two-way
+                    peg&mdash;where trustless means peg-out authorization verified entirely
+                    by the consensus rules of Definition 13.18&mdash;is impossible: Bitcoin
+                    Script has no opcode that can verify sidechain consensus, so some
+                    extrinsic trust (or a new opcode) must authorize peg-outs. The options
+                    are:
                 </p>
                 <ul>
                     <li>Trusted custodians (federation)</li>
                     <li>Bitcoin consensus changes (SPV proofs, validity proofs)</li>
                     <li>Economic incentives (collateral, fraud proofs)</li>
                 </ul>
+                <p>
+                    BitVM-style constructions (Exercise 31.4) do not contradict this:
+                    they reduce trust to the assumption that one of <span class="math">n</span>
+                    designated verifiers is honest&mdash;trust minimization, not
+                    trustlessness in the above sense.
+                </p>
             </div>
         </section>
 
@@ -522,7 +530,7 @@
             <p>
                 A third peg family completes the taxonomy: let Bitcoin's miners themselves
                 custody the peg. <em>Drivechains</em> (BIP-300/301, proposed by Paul Sztorc)
-                would have added one opcode (OP_DRIVECHAIN) under which sidechain deposits
+                propose adding one opcode (OP_DRIVECHAIN) under which sidechain deposits
                 sit in a hashrate escrow: a withdrawal bundle requires 13,150 miner ACKs
                 within a 26,300-block (~6-month) window, with sidechain blocks produced via
                 blind merged mining&mdash;miners sell block space to sidechain operators
@@ -530,10 +538,10 @@
             </p>
 
             <div class="remark">
-                <p class="remark-title">Remark 31.7 (Why It Failed)</p>
+                <p class="remark-title">Remark 31.7 (Why It Did Not Activate)</p>
                 <p>
-                    The design asks users to trust two parties the base layer never asks
-                    them to trust. A miner majority can vote deposits to itself&mdash;slowly
+                    Critics held that the design asks users to trust two parties the base
+                    layer does not: a miner majority can vote deposits to itself&mdash;slowly
                     and in public, which proponents argued is the defense (the theft is
                     visible and punishable, up to a user-activated soft fork) and which
                     critics judged a description of the design rather than an attack on it.
@@ -547,9 +555,9 @@
                     Satoshi-era coins' balances reassigned to project investors on the
                     forked ledger. No BTC moves, but every prior fork in Chapter 27
                     preserved balances exactly; critics called it confiscation. The
-                    episode is this volume's sharpest cautionary tale: technical coherence
-                    does not entitle a proposal to activation, and exit is governed by
-                    Chapter 26's unforgiving game theory.
+                    episode illustrates two results of this volume: activation requires
+                    the broad coordination of Chapter 33, not only technical coherence;
+                    and exit forks face the adoption game of Section 26.4.
                 </p>
             </div>
         </section>

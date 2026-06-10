@@ -101,8 +101,9 @@
                     <li>Transaction metadata beyond the current input</li>
                 </ul>
                 <p>
-                    This was a deliberate design choice&mdash;simplicity and security over
-                    programmability.
+                    The opcodes that would permit introspection were disabled in 2010
+                    after vulnerabilities were found; Bitcoin Script has remained without
+                    introspection since.
                 </p>
             </div>
         </section>
@@ -111,7 +112,9 @@
             <h2 id="s30-2">30.2 OP_CHECKTEMPLATEVERIFY (CTV)</h2>
 
             <p>
-                CTV (BIP-119) is the simplest and most conservative covenant proposal.
+                CTV (BIP-119) commits to a fixed transaction template; of the proposals
+                surveyed here it adds the smallest amount of new script machinery, and
+                its proponents describe it as the most conservative option (Remark 30.2).
             </p>
 
             <div class="definition">
@@ -330,7 +333,8 @@ Stack after:  [x || y]</pre>
                 <p class="theorem-title">Proposition 30.1 (CAT Enables Covenants)</p>
                 <p>
                     OP_CAT combined with Schnorr signatures enables introspection through
-                    on-stack sighash construction (the "Schnorr trick"):
+                    on-stack sighash construction&mdash;the "Schnorr trick" (Poelstra,
+                    "CAT and Schnorr Tricks", 2021):
                 </p>
                 <ol>
                     <li>Schnorr signature: <span class="math">(R, s)</span> where <span class="math">s = k + H(R||P||m)·d</span>, with the
@@ -367,7 +371,7 @@ OP_CHECKSIG</pre>
             <div class="remark">
                 <p class="remark-title">Remark 30.3 (CAT Power and Concerns)</p>
                 <p>
-                    OP_CAT is surprisingly powerful:
+                    OP_CAT, despite its two-line semantics, suffices for:
                 </p>
                 <ul>
                     <li><strong>Enables:</strong> Covenants, validity proofs, Lamport signatures</li>
@@ -475,7 +479,9 @@ OP_CHECKSIG</pre>
             <div class="remark">
                 <p class="remark-title">Remark 30.4 (Vault Security Properties)</p>
                 <p>
-                    OP_VAULT provides security guarantees:
+                    OP_VAULT provides security guarantees, under two assumptions: the
+                    owner or a delegate monitors the chain within the timelock window,
+                    and the recovery key remains uncompromised. Given these:
                 </p>
                 <ol>
                     <li><strong>Theft prevention:</strong> Attacker with trigger key cannot steal immediately</li>

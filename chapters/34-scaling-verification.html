@@ -145,12 +145,12 @@
                 The tiers map onto device classes. A dedicated server or a desktop with a
                 terabyte disk runs an archival node comfortably. A laptop runs a pruned or
                 AssumeUTXO node, at the cost of days of background computation or trust in
-                a release-embedded snapshot hash. A phone cannot, in practice, hold 600 GB
-                or sustain days of CPU-bound validation, but it holds 72 MB of headers
+                a release-embedded snapshot hash. A typical phone does not have 600 GB to
+                spare, and cannot sustain days of CPU-bound validation, but it holds 72 MB of headers
                 without noticing and absorbs 3&ndash;5 MB per day of filters within an
                 ordinary data plan: the phone's natural tier is Neutrino. A browser tab,
-                today, occupies only the bottom row: every popular web wallet is an API
-                client that verifies nothing (Section 20.6 called this the validation gap).
+                today, occupies only the bottom row: the web wallets in wide use are API
+                clients that verify nothing (Section 20.6 called this the validation gap).
                 Section 34.3 examines whether the browser must stay there.
             </p>
 
@@ -176,7 +176,7 @@
                     <text x="480" y="165" font-family="Georgia" font-size="9" fill="#444">browsers</text>
 
                     <!-- axis annotations -->
-                    <text x="270" y="200" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">bar width &prop; fraction of devices that can occupy the tier today</text>
+                    <text x="270" y="200" text-anchor="middle" font-family="Georgia" font-size="9" fill="#666">bar width is schematic: wider tiers are accessible to more devices</text>
                     <line x1="60" y1="40" x2="60" y2="174" stroke="#999" stroke-width="1"/>
                     <text x="52" y="50" text-anchor="end" font-family="Georgia" font-size="8" fill="#666">more</text>
                     <text x="52" y="60" text-anchor="end" font-family="Georgia" font-size="8" fill="#666">verified</text>
@@ -195,7 +195,7 @@
                     not merely a usability statistic. Section 34.4 will show that the
                     fraction of the <em>economy</em> that can cheaply verify a given rule
                     bounds the credibility of enforcing that rule&mdash;so the distribution
-                    of users across the tiers of this section is politically load-bearing.
+                    of users across the tiers of this section is politically consequential.
                     Verification cost is the binding constraint simultaneously on Bitcoin's
                     reach (who can hold it sovereignly), on its governance (who can enforce
                     its rules), and&mdash;Section 34.6&mdash;on the monetary scenarios of
@@ -212,15 +212,15 @@
 
             <p>
                 Bitcoin is not the first decentralized system asked to serve billions of
-                clients. The web did it, and its scaling was not an accident: it was
-                designed, and the design was later written down. Fielding's doctoral
-                dissertation&mdash;Fielding, R. T. (2000), <em>Architectural Styles and
-                the Design of Network-based Software Architectures</em>, Ph.D.
-                dissertation, University of California, Irvine&mdash;derives in its
-                Chapter 5 the REST architectural style as the set of constraints that
-                made web-scale possible. Each constraint purchases a specific scalability
-                property. It is worth asking which of those purchases Bitcoin's
-                verification stack has already made, and which it cannot make.
+                clients. The web did it, and Fielding's dissertation later articulated
+                the architectural constraints that made it possible: Fielding, R. T.
+                (2000), <em>Architectural Styles and the Design of Network-based
+                Software Architectures</em>, Ph.D. dissertation, University of
+                California, Irvine, derives in its Chapter 5 the REST architectural
+                style as the set of constraints behind web scale. Each constraint
+                purchases a specific scalability property. We ask which of those
+                purchases Bitcoin's verification stack has already made, and which it
+                cannot make.
             </p>
 
             <div class="definition">
@@ -246,7 +246,7 @@
             </div>
 
             <p>
-                Now the mapping, stated honestly&mdash;as observation, not design lineage,
+                Now the mapping, stated as observation rather than design lineage,
                 since Bitcoin's authors did not work from Fielding's text.
             </p>
 
@@ -327,7 +327,7 @@
                 BitTorrent," <em>Workshop on Economics of Peer-to-Peer Systems</em>,
                 described a design in which peers exchange pieces of a file under a
                 tit-for-tat policy, verifying each piece against hashes in a small trusted
-                metadata file. The structural kinship is plain: a compact verified
+                metadata file. The structural kinship: a compact verified
                 commitment (the torrent's piece hashes; Bitcoin's header chain) lets
                 untrusted peers serve bulk data (file pieces; blocks and filters) that the
                 recipient checks for itself.
@@ -617,12 +617,12 @@
             <div class="remark">
                 <p class="remark-title">Remark 34.4 (Enforcement Requires Verification)</p>
                 <p>
-                    The model's lever is <span class="math">e</span>, and here is the
-                    chapter's punchline, stated carefully:
+                    The model's lever is <span class="math">e</span>, and the
+                    chapter's central claim, stated carefully:
                     <span class="math">e</span> is bounded above by the fraction of
                     economic weight that can verify the rule
                     <span class="math">R<sub>new</sub></span> cheaply. Enforcement, by
-                    Definition 13.18, means computing the validation predicate yourself;
+                    Definition 13.18, means computing the validation predicate oneself;
                     an actor that cannot detect a violation cannot refuse the violating
                     coins, whatever its stated policy. An exchange running an API client
                     enforces nothing. A merchant on a Neutrino wallet enforces header
@@ -632,11 +632,10 @@
                     economic actors threaten to reject non-enforcing blocks&mdash;is a
                     function of the verification-cost distribution of Section 34.1: the
                     threat is only as broad as the population that can afford to make it.
-                    Conversely, miner-activated soft forks are rational
-                    <em>delegation</em> precisely when verification is concentrated: if
-                    few economic actors validate, having miners coordinate the upgrade is
-                    not a usurpation of user sovereignty but a reflection of where
-                    verification actually resides.
+                    Conversely, miner-activated soft forks can be read as delegation
+                    rather than usurpation: if few economic actors validate, miner
+                    coordination of the upgrade reflects where verification actually
+                    resides. This reading is itself contested (Remark 34.5).
                 </p>
             </div>
 
@@ -693,8 +692,8 @@
                 Sections 34.1 through 34.4 each examined the verification spectrum from
                 one angle. We now unify it. Read each row of the following table as a
                 rung: descending the ladder, the verified set shrinks, the trusted set
-                grows, and the setup cost falls&mdash;which is exactly why the lower rungs
-                are the populated ones.
+                grows, and the setup cost falls&mdash;and the lower rungs are, observably,
+                the populated ones: custodial and API wallets dominate user counts.
             </p>
 
             <table class="data-table">
@@ -823,7 +822,7 @@
                 </svg>
                 <figcaption>Figure 34.3: The trust-drift ladder. Each step down sheds part
                     of the verified set and enlarges the trusted set&mdash;and each step
-                    down is cheaper, which is why drift runs toward the bottom.</figcaption>
+                    down is cheaper.</figcaption>
             </figure>
 
             <p>
@@ -898,7 +897,7 @@
             </div>
 
             <p>
-                One sentence closes the argument of thirty-four chapters. The mathematics
+                The mathematics
                 of Volume I made verification possible; the engineering of Volume III made
                 it cheap; whether it becomes universal is the open question of Volume V.
             </p>

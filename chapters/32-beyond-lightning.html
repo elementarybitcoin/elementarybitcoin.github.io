@@ -23,7 +23,7 @@
     <main class="chapter-content">
         <section>
             <p class="chapter-intro">
-                The Lightning Network solved the payment channel problem, but its complexity and
+                The Lightning Network made payment channels practical at scale, but its complexity and
                 liquidity requirements have spurred research into alternative Layer 2 designs.
                 This chapter examines emerging protocols&mdash;Ark, Statechains, Channel Factories,
                 and others&mdash;that offer different tradeoffs in interactivity, liquidity, and
@@ -38,10 +38,10 @@
                 Understanding new L2 proposals requires understanding Lightning's constraints.
             </p>
 
-            <div class="definition">
-                <p class="definition-title">Definition 32.1 (Lightning Limitations)</p>
+            <div class="remark">
+                <p class="remark-title">Remark 32.1 (Lightning's Constraints)</p>
                 <p>
-                    Lightning Network faces several challenges:
+                    Lightning Network faces several practical challenges:
                 </p>
                 <ul>
                     <li><strong>Inbound liquidity:</strong> Receivers need channel capacity toward them</li>
@@ -88,7 +88,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.2 (Ark)</p>
+                <p class="definition-title">Definition 32.1 (Ark)</p>
                 <p>
                     <strong>Ark</strong> is an off-chain payment protocol in which:
                 </p>
@@ -102,9 +102,11 @@
             </div>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.3 (Ark Round)</p>
+                <p class="definition-title">Definition 32.2 (Ark Round)</p>
                 <p>
-                    Every few seconds, the ASP creates a <strong>round</strong>:
+                    The ASP periodically creates a <strong>round</strong>&mdash;the design
+                    calls for rounds every few seconds; deployed implementations batch
+                    less frequently:
                 </p>
                 <ol>
                     <li>Collects payment intents from users</li>
@@ -154,28 +156,28 @@
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Remark 32.1 (Ark Properties)</p>
+                <p class="remark-title">Remark 32.2 (Ark Properties)</p>
                 <p>
                     Ark provides:
                 </p>
                 <ul>
                     <li><strong>Non-interactive receiving:</strong> Recipient does not need to be online</li>
                     <li><strong>No inbound liquidity:</strong> ASP provides liquidity for everyone</li>
-                    <li><strong>Unilateral exit:</strong> Users can always claim on-chain</li>
+                    <li><strong>Unilateral exit:</strong> Before vTXO expiry, users can claim on-chain without ASP cooperation</li>
                     <li><strong>Privacy:</strong> Payments within rounds are unlinkable</li>
                 </ul>
                 <p>
                     Tradeoffs:
                 </p>
                 <ul>
-                    <li><strong>ASP trust:</strong> Must trust ASP for liveness (not safety)</li>
-                    <li><strong>Expiring vTXOs:</strong> Must refresh before timeout</li>
+                    <li><strong>ASP trust:</strong> Liveness trust, plus the obligation to refresh before expiry (after expiry, unswept funds are claimable by the ASP)</li>
+                    <li><strong>Expiring vTXOs:</strong> Must refresh before expiry</li>
                     <li><strong>ASP capital:</strong> ASP must lock significant BTC</li>
                 </ul>
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 32.2 (Ark vs Lightning)</p>
+                <p class="remark-title">Remark 32.3 (Ark vs Lightning)</p>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -198,7 +200,7 @@
                         <tr>
                             <td>Payment latency</td>
                             <td>Instant</td>
-                            <td>Round time (~5s)</td>
+                            <td>Round time (design target ~5s)</td>
                         </tr>
                         <tr>
                             <td>Channel management</td>
@@ -223,14 +225,14 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.4 (Statechain)</p>
+                <p class="definition-title">Definition 32.3 (Statechain)</p>
                 <p>
                     A <strong>statechain</strong> transfers UTXO ownership off-chain:
                 </p>
                 <ul>
                     <li>UTXO is locked to a 2-of-2: user key + statechain entity (SE) key</li>
                     <li>Transfer: user sends their key share to recipient, and the SE atomically re-randomizes the shares so the old owner's copy becomes useless</li>
-                    <li>SE cannot steal (it does not know the full key) but can censor</li>
+                    <li>SE cannot steal unilaterally, assuming it deletes prior key shares as the protocol requires (an SE retaining old shares can collude with a past owner); it can censor</li>
                     <li>Backup transaction allows unilateral on-chain claim</li>
                 </ul>
             </div>
@@ -272,7 +274,7 @@
             </figure>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.5 (Mercury Layer)</p>
+                <p class="definition-title">Definition 32.4 (Mercury Layer)</p>
                 <p>
                     <strong>Mercury Layer</strong> is a statechain implementation using:
                 </p>
@@ -284,7 +286,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 32.3 (Statechain Trust Model)</p>
+                <p class="remark-title">Remark 32.4 (Statechain Trust Model)</p>
                 <p>
                     Statechain security properties:
                 </p>
@@ -305,7 +307,7 @@
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.6 (Channel Factory)</p>
+                <p class="definition-title">Definition 32.5 (Channel Factory)</p>
                 <p>
                     A <strong>channel factory</strong> is a multi-party channel that can create
                     and modify internal channels without on-chain transactions:
@@ -347,7 +349,7 @@
             </figure>
 
             <div class="remark">
-                <p class="remark-title">Remark 32.4 (Factory Scaling)</p>
+                <p class="remark-title">Remark 32.5 (Factory Scaling)</p>
                 <p>
                     For a factory with <span class="math">n</span> participants:
                 </p>
@@ -359,7 +361,7 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 32.5 (Factory Challenges)</p>
+                <p class="remark-title">Remark 32.6 (Factory Challenges)</p>
                 <p>
                     Channel factories face practical issues:
                 </p>
@@ -376,11 +378,12 @@
             <h2 id="s32-5">32.5 LN-Symmetry (Eltoo)</h2>
 
             <p>
-                LN-Symmetry is a cleaner channel design that requires SIGHASH_ANYPREVOUT.
+                LN-Symmetry is a symmetric channel design that removes the penalty
+                mechanism; it requires SIGHASH_ANYPREVOUT.
             </p>
 
             <div class="definition">
-                <p class="definition-title">Definition 32.7 (LN-Symmetry)</p>
+                <p class="definition-title">Definition 32.6 (LN-Symmetry)</p>
                 <p>
                     <strong>LN-Symmetry</strong> (formerly Eltoo) simplifies Lightning channels:
                 </p>
@@ -393,14 +396,14 @@
             </div>
 
             <div class="remark">
-                <p class="remark-title">Remark 32.6 (Eltoo Advantages)</p>
+                <p class="remark-title">Remark 32.7 (Eltoo Advantages)</p>
                 <p>
                     LN-Symmetry improves on LN-Penalty:
                 </p>
                 <ul>
                     <li><strong>No toxic waste:</strong> Old states do not risk fund loss</li>
                     <li><strong>Simpler watchtowers:</strong> Only need latest state</li>
-                    <li><strong>Multi-party channels:</strong> Much easier to implement</li>
+                    <li><strong>Multi-party channels:</strong> Simpler to implement than penalty-based channels</li>
                     <li><strong>Smaller closure:</strong> Fewer transactions needed</li>
                 </ul>
             </div>
