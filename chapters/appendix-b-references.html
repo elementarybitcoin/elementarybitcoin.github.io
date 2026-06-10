@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appendix B: References | Elementary Bitcoin</title>
+    <meta name="description" content="Appendix B: References - Bibliography, standards, BIPs, BOLTs, and CVEs cited throughout Elementary Bitcoin">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Elementary Bitcoin">
+    <meta property="og:title" content="Appendix B: References | Elementary Bitcoin">
+    <meta property="og:description" content="Bibliography, standards, BIPs, BOLTs, and CVEs cited throughout Elementary Bitcoin">
+    <meta property="og:url" content="https://elementarybitcoin.org/chapters/appendix-b-references.html">
+    <meta property="og:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Appendix B: References | Elementary Bitcoin">
+    <meta name="twitter:description" content="Bibliography, standards, BIPs, BOLTs, and CVEs cited throughout Elementary Bitcoin">
+    <meta name="twitter:image" content="https://elementarybitcoin.org/og-image.png">
+
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .ref-list p { margin: 0.9rem 0; padding-left: 2rem; text-indent: -2rem; }
+        .ref-list .cited { color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <header class="chapter-header">
+        <span class="chapter-number">Appendix B</span>
+        <h1 class="chapter-title">References</h1>
+    </header>
+
+    <main>
+        <section>
+            <p>
+                This appendix collects the works, standards, and protocol documents cited or
+                discussed in the text. Citations in the chapters are informal (author and year,
+                or protocol name); the full records appear here. Entries marked
+                <em>"discussed in"</em> are constructions the text presents without a formal
+                inline citation.
+            </p>
+        </section>
+
+        <section>
+            <h2>B.1 Primary Sources</h2>
+            <div class="ref-list">
+                <p>Nakamoto, S. (2008). "Bitcoin: A Peer-to-Peer Electronic Cash System."
+                   <a href="https://bitcoin.org/bitcoin.pdf">bitcoin.org/bitcoin.pdf</a>.
+                   <span class="cited">Section 8 is quoted in full in Chapter 17; the double-spend
+                   analysis of Section 11 underlies Theorems 14.4, 17.6, and 36.1.</span></p>
+                <p>Nakamoto, S. (17 January 2009). "Bitcoin v0.1 released." Post to the Cryptography
+                   Mailing List.
+                   <span class="cited">Quoted as the Chapter 40 epigraph.</span></p>
+                <p><em>The Times</em> (London), 3 January 2009, front page: "Chancellor on brink of
+                   second bailout for banks."
+                   <span class="cited">Embedded in the genesis block coinbase; quoted in Chapters 10 and 13.</span></p>
+            </div>
+        </section>
+
+        <section>
+            <h2>B.2 Academic Works and Technical Reports</h2>
+            <div class="ref-list">
+                <p>Aumasson, J.-P., &amp; Bernstein, D. J. (2012). "SipHash: A Fast Short-Input PRF."
+                   INDOCRYPT 2012, LNCS 7668. Springer.
+                   <span class="cited">SipHash-2-4 is used by BIP-158 filters; discussed in Chapter 19.</span></p>
+                <p>Back, A. (2002). "Hashcash &mdash; A Denial of Service Counter-Measure." Technical
+                   report, hashcash.org. First announced on the cypherpunks mailing list, 1997.
+                   <span class="cited">Cited in Chapter 14.</span></p>
+                <p>Back, A., Corallo, M., Dashjr, L., Friedenbach, M., Maxwell, G., Miller, A.,
+                   Poelstra, A., Tim&oacute;n, J., &amp; Wuille, P. (2014). "Enabling Blockchain Innovations
+                   with Pegged Sidechains." Blockstream whitepaper.
+                   <span class="cited">Cited in Chapter 31 as the original sidechain proposal.</span></p>
+                <p>Bose, P., Guo, H., Kranakis, E., Maheshwari, A., Morin, P., Morrison, J.,
+                   Smid, M., &amp; Tang, Y. (2008). "On the false-positive rate of Bloom filters."
+                   <em>Information Processing Letters</em> 108(4), 210&ndash;213.
+                   <span class="cited">Cited in Chapter 18.</span></p>
+                <p>Danezis, G., &amp; Goldberg, I. (2009). "Sphinx: A Compact and Provably Secure Mix
+                   Format." IEEE Symposium on Security and Privacy.
+                   <span class="cited">Lightning's onion routing is Sphinx-style; discussed in Chapter 24.</span></p>
+                <p>Decker, C., &amp; Wattenhofer, R. (2013). "Information Propagation in the Bitcoin
+                   Network." 13th IEEE International Conference on Peer-to-Peer Computing.
+                   <span class="cited">Source of the 2013 stale-rate measurement cited in Chapter 26.</span></p>
+                <p>Dobbertin, H., Bosselaers, A., &amp; Preneel, B. (1996). "RIPEMD-160: A Strengthened
+                   Version of RIPEMD." Fast Software Encryption (FSE 1996), LNCS 1039. Springer.
+                   <span class="cited">RIPEMD-160 is discussed in Chapters 6 and 9.</span></p>
+                <p>Dwork, C., &amp; Naor, M. (1993). "Pricing via Processing or Combatting Junk Mail."
+                   Advances in Cryptology &mdash; CRYPTO '92, LNCS 740. Springer.
+                   <span class="cited">Cited in Chapter 14 as an independent invention of proof of work.</span></p>
+                <p>Eyal, I., &amp; Sirer, E. G. (2014). "Majority Is Not Enough: Bitcoin Mining Is
+                   Vulnerable." Financial Cryptography and Data Security (FC 2014), LNCS 8437. Springer.
+                   <span class="cited">Cited in Chapter 14; the selfish-mining threshold of Theorem 36.3
+                   is this paper's result.</span></p>
+                <p>Fiat, A., &amp; Shamir, A. (1987). "How to Prove Yourself: Practical Solutions to
+                   Identification and Signature Problems." Advances in Cryptology &mdash; CRYPTO '86,
+                   LNCS 263. Springer.
+                   <span class="cited">The Fiat&ndash;Shamir transform is presented in Chapter 8.</span></p>
+                <p>Gallager, R. G., &amp; Van Voorhis, D. C. (1975). "Optimal Source Codes for
+                   Geometrically Distributed Integer Alphabets." <em>IEEE Transactions on Information
+                   Theory</em> 21(2), 228&ndash;230.
+                   <span class="cited">Optimality of Golomb coding; underlies Theorem 19.2.</span></p>
+                <p>Gervais, A., Karame, G. O., Gruber, D., &amp; Capkun, S. (2014). "On the Privacy
+                   Provisions of Bloom Filters in Lightweight Bitcoin Clients." 30th Annual Computer
+                   Security Applications Conference (ACSAC 2014). ACM.
+                   <span class="cited">Cited in Chapter 18.</span></p>
+                <p>Golomb, S. W. (1966). "Run-Length Encodings." <em>IEEE Transactions on Information
+                   Theory</em> 12(3), 399&ndash;401.
+                   <span class="cited">Golomb coding is developed in Chapter 19.</span></p>
+                <p>Grover, L. K. (1996). "A Fast Quantum Mechanical Algorithm for Database Search."
+                   28th ACM Symposium on Theory of Computing (STOC), 212&ndash;219.
+                   <span class="cited">Cited in Chapter 39.</span></p>
+                <p>Hankerson, D., Menezes, A. J., &amp; Vanstone, S. (2004). <em>Guide to Elliptic Curve
+                   Cryptography.</em> Springer.
+                   <span class="cited">Cited in Chapter 5 for the formal definition of Koblitz curves.</span></p>
+                <p>Koblitz, N. (1992). "CM-Curves with Good Cryptographic Properties." Advances in
+                   Cryptology &mdash; CRYPTO '91, LNCS 576. Springer.
+                   <span class="cited">Cited in Chapters 4 and 5 (as "Koblitz, 1991", the conference year).</span></p>
+                <p>Lamport, L. (1979). "Constructing Digital Signatures from a One-Way Function."
+                   Technical Report CSL-98, SRI International.
+                   <span class="cited">Lamport signatures are discussed in Chapters 30 and 39.</span></p>
+                <p>Lovejoy, J. (2020). "Bitcoin Gold (BTG) 51% attack reports." MIT Digital Currency
+                   Initiative.
+                   <span class="cited">Source for the BTG attack figures in Chapter 27.</span></p>
+                <p>Maxwell, G., Poelstra, A., Seurin, Y., &amp; Wuille, P. (2019). "Simple Schnorr
+                   Multi-Signatures with Applications to Bitcoin." <em>Designs, Codes and
+                   Cryptography</em> 87(9), 2139&ndash;2164.
+                   <span class="cited">MuSig is presented in Chapter 8.</span></p>
+                <p>Merkle, R. C. (1979). <em>Secrecy, Authentication, and Public Key Systems.</em>
+                   Ph.D. thesis, Stanford University.
+                   <span class="cited">Origin of the hash tree; Chapter 12.</span></p>
+                <p>Mosca, M. (2018). "Cybersecurity in an Era with Quantum Computers: Will We Be
+                   Ready?" <em>IEEE Security &amp; Privacy</em> 16(5), 38&ndash;41.
+                   <span class="cited">Mosca's inequality is Definition 39.8.</span></p>
+                <p>Nick, J., Ruffing, T., &amp; Seurin, Y. (2021). "MuSig2: Simple Two-Round Schnorr
+                   Multi-Signatures." Advances in Cryptology &mdash; CRYPTO 2021, LNCS 12825. Springer.
+                   <span class="cited">MuSig2 is presented in Chapters 8 and 29.</span></p>
+                <p>Poelstra, A. (2021). "CAT and Schnorr Tricks I&ndash;II." wpsoftware.net blog.
+                   <span class="cited">The on-stack sighash construction of Proposition 30.1.</span></p>
+                <p>Roetteler, M., Naehrig, M., Svore, K. M., &amp; Lauter, K. (2017). "Quantum Resource
+                   Estimates for Computing Elliptic Curve Discrete Logarithms." Advances in
+                   Cryptology &mdash; ASIACRYPT 2017, LNCS 10625. Springer.
+                   <span class="cited">Cited in Chapter 39 for the ~2,330 logical-qubit estimate.</span></p>
+                <p>Schnorr, C. P. (1991). "Efficient Signature Generation by Smart Cards."
+                   <em>Journal of Cryptology</em> 4(3), 161&ndash;174.
+                   <span class="cited">The signature scheme of Chapter 8.</span></p>
+                <p>Shor, P. W. (1994). "Algorithms for Quantum Computation: Discrete Logarithms and
+                   Factoring." 35th IEEE Symposium on Foundations of Computer Science (FOCS), 124&ndash;134.
+                   <span class="cited">Cited in Chapter 39.</span></p>
+                <p>Silverman, J. H. (2009). <em>The Arithmetic of Elliptic Curves</em>, 2nd ed.
+                   Graduate Texts in Mathematics 106. Springer.
+                   <span class="cited">Cited in Chapter 3 for the associativity proof (Ch. III, Prop. 2.2).</span></p>
+                <p>Sompolinsky, Y., &amp; Zohar, A. (2015). "Secure High-Rate Transaction Processing in
+                   Bitcoin." Financial Cryptography and Data Security (FC 2015), LNCS 8975. Springer.
+                   <span class="cited">The GHOST fork-choice rule mentioned in Chapter 26.</span></p>
+                <p>Todd, P. (2016). "Building Blocks of the State Machine Approach to Consensus."
+                   petertodd.org.
+                   <span class="cited">Origin of single-use seals; cited in Chapter 22.</span></p>
+            </div>
+        </section>
+
+        <section>
+            <h2>B.3 Standards</h2>
+            <div class="ref-list">
+                <p>Certicom Research / SECG (2010). "SEC 2: Recommended Elliptic Curve Domain
+                   Parameters," Version 2.0. Standards for Efficient Cryptography Group.
+                   <span class="cited">Defines secp256k1; Chapter 5.</span></p>
+                <p>NIST (2015). FIPS PUB 180-4, <em>Secure Hash Standard</em>.
+                   <span class="cited">SHA-256; Chapter 6 (first published 2001&ndash;2002).</span></p>
+                <p>NIST (2024). FIPS PUB 203, <em>Module-Lattice-Based Key-Encapsulation Mechanism
+                   Standard</em> (ML-KEM / Kyber).
+                   <span class="cited">Chapter 39.</span></p>
+                <p>NIST (2024). FIPS PUB 204, <em>Module-Lattice-Based Digital Signature Standard</em>
+                   (ML-DSA / Dilithium).
+                   <span class="cited">Chapter 39.</span></p>
+                <p>NIST (2024). FIPS PUB 205, <em>Stateless Hash-Based Digital Signature Standard</em>
+                   (SLH-DSA / SPHINCS+).
+                   <span class="cited">Chapter 39.</span></p>
+                <p>Pornin, T. (2013). RFC 6979, "Deterministic Usage of the Digital Signature
+                   Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)." IETF.
+                   <span class="cited">Deterministic nonces; Chapter 7.</span></p>
+            </div>
+        </section>
+
+        <section>
+            <h2>B.4 Bitcoin Improvement Proposals</h2>
+            <p>
+                BIPs are published in the
+                <a href="https://github.com/bitcoin/bips">bitcoin/bips</a> repository.
+                The chapters listed are where each BIP is cited or treated substantively.
+            </p>
+            <table>
+                <tr><th>BIP</th><th>Title</th><th>Chapters</th></tr>
+                <tr><td>2</td><td>BIP process, revised</td><td>33</td></tr>
+                <tr><td>3</td><td>Updated BIP Process</td><td>33</td></tr>
+                <tr><td>8</td><td>Version bits with lock-in by height</td><td>16, 33</td></tr>
+                <tr><td>9</td><td>Version bits with timeout and delay</td><td>13, 16, 28, 33</td></tr>
+                <tr><td>16</td><td>Pay to Script Hash</td><td>9, 15, 16</td></tr>
+                <tr><td>30</td><td>Duplicate transactions</td><td>16, 35</td></tr>
+                <tr><td>32</td><td>Hierarchical Deterministic Wallets</td><td>20</td></tr>
+                <tr><td>34</td><td>Block v2, Height in Coinbase</td><td>10, 13, 16, 20, 35</td></tr>
+                <tr><td>37</td><td>Connection Bloom filtering</td><td>17, 18, 19</td></tr>
+                <tr><td>65</td><td>OP_CHECKLOCKTIMEVERIFY</td><td>11, 16</td></tr>
+                <tr><td>66</td><td>Strict DER signatures</td><td>16, 26</td></tr>
+                <tr><td>68</td><td>Relative lock-time using consensus-enforced sequence numbers</td><td>10, 16</td></tr>
+                <tr><td>101</td><td>Increase maximum block size</td><td>27</td></tr>
+                <tr><td>112</td><td>CHECKSEQUENCEVERIFY</td><td>11, 16</td></tr>
+                <tr><td>113</td><td>Median time-past as endpoint for lock-time calculations</td><td>16</td></tr>
+                <tr><td>118</td><td>SIGHASH_ANYPREVOUT for Taproot Scripts</td><td>16, 24, 30, 32</td></tr>
+                <tr><td>119</td><td>CHECKTEMPLATEVERIFY</td><td>16, 30</td></tr>
+                <tr><td>125</td><td>Opt-in Full Replace-by-Fee Signaling</td><td>10</td></tr>
+                <tr><td>141</td><td>Segregated Witness (Consensus layer)</td><td>16, 20, 28</td></tr>
+                <tr><td>143</td><td>Transaction Signature Verification for Version 0 Witness Program</td><td>16, 28</td></tr>
+                <tr><td>144</td><td>Segregated Witness (Peer Services)</td><td>16, 28</td></tr>
+                <tr><td>146</td><td>Dealing with signature encoding malleability</td><td>28</td></tr>
+                <tr><td>148</td><td>Mandatory activation of segwit deployment (UASF)</td><td>16, 25, 28, 33</td></tr>
+                <tr><td>152</td><td>Compact Block Relay</td><td>13</td></tr>
+                <tr><td>157</td><td>Client Side Block Filtering</td><td>17, 18, 19, 20</td></tr>
+                <tr><td>158</td><td>Compact Block Filters for Light Clients</td><td>18, 19, 20, A</td></tr>
+                <tr><td>173</td><td>Base32 address format for native v0&ndash;16 witness outputs (Bech32)</td><td>9</td></tr>
+                <tr><td>180</td><td>Block size/weight fraud proof</td><td>20</td></tr>
+                <tr><td>300</td><td>Hashrate Escrows (Consensus layer)</td><td>34</td></tr>
+                <tr><td>301</td><td>Blind Merged Mining (Consensus layer)</td><td>34</td></tr>
+                <tr><td>340</td><td>Schnorr Signatures for secp256k1</td><td>4, 6, 8, 9, 11, 16, 29, A</td></tr>
+                <tr><td>341</td><td>Taproot: SegWit version 1 spending rules</td><td>8, 11, 16, 28, 29</td></tr>
+                <tr><td>342</td><td>Validation of Taproot Scripts (Tapscript)</td><td>11, 16, 29</td></tr>
+                <tr><td>345</td><td>OP_VAULT</td><td>30</td></tr>
+                <tr><td>346</td><td>OP_TXHASH</td><td>30</td></tr>
+                <tr><td>347</td><td>OP_CAT in Tapscript</td><td>30</td></tr>
+                <tr><td>348</td><td>OP_CHECKSIGFROMSTACK</td><td>30</td></tr>
+                <tr><td>350</td><td>Bech32m format for v1+ witness addresses</td><td>9</td></tr>
+                <tr><td>360</td><td>QuBit &mdash; Pay to Quantum Resistant Hash (draft)</td><td>39</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>B.5 Lightning Network Specifications (BOLTs)</h2>
+            <p>
+                The Basis of Lightning Technology specifications are published in the
+                <a href="https://github.com/lightning/bolts">lightning/bolts</a> repository.
+                All are treated in Chapter 24 (channel mechanics in Chapter 23).
+            </p>
+            <table>
+                <tr><th>BOLT</th><th>Title</th></tr>
+                <tr><td>1</td><td>Base Protocol</td></tr>
+                <tr><td>2</td><td>Peer Protocol for Channel Management</td></tr>
+                <tr><td>3</td><td>Bitcoin Transaction and Script Formats</td></tr>
+                <tr><td>4</td><td>Onion Routing Protocol</td></tr>
+                <tr><td>5</td><td>Recommendations for On-chain Transaction Handling</td></tr>
+                <tr><td>7</td><td>P2P Node and Channel Discovery</td></tr>
+                <tr><td>8</td><td>Encrypted and Authenticated Transport</td></tr>
+                <tr><td>9</td><td>Assigned Feature Flags</td></tr>
+                <tr><td>10</td><td>DNS Bootstrap and Assisted Node Location</td></tr>
+                <tr><td>11</td><td>Invoice Protocol for Lightning Payments</td></tr>
+                <tr><td>12</td><td>Offers (draft)</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>B.6 Security Advisories</h2>
+            <table>
+                <tr><th>Identifier</th><th>Subject</th><th>Chapters</th></tr>
+                <tr><td>CVE-2012-1909</td><td>Duplicate transaction IDs overwriting transactions (addressed by BIP-30/BIP-34)</td><td>35</td></tr>
+                <tr><td>CVE-2012-2459</td><td>Merkle-tree duplicate-subtree block mutation</td><td>12, 35</td></tr>
+                <tr><td>CVE-2013-5700</td><td>BIP-37 Bloom-filter remote denial of service</td><td>18</td></tr>
+                <tr><td>CVE-2017-12842</td><td>64-byte-transaction Merkle leaf/interior ambiguity (motivates the policy minimum transaction size and part of the Great Consensus Cleanup)</td><td>15, 35</td></tr>
+            </table>
+        </section>
+
+        <nav class="chapter-nav">
+            <a href="appendix-a-notation.html">← Appendix A: Mathematical Notation</a>
+            <a href="appendix-c-index.html">Appendix C: Subject Index →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p><a href="../index.html">Elementary Bitcoin</a> · A Mathematical Introduction</p>
+    </footer>
+</body>
+</html>

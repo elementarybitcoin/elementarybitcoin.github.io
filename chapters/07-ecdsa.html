@@ -50,7 +50,7 @@
         </section>
 
         <section>
-            <h2>7.1 What Is a Digital Signature?</h2>
+            <h2 id="s7-1">7.1 What Is a Digital Signature?</h2>
 
             <div class="definition">
                 <p class="definition-title">Definition 7.1 (Digital Signature Scheme)</p>
@@ -165,7 +165,7 @@
         </section>
 
         <section>
-            <h2>7.2 ECDSA Parameters</h2>
+            <h2 id="s7-2">7.2 ECDSA Parameters</h2>
 
             <p>
                 ECDSA operates on an elliptic curve with the following publicly known parameters:
@@ -187,7 +187,7 @@
         </section>
 
         <section>
-            <h2>7.3 Key Generation</h2>
+            <h2 id="s7-3">7.3 Key Generation</h2>
 
             <p>
                 Key generation in ECDSA is remarkably simple: choose a random number, multiply
@@ -248,7 +248,7 @@ KeyGen():
         </section>
 
         <section>
-            <h2>7.4 The Signing Algorithm</h2>
+            <h2 id="s7-4">7.4 The Signing Algorithm</h2>
 
             <p>
                 The ECDSA signing algorithm is where the mathematical elegance emerges. It
@@ -362,7 +362,7 @@ Sign(d, m):
         </section>
 
         <section>
-            <h2>7.5 The Verification Algorithm</h2>
+            <h2 id="s7-5">7.5 The Verification Algorithm</h2>
 
             <p>
                 Verification uses only public information to check whether a signature is valid.
@@ -412,7 +412,7 @@ Verify(P, m, (r, s)):
         </section>
 
         <section>
-            <h2>7.6 Why Verification Works</h2>
+            <h2 id="s7-6">7.6 Why Verification Works</h2>
 
             <p>
                 The verification algorithm may seem like magic, but it follows logically from
@@ -460,7 +460,7 @@ Verify(P, m, (r, s)):
         </section>
 
         <section>
-            <h2>7.7 The Nonce: ECDSA's Achilles' Heel</h2>
+            <h2 id="s7-7">7.7 The Nonce: ECDSA's Achilles' Heel</h2>
 
             <p>
                 The random nonce <span class="math">k</span> is the most critical security
@@ -587,7 +587,7 @@ Verify(P, m, (r, s)):
         </section>
 
         <section>
-            <h2>7.8 Signature Malleability</h2>
+            <h2 id="s7-8">7.8 Signature Malleability</h2>
 
             <p>
                 ECDSA signatures have an inherent property called <em>malleability</em>: given
@@ -637,7 +637,7 @@ Verify(P, m, (r, s)):
         </section>
 
         <section>
-            <h2>7.9 ECDSA in Bitcoin Transactions</h2>
+            <h2 id="s7-9">7.9 ECDSA in Bitcoin Transactions</h2>
 
             <p>
                 In Bitcoin, ECDSA signatures authorize the spending of funds. A transaction

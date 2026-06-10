@@ -54,7 +54,7 @@
         </section>
 
         <section>
-            <h2>9.1 Private Keys</h2>
+            <h2 id="s9-1">9.1 Private Keys</h2>
 
             <p>
                 A Bitcoin private key is, at its core, simply a number. But not just any number&mdash;it
@@ -111,7 +111,7 @@
                 </p>
             </div>
 
-            <h3>9.1.1 The Keyspace</h3>
+            <h3 id="s9-1-1">9.1.1 The Keyspace</h3>
 
             <p>
                 The set of valid private keys contains approximately 2²⁵⁶ elements. To appreciate
@@ -148,7 +148,7 @@
         </section>
 
         <section>
-            <h2>9.2 Public Keys</h2>
+            <h2 id="s9-2">9.2 Public Keys</h2>
 
             <p>
                 Given a private key <span class="math">d</span>, the corresponding public key is
@@ -208,7 +208,7 @@
                 <figcaption>Figure 9.1: Public key derivation from private key via scalar multiplication.</figcaption>
             </figure>
 
-            <h3>9.2.1 Public Key Serialization</h3>
+            <h3 id="s9-2-1">9.2.1 Public Key Serialization</h3>
 
             <p>
                 A public key is a point <span class="math">P = (x, y)</span> on the secp256k1 curve.
@@ -286,7 +286,7 @@
         </section>
 
         <section>
-            <h2>9.3 Hash Functions in Address Generation</h2>
+            <h2 id="s9-3">9.3 Hash Functions in Address Generation</h2>
 
             <p>
                 Bitcoin addresses are not public keys directly, but rather hashes of public keys.
@@ -352,7 +352,7 @@
         </section>
 
         <section>
-            <h2>9.4 Base58Check Encoding</h2>
+            <h2 id="s9-4">9.4 Base58Check Encoding</h2>
 
             <p>
                 Raw binary data is inconvenient for humans to read, copy, or transcribe.
@@ -360,7 +360,7 @@
                 designed for clarity and error detection.
             </p>
 
-            <h3>9.4.1 The Base58 Alphabet</h3>
+            <h3 id="s9-4-1">9.4.1 The Base58 Alphabet</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 9.6 (Base58 Alphabet)</p>
@@ -380,7 +380,7 @@
                 it to base 58, mapping each digit to the corresponding alphabet character.
             </p>
 
-            <h3>9.4.2 Adding the Checksum</h3>
+            <h3 id="s9-4-2">9.4.2 Adding the Checksum</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 9.7 (Base58Check)</p>
@@ -469,7 +469,7 @@
         </section>
 
         <section>
-            <h2>9.5 Legacy Addresses (P2PKH)</h2>
+            <h2 id="s9-5">9.5 Legacy Addresses (P2PKH)</h2>
 
             <p>
                 The original Bitcoin address format encodes a public key hash with a version
@@ -546,7 +546,7 @@
         </section>
 
         <section>
-            <h2>9.6 Script Hash Addresses (P2SH)</h2>
+            <h2 id="s9-6">9.6 Script Hash Addresses (P2SH)</h2>
 
             <p>
                 P2SH addresses, introduced in BIP-16, allow payments to arbitrary scripts
@@ -599,7 +599,7 @@
         </section>
 
         <section>
-            <h2>9.7 Bech32 and Native SegWit (P2WPKH)</h2>
+            <h2 id="s9-7">9.7 Bech32 and Native SegWit (P2WPKH)</h2>
 
             <p>
                 Segregated Witness (SegWit), activated in 2017, introduced a new address format
@@ -607,7 +607,7 @@
                 detection and are more efficient on-chain.
             </p>
 
-            <h3>9.7.1 The Bech32 Alphabet</h3>
+            <h3 id="s9-7-1">9.7.1 The Bech32 Alphabet</h3>
 
             <div class="definition">
                 <p class="definition-title">Definition 9.10 (Bech32 Alphabet)</p>
@@ -621,7 +621,7 @@
                 </p>
             </div>
 
-            <h3>9.7.2 Address Structure</h3>
+            <h3 id="s9-7-2">9.7.2 Address Structure</h3>
 
             <p>
                 A Bech32 address has three parts:
@@ -659,7 +659,7 @@
                 </p>
             </div>
 
-            <h3>9.7.3 Error Detection</h3>
+            <h3 id="s9-7-3">9.7.3 Error Detection</h3>
 
             <p>
                 Bech32 uses a BCH code for error detection, offering stronger guarantees than
@@ -689,7 +689,7 @@
         </section>
 
         <section>
-            <h2>9.8 Taproot Addresses (P2TR)</h2>
+            <h2 id="s9-8">9.8 Taproot Addresses (P2TR)</h2>
 
             <p>
                 Taproot, activated in November 2021, introduced a new output type using
@@ -726,7 +726,7 @@
                 </p>
             </div>
 
-            <h3>9.8.1 Bech32 vs. Bech32m</h3>
+            <h3 id="s9-8-1">9.8.1 Bech32 vs. Bech32m</h3>
 
             <p>
                 BIP-350 introduced Bech32m, a slight modification of Bech32 that fixes an
@@ -762,7 +762,7 @@
         </section>
 
         <section>
-            <h2>9.9 Wallet Import Format (WIF)</h2>
+            <h2 id="s9-9">9.9 Wallet Import Format (WIF)</h2>
 
             <p>
                 Private keys also need a human-readable encoding for backup and import.
@@ -834,7 +834,7 @@
         </section>
 
         <section>
-            <h2>9.10 Summary of Address Types</h2>
+            <h2 id="s9-10">9.10 Summary of Address Types</h2>
 
             <figure>
                 <svg class="diagram" width="520" height="280" viewBox="0 0 520 280">
